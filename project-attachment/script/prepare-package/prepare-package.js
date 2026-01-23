@@ -71,9 +71,7 @@ try {
 
     console.log(`✅ Successfully published ${fullPackageName} to npm!`);
   } catch (error) {
-    console.error();
     console.error(`❌ Failed to publish ${fullPackageName}`);
-    console.error('Make sure you are logged in to npm: npm login');
     throw error;
   }
 } catch (error) {
