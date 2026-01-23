@@ -17,6 +17,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.50.0
         version: 8.53.1(eslint@9.39.2)(typescript@5.9.3)
+      '@watcha-authentic/eslint-config':
+        specifier: ^0.1.0
+        version: 0.1.0(@next/eslint-plugin-next@15.5.9)(@typescript-eslint/eslint-plugin@8.53.1(@typescript-eslint/parser@8.53.1(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2)(typescript@5.9.3))(@typescript-eslint/parser@8.53.1(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.2))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.2))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.2))(eslint-plugin-react@7.37.5(eslint@9.39.2))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.2))(eslint@9.39.2)
       eslint:
         specifier: ^9.39.2
         version: 9.39.2
@@ -1068,6 +1071,20 @@ packages:
     resolution: {integrity: sha512-lrW200hZdbfRtztbygyaq/6jP6AKE8qQN2KvPcJ+x7wiD038YtnYtZ82IMNJ69GJibV7bwL3y9FgK+5w/pYt6g==}
     cpu: [x64]
     os: [win32]
+
+  '@watcha-authentic/eslint-config@0.1.0':
+    resolution: {integrity: sha512-Zk7gnc8A55xmFA1sOhqJ8hmVb3iMMZHXjs7tPHyT3iEVr9pXTHmwDutLHUq9rqbO8dXOgt26cMcNhzYV+rtEcQ==}
+    peerDependencies:
+      '@next/eslint-plugin-next': ^15.0.0
+      '@typescript-eslint/eslint-plugin': ^8.0.0
+      '@typescript-eslint/parser': ^8.0.0
+      eslint: ^9.0.0
+      eslint-import-resolver-typescript: ^3.6.0
+      eslint-plugin-import: ^2.0.0
+      eslint-plugin-react: ^7.0.0
+      eslint-plugin-react-hooks: ^7.0.0
+      eslint-plugin-react-refresh: ^0.4.0
+      eslint-plugin-simple-import-sort: ^12.0.0
 
   '@xhmikosr/archive-type@7.1.0':
     resolution: {integrity: sha512-xZEpnGplg1sNPyEgFh0zbHxqlw5dtYg6viplmWSxUj12+QjU9SKu3U/2G73a15pEjLaOqTefNSZ1fOPUOT4Xgg==}
@@ -3695,6 +3712,7 @@ packages:
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
 
   tar@7.5.6:
     resolution: {integrity: sha512-xqUeu2JAIJpXyvskvU3uvQW8PAmHrtXp2KDuMJwQqW8Sqq0CaZBAQ+dKS3RBXVhU4wC5NjAdKrmh84241gO9cA==}
@@ -5180,6 +5198,19 @@ snapshots:
 
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
+
+  '@watcha-authentic/eslint-config@0.1.0(@next/eslint-plugin-next@15.5.9)(@typescript-eslint/eslint-plugin@8.53.1(@typescript-eslint/parser@8.53.1(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2)(typescript@5.9.3))(@typescript-eslint/parser@8.53.1(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.2))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.2))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.2))(eslint-plugin-react@7.37.5(eslint@9.39.2))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.2))(eslint@9.39.2)':
+    dependencies:
+      '@next/eslint-plugin-next': 15.5.9
+      '@typescript-eslint/eslint-plugin': 8.53.1(@typescript-eslint/parser@8.53.1(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2)(typescript@5.9.3)
+      '@typescript-eslint/parser': 8.53.1(eslint@9.39.2)(typescript@5.9.3)
+      eslint: 9.39.2
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.2)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2)
+      eslint-plugin-react: 7.37.5(eslint@9.39.2)
+      eslint-plugin-react-hooks: 7.0.1(eslint@9.39.2)
+      eslint-plugin-react-refresh: 0.4.26(eslint@9.39.2)
+      eslint-plugin-simple-import-sort: 12.1.1(eslint@9.39.2)
 
   '@xhmikosr/archive-type@7.1.0':
     dependencies:
