@@ -1,0 +1,27 @@
+{
+  "name": "{{package-name}}",
+  "keywords": [],
+  "version": "0.0.1",
+  "homepage": "https://github.com/frograms/bistro-house#readme",
+  "author": {
+    "name": "@watcha-authentic#web-dev-group",
+    "email": "web-dev-group@watcha.com",
+    "url": "https://github.com/frograms"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frograms/bistro-house"
+  },
+  "bugs": {
+    "url": "https://github.com/frograms/bistro-house/issues",
+    "email": "web-dev-group@watcha.com"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "MIT"
+}
+

@@ -1,0 +1,56 @@
+name: "Setup Environment"
+description: "Setup Node.js, pnpm and install dependencies"
+
+inputs:
+  node-version:
+    description: "Node.js version"
+    required: false
+    default: "22"
+  pnpm-version:
+    description: "pnpm version"
+    required: false
+    default: "9"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        registry-url: 'https://registry.npmjs.org'
+        scope: '@watcha-authentic'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: ${{ inputs.pnpm-version }}
+
+    - name: Get pnpm store directory
+      id: get-store-path
+      shell: bash
+      run: echo STORE_PATH=$(pnpm store path) >> $GITHUB_OUTPUT
+
+    - name: Setup pnpm cache
+      uses: actions/cache@v4
+      id: cache-pnpm-store
+      with:
+        path: ${{ steps.get-store-path.outputs.STORE_PATH }}
+        key: pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: |
+          pnpm-store-
+          pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+
+    - name: Setup Turbo cache
+      uses: actions/cache@v4
+      id: cache-turbo
+      with:
+        path: .turbo
+        key: turbo-${{ runner.os }}-${{ hashFiles('turbo.json', 'pnpm-lock.yaml') }}
+        restore-keys: |
+          turbo-${{ runner.os }}-
+          turbo-
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile

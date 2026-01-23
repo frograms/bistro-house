@@ -1,0 +1,73 @@
+name: Publish Packages
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-action
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Build packages
+        run: pnpm build-targets
+
+      - name: Run Lerna publish (no push)
+        run: |
+          pnpm lerna publish --yes --conventional-commits --no-push 2>&1 | tee lerna-publish.log
+
+      # 라이브러리간 종속성이 있는경우 lock 재구성 필요 합니다.
+      - name: Re-install to refresh lockfile
+        run: pnpm install
+
+      - name: Amend lockfile if changed
+        run: |
+          if ! git diff --quiet pnpm-lock.yaml; then
+            git add pnpm-lock.yaml
+            git commit -m "chore: update lockfile"
+          fi
+
+      - name: Push commit and tags
+        run: |
+          git push origin $GITHUB_REF_NAME
+          git push origin --tags
+
+      - name: Get published tags from lerna
+        id: get-tags
+        uses: ./.github/actions/get-published-tags-from-lerna-action
+        with:
+          lerna_log_file: lerna-publish.log
+
+      - name: Create releases for published tags
+        if: steps.get-tags.outputs.tags != '[]'
+        run: |
+          set -e
+          # JSON 배열을 파싱하여 각 태그에 대해 릴리즈 생성
+          jq -r '.[]' <<< '${{ steps.get-tags.outputs.tags }}' | while read -r TAG_NAME; do
+            echo "Creating release for tag: $TAG_NAME"
+            gh release create "$TAG_NAME" \
+              --generate-notes \
+              --title "$TAG_NAME"
+          done
+        env:
+          GH_TOKEN: ${{ github.token }}
