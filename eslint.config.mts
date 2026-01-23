@@ -1,4 +1,7 @@
-import { baseConfigs, typescriptConfigs } from "@watcha-authentic/eslint-config";
+import {
+  baseConfigs,
+  typescriptConfigs,
+} from "@watcha-authentic/eslint-config";
 import type { Linter } from "eslint";
 
 const config: Linter.Config[] = [
