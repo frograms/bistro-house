@@ -2,7 +2,7 @@
   "name": "@watcha-authentic/eslint-config",
   "description": "watcha common eslint package",
   "keywords": ["eslint", "config"],
-  "version": "0.10.3",
+  "version": "0.1.0",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/eslint-config#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
