@@ -20,6 +20,9 @@ importers:
       '@watcha-authentic/eslint-config':
         specifier: ^0.1.0
         version: 0.1.0(@next/eslint-plugin-next@15.5.9)(@typescript-eslint/eslint-plugin@8.53.1(@typescript-eslint/parser@8.53.1(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2)(typescript@5.9.3))(@typescript-eslint/parser@8.53.1(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.2))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.2))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.2))(eslint-plugin-react@7.37.5(eslint@9.39.2))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.2))(eslint@9.39.2)
+      '@watcha-authentic/prettier-config':
+        specifier: ^0.1.0
+        version: 0.1.0(prettier@3.8.1)
       eslint:
         specifier: ^9.39.2
         version: 9.39.2
@@ -92,6 +95,27 @@ importers:
       eslint-plugin-simple-import-sort:
         specifier: ^12.1.1
         version: 12.1.1(eslint@9.39.2)
+
+  packages/prettier-config:
+    devDependencies:
+      '@swc/cli':
+        specifier: ^0.7.9
+        version: 0.7.10(@swc/core@1.15.10)(chokidar@4.0.3)
+      '@swc/core':
+        specifier: ^1.15.7
+        version: 1.15.10
+      chokidar:
+        specifier: ^4.0.1
+        version: 4.0.3
+      chokidar-cli:
+        specifier: ^3.0.0
+        version: 3.0.0
+      concurrently:
+        specifier: ^9.2.1
+        version: 9.2.1
+      prettier:
+        specifier: ^3.7.4
+        version: 3.8.1
 
 packages:
 
@@ -1085,6 +1109,11 @@ packages:
       eslint-plugin-react-hooks: ^7.0.0
       eslint-plugin-react-refresh: ^0.4.0
       eslint-plugin-simple-import-sort: ^12.0.0
+
+  '@watcha-authentic/prettier-config@0.1.0':
+    resolution: {integrity: sha512-iK0bHS2Xa2WiTOICJDhTj/NjYpw7NUkCpDS9nE20KuyeIv+yUYhjoL0/0sEh4JUGMPgur8PYTLYb22eYPh3fvQ==}
+    peerDependencies:
+      prettier: ^3.0.0
 
   '@xhmikosr/archive-type@7.1.0':
     resolution: {integrity: sha512-xZEpnGplg1sNPyEgFh0zbHxqlw5dtYg6viplmWSxUj12+QjU9SKu3U/2G73a15pEjLaOqTefNSZ1fOPUOT4Xgg==}
@@ -5211,6 +5240,10 @@ snapshots:
       eslint-plugin-react-hooks: 7.0.1(eslint@9.39.2)
       eslint-plugin-react-refresh: 0.4.26(eslint@9.39.2)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.39.2)
+
+  '@watcha-authentic/prettier-config@0.1.0(prettier@3.8.1)':
+    dependencies:
+      prettier: 3.8.1
 
   '@xhmikosr/archive-type@7.1.0':
     dependencies:
