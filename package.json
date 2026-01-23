@@ -1,0 +1,33 @@
+{
+  "name": "bistro-house",
+  "private": true,
+  "packageManager": "pnpm@9.9.0",
+  "engines": {
+    "node": "^22.21.1",
+    "pnpm": "^9.9.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "validate": "turbo run validate",
+    "lint": "turbo run lint",
+    "build": "turbo run build",
+    "validate-targets": "bash ./project-attachment/validate-targets.sh",
+    "build-targets": "bash ./project-attachment/build-targets.sh",
+    "prepare-package": "node ./project-attachment/script/prepare-package/prepare-package.js",
+    "format": "prettier --write \"**/*.{js,ts,jsx,tsx,css,scss,html,json,md}\" && prettier --write \"{*.js,*.ts,*.jsx,*.tsx,*.css,*.scss,*.html,*.json,*.md}\""
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.50.0",
+    "@typescript-eslint/parser": "^8.50.0",
+    "eslint": "^9.39.2",
+    "eslint-import-resolver-typescript": "^3.6.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "lerna": "^9.0.3",
+    "prettier": "^3.7.4",
+    "turbo": "^2.6.3",
+    "typescript": "~5.9.3"
+  }
+}

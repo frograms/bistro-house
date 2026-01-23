@@ -1,0 +1,77 @@
+{
+  "name": "@watcha-authentic/eslint-config",
+  "description": "watcha common eslint package",
+  "keywords": ["eslint", "config"],
+  "version": "0.10.3",
+  "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/eslint-config#readme",
+  "author": {
+    "name": "@watcha-authentic#web-dev-group",
+    "email": "web-dev-group@watcha.com",
+    "url": "https://github.com/frograms"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frograms/bistro-house"
+  },
+  "bugs": {
+    "url": "https://github.com/frograms/bistro-house/issues",
+    "email": "web-dev-group@watcha.com"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "echo Test skipped...",
+    "validate": "tsc && npm run lint && npm run build",
+    "lint": "eslint .",
+    "build:cjs": "swc src --out-dir ./dist/cjs --config-file swc-cjs.json --ignore '**/*.d.ts' --strip-leading-paths",
+    "build:esm": "swc src --out-dir ./dist/esm --config-file swc-esm.json --ignore '**/*.d.ts' --strip-leading-paths",
+    "build:type": "tsc --outDir ./dist/type --project ./tsconfig.type.json",
+    "build": "rm -rf ./dist && concurrently -n CJS,ESM,TYPE 'pnpm build:cjs' 'pnpm build:esm' 'pnpm build:type' && pnpm post-build",
+    "post-build": "bash ./project-attachment/post-build.sh"
+  },
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/type/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/type/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@next/eslint-plugin-next": "^15.0.0",
+    "@swc/cli": "^0.7.9",
+    "@swc/core": "^1.15.7",
+    "@typescript-eslint/eslint-plugin": "^8.50.0",
+    "@typescript-eslint/parser": "^8.50.0",
+    "chokidar": "^4.0.1",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.2",
+    "eslint-import-resolver-typescript": "^3.6.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "eslint-plugin-react-refresh": "^0.4.11",
+    "eslint-plugin-simple-import-sort": "^12.1.1"
+  },
+  "peerDependencies": {
+    "@next/eslint-plugin-next": "^15.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-import-resolver-typescript": "^3.6.0",
+    "eslint-plugin-import": "^2.0.0",
+    "eslint-plugin-react": "^7.0.0",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "eslint-plugin-react-refresh": "^0.4.0",
+    "eslint-plugin-simple-import-sort": "^12.0.0"
+  },
+  "license": "MIT"
+}
