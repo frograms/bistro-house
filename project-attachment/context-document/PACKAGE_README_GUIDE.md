@@ -7,6 +7,8 @@
 이러한 구조로 컨텐츠를 구성합니다.
 
 - 패키지명 및 패키지 설명
+  - 패키지 명 아래에 버전을 아래와 같이 표시 합니다.
+  - [![npm version](https://img.shields.io/npm/v/@watcha-authentic/{package-name})](https://www.npmjs.com/package/@watcha-authentic/{package-name})
 - 피어 종속성 설명
 - 설치방법 (pnpm 기준)
 - 실제 코드 사용 예

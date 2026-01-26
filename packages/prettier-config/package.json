@@ -41,8 +41,7 @@
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
       "types": "./dist/type/index.d.ts"
-    },
-    "./package.json": "./package.json"
+    }
   },
   "files": [
     "dist"
@@ -50,10 +49,19 @@
   "devDependencies": {
     "@swc/cli": "^0.7.9",
     "@swc/core": "^1.15.7",
+    "@typescript-eslint/eslint-plugin": "^8.50.0",
+    "@typescript-eslint/parser": "^8.50.0",
+    "@watcha-authentic/eslint-config": "^0.1.0",
     "chokidar": "^4.0.1",
     "chokidar-cli": "^3.0.0",
     "concurrently": "^9.2.1",
-    "prettier": "^3.7.4"
+    "eslint": "^9.39.2",
+    "eslint-import-resolver-typescript": "^3.6.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "jiti": "^2.6.1",
+    "prettier": "^3.7.4",
+    "typescript": "~5.9.3"
   },
   "peerDependencies": {
     "prettier": "^3.0.0"
