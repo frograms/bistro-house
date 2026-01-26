@@ -1,5 +1,7 @@
 # @watcha-authentic/prettier-config
 
+[![npm version](https://img.shields.io/npm/v/@watcha-authentic/prettier-config)](https://www.npmjs.com/package/@watcha-authentic/prettier-config)
+
 Watcha 공통 Prettier 설정 패키지입니다.
 
 ## 피어 종속성
