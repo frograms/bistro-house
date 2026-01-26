@@ -1,8 +1,10 @@
 #!/bin/bash
 set -e
 
-DIST_DIR="${1:-dist/esm}"                       # 첫 번째 인자, 없으면 기본값 'dist/esm'
-PREFIXES_JSON="${2:-[\"@/\"]}"                  # 두 번째 인자, 없으면 기본값 ["@/"]
+# 첫 번째 인자, 없으면 기본값 'dist/esm'
+DIST_DIR="${1:-dist/esm}"
+# 두 번째 인자, 없으면 기본값 ["@/"]
+PREFIXES_JSON="${2:-[\"@/\"]}"
 PREFIXES=()
 
 # JSON 문자열에서 prefix 배열로 파싱
