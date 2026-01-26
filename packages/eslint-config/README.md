@@ -1,5 +1,7 @@
 # @watcha-authentic/eslint-config
 
+[![npm version](https://img.shields.io/npm/v/@watcha-authentic/eslint-config)](https://www.npmjs.com/package/@watcha-authentic/eslint-config)
+
 Watcha 공통 ESLint 설정 패키지입니다. TypeScript, React, Remix, Vite, Rsbuild, Next.js 등 다양한 환경에서 사용할 수 있으며, 필요한 설정만 조합하여 사용할 수 있습니다.
 
 ## 피어 종속성
