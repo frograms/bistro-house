@@ -281,6 +281,10 @@ importers:
         version: 5.9.3
 
   packages/react-motion:
+    dependencies:
+      '@watcha-authentic/react-event-callback':
+        specifier: ^0.1.0
+        version: 0.1.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     devDependencies:
       '@swc/cli':
         specifier: ^0.7.9
