@@ -1,0 +1,14 @@
+.watcha-react-slider-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.watcha-react-slider-item {
+  position: absolute;
+  inset: 0;
+}
+
+.watcha-react-slider-content {
+  position: relative;
+}
