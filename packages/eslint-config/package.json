@@ -41,8 +41,7 @@
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
       "types": "./dist/type/index.d.ts"
-    },
-    "./package.json": "./package.json"
+    }
   },
   "files": [
     "dist"
@@ -62,7 +61,8 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.0",
     "eslint-plugin-react-refresh": "^0.4.11",
-    "eslint-plugin-simple-import-sort": "^12.1.1"
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "typescript": "~5.9.3"
   },
   "peerDependencies": {
     "@next/eslint-plugin-next": "^15.0.0",
