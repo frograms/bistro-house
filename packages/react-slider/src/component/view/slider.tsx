@@ -28,6 +28,11 @@ import { SliderItemContextProvider } from "../context/slider-context-provider";
 const CAN_SCROLL_THRESHOLD_RATIO = 0.15;
 const DEFAULT_SCROLL_THRESHOLD = 125;
 
+export type SliderRef = HTMLUListElement & {
+  doNext: () => void;
+  doPrev: () => void;
+};
+
 type ExtendedItem<ItemType> = {
   /**
    * - 확장된 배열에서의 인덱스
@@ -205,12 +210,30 @@ const SliderComponent = <ItemType = unknown,>(
   // 아이템 element ref 값
   const elementInfos = useRef<Map<number, ElementInfo>>(new Map());
   // 콜백 호출용 인덱스 값
-  const prevCallbackIndexRef = useRef(sliderInfo.currentIndex);
+  const prevCallbackIndex = useRef(sliderInfo.currentIndex);
   // 드래그 임계값 (px, 동적으로 계산됨)
-  const canScrollThresholdRef = useRef(DEFAULT_SCROLL_THRESHOLD);
-  const lastSlideTriggerEvent = useRef<SlideTriggerEvent>("swipe");
+  const canScrollThreshold = useRef(DEFAULT_SCROLL_THRESHOLD);
+  const lastSlideTriggerEvent = useRef<SlideTriggerEvent>("pending");
+  const lastSliderInfoCurrentIndex = useRef(sliderInfo.currentIndex);
+  const animateNow = useRef(false);
+  const animateChecker = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
 
-  useImperativeHandle(ref, () => wrapRef.current!, []);
+  const stopAnimateCheck = useCallback(() => {
+    clearTimeout(animateChecker.current);
+    animateChecker.current = undefined;
+  }, []);
+
+  const startAnimateCheck = useCallback(() => {
+    stopAnimateCheck();
+    return new Promise<void>((resolve) => {
+      animateChecker.current = setTimeout(() => {
+        animateNow.current = false;
+        resolve();
+      }, animationDuration);
+    });
+  }, [animationDuration, stopAnimateCheck]);
 
   /**
    * - element reference 를 저장 합니다.
@@ -381,7 +404,7 @@ const SliderComponent = <ItemType = unknown,>(
    * - currentIndex 도 함께 업데이트 합니다.
    */
   const updateStateByPageIndex = useCallback(
-    ({
+    async ({
       centerIndex,
       withAnimate = true,
     }: {
@@ -389,7 +412,6 @@ const SliderComponent = <ItemType = unknown,>(
       withAnimate?: boolean;
     }) => {
       setEnableScrollAnimator(withAnimate);
-
       setSliderInfo((prev) => ({
         ...prev,
         currentIndex: centerIndex,
@@ -400,8 +422,14 @@ const SliderComponent = <ItemType = unknown,>(
           prevStates: prev.elementStates,
         }),
       }));
+
+      if (withAnimate) {
+        await startAnimateCheck();
+      } else {
+        stopAnimateCheck();
+      }
     },
-    [getNewStatesByItems]
+    [getNewStatesByItems, startAnimateCheck, stopAnimateCheck]
   );
 
   /**
@@ -410,8 +438,6 @@ const SliderComponent = <ItemType = unknown,>(
    */
   const updateStateByDrag = useCallback(
     (diff: Point2D) => {
-      setEnableScrollAnimator(false);
-
       setSliderInfo((prev) => {
         const { currentIndex } = prev;
         const { length } = extendedItems;
@@ -531,7 +557,7 @@ const SliderComponent = <ItemType = unknown,>(
         }
 
         wrapRef.current.style.height = `${estimatedHeight}px`;
-        canScrollThresholdRef.current = estimatedScrollThreshold;
+        canScrollThreshold.current = estimatedScrollThreshold;
 
         // 아이템 위치 계산
         setSliderInfo((prevSliderInfo) => {
@@ -555,84 +581,67 @@ const SliderComponent = <ItemType = unknown,>(
     };
   }, [calcElementState, estimateSizeFromEveryElements, getNewStatesByItems]);
 
-  /**
-   * - 외부 index 프롭스 변경 시 currentIndex에 반영합니다.
-   * - 외부 index는 원본 인덱스이므로, 현재 위치에서 가장 가까운 확장 인덱스를 찾습니다.
-   */
-  useLayoutEffect(() => {
-    const currentOriginalIndex =
-      items.length > 0 ? sliderInfo.currentIndex % items.length : 0;
-
-    if (currentOriginalIndex !== index) {
-      // 현재 위치에서 가장 가까운 해당 원본 인덱스의 확장 인덱스 찾기
-      const candidateIndexes = extendedItems
-        .filter((ei) => ei.originalIndex === index)
-        .map((ei) => ei.extendedIndex);
-
-      if (candidateIndexes.length > 0) {
-        // 현재 인덱스에서 가장 가까운 후보 찾기
-        let closestIndex = candidateIndexes[0];
-        if (closestIndex === undefined) {
-          console.warn("가장 가까운 후보 인덱스를 찾을 수 없습니다.", {
-            candidateIndexes,
-            sliderInfoCurrentIndex: sliderInfo.currentIndex,
-            extendedItems,
-            index,
-          });
-          closestIndex = 0;
-        }
-        let minDistance = Math.abs(closestIndex - sliderInfo.currentIndex);
-
-        for (const candidate of candidateIndexes) {
-          const distance = Math.abs(candidate - sliderInfo.currentIndex);
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestIndex = candidate;
-          }
-        }
-
-        lastSlideTriggerEvent.current = "swipe";
-        setSliderInfo((prev) => ({ ...prev, currentIndex: closestIndex }));
-      }
-    }
-  }, [extendedItems, index, items.length, sliderInfo.currentIndex]);
+  const handleSwipe = useCallback(async () => {
+    lastSlideTriggerEvent.current = "swipe";
+    await updateStateByPageIndex({
+      centerIndex: sliderInfo.currentIndex,
+      withAnimate: true,
+    });
+    lastSlideTriggerEvent.current = "pending";
+  }, [sliderInfo.currentIndex, updateStateByPageIndex]);
 
   /**
    * - currentIndex 변경 시 애니메이션을 적용합니다.
    * - doNext/doPrev 또는 외부 index prop 변경 모두 처리합니다.
    */
-  const prevIndexRef = useRef(sliderInfo.currentIndex);
-  const animateNow = useRef(false);
   useLayoutEffect(() => {
-    if (prevIndexRef.current !== sliderInfo.currentIndex) {
-      updateStateByPageIndex({
-        centerIndex: sliderInfo.currentIndex,
-        withAnimate: true,
-      });
-      prevIndexRef.current = sliderInfo.currentIndex;
-      animateNow.current = true;
-
-      const animateCheck = setTimeout(() => {
-        animateNow.current = false;
-      }, animationDuration);
-      return () => {
-        animateNow.current = false;
-        clearTimeout(animateCheck);
-      };
+    if (eventFromPropsChange.current) {
+      eventFromPropsChange.current = false;
+      return;
     }
-  }, [animationDuration, sliderInfo.currentIndex, updateStateByPageIndex]);
+
+    if (lastSliderInfoCurrentIndex.current !== sliderInfo.currentIndex) {
+      lastSliderInfoCurrentIndex.current = sliderInfo.currentIndex;
+      handleSwipe();
+    }
+  }, [sliderInfo.currentIndex, handleSwipe]);
+
+  /**
+   * - props index 변경을 업데이트 합니다.
+   */
+  const eventFromPropsChange = useRef(false);
+  const lastIndex = useRef(index);
+  useEffect(() => {
+    if (
+      lastSlideTriggerEvent.current !== "pending" ||
+      lastIndex.current === index
+    ) {
+      return;
+    }
+
+    eventFromPropsChange.current = true;
+    updateStateByPageIndex({
+      centerIndex: index,
+      withAnimate: false,
+    });
+
+    lastIndex.current = index;
+  }, [index, updateStateByPageIndex]);
 
   /**
    * - currentIndex 변경 시 콜백을 호출합니다.
    * - 원본 인덱스로 변환하여 전달합니다.
    */
   useEffect(() => {
-    if (prevCallbackIndexRef.current !== sliderInfo.currentIndex) {
+    if (
+      prevCallbackIndex.current !== sliderInfo.currentIndex &&
+      lastSlideTriggerEvent.current
+    ) {
       // 원본 인덱스로 변환
       const originalIndex =
         items.length > 0 ? sliderInfo.currentIndex % items.length : 0;
       stableOnIndexChange(originalIndex, lastSlideTriggerEvent.current);
-      prevCallbackIndexRef.current = sliderInfo.currentIndex;
+      prevCallbackIndex.current = sliderInfo.currentIndex;
     }
   }, [items.length, sliderInfo.currentIndex, stableOnIndexChange]);
 
@@ -655,10 +664,11 @@ const SliderComponent = <ItemType = unknown,>(
        */
       const calculate = primaryPointer?.calculate;
       if (calculate) {
+        setEnableScrollAnimator(false);
         updateStateByDrag(calculate.diff);
         if (isEnd) {
           const diffX = Math.abs(calculate.diff.x);
-          if (!isCancel && diffX > canScrollThresholdRef.current) {
+          if (!isCancel && diffX > canScrollThreshold.current) {
             lastSlideTriggerEvent.current = "drag";
             if (calculate.diff.x < 0) {
               doNext();
@@ -667,7 +677,6 @@ const SliderComponent = <ItemType = unknown,>(
             }
           } else {
             // 제자리로 움직이게 합니다.
-            setEnableScrollAnimator(true);
             setSliderInfo((prev) => ({
               ...prev,
               elementStates: getNewStatesByItems({
@@ -688,15 +697,24 @@ const SliderComponent = <ItemType = unknown,>(
     handler: (event: KeyboardEvent) => {
       if (event.key === "ArrowLeft") {
         event.preventDefault();
-        lastSlideTriggerEvent.current = "swipe";
         doPrev();
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
-        lastSlideTriggerEvent.current = "swipe";
         doNext();
       }
     },
   });
+
+  useImperativeHandle(
+    ref,
+    useCallback((): SliderRef => {
+      return {
+        doNext,
+        doPrev,
+        ...wrapRef.current!,
+      };
+    }, [doNext, doPrev])
+  );
 
   return (
     <ul
@@ -739,7 +757,7 @@ const SliderComponent = <ItemType = unknown,>(
               style={
                 state
                   ? {
-                      transform: `translate(${state.point.x}px, ${state.point.y}px)`,
+                      transform: `translate3d(${state.point.x}px, ${state.point.y}px, 0px)`,
                       transition:
                         enableScrollAnimator && state.enableAnimation
                           ? `transform ${animationDuration}ms ${animationTimingFunction}`
