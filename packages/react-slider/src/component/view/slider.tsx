@@ -82,11 +82,6 @@ type SliderProps<ItemType> = {
    */
   defaultIndex?: number;
   /**
-   * - currentIndex 입니다. 이 값이 변경되면 애니메이션이 동작 될 수 있습니다.
-   * - 기본값은 defaultIndex 입니다.
-   */
-  index?: number;
-  /**
    * - 중앙 기준 좌우로 보여줄 요소 개수입니다.
    * - 예: 1이면 좌1 + 중앙1 + 우1 = 3개, 2이면 좌2 + 중앙1 + 우2 = 5개
    * - 기본값은 1 입니다.
@@ -142,7 +137,6 @@ const SliderComponent = <ItemType = unknown,>(
     enableDrag = true,
     estimateSizeFromEveryElements = false,
     gap = 0,
-    index = defaultIndex,
     itemProps,
     contentProps,
     items,
@@ -201,7 +195,7 @@ const SliderComponent = <ItemType = unknown,>(
     elementStates: Array<ElementState>;
     height: number;
   }>({
-    currentIndex: index,
+    currentIndex: defaultIndex,
     elementStates: [],
     height: 0,
   });
@@ -219,6 +213,7 @@ const SliderComponent = <ItemType = unknown,>(
   const animateChecker = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined
   );
+  const capturedDefaultIndex = useRef(defaultIndex);
 
   const stopAnimateCheck = useCallback(() => {
     clearTimeout(animateChecker.current);
@@ -595,38 +590,11 @@ const SliderComponent = <ItemType = unknown,>(
    * - doNext/doPrev 또는 외부 index prop 변경 모두 처리합니다.
    */
   useLayoutEffect(() => {
-    if (eventFromPropsChange.current) {
-      eventFromPropsChange.current = false;
-      return;
-    }
-
     if (lastSliderInfoCurrentIndex.current !== sliderInfo.currentIndex) {
       lastSliderInfoCurrentIndex.current = sliderInfo.currentIndex;
       handleSwipe();
     }
   }, [sliderInfo.currentIndex, handleSwipe]);
-
-  /**
-   * - props index 변경을 업데이트 합니다.
-   */
-  const eventFromPropsChange = useRef(false);
-  const lastIndex = useRef(index);
-  useEffect(() => {
-    if (
-      lastSlideTriggerEvent.current !== "pending" ||
-      lastIndex.current === index
-    ) {
-      return;
-    }
-
-    eventFromPropsChange.current = true;
-    updateStateByPageIndex({
-      centerIndex: index,
-      withAnimate: false,
-    });
-
-    lastIndex.current = index;
-  }, [index, updateStateByPageIndex]);
 
   /**
    * - currentIndex 변경 시 콜백을 호출합니다.
