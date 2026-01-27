@@ -28,7 +28,9 @@ export const TestSliderComponent = () => {
         onCreateItemView={(item) => (
           <div style={{ padding: 40, backgroundColor: item }}>Item {item}</div>
         )}
-        onIndexChange={(index) => {
+        onIndexChange={(index, cause) => {
+          // TODO drag 에서 swipe 로 cause 값이 전달되는 이슈 수정
+          console.info("onIndexChange", index, cause);
           setCurrentIndex(index);
         }}
         onItemKey={() => "item"}
