@@ -1,20 +1,38 @@
 import "@watcha-authentic/react-slider/resource/css/common/slider.css";
 
-import { Slider } from "@watcha-authentic/react-slider/component/view/slider";
+import {
+  Slider,
+  type SliderRef,
+} from "@watcha-authentic/react-slider/component/view/slider";
+import { useRef, useState } from "react";
 
-const colors = ["red", "green", "blue", "yellow", "purple"];
+// const items = ["red", "green", "blue", "yellow", "purple"];
+const items = ["red", "green"];
 
 export const TestSliderComponent = () => {
+  const slider = useRef<SliderRef>(null);
+
+  const [currentIndex, setCurrentIndex] = useState(1);
+
   return (
-    <Slider
-      items={[1, 2, 3, 4, 5]}
-      wrapProps={{ style: { overflow: "hidden" } }}
-      onCreateItemView={(item) => (
-        <div style={{ padding: 40, backgroundColor: colors[item - 1] }}>
-          Item {item}
-        </div>
-      )}
-      onItemKey={() => "item"}
-    />
+    <>
+      <button onClick={() => slider.current?.doPrev()}>Slider Prev</button>
+      <button onClick={() => slider.current?.doNext()}>Slider Next</button>
+      <p>page: {currentIndex}</p>
+      <Slider
+        ref={slider}
+        animationDuration={1000}
+        defaultIndex={currentIndex}
+        items={items}
+        wrapProps={{ style: {} }}
+        onCreateItemView={(item) => (
+          <div style={{ padding: 40, backgroundColor: item }}>Item {item}</div>
+        )}
+        onIndexChange={(index) => {
+          setCurrentIndex(index);
+        }}
+        onItemKey={() => "item"}
+      />
+    </>
   );
 };
