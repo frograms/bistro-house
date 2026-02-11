@@ -1,4 +1,7 @@
-import { useAccessibilityHandler } from "@watcha-authentic/react-a11y";
+import {
+  type AccessibilityOptions,
+  useAccessibilityHandler,
+} from "@watcha-authentic/react-a11y";
 import { useEventCallback } from "@watcha-authentic/react-event-callback";
 import {
   addPoint,
@@ -97,6 +100,7 @@ type SliderProps<ItemType> = {
    */
   disableDraggableItems?: boolean;
   onDraggingNow?: (isDragging: boolean) => void;
+  a11yOptions?: AccessibilityOptions<HTMLUListElement>;
 };
 
 type ElementState = {
@@ -132,6 +136,7 @@ const SliderComponent = <ItemType = unknown,>(
   {
     animationDuration = 500,
     animationTimingFunction = "ease",
+    a11yOptions,
     defaultIndex = 0,
     enableDrag = true,
     gap = 0,
@@ -212,7 +217,6 @@ const SliderComponent = <ItemType = unknown,>(
   const animateChecker = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined
   );
-  const capturedDefaultIndex = useRef(defaultIndex);
 
   const stopAnimateCheck = useCallback(() => {
     clearTimeout(animateChecker.current);
@@ -624,6 +628,7 @@ const SliderComponent = <ItemType = unknown,>(
         doNext();
       }
     },
+    options: a11yOptions,
   });
 
   useImperativeHandle(

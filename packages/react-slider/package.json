@@ -6,7 +6,7 @@
     "slider",
     "swiper"
   ],
-  "version": "0.1.4",
+  "version": "0.1.5",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/react-slider#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
@@ -49,7 +49,7 @@
     "dist"
   ],
   "dependencies": {
-    "@watcha-authentic/react-a11y": "^0.1.2",
+    "@watcha-authentic/react-a11y": "^0.1.4",
     "@watcha-authentic/react-event-callback": "^0.1.0",
     "@watcha-authentic/react-motion": "^0.1.0"
   },
