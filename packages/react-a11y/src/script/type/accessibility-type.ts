@@ -1,4 +1,4 @@
-export type UseAccessibilityHandlerOptions<ElementType extends HTMLElement> = {
+export type AccessibilityOptions<ElementType extends HTMLElement> = {
   /**
    * - 포커스 복귀 대상 element 의 ref 값입니다.
    */

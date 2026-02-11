@@ -1,12 +1,12 @@
 import { useEventCallback } from "@watcha-authentic/react-event-callback";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect } from "react";
 
-import type { UseAccessibilityHandlerOptions } from "../../script/type/accessibility-type";
+import type { AccessibilityOptions } from "../../script/type/accessibility-type";
 
 type UseAccessibilityHandlerProps<ElementType extends HTMLElement> = {
   target: React.RefObject<ElementType | null>;
   handler: (event: KeyboardEvent) => void;
-  options?: UseAccessibilityHandlerOptions<ElementType>;
+  options?: AccessibilityOptions<ElementType>;
 };
 
 export const useAccessibilityHandler = <ElementType extends HTMLElement>({
