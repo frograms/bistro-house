@@ -2,12 +2,20 @@ import { useEventCallback } from "@watcha-authentic/react-event-callback";
 import { useCallback, useEffect } from "react";
 
 type UseAccessibilityHandlerProps<ElementType extends HTMLElement> = {
+  /**
+   * - 포커스 복귀 대상 element 의 ref 값입니다.
+   */
+  returnTarget?:
+    | Document
+    | React.RefObject<ElementType | null>
+    | "last-active-element";
   target: React.RefObject<ElementType | null>;
   handler: (event: KeyboardEvent) => void;
 };
 
 export const useAccessibilityHandler = <ElementType extends HTMLElement>({
   handler,
+  returnTarget,
   target,
 }: UseAccessibilityHandlerProps<ElementType>) => {
   const stableHandler = useEventCallback(handler);
@@ -24,7 +32,11 @@ export const useAccessibilityHandler = <ElementType extends HTMLElement>({
     [stableHandler, target]
   );
 
+  /**
+   * - 해당 element 의 keydown 이벤트를 바인딩 합니다.
+   */
   useEffect(() => {
+    const lastActiveElement = window.document.activeElement;
     // unbind
     enableAccessibility(false);
 
@@ -33,8 +45,16 @@ export const useAccessibilityHandler = <ElementType extends HTMLElement>({
 
     return () => {
       enableAccessibility(false);
+
+      const focusTarget =
+        returnTarget === "last-active-element"
+          ? lastActiveElement
+          : returnTarget;
+      if (focusTarget instanceof HTMLElement) {
+        focusTarget.focus();
+      }
     };
-  }, [enableAccessibility]);
+  }, [enableAccessibility, returnTarget]);
 
   return { enableAccessibility };
 };
