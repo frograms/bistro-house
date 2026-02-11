@@ -426,8 +426,8 @@ importers:
   packages/react-slider:
     dependencies:
       '@watcha-authentic/react-a11y':
-        specifier: ^0.1.2
-        version: 0.1.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: ^0.1.4
+        version: 0.1.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@watcha-authentic/react-event-callback':
         specifier: ^0.1.0
         version: 0.1.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -1622,8 +1622,8 @@ packages:
     peerDependencies:
       prettier: ^3.0.0
 
-  '@watcha-authentic/react-a11y@0.1.2':
-    resolution: {integrity: sha512-q6+qMRjw6GQSkFD+YUtul4evkuwHmSjxzzDyqKULOak6xA1os+eEY58RDy5FTc+d7+irgJWHpQAaqUpvkYiIzQ==}
+  '@watcha-authentic/react-a11y@0.1.4':
+    resolution: {integrity: sha512-vVVr0b7Es850ozaBPPD2M8XKd5IIyYBg6ICUKY9Dj5S7vqpCe6xJ8lEzpCVFh1cTrHDR3loE+BOnQsZT3dmN0g==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
@@ -6360,7 +6360,7 @@ snapshots:
     dependencies:
       prettier: 3.8.1
 
-  '@watcha-authentic/react-a11y@0.1.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@watcha-authentic/react-a11y@0.1.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@watcha-authentic/react-event-callback': 0.1.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react: 19.2.3
