@@ -97,6 +97,11 @@ type SliderProps<ItemType> = {
    * - 기본값은 true 입니다.
    */
   enableDrag?: boolean;
+  /**
+   * - 렌더링된 아이템의 a, img 등의 요소에 draggable 값을 제한 합니다.
+   * - 기본값은 true 입니다.
+   */
+  disableDraggableItems?: boolean;
   onDraggingNow?: (isDragging: boolean) => void;
 };
 
@@ -141,6 +146,7 @@ const SliderComponent = <ItemType = unknown,>(
     contentProps,
     items,
     visibleCount = 1,
+    disableDraggableItems = true,
     wrapProps,
     onCreateItemView,
     onDraggingNow,
@@ -612,6 +618,22 @@ const SliderComponent = <ItemType = unknown,>(
       prevCallbackIndex.current = sliderInfo.currentIndex;
     }
   }, [items.length, sliderInfo.currentIndex, stableOnIndexChange]);
+
+  /**
+   * - draggable 값을 img, a 등의 요소에 적용합니다.
+   */
+  useLayoutEffect(() => {
+    if (!disableDraggableItems) {
+      return;
+    }
+
+    const targets = wrapRef.current?.querySelectorAll("img, a");
+    if (targets) {
+      for (const target of targets) {
+        target.setAttribute("draggable", "false");
+      }
+    }
+  }, [disableDraggableItems]);
 
   const { withPointerMove } = usePointerMove({
     enabled: enableDrag,
