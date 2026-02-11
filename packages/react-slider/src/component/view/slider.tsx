@@ -56,12 +56,6 @@ type SliderProps<ItemType> = {
   onCreateItemView: (item: ItemType, index: number) => React.ReactNode;
   onItemKey: (item: ItemType) => React.Key;
   /**
-   * - 높이, 드래그 임계값 등의 사이즈 관련 값을 추정하는 방식을 선택 합니다. 기본값은 false 입니다.
-   * - true: 모든 자식요소로부터 추정합니다. 가장 큰 사이즈값이 선택 됩니다.
-   * - false: 첫번째 자식요소의 사이즈를 사용합니다.
-   */
-  estimateSizeFromEveryElements?: boolean;
-  /**
    * - item 간 거리입니다.
    * - 기본값은 0 입니다.
    */
@@ -140,7 +134,6 @@ const SliderComponent = <ItemType = unknown,>(
     animationTimingFunction = "ease",
     defaultIndex = 0,
     enableDrag = true,
-    estimateSizeFromEveryElements = false,
     gap = 0,
     itemProps,
     contentProps,
@@ -519,68 +512,6 @@ const SliderComponent = <ItemType = unknown,>(
       };
     });
   }, [calcElementState, extendedItems, getNewStatesByItems]);
-
-  /**
-   * - 첫로드 또는 리사이즈 이벤트가 실행되면, 초기 높이와 위치를 초기화 합니다.
-   */
-  useLayoutEffect(() => {
-    const handleResize = () => {
-      requestAnimationFrame(() => {
-        if (!wrapRef.current) {
-          console.error("Slider 필수 요소에 접근할 수 없습니다.");
-          return;
-        }
-
-        // 높이, 드래그 임계값 계산
-        let estimatedHeight = 0;
-        let estimatedScrollThreshold = 0;
-        if (estimateSizeFromEveryElements) {
-          for (const [, { content }] of elementInfos.current) {
-            if (content) {
-              const rect = content.getBoundingClientRect();
-              const { height } = rect;
-              if (height > estimatedHeight) {
-                estimatedHeight = height;
-              }
-              if (rect.width > estimatedScrollThreshold) {
-                estimatedScrollThreshold =
-                  rect.width * CAN_SCROLL_THRESHOLD_RATIO;
-              }
-            }
-          }
-        } else {
-          const firstElementInfo = elementInfos.current.get(0);
-          const rect = firstElementInfo?.content?.getBoundingClientRect();
-          estimatedHeight = rect?.height ?? 0;
-          estimatedScrollThreshold =
-            (rect?.width ?? DEFAULT_SCROLL_THRESHOLD) *
-            CAN_SCROLL_THRESHOLD_RATIO;
-        }
-
-        wrapRef.current.style.height = `${estimatedHeight}px`;
-        canScrollThreshold.current = estimatedScrollThreshold;
-
-        // 아이템 위치 계산
-        setSliderInfo((prevSliderInfo) => {
-          return {
-            ...prevSliderInfo,
-            elementStates: getNewStatesByItems({
-              centerIndex: prevSliderInfo.currentIndex,
-              itemIndexs: prevSliderInfo.elementStates.map((_, index) => index),
-              prevStates: prevSliderInfo.elementStates,
-            }),
-          };
-        });
-      });
-    };
-
-    // 초기 로드 시 높이 계산
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [calcElementState, estimateSizeFromEveryElements, getNewStatesByItems]);
 
   const handleSwipe = useCallback(async () => {
     lastSlideTriggerEvent.current = "swipe";

@@ -1,12 +1,17 @@
 .watcha-react-slider-wrap {
   position: relative;
-  display: flex;
+  display: grid;
   justify-content: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: 1fr;
 }
 
 .watcha-react-slider-item {
-  position: absolute;
-  inset: 0;
+  grid-area: 1 / 1;
+  margin: 0;
+  padding: 0;
 }
 
 .watcha-react-slider-content {
