@@ -11,12 +11,17 @@ type UseAccessibilityHandlerProps<ElementType extends HTMLElement> = {
     | "last-active-element";
   target: React.RefObject<ElementType | null>;
   handler: (event: KeyboardEvent) => void;
+  /**
+   * - 자동 포커스 여부 (기본값: false)
+   */
+  withAutoFocus?: boolean;
 };
 
 export const useAccessibilityHandler = <ElementType extends HTMLElement>({
   handler,
   returnTarget,
   target,
+  withAutoFocus = false,
 }: UseAccessibilityHandlerProps<ElementType>) => {
   const stableHandler = useEventCallback(handler);
 
@@ -26,10 +31,10 @@ export const useAccessibilityHandler = <ElementType extends HTMLElement>({
 
       if (enable && target.current) {
         target.current.addEventListener("keydown", stableHandler);
-        target.current.focus();
+        if (withAutoFocus) target.current.focus();
       }
     },
-    [stableHandler, target]
+    [stableHandler, target, withAutoFocus]
   );
 
   /**
