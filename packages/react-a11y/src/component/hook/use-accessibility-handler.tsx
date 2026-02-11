@@ -1,27 +1,18 @@
 import { useEventCallback } from "@watcha-authentic/react-event-callback";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
+
+import type { UseAccessibilityHandlerOptions } from "../../script/type/accessibility-type";
 
 type UseAccessibilityHandlerProps<ElementType extends HTMLElement> = {
-  /**
-   * - 포커스 복귀 대상 element 의 ref 값입니다.
-   */
-  returnTarget?:
-    | Document
-    | React.RefObject<ElementType | null>
-    | "last-active-element";
   target: React.RefObject<ElementType | null>;
   handler: (event: KeyboardEvent) => void;
-  /**
-   * - 자동 포커스 여부 (기본값: false)
-   */
-  withAutoFocus?: boolean;
+  options?: UseAccessibilityHandlerOptions<ElementType>;
 };
 
 export const useAccessibilityHandler = <ElementType extends HTMLElement>({
   handler,
-  returnTarget,
+  options,
   target,
-  withAutoFocus = false,
 }: UseAccessibilityHandlerProps<ElementType>) => {
   const stableHandler = useEventCallback(handler);
 
@@ -31,10 +22,10 @@ export const useAccessibilityHandler = <ElementType extends HTMLElement>({
 
       if (enable && target.current) {
         target.current.addEventListener("keydown", stableHandler);
-        if (withAutoFocus) target.current.focus();
+        if (options?.withAutoFocus ?? false) target.current.focus();
       }
     },
-    [stableHandler, target, withAutoFocus]
+    [stableHandler, target, options?.withAutoFocus]
   );
 
   /**
@@ -52,14 +43,14 @@ export const useAccessibilityHandler = <ElementType extends HTMLElement>({
       enableAccessibility(false);
 
       const focusTarget =
-        returnTarget === "last-active-element"
+        options?.returnTarget === "last-active-element"
           ? lastActiveElement
-          : returnTarget;
+          : options?.returnTarget;
       if (focusTarget instanceof HTMLElement) {
         focusTarget.focus();
       }
     };
-  }, [enableAccessibility, returnTarget]);
+  }, [enableAccessibility, options?.returnTarget]);
 
   return { enableAccessibility };
 };
