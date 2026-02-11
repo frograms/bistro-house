@@ -641,6 +641,7 @@ const SliderComponent = <ItemType = unknown,>(
     <ul
       aria-roledescription="carousel"
       role="region"
+      tabIndex={0}
       {...wrapProps}
       {...withPointerMove}
       className={["watcha-react-slider-wrap", wrapProps?.className].join(" ")}
