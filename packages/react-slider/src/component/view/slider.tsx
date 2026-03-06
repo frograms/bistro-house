@@ -555,6 +555,18 @@ const SliderComponent = <ItemType = unknown,>(
   }, [items.length, sliderInfo.currentIndex, stableOnIndexChange]);
 
   /**
+   * - 스크롤 임계값 계산
+   */
+  useLayoutEffect(() => {
+    if (!wrapRef.current) {
+      return;
+    }
+
+    const { width } = wrapRef.current.getBoundingClientRect();
+    canScrollThreshold.current = width * CAN_SCROLL_THRESHOLD_RATIO;
+  }, []);
+
+  /**
    * - draggable 값을 img, a 등의 요소에 적용합니다.
    */
   useLayoutEffect(() => {
