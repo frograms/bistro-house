@@ -634,11 +634,7 @@ const SliderComponent = <ItemType = unknown,>(
   useImperativeHandle(
     ref,
     useCallback((): SliderRef => {
-      return {
-        doNext,
-        doPrev,
-        ...wrapRef.current!,
-      };
+      return Object.assign(wrapRef.current!, { doNext, doPrev });
     }, [doNext, doPrev])
   );
 
