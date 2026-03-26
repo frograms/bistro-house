@@ -501,22 +501,6 @@ const SliderComponent = <ItemType = unknown,>(
     });
   }, [extendedItems.length]);
 
-  /**
-   * - extendedItems 프롭스에 의한 값을 초기화 합니다.
-   */
-  useLayoutEffect(() => {
-    setSliderInfo((prevSliderInfo) => {
-      return {
-        ...prevSliderInfo,
-        elementStates: getNewStatesByItems({
-          centerIndex: prevSliderInfo.currentIndex,
-          itemIndexs: extendedItems.map((_, index) => index),
-          prevStates: prevSliderInfo.elementStates,
-        }),
-      };
-    });
-  }, [calcElementState, extendedItems, getNewStatesByItems]);
-
   const handleSwipe = useCallback(async () => {
     lastSlideTriggerEvent.current = "swipe";
     await updateStateByPageIndex({
@@ -525,6 +509,43 @@ const SliderComponent = <ItemType = unknown,>(
     });
     lastSlideTriggerEvent.current = "pending";
   }, [sliderInfo.currentIndex, updateStateByPageIndex]);
+
+  /**
+   * - 리사이즈 이벤트에 따라 아이템들의 위치를 초기화 합니다. (from extendedItems)
+   * - 스크롤 임계값을 업데이트 합니다.
+   */
+  useLayoutEffect(() => {
+    const wrapElement = wrapRef.current;
+    if (!wrapElement) {
+      return;
+    }
+
+    const handleResize = () => {
+      requestAnimationFrame(() => {
+        // 리사이즈 이벤트에 따라 아이템들의 위치를 초기화 합니다.
+        setSliderInfo((prevSliderInfo) => {
+          return {
+            ...prevSliderInfo,
+            elementStates: getNewStatesByItems({
+              centerIndex: prevSliderInfo.currentIndex,
+              itemIndexs: extendedItems.map((_, index) => index),
+              prevStates: prevSliderInfo.elementStates,
+            }),
+          };
+        });
+
+        // 스크롤 임계값 업데이트
+        const { width } = wrapElement.getBoundingClientRect();
+        canScrollThreshold.current = width * CAN_SCROLL_THRESHOLD_RATIO;
+      });
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [extendedItems, getNewStatesByItems]);
 
   /**
    * - currentIndex 변경 시 애니메이션을 적용합니다.
@@ -553,18 +574,6 @@ const SliderComponent = <ItemType = unknown,>(
       prevCallbackIndex.current = sliderInfo.currentIndex;
     }
   }, [items.length, sliderInfo.currentIndex, stableOnIndexChange]);
-
-  /**
-   * - 스크롤 임계값 계산
-   */
-  useLayoutEffect(() => {
-    if (!wrapRef.current) {
-      return;
-    }
-
-    const { width } = wrapRef.current.getBoundingClientRect();
-    canScrollThreshold.current = width * CAN_SCROLL_THRESHOLD_RATIO;
-  }, []);
 
   /**
    * - draggable 값을 img, a 등의 요소에 적용합니다.
