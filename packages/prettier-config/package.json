@@ -27,40 +27,33 @@
     "test": "echo Test skipped...",
     "validate": "tsc && npm run lint && npm run build",
     "lint": "eslint .",
-    "build:cjs": "swc src --out-dir ./dist/cjs --config-file swc-cjs.json --ignore '**/*.d.ts' --strip-leading-paths",
-    "build:esm": "swc src --out-dir ./dist/esm --config-file swc-esm.json --ignore '**/*.d.ts' --strip-leading-paths",
-    "build:type": "tsc --outDir ./dist/type --project ./tsconfig.type.json",
-    "build": "rm -rf ./dist && concurrently -n CJS,ESM,TYPE 'pnpm build:cjs' 'pnpm build:esm' 'pnpm build:type' && pnpm post-build",
-    "post-build": "bash ./project-attachment/post-build.sh"
+    "build": "rm -rf ./dist && tsdown && pnpm build:post",
+    "build:post": "bash ./project-attachment/post-build.sh"
   },
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/type/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/type/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
     "dist"
   ],
   "devDependencies": {
-    "@swc/cli": "^0.7.9",
-    "@swc/core": "^1.15.7",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
     "@watcha-authentic/eslint-config": "^0.1.0",
-    "chokidar": "^4.0.1",
-    "chokidar-cli": "^3.0.0",
-    "concurrently": "^9.2.1",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "jiti": "^2.6.1",
     "prettier": "^3.7.4",
+    "tsdown": "^0.21.5",
     "typescript": "~5.9.3"
   },
   "peerDependencies": {
