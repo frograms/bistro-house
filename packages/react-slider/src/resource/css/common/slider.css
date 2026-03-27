@@ -6,6 +6,7 @@
   margin: 0;
   padding: 0;
   grid-template-columns: 1fr;
+  z-index: 0;
 }
 
 .watcha-react-slider-item {
