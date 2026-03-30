@@ -4,23 +4,38 @@
 
 리액트기반 포인터 기반 이벤트의 모션, 제스쳐 핸들링 패키지입니다. 마우스, 터치 이벤트를 통합하여 포인터 이벤트를 처리하고 드래그, 스와이프 등의 제스쳐를 지원합니다.
 
-## 피어 종속성
+## Table of contents
 
-이 패키지는 다음 패키지들을 피어 종속성으로 요구합니다.
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Usage](#usage)
 
-```bash
-pnpm add react@>=18.0.0 react-dom@>=18.0.0
-```
+## Dependencies
 
-## 설치
+### Runtime dependencies
+
+패키지 설치 시 함께 설치됩니다.
+
+- `@watcha-authentic/react-event-callback`
+
+### Peer dependencies
+
+**호스트 프로젝트에 반드시 설치**해야 합니다.
+
+- `react` `>=18.0.0`
+- `react-dom` `>=18.0.0`
+
+## Installation
 
 ```bash
 pnpm add @watcha-authentic/react-motion react@>=18.0.0 react-dom@>=18.0.0
 ```
 
-## 사용 예
+## Usage
 
-### 기본 사용
+`src/index.ts`에서 `usePointerMove`, `usePointerMoveGlobal`, 포인터/수학 유틸 및 타입을 노출합니다.
+
+### Basic usage (usePointerMove)
 
 ```tsx
 import { usePointerMove } from "@watcha-authentic/react-motion";
@@ -53,7 +68,7 @@ function App() {
 }
 ```
 
-### 전역 포인터 이벤트
+### Global pointer (usePointerMoveGlobal)
 
 ```tsx
 import { usePointerMoveGlobal } from "@watcha-authentic/react-motion";

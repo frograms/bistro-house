@@ -4,23 +4,43 @@
 
 리액트기반 슬라이더 컴포넌트입니다. 드래그/스와이프, 키보드 네비게이션을 지원하며 무한 루프 슬라이더를 제공합니다.
 
-## 피어 종속성
+## Table of contents
 
-이 패키지는 다음 패키지들을 피어 종속성으로 요구합니다.
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Main props](#main-props)
 
-```bash
-pnpm add react@>=18.0.0 react-dom@>=18.0.0
-```
+## Dependencies
 
-## 설치
+### Runtime dependencies
+
+설치 시 함께 내려받아지는 내부 패키지입니다.
+
+- `@watcha-authentic/react-a11y`
+- `@watcha-authentic/react-event-callback`
+- `@watcha-authentic/react-motion`
+
+### Peer dependencies
+
+**호스트 프로젝트에 반드시 설치**해야 합니다.
+
+- `react` `>=18.0.0`
+- `react-dom` `>=18.0.0`
+
+스타일은 `@watcha-authentic/react-slider/style.css` 서브패스로 제공됩니다 (`package.json` `exports`).
+
+## Installation
 
 ```bash
 pnpm add @watcha-authentic/react-slider react@>=18.0.0 react-dom@>=18.0.0
 ```
 
-## 사용 예
+## Usage
 
-### 기본 사용
+`src/index.ts`에서 `Slider`, `useSliderContext`, `SliderRef` 타입, 컨텍스트 관련 심볼을 노출합니다.
+
+### Basic usage
 
 ```tsx
 import { Slider } from "@watcha-authentic/react-slider";
@@ -46,7 +66,7 @@ function App() {
 }
 ```
 
-### Ref를 사용한 네비게이션
+### Navigation with ref
 
 `ref`를 통해 `doNext()`와 `doPrev()` 메서드를 사용하여 슬라이더를 제어할 수 있습니다.
 
@@ -81,15 +101,13 @@ function App() {
 }
 ```
 
-### 스타일 import
-
-CSS 스타일을 import하여 사용할 수 있습니다:
+### Importing styles
 
 ```tsx
 import "@watcha-authentic/react-slider/style.css";
 ```
 
-### Context 사용
+### Using context
 
 아이템 내부에서 슬라이더 컨텍스트를 사용하여 포커스 상태나 전환 애니메이션을 처리할 수 있습니다.
 
@@ -124,27 +142,27 @@ function App() {
 }
 ```
 
-## 주요 Props
+## Main props
 
-### `defaultIndex?: number`
+### defaultIndex
 
 - 초기 인덱스를 설정합니다.
 - 기본값은 `0`입니다.
 - **참고**: `index` prop은 제거되었습니다. 슬라이더 제어는 `ref`의 `doNext()`와 `doPrev()` 메서드를 사용하거나 `onIndexChange` 콜백을 통해 처리하세요.
 
-### `ref: React.Ref<SliderRef>`
+### ref and SliderRef
 
 - `SliderRef` 타입의 ref를 전달하면 다음 메서드에 접근할 수 있습니다:
   - `doNext()`: 다음 슬라이드로 이동
   - `doPrev()`: 이전 슬라이드로 이동
 - 또한 `HTMLUListElement`의 모든 속성과 메서드도 사용할 수 있습니다.
 
-### `onIndexChange?: (newIndex: number, cause: SlideTriggerEvent) => void`
+### onIndexChange
 
 - 인덱스가 변경될 때 호출되는 콜백입니다.
 - `cause`: 슬라이드 원인 (`'swipe'`: 키보드 네비게이션, `'drag'`: 드래그/스와이프, `'pending'`: 초기 상태)
 
-### 기타 Props
+### Other props
 
 - `items`: 슬라이더에 표시할 아이템 배열
 - `onCreateItemView`: 각 아이템을 렌더링하는 함수
