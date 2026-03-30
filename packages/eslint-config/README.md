@@ -2,49 +2,58 @@
 
 [![npm version](https://img.shields.io/npm/v/@watcha-authentic/eslint-config)](https://www.npmjs.com/package/@watcha-authentic/eslint-config)
 
-Watcha 공통 ESLint 설정 패키지입니다. TypeScript, React, Remix, Vite, Rsbuild, Next.js 등 다양한 환경에서 사용할 수 있으며, 필요한 설정만 조합하여 사용할 수 있습니다.
+Watcha 공통 ESLint(flat config) 패키지입니다. TypeScript, React, Remix, Vite, Rsbuild, Next.js 등 환경별 규칙 블록과 프리셋을 조합해 사용할 수 있습니다.
 
-## 피어 종속성
+## Table of contents
 
-이 패키지는 다음 패키지들을 피어 종속성으로 요구합니다. 사용하는 설정에 따라 필요한 패키지를 설치해야 합니다.
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Exported symbols](#exported-symbols)
 
-### 기본 (모든 설정에서 필요)
+## Dependencies
 
-```bash
-pnpm add -D eslint@^9.0.0 eslint-plugin-import@^2.0.0 eslint-plugin-simple-import-sort@^12.0.0
-```
+### Runtime dependencies
 
-### TypeScript 설정 사용 시
+**없습니다.** ESLint 플러그인·파서는 모두 소비자 프로젝트의 `peerDependencies`로 설치합니다.
 
-```bash
-pnpm add -D @typescript-eslint/parser@^8.0.0 @typescript-eslint/eslint-plugin@^8.0.0
-```
+### Peer dependencies
 
-### React 설정 사용 시
+**사용하는 프리셋·규칙 블록에 맞게 호스트 프로젝트에 설치**해야 합니다. 누락 시 ESLint가 플러그인/파서를 불러오지 못합니다.
 
-```bash
-pnpm add -D eslint-plugin-react@^7.0.0 eslint-plugin-react-hooks@^7.0.0
-```
+| 구분 | 패키지 |
+|------|--------|
+| 공통 | `eslint`, `eslint-plugin-import`, `eslint-plugin-simple-import-sort`, `eslint-import-resolver-typescript` |
+| TypeScript | `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin` |
+| React | `eslint-plugin-react`, `eslint-plugin-react-hooks` |
+| React Refresh (Vite / Rsbuild / Remix 등) | `eslint-plugin-react-refresh` |
+| Next.js | `@next/eslint-plugin-next` |
 
-### Vite/Rsbuild/Remix 설정 사용 시
+아래 설치 예시는 자주 쓰는 조합입니다.
 
-```bash
-pnpm add -D eslint-plugin-react-refresh@^0.4.0
-```
-
-### Next.js 설정 사용 시
-
-```bash
-pnpm add -D @next/eslint-plugin-next@^15.0.0
-```
-
-### 전체 설치 (모든 기능 사용 시)
+#### Example: TypeScript, React, and Vite preset
 
 ```bash
 pnpm add -D @watcha-authentic/eslint-config \
   eslint@^9.0.0 \
   eslint-plugin-import@^2.0.0 \
   eslint-plugin-simple-import-sort@^12.0.0 \
+  eslint-import-resolver-typescript@^3.6.0 \
+  @typescript-eslint/parser@^8.0.0 \
+  @typescript-eslint/eslint-plugin@^8.0.0 \
+  eslint-plugin-react@^7.0.0 \
+  eslint-plugin-react-hooks@^7.0.0 \
+  eslint-plugin-react-refresh@^0.4.0
+```
+
+#### Example: Next.js and full plugin set
+
+```bash
+pnpm add -D @watcha-authentic/eslint-config \
+  eslint@^9.0.0 \
+  eslint-plugin-import@^2.0.0 \
+  eslint-plugin-simple-import-sort@^12.0.0 \
+  eslint-import-resolver-typescript@^3.6.0 \
   @typescript-eslint/parser@^8.0.0 \
   @typescript-eslint/eslint-plugin@^8.0.0 \
   eslint-plugin-react@^7.0.0 \
@@ -53,82 +62,90 @@ pnpm add -D @watcha-authentic/eslint-config \
   @next/eslint-plugin-next@^15.0.0
 ```
 
-## 설치
+## Installation
 
 ```bash
 pnpm add -D @watcha-authentic/eslint-config
 ```
 
-## 사용 예
+위 [Peer dependencies](#peer-dependencies)에 맞춰 플러그인·파서를 추가로 설치하세요.
 
-### Preset 사용 (권장)
+## Usage
 
-#### React Preset
+`src/index.ts`는 규칙 배열(`*Configs`)과 프리셋(`*Preset`)을 노출합니다. Flat config는 **배열을 펼쳐서** export 합니다.
+
+### Presets (recommended)
+
+#### React (`reactPreset`)
 
 ```javascript
 // eslint.config.js
 import { reactPreset } from "@watcha-authentic/eslint-config";
 
-export default reactPreset;
+export default [...reactPreset];
 ```
 
-#### Remix Preset
+#### Remix (`remixPreset`)
 
 ```javascript
 // eslint.config.js
 import { remixPreset } from "@watcha-authentic/eslint-config";
 
-export default remixPreset;
+export default [...remixPreset];
 ```
 
-#### Vite Preset
+#### Vite (`vitePreset`)
 
 ```javascript
 // eslint.config.js
 import { vitePreset } from "@watcha-authentic/eslint-config";
 
-export default vitePreset;
+export default [...vitePreset];
 ```
 
-#### Rsbuild Preset
+#### Rsbuild (`rsbuildPreset`)
 
 ```javascript
 // eslint.config.js
 import { rsbuildPreset } from "@watcha-authentic/eslint-config";
 
-export default rsbuildPreset;
+export default [...rsbuildPreset];
 ```
 
-#### Next.js Preset
+#### Next.js (`nextPreset`)
 
 ```javascript
 // eslint.config.js
 import { nextPreset } from "@watcha-authentic/eslint-config";
 
-export default nextPreset;
+export default [...nextPreset];
 ```
 
-### 개별 설정 조합
-
-필요한 설정만 선택하여 조합할 수 있습니다:
+### Composing rule blocks
 
 ```javascript
 // eslint.config.js
-import { base, typescript, react } from "@watcha-authentic/eslint-config";
-
-export default [...base, typescript, react];
-```
-
-### 커스터마이징
-
-각 설정은 배열로 반환되므로, 추가 규칙을 쉽게 추가할 수 있습니다:
-
-```javascript
-// eslint.config.js
-import { reactPreset } from "@watcha-authentic/eslint-config";
+import {
+  baseConfigs,
+  typescriptConfigs,
+  reactConfigs,
+} from "@watcha-authentic/eslint-config";
 
 export default [
-  ...reactPreset,
+  ...baseConfigs,
+  ...typescriptConfigs,
+  ...reactConfigs,
+];
+```
+
+### Extending a preset
+
+```javascript
+// eslint.config.js
+import { vitePreset } from "@watcha-authentic/eslint-config";
+
+export default [
+  ...vitePreset,
   {
     rules: {
       "no-console": "off",
@@ -137,31 +154,33 @@ export default [
 ];
 ```
 
-### CommonJS 사용 시
+### CommonJS
 
 ```javascript
 // eslint.config.cjs
-const { reactPreset } = require("@watcha-authentic/eslint-config");
+const { vitePreset } = require("@watcha-authentic/eslint-config");
 
-module.exports = reactPreset;
+module.exports = [...vitePreset];
 ```
 
-## 사용 가능한 설정
+## Exported symbols
 
-### 개별 설정
+소스 `src/script/config` 기준 export 이름입니다.
 
-- `base` - 기본 ESLint 규칙 (import 정렬, 코드 스타일 등 포함)
-- `typescript` - TypeScript 지원
-- `react` - React 지원 (`.jsx`, `.tsx` 파일에만 적용)
-- `remix` - Remix 프레임워크 지원
-- `vite` - Vite 빌드 도구 지원
-- `rsbuild` - Rsbuild 빌드 도구 지원
-- `next` - Next.js 프레임워크 지원
+### Rule blocks
 
-### Preset 설정
+- `baseConfigs`
+- `typescriptConfigs`
+- `reactConfigs`
+- `remixConfigs`
+- `viteConfigs`
+- `rsbuildConfigs`
+- `nextConfigs`
 
-- `reactPreset` - base + typescript + react
-- `remixPreset` - base + typescript + react + remix
-- `vitePreset` - base + typescript + react + vite
-- `rsbuildPreset` - base + typescript + react + rsbuild
-- `nextPreset` - base + typescript + react + next
+### Preset exports
+
+- `reactPreset` — base + typescript + react  
+- `remixPreset` — base + typescript + react + remix  
+- `vitePreset` — base + typescript + react + vite  
+- `rsbuildPreset` — base + typescript + react + rsbuild  
+- `nextPreset` — base + typescript + react + next  

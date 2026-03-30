@@ -4,23 +4,35 @@
 
 Watcha 공통 Prettier 설정 패키지입니다.
 
-## 피어 종속성
+## Table of contents
 
-이 패키지는 다음 패키지를 피어 종속성으로 요구합니다.
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Usage](#usage)
 
-```bash
-pnpm add -D prettier@^3.0.0
-```
+## Dependencies
 
-## 설치
+### Runtime dependencies
+
+**없습니다.** 설정 객체만 제공합니다.
+
+### Peer dependencies
+
+**호스트 프로젝트에 Prettier를 반드시 설치**해야 합니다. 이 패키지는 Prettier 실행기를 포함하지 않습니다.
+
+- `prettier` `^3.0.0`
+
+## Installation
 
 ```bash
 pnpm add -D @watcha-authentic/prettier-config prettier@^3.0.0
 ```
 
-## 사용 예
+## Usage
 
-### 기본 설정
+`src/index.ts`는 `rule-base-config`의 **`baseConfig`** 만 재수출합니다.
+
+### ESM (prettier.config)
 
 ```javascript
 // prettier.config.js
@@ -38,7 +50,7 @@ const { baseConfig } = require("@watcha-authentic/prettier-config");
 module.exports = baseConfig;
 ```
 
-### package.json
+### package.json prettier field
 
 ```json
 {
