@@ -511,8 +511,9 @@ const SliderComponent = <ItemType = unknown,>(
   }, [sliderInfo.currentIndex, updateStateByPageIndex]);
 
   /**
-   * - 리사이즈 이벤트에 따라 아이템들의 위치를 초기화 합니다. (from extendedItems)
+   * - 래퍼(ul) 박스 크기 변경 시 아이템 위치를 다시 맞춥니다. (from extendedItems)
    * - 스크롤 임계값을 업데이트 합니다.
+   * - TODO getBoundingClientRect 대신 entries 기반으로 미세 최적화
    */
   useLayoutEffect(() => {
     const wrapElement = wrapRef.current;
@@ -522,7 +523,7 @@ const SliderComponent = <ItemType = unknown,>(
 
     const handleResize = () => {
       requestAnimationFrame(() => {
-        // 리사이즈 이벤트에 따라 아이템들의 위치를 초기화 합니다.
+        // 박스 크기 변경에 따라 아이템들의 위치를 초기화 합니다.
         setSliderInfo((prevSliderInfo) => {
           return {
             ...prevSliderInfo,
@@ -541,9 +542,14 @@ const SliderComponent = <ItemType = unknown,>(
     };
 
     handleResize();
-    window.addEventListener("resize", handleResize);
+
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+    resizeObserver.observe(wrapElement);
+
     return () => {
-      window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
     };
   }, [extendedItems, getNewStatesByItems]);
 
