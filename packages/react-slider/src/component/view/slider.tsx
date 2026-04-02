@@ -51,7 +51,13 @@ type ExtendedItem<ItemType> = {
   originalIndex: number;
 };
 
-type SliderProps<ItemType> = {
+export type SliderProps<ItemType> = {
+  className?: string;
+  /**
+   * - 슬라이더 영역의 오버플로우 처리 방식입니다.
+   * - 기본값은 "visible" 입니다.
+   */
+  overflow?: "hidden" | "visible";
   itemProps?: React.HTMLAttributes<HTMLLIElement>;
   wrapProps?: React.HTMLAttributes<HTMLUListElement>;
   contentProps?: React.HTMLAttributes<HTMLDivElement>;
@@ -134,6 +140,8 @@ type ElementInfo = {
 
 const SliderComponent = <ItemType = unknown,>(
   {
+    className,
+    overflow = "visible",
     animationDuration = 500,
     animationTimingFunction = "ease",
     a11yOptions,
@@ -672,7 +680,12 @@ const SliderComponent = <ItemType = unknown,>(
       tabIndex={0}
       {...wrapProps}
       {...withPointerMove}
-      className={["watcha-react-slider-wrap", wrapProps?.className].join(" ")}
+      className={[
+        "watcha-react-slider-wrap",
+        className,
+        wrapProps?.className,
+        overflow === "hidden" ? "hidden" : undefined,
+      ].join(" ")}
       style={{
         ...wrapProps?.style,
         ...withPointerMove.style,
