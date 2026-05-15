@@ -530,33 +530,39 @@ const SliderComponent = <ItemType = unknown,>(
     }
 
     const handleResize = () => {
-      requestAnimationFrame(() => {
-        // 박스 크기 변경에 따라 아이템들의 위치를 초기화 합니다.
-        setSliderInfo((prevSliderInfo) => {
-          return {
-            ...prevSliderInfo,
-            elementStates: getNewStatesByItems({
-              centerIndex: prevSliderInfo.currentIndex,
-              itemIndexs: extendedItems.map((_, index) => index),
-              prevStates: prevSliderInfo.elementStates,
-            }),
-          };
-        });
-
-        // 스크롤 임계값 업데이트
-        const { width } = wrapElement.getBoundingClientRect();
-        canScrollThreshold.current = width * CAN_SCROLL_THRESHOLD_RATIO;
+      // 박스 크기 변경에 따라 아이템들의 위치를 초기화 합니다.
+      setSliderInfo((prevSliderInfo) => {
+        return {
+          ...prevSliderInfo,
+          elementStates: getNewStatesByItems({
+            centerIndex: prevSliderInfo.currentIndex,
+            itemIndexs: extendedItems.map((_, index) => index),
+            prevStates: prevSliderInfo.elementStates,
+          }),
+        };
       });
+
+      // 스크롤 임계값 업데이트
+      const { width } = wrapElement.getBoundingClientRect();
+      canScrollThreshold.current = width * CAN_SCROLL_THRESHOLD_RATIO;
     };
 
+    // 이 부분도 raf 로 처리할지..?
     handleResize();
 
+    let rafId: null | number = null;
     const resizeObserver = new ResizeObserver(() => {
-      handleResize();
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      rafId = requestAnimationFrame(handleResize);
     });
     resizeObserver.observe(wrapElement);
 
     return () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
       resizeObserver.disconnect();
     };
   }, [extendedItems, getNewStatesByItems]);
@@ -591,6 +597,7 @@ const SliderComponent = <ItemType = unknown,>(
 
   /**
    * - draggable 값을 img, a 등의 요소에 적용합니다.
+   * - TODO: css 로 변경
    */
   useLayoutEffect(() => {
     if (!disableDraggableItems) {
