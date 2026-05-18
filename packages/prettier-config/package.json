@@ -50,6 +50,7 @@
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-perfectionist": "^5.9.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "jiti": "^2.6.1",
     "prettier": "^3.7.4",

@@ -23,7 +23,7 @@ Watcha 공통 ESLint(flat config) 패키지입니다. TypeScript, React, Remix, 
 
 | 구분 | 패키지 |
 |------|--------|
-| 공통 | `eslint`, `eslint-plugin-import`, `eslint-plugin-simple-import-sort`, `eslint-import-resolver-typescript` |
+| 공통 | `eslint`, `eslint-plugin-import`, `eslint-plugin-perfectionist`, `eslint-plugin-simple-import-sort`, `eslint-import-resolver-typescript` |
 | TypeScript | `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin` |
 | React | `eslint-plugin-react`, `eslint-plugin-react-hooks` |
 | React Refresh (Vite / Rsbuild / Remix 등) | `eslint-plugin-react-refresh` |
@@ -37,6 +37,7 @@ Watcha 공통 ESLint(flat config) 패키지입니다. TypeScript, React, Remix, 
 pnpm add -D @watcha-authentic/eslint-config \
   eslint@^9.0.0 \
   eslint-plugin-import@^2.0.0 \
+  eslint-plugin-perfectionist@^5.0.0 \
   eslint-plugin-simple-import-sort@^12.0.0 \
   eslint-import-resolver-typescript@^3.6.0 \
   @typescript-eslint/parser@^8.0.0 \
@@ -52,6 +53,7 @@ pnpm add -D @watcha-authentic/eslint-config \
 pnpm add -D @watcha-authentic/eslint-config \
   eslint@^9.0.0 \
   eslint-plugin-import@^2.0.0 \
+  eslint-plugin-perfectionist@^5.0.0 \
   eslint-plugin-simple-import-sort@^12.0.0 \
   eslint-import-resolver-typescript@^3.6.0 \
   @typescript-eslint/parser@^8.0.0 \

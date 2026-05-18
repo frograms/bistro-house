@@ -1,5 +1,6 @@
 import type { Linter } from "eslint";
 import importPlugin from "eslint-plugin-import";
+import perfectionistPlugin from "eslint-plugin-perfectionist";
 import simpleImportSortPlugin from "eslint-plugin-simple-import-sort";
 
 export const baseConfigs: Linter.Config[] = [
@@ -35,6 +36,7 @@ export const baseConfigs: Linter.Config[] = [
     },
     plugins: {
       import: importPlugin,
+      perfectionist: perfectionistPlugin,
       "simple-import-sort": simpleImportSortPlugin,
     },
     rules: {
@@ -174,6 +176,9 @@ export const baseConfigs: Linter.Config[] = [
       // import, export문 정렬을 권장합니다.
       "simple-import-sort/exports": "warn",
       "simple-import-sort/imports": "warn",
+      // named import/export는 알파벳순 정렬을 권장합니다.
+      "perfectionist/sort-named-exports": "warn",
+      "perfectionist/sort-named-imports": "warn",
       // 익명의 기본값 내보내기를 비허용합니다.
       "import/no-anonymous-default-export": [
         "error",
