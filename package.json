@@ -16,6 +16,7 @@
     "build:packages": "pnpm build --filter '@watcha-authentic/*'",
     "validate-targets": "bash ./project-attachment/validate-targets.sh",
     "build-targets": "bash ./project-attachment/build-targets.sh",
+    "publish-canary": "bash ./project-attachment/package/publish-canary.sh",
     "prepare-package": "node ./project-attachment/script/prepare-package/prepare-package.js",
     "format": "prettier --write \"**/*.{js,ts,jsx,tsx,css,scss,html,json,md}\" && prettier --write \"{*.js,*.ts,*.jsx,*.tsx,*.css,*.scss,*.html,*.json,*.md}\""
   },
