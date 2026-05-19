@@ -5,15 +5,46 @@ on:
     branches:
       - master
 
-permissions:
-  contents: write
-  packages: write
-  id-token: write
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  publish:
+  preflight:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      has_changes: ${{ steps.preflight.outputs.has_changes }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-action
+
+      - name: Check changed packages
+        id: preflight
+        run: |
+          CHANGED=$(bash ./project-attachment/changed-targets.sh 2>/dev/null || true)
+          if [ -z "$CHANGED" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "배포 대상 패키지가 없습니다."
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  publish:
+    needs: preflight
+    if: needs.preflight.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,7 +67,7 @@ jobs:
         run: |
           pnpm lerna publish --yes --conventional-commits --no-push 2>&1 | tee lerna-publish.log
 
-      # 라이브러리간 종속성이 있는경우 lock 재구성 필요 합니다.
+      # 라이브러리간 종속성이 있는경우 lock 재구성
       - name: Re-install to refresh lockfile
         run: pnpm install
 
