@@ -34,8 +34,8 @@ current_version=""
 publish_version=""
 version_bumped=0
 
-1. 주석 업데이트
-2. 퍼블리시 패치 확인하기
+# --- usage ---
+
 usage() {
   echo "사용법:"
   echo "  pnpm publish:canary <package>"
@@ -62,6 +62,8 @@ usage() {
   done
 }
 
+# --- validation ---
+
 validate_channel() {
   case "$channel" in
     canary | patch) return 0 ;;
@@ -70,81 +72,6 @@ validate_channel() {
       echo "   사용 가능: canary, patch"
       return 1
       ;;
-  esac
-}
-
-# npm versions --json 을 배열로 정규화합니다 (단일 버전은 문자열로 올 수 있음).
-fetch_npm_versions_json() {
-  local package_name="$1"
-  local json
-
-  json=$(npm view "$package_name" versions --json 2>/dev/null) || json="null"
-  if [ -z "$json" ] || [ "$json" = "null" ]; then
-    echo "[]"
-  else
-    echo "$json"
-  fi
-}
-
-# prefix 이후 접미사가 숫자만인 버전의 최대 N+1 (없으면 0). grep -c 대신 jq 로 버전 항목만 셉니다.
-next_prerelease_index_for_prefix() {
-  local versions_json="$1"
-  local version_prefix="$2"
-
-  if ! command -v jq >/dev/null 2>&1; then
-    echo "❌ 오류: 다음 prerelease 번호 계산에 jq 가 필요합니다." >&2
-    return 1
-  fi
-
-  echo "$versions_json" | jq -r --arg prefix "$version_prefix" '
-    (if type == "string" then [.] elif type == "array" then . else [] end)
-    | map(select(type == "string" and startswith($prefix)))
-    | map(ltrimstr($prefix) | select(test("^[0-9]+$")) | tonumber)
-    | if length == 0 then 0 else (max + 1) end
-  '
-}
-
-resolve_canary_version() {
-  local base_version="$1"
-  local package_name="$2"
-  local branch_name
-  local version_prefix
-  local versions_json
-  local next_canary_num
-
-  branch_name=$(git branch --show-current | tr '[:upper:]' '[:lower:]' | tr '/' '-')
-  if [ -z "$branch_name" ]; then
-    echo "❌ 오류: 현재 브랜치 이름을 확인할 수 없습니다." >&2
-    return 1
-  fi
-  echo "🌿 브랜치: $branch_name" >&2
-
-  echo "🔍 기존 canary 버전을 조회합니다..." >&2
-  version_prefix="${base_version}-canary.${branch_name}."
-  versions_json=$(fetch_npm_versions_json "$package_name")
-  next_canary_num=$(next_prerelease_index_for_prefix "$versions_json" "$version_prefix") || return 1
-  echo "🏷️  canary #${next_canary_num}" >&2
-  echo "${base_version}-canary.${branch_name}.${next_canary_num}"
-}
-
-resolve_patch_version() {
-  local base_version="$1"
-  local package_name="$2"
-  local version_prefix="${base_version}-patch."
-  local versions_json
-  local next_patch_num
-
-  echo "🔍 기존 patch 버전을 조회합니다..." >&2
-  versions_json=$(fetch_npm_versions_json "$package_name")
-  next_patch_num=$(next_prerelease_index_for_prefix "$versions_json" "$version_prefix") || return 1
-  echo "🏷️  patch #${next_patch_num}" >&2
-  echo "${version_prefix}${next_patch_num}"
-}
-
-resolve_publish_version() {
-  case "$channel" in
-    canary) resolve_canary_version "$1" "$2" ;;
-    patch) resolve_patch_version "$1" "$2" ;;
   esac
 }
 
@@ -263,6 +190,83 @@ validate() {
   echo "🏷️  배포 버전: $publish_version (dist-tag: ${channel})"
 }
 
+# --- version resolution ---
+
+fetch_npm_versions_json() {
+  local package_name="$1"
+  local json
+
+  json=$(npm view "$package_name" versions --json 2>/dev/null) || json="null"
+  if [ -z "$json" ] || [ "$json" = "null" ]; then
+    echo "[]"
+  else
+    echo "$json"
+  fi
+}
+
+next_prerelease_index_for_prefix() {
+  local versions_json="$1"
+  local version_prefix="$2"
+
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "❌ 오류: 다음 prerelease 번호 계산에 jq 가 필요합니다." >&2
+    return 1
+  fi
+
+  echo "$versions_json" | jq -r --arg prefix "$version_prefix" '
+    (if type == "string" then [.] elif type == "array" then . else [] end)
+    | map(select(type == "string" and startswith($prefix)))
+    | map(ltrimstr($prefix) | select(test("^[0-9]+$")) | tonumber)
+    | if length == 0 then 0 else (max + 1) end
+  '
+}
+
+resolve_canary_version() {
+  local base_version="$1"
+  local package_name="$2"
+  local branch_name
+  local version_prefix
+  local versions_json
+  local next_canary_num
+
+  branch_name=$(git branch --show-current | tr '[:upper:]' '[:lower:]' | tr '/' '-')
+  if [ -z "$branch_name" ]; then
+    echo "❌ 오류: 현재 브랜치 이름을 확인할 수 없습니다." >&2
+    return 1
+  fi
+  echo "🌿 브랜치: $branch_name" >&2
+
+  echo "🔍 기존 canary 버전을 조회합니다..." >&2
+  version_prefix="${base_version}-canary.${branch_name}."
+  versions_json=$(fetch_npm_versions_json "$package_name")
+  next_canary_num=$(next_prerelease_index_for_prefix "$versions_json" "$version_prefix") || return 1
+  echo "🏷️  canary #${next_canary_num}" >&2
+  echo "${base_version}-canary.${branch_name}.${next_canary_num}"
+}
+
+resolve_patch_version() {
+  local base_version="$1"
+  local package_name="$2"
+  local version_prefix="${base_version}-patch."
+  local versions_json
+  local next_patch_num
+
+  echo "🔍 기존 patch 버전을 조회합니다..." >&2
+  versions_json=$(fetch_npm_versions_json "$package_name")
+  next_patch_num=$(next_prerelease_index_for_prefix "$versions_json" "$version_prefix") || return 1
+  echo "🏷️  patch #${next_patch_num}" >&2
+  echo "${version_prefix}${next_patch_num}"
+}
+
+resolve_publish_version() {
+  case "$channel" in
+    canary) resolve_canary_version "$1" "$2" ;;
+    patch) resolve_patch_version "$1" "$2" ;;
+  esac
+}
+
+# --- build & publish ---
+
 build_package() {
   echo "🔨 ${full_package_name} 빌드 중..."
   pnpm build --filter="$full_package_name"
@@ -309,6 +313,8 @@ restore_package_version() {
   version_bumped=0
 }
 
+# --- run ---
+
 run() {
   local package_arg="$1"
 
@@ -328,6 +334,7 @@ run() {
 }
 
 # --- main ---
+
 trap restore_package_version EXIT
 
 channel="${1:-}"
