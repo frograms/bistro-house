@@ -15,14 +15,21 @@ runs:
   using: composite
   steps:
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.node-version }}
         registry-url: 'https://registry.npmjs.org'
         scope: '@watcha-authentic'
 
+    # Trusted Publishing: npm CLI 11.5.1+ (Node 22 번들 npm 10.x)
+    - name: Upgrade npm for Trusted Publishing
+      shell: bash
+      run: |
+        npm install -g npm@11
+        echo "node $(node -v) / npm $(npm -v)"
+
     - name: Setup pnpm
-      uses: pnpm/action-setup@v3
+      uses: pnpm/action-setup@v4
       with:
         version: ${{ inputs.pnpm-version }}
 
@@ -32,7 +39,7 @@ runs:
       run: echo STORE_PATH=$(pnpm store path) >> $GITHUB_OUTPUT
 
     - name: Setup pnpm cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       id: cache-pnpm-store
       with:
         path: ${{ steps.get-store-path.outputs.STORE_PATH }}
@@ -42,7 +49,7 @@ runs:
           pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
 
     - name: Setup Turbo cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       id: cache-turbo
       with:
         path: .turbo
