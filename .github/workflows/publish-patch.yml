@@ -1,12 +1,12 @@
-name: Publish Packages
+name: Publish Patch Packages
 
 on:
   push:
     branches:
-      - master
+      - "patch/**"
 
 concurrency:
-  group: publish-${{ github.ref }}
+  group: publish-patch-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -60,45 +60,21 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Build packages
-        run: pnpm build-targets
-
-      - name: Run Lerna publish (no push)
+      - name: Publish patch (OIDC)
         run: |
-          pnpm lerna publish --yes --conventional-commits --no-push 2>&1 | tee lerna-publish.log
-
-      # 라이브러리간 종속성이 있는경우 lock 재구성
-      - name: Re-install to refresh lockfile
-        run: pnpm install
-
-      - name: Amend lockfile if changed
-        run: |
-          if ! git diff --quiet pnpm-lock.yaml; then
-            git add pnpm-lock.yaml
-            git commit -m "chore: update lockfile"
-          fi
-
-      - name: Push commit and tags
-        run: |
-          git push origin $GITHUB_REF_NAME
-          git push origin --tags
-
-      - name: Get published tags from lerna
-        id: get-tags
-        uses: ./.github/actions/get-published-tags-from-lerna-action
-        with:
-          lerna_log_file: lerna-publish.log
-
-      - name: Create releases for published tags
-        if: steps.get-tags.outputs.tags != '[]'
-        run: |
-          set -e
-          # JSON 배열을 파싱하여 각 태그에 대해 릴리즈 생성
-          jq -r '.[]' <<< '${{ steps.get-tags.outputs.tags }}' | while read -r TAG_NAME; do
-            echo "Creating release for tag: $TAG_NAME"
-            gh release create "$TAG_NAME" \
-              --generate-notes \
-              --title "$TAG_NAME"
+          CHANGED_PACKAGES=$(bash ./project-attachment/changed-targets.sh 2>/dev/null)
+          for PACKAGE_PATH in $CHANGED_PACKAGES; do
+            PACKAGE_SHORT=$(basename "$PACKAGE_PATH")
+            echo "📦 patch 배포: $PACKAGE_SHORT"
+            OUTPUT=$(bash ./project-attachment/package/publish-patch.sh "$PACKAGE_SHORT" oidc 2>&1 | tee /dev/stderr)
+            TAG=$(echo "$OUTPUT" | grep '^publish-prerelease-result-tag=' | tail -1 | cut -d= -f2-)
+            if [ -z "$TAG" ]; then
+              echo "❌ 태그 결과를 찾지 못했습니다 (publish-prerelease-result-tag 결과를 반환받지 못했습니다)."
+              exit 1
+            fi
+            git tag "$TAG"
+            echo "🏷️  git tag: $TAG"
           done
-        env:
-          GH_TOKEN: ${{ github.token }}
+
+      - name: Push tags
+        run: git push origin --tags
