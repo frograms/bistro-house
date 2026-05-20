@@ -61,6 +61,7 @@ pnpm dev:playground    # playground 개발 서버
 |----------|--------|------|
 | [validate.yml](.github/workflows/validate.yml) | PR | 변경된 패키지에 대해 `validate-targets` |
 | [publish.yml](.github/workflows/publish.yml) | `master` push | 변경 패키지 빌드 후 Lerna로 정식 배포, GitHub Release 생성 |
+| [publish-patch.yml](.github/workflows/publish-patch.yml) | `patch/**` push | 변경 패키지 `patch` dist-tag 배포 (CI는 `oidc` — Trusted Publisher는 `publish.yml` 합치기 전까지 npm 설정 확인 필요) |
 
 ## 배포
 
@@ -94,11 +95,36 @@ pnpm add @watcha-authentic/react-slider@0.1.9-canary.feature-init.0
 
 ### npm / CI 인증 (OIDC)
 
-CI 정식 배포는 npm **Trusted Publishing (OIDC)** 로 인증합니다. 설정 절차, 로컬 배포와의 차이는 아래 Notion 문서를 따릅니다.
+CI 배포는 npm **Trusted Publishing (OIDC)** 로 인증합니다. 설정 절차·로컬과의 차이는 아래 Notion 문서를 따릅니다.
 
 - **[bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d)** (내부 문서)
 
-로컬 카나리 배포는 `npm login`이 필요합니다 (`publish:canary`).
+**Trusted Publisher (npm 패키지 설정)**
+
+- 패키지당 **Trusted Publisher는 하나**이며, GitHub Actions일 때 **워크플로 파일 이름도 하나**만 등록할 수 있습니다 ([npm 문서](https://docs.npmjs.com/trusted-publishers/)).
+- 현재 등록 예: `frograms` / `bistro-house` / **`publish.yml`**
+- [publish.yml](.github/workflows/publish.yml)(`master` 정식 배포)과 [setup-action](.github/actions/setup-action/action.yml)(`registry-url` + `id-token: write`)가 OIDC 전제입니다.
+- [publish-patch.yml](.github/workflows/publish-patch.yml)도 CI에서 `oidc`를 쓰도록 맞춰 두었으나, npm에 `publish-patch.yml`을 **추가로 등록할 수 없습니다**. patch CI OIDC가 동작하려면 이후 **`publish.yml` 하나로 워크플로를 합치는 작업**이 필요합니다 (별도 PR 예정).
+
+로컬 카나리·patch 배포는 `npm login`이 필요합니다 (`publish:canary`, `publish:patch`).
+
+### patch 배포 (구 정식 라인)
+
+`patch/**` 브랜치 push 시 [publish-patch.yml](.github/workflows/publish-patch.yml)이 변경 패키지를 `{version}-patch.{n}` 형태로 배포합니다 (dist-tag: `patch`). 배포 커밋에 Lerna와 동일한 형식의 git tag(`@watcha-authentic/<pkg>@<version>`)를 붙입니다.
+
+```bash
+# 로컬 (auth: login — npm login 필요)
+npm login
+pnpm publish:patch react-slider
+
+# CI (auth: oidc — NODE_AUTH_TOKEN; Trusted Publisher 워크플로는 publish.yml 등록 기준)
+bash ./project-attachment/package/publish-patch.sh <package> oidc
+```
+
+| `auth` | 용도 | 요구 사항 |
+|--------|------|-----------|
+| `login` (기본) | 로컬 | `npm login`, `npm whoami` 성공 |
+| `oidc` | GitHub Actions | `setup-node`의 `registry-url` + `id-token: write`, npm Trusted Publisher와 **워크플로 파일명 일치** (`publish.yml`) |
 
 ## 패키지 추가
 
