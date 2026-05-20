@@ -3,9 +3,9 @@ description: "Setup Node.js, pnpm and install dependencies"
 
 inputs:
   node-version:
-    description: "Node.js version"
+    description: "Node.js version (CI: 24 for npm Trusted Publishing 11.5.1+; local engines may differ)"
     required: false
-    default: "22"
+    default: "24"
 
 runs:
   using: composite
@@ -16,14 +16,6 @@ runs:
         node-version: ${{ inputs.node-version }}
         registry-url: "https://registry.npmjs.org"
         scope: "@watcha-authentic"
-
-    # npm oidc(trusted publishing) 관련으로 npm 11.5.1+ 필요 (https://docs.npmjs.com/trusted-publishers)
-    # setup-node@v6 에서 버전을 컨트롤 할 수 없으므로 향후 node-version 업그레이드를 검토 한다. 업그레이드 되면 스텝 전체를 제거할 수 있다.
-    - name: Upgrade npm for Trusted Publishing
-      shell: bash
-      run: |
-        npm install -g npm@11
-        echo "node $(node -v) / npm $(npm -v)"
 
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
