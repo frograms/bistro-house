@@ -28,40 +28,42 @@ pnpm dev:playground    # playground 개발 서버
 
 ## 패키지
 
-| 패키지 | 설명 |
-|--------|------|
-| `@watcha-authentic/eslint-config` | 공통 ESLint 설정 |
-| `@watcha-authentic/prettier-config` | 공통 Prettier 설정 |
+| 패키지                                   | 설명                      |
+| ---------------------------------------- | ------------------------- |
+| `@watcha-authentic/eslint-config`        | 공통 ESLint 설정          |
+| `@watcha-authentic/prettier-config`      | 공통 Prettier 설정        |
 | `@watcha-authentic/react-event-callback` | 이벤트 콜백 디펜던시 유지 |
-| `@watcha-authentic/react-a11y` | 접근성 유틸 |
-| `@watcha-authentic/react-motion` | 포인터·제스처 모션 |
-| `@watcha-authentic/react-slider` | 슬라이더 컴포넌트 |
+| `@watcha-authentic/react-a11y`           | 접근성 유틸               |
+| `@watcha-authentic/react-motion`         | 포인터·제스처 모션        |
+| `@watcha-authentic/react-slider`         | 슬라이더 컴포넌트         |
 
 각 패키지 상세는 `packages/<name>/README.md`를 참고하세요.
 
 ## 스크립트
 
-| 명령 | 설명 |
-|------|------|
-| `pnpm dev` | turbo `dev` (워크스페이스 전체) |
-| `pnpm dev:playground` | playground 개발 서버 |
-| `pnpm build` | 전체 빌드 |
-| `pnpm build:packages` | `@watcha-authentic/*`만 빌드 |
-| `pnpm validate` | 전체 validate |
-| `pnpm lint` | 전체 lint |
-| `pnpm test` | 전체 test |
-| `pnpm validate-targets` | `lerna changed` 기준 변경 패키지만 validate |
-| `pnpm build-targets` | `lerna changed` 기준 변경 패키지만 build |
-| `pnpm publish:canary <package>` | 카나리 버전 npm 배포 (로컬) |
-| `pnpm format` | Prettier 포맷 |
+| 명령                            | 설명                                        |
+| ------------------------------- | ------------------------------------------- |
+| `pnpm dev`                      | turbo `dev` (워크스페이스 전체)             |
+| `pnpm dev:playground`           | playground 개발 서버                        |
+| `pnpm build`                    | 전체 빌드                                   |
+| `pnpm build:packages`           | `@watcha-authentic/*`만 빌드                |
+| `pnpm validate`                 | 전체 validate                               |
+| `pnpm lint`                     | 전체 lint                                   |
+| `pnpm test`                     | 전체 test                                   |
+| `pnpm validate-targets`         | `lerna changed` 기준 변경 패키지만 validate |
+| `pnpm build-targets`            | `lerna changed` 기준 변경 패키지만 build    |
+| `pnpm publish:canary <package>` | 카나리 버전 npm 배포 (로컬)                 |
+| `pnpm publish:patch <package>`  | patch prerelease npm 배포 (로컬)            |
+| `pnpm prepare-package <name>`   | npm 레지스트리에 빈 패키지 선등록 (로컬)    |
+| `pnpm format`                   | Prettier 포맷                               |
 
 ## CI
 
-| 워크플로 | 트리거 | 역할 |
-|----------|--------|------|
-| [validate.yml](.github/workflows/validate.yml) | PR | 변경된 패키지에 대해 `validate-targets` |
-| [publish.yml](.github/workflows/publish.yml) | `master` push | 변경 패키지 빌드 후 Lerna 정식 배포, GitHub Release (`publish-latest` job) |
-| [publish.yml](.github/workflows/publish.yml) | `patch/**` push | 변경 패키지 `patch` dist-tag 배포, git tag push (`publish-patch` job, OIDC) |
+| 워크플로                                       | 트리거          | 역할                                                                        |
+| ---------------------------------------------- | --------------- | --------------------------------------------------------------------------- |
+| [validate.yml](.github/workflows/validate.yml) | PR              | 변경된 패키지에 대해 `validate-targets`                                     |
+| [publish.yml](.github/workflows/publish.yml)   | `master` push   | 변경 패키지 빌드 후 Lerna 정식 배포, GitHub Release (`publish-latest` job)  |
+| [publish.yml](.github/workflows/publish.yml)   | `patch/**` push | 변경 패키지 `patch` dist-tag 배포, git tag push (`publish-patch` job, OIDC) |
 
 ## 배포
 
@@ -120,21 +122,18 @@ pnpm publish:patch react-slider
 bash ./project-attachment/package/publish-patch.sh <package> npm-oidc
 ```
 
-| `auth` | 용도 | 요구 사항 |
-|--------|------|-----------|
-| `login` (기본) | 로컬 | `npm login`, `npm whoami` 성공 |
-| `npm-oidc` | GitHub Actions (CI 전용) | [publish.yml](.github/workflows/publish.yml) + setup-node `registry-url` + `id-token: write`, npm Trusted Publisher **`publish.yml`** |
+| `auth`         | 용도                     | 요구 사항                                                                                                                             |
+| -------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `login` (기본) | 로컬                     | `npm login`, `npm whoami` 성공                                                                                                        |
+| `npm-oidc`     | GitHub Actions (CI 전용) | [publish.yml](.github/workflows/publish.yml) + setup-node `registry-url` + `id-token: write`, npm Trusted Publisher **`publish.yml`** |
 
-## 패키지 추가
+## 패키지 추가 (유지보수)
 
-새 `@watcha-authentic/*` 패키지를 추가하고 **CI로 npm에 배포**할 때는, 코드·스캐폴딩보다 **OIDC(Trusted Publishing) 설정을 먼저** 진행합니다.  
+새 `@watcha-authentic/*` 패키지는 **OIDC 등록 → npm 이름 선등록 → `packages/` 구현 → PR/배포** 순서입니다.  
 설정 없이 `master`에 merge하면 [publish.yml](.github/workflows/publish.yml)의 `lerna publish`가 실패할 수 있습니다.
 
-**권장 순서**
+**상세 절차·체크리스트·오류 대응:** [docs/ADDING_PACKAGE.md](docs/ADDING_PACKAGE.md)
 
-1. **[bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d)** 에 따라 npm OIDC(Trusted Publishing) 등록
-2. `pnpm prepare-package` 등으로 패키지 추가, `packages/<name>/` 구성
-3. [PACKAGE_README_GUIDE.md](project-attachment/context-document/PACKAGE_README_GUIDE.md)에 맞춰 `packages/<name>/README.md` 작성
-4. PR에서 `validate-targets` 통과 후 `master` merge로 정식 배포
+**README 형식:** [docs/PACKAGE_README_GUIDE.md](docs/PACKAGE_README_GUIDE.md)
 
-카나리만 먼저 검증할 때는 1번 이후 `pnpm publish:canary <package>` (로컬 `npm login`)를 사용할 수 있습니다.
+**레지스트리·OIDC (Notion):** [bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d)
