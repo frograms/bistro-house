@@ -4,7 +4,7 @@
 #
 # 실행
 # - bash ./project-attachment/package/publish-prerelease.sh <channel> <package> [auth]
-# - auth: login (기본) | oidc
+# - auth: login (기본) | npm-oidc
 # - pnpm publish:canary <package> — publish-canary.sh 가 canary 를 넘김
 # - pnpm publish:patch <package> — publish-patch.sh 가 patch 를 넘김
 #
@@ -14,9 +14,9 @@
 #
 # auth (세 번째 인자, 기본 login)
 # - login — npm login 세션으로 인증 (npm whoami)
-# - oidc — NODE_AUTH_TOKEN (setup-node registry-url + Trusted Publishing)
+# - npm-oidc — npm OIDC(Trusted Publishing) 자동 인증
 #
-# 성공 시 마지막 줄 publish-prerelease-result-tag=@scope/pkg@version (태그 결과 grep용)
+# 성공 시 마지막 줄 publish-prerelease-result-tag=@scope/pkg@version
 
 set -e
 
@@ -44,8 +44,8 @@ usage() {
   echo "  bash ./project-attachment/package/publish-prerelease.sh <channel> <package> [auth]"
   echo ""
   echo "  <auth>     npm 인증 방식 (생략 시 login)"
-  echo "    login    로컬 개발 — npm login 후 whoami 로 확인"
-  echo "    oidc     CI — GitHub Actions setup-node 가 주입한 NODE_AUTH_TOKEN"
+  echo "    login    npm login 후 whoami 로 확인"
+  echo "    npm-oidc npm OIDC(Trusted Publishing) 자동 인증"
   echo ""
   echo "  <channel>  canary | patch"
   echo "    canary  {version}-canary.{branch}.{n}"
@@ -137,10 +137,6 @@ validate_git_clean() {
     echo "배포 전에 수정된 파일을 커밋해 주세요."
     echo "수정된 파일:"
     echo "$modified_files"
-    if [ -n "${GITHUB_ACTIONS:-}" ]; then
-      echo ""
-      echo "CI에서 실패한 경우, 이전 workflow step이 tracked 파일을 수정했는지 확인하세요."
-    fi
     return 1
   fi
   echo "✅ 커밋되지 않은 변경 없음 (삭제/untracked 파일은 무시)"
@@ -149,14 +145,8 @@ validate_git_clean() {
 
 verify_npm_auth() {
   case "$npm_auth" in
-    oidc)
-      echo "registry.npmjs.org 에 배포합니다 (OIDC / NODE_AUTH_TOKEN)"
-      if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
-        echo "❌ NODE_AUTH_TOKEN 이 설정되어 있지 않습니다."
-        echo "   CI에서는 setup-node(registry-url) 이후 토큰이 주입되어야 합니다."
-        return 1
-      fi
-      echo "✅ npm 인증: OIDC"
+    npm-oidc)
+      echo "registry.npmjs.org — npm OIDC(Trusted Publishing)로 자동 인증합니다."
       ;;
     login)
       echo "registry.npmjs.org 에 배포합니다 (npm login 필요)"
@@ -168,7 +158,7 @@ verify_npm_auth() {
       echo "👤 npm 계정: $(npm whoami)"
       ;;
     *)
-      echo "❌ 알 수 없는 auth: ${npm_auth} (login | oidc)"
+      echo "❌ 알 수 없는 auth: ${npm_auth} (login | npm-oidc)"
       return 1
       ;;
   esac
