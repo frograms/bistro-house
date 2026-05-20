@@ -3,7 +3,7 @@ description: "Setup Node.js, pnpm and install dependencies"
 
 inputs:
   node-version:
-    description: "Node.js version (CI: 24 for npm Trusted Publishing 11.5.1+; local engines may differ)"
+    description: "Node.js version. npm oidc 관련해서 npm 11.5.1+ 필요하여, 24 이상이어야 합니다."
     required: false
     default: "24"
 
