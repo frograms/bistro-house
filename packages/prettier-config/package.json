@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/frograms/bistro-house"
+    "url": "git+https://github.com/frograms/bistro-house.git"
   },
   "bugs": {
     "url": "https://github.com/frograms/bistro-house/issues",
