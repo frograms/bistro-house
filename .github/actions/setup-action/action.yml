@@ -21,13 +21,6 @@ runs:
         registry-url: 'https://registry.npmjs.org'
         scope: '@watcha-authentic'
 
-    # Trusted Publishing: npm CLI 11.5.1+ (Node 22 번들 npm 10.x)
-    - name: Upgrade npm for Trusted Publishing
-      shell: bash
-      run: |
-        npm install -g npm@11
-        echo "node $(node -v) / npm $(npm -v)"
-
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
