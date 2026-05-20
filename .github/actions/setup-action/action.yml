@@ -14,10 +14,11 @@ runs:
       uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.node-version }}
-        registry-url: 'https://registry.npmjs.org'
-        scope: '@watcha-authentic'
+        registry-url: "https://registry.npmjs.org"
+        scope: "@watcha-authentic"
 
-    # Trusted Publishing: npm 11.5.1+ 필요 (Node 22 번들 npm은 10.x)
+    # npm oidc(trusted publishing) 관련으로 npm 11.5.1+ 필요 (https://docs.npmjs.com/trusted-publishers)
+    # setup-node@v6 에서 버전을 컨트롤 할 수 없으므로 향후 node-version 업그레이드를 검토 한다. 업그레이드 되면 스텝 전체를 제거할 수 있다.
     - name: Upgrade npm for Trusted Publishing
       shell: bash
       run: |
