@@ -16,7 +16,7 @@
 # - login — npm login 세션으로 인증 (npm whoami)
 # - npm-oidc — npm OIDC(Trusted Publishing) 자동 인증
 #
-# 성공 시 마지막 줄 publish-prerelease-result-tag=@scope/pkg@version
+# 성공 시 마지막 줄 publish-prerelease-result-tag=@scope/pkg@version (태그 결과 grep용)
 
 set -e
 
