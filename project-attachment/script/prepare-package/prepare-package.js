@@ -23,6 +23,27 @@ const fullPackageName = packageName.startsWith("@watcha-authentic/")
   ? packageName
   : `@watcha-authentic/${packageName}`;
 
+// npm login 확인
+const registry =
+  process.env.NPM_CONFIG_REGISTRY || "https://registry.npmjs.org/";
+try {
+  const user = execSync("npm whoami", {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    env: {
+      ...process.env,
+      NPM_CONFIG_REGISTRY: registry,
+    },
+  }).trim();
+
+  console.log(`ℹ️ npm 사용자: ${user}`);
+} catch {
+  console.error(
+    "❌ @watcha-authentic 스코프 권한이 있는 계정으로 npm login 이 필요 합니다."
+  );
+  process.exit(1);
+}
+
 // 임시 디렉토리 생성
 const tempDir = path.join(scriptDir, "temp-package");
 const packageJsonPath = path.join(tempDir, "package.json");

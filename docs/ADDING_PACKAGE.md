@@ -1,0 +1,179 @@
+# 패키지 추가 가이드 (유지보수)
+
+`@watcha-authentic/*` 패키지를 **처음 레지스트리에 등록**하고, 모노레포 `packages/`에 넣어 **CI로 배포**하기까지의 절차입니다.  
+유지보수 담당자(레지스트리·CI 권한 보유) 기준으로 작성했습니다.
+
+## 관련 문서
+
+| 문서 | 용도 |
+|------|------|
+| [bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d) (Notion) | OIDC(Trusted Publishing), org 권한 |
+| [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md) | `packages/<name>/README.md` 형식 |
+| [README.md](../README.md) | 로컬 개발, 배포(카나리·patch·latest) 개요 |
+
+## 전제
+
+- Node.js `^24`, pnpm `^9.9.0`
+- npm **`@watcha-authentic` org에 publish 권한**이 있는 계정
+- 로컬 배포·`prepare-package`는 **`npm login`** (Security Key). CI는 **OIDC** (`npm login` 아님)
+- Granular Access Token(Bypass 2FA)은 **일회성 관리 작업**용이며, 일상 스크립트 실행에는 쓰지 않습니다
+
+## 절차 요약
+
+```mermaid
+flowchart LR
+  A[1. OIDC 등록] --> B[2. npm 레지스트리 이름 확보]
+  B --> C[3. packages/ 스캐폴딩]
+  C --> D[4. README·validate]
+  D --> E[5. PR / master 배포]
+```
+
+| 단계 | 작업 | 완료 기준 |
+|------|------|-----------|
+| 1 | Notion에 따라 **Trusted Publisher** 등록 | `publish.yml`로 CI publish 가능 |
+| 2 | `pnpm prepare-package <name>` | npm에 `@watcha-authentic/<name>@0.0.1` 존재 |
+| 3 | `packages/<name>/` 구현 | `pnpm validate --filter=@watcha-authentic/<name>` 성공 |
+| 4 | README 작성 | [PACKAGE_README_GUIDE](./PACKAGE_README_GUIDE.md) 준수 |
+| 5 | PR → `master` | `validate-targets` 통과 후 Lerna 정식 배포 |
+
+카나리만 먼저 검증할 때는 **1번 직후** `pnpm publish:canary <name>`(로컬 `npm login`)을 쓸 수 있습니다.
+
+---
+
+## 1. npm OIDC(Trusted Publishing)
+
+`master` merge 시 [publish.yml](../.github/workflows/publish.yml)이 `lerna publish`를 실행합니다. **패키지별 Trusted Publisher가 없으면 CI가 실패**합니다.
+
+- 설정 절차: **[bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d)** (Notion)
+- Publisher 예: `frograms` / `bistro-house` / **`publish.yml`**
+- 패키지당 Publisher **1개**, 워크플로 파일명도 **1개**만 등록 가능 ([npm 문서](https://docs.npmjs.com/trusted-publishers/))
+
+코드 작업 전에 이 단계를 끝내는 것을 권장합니다.
+
+---
+
+## 2. 레지스트리에 패키지 이름 확보 (`prepare-package`)
+
+npm에 **빈 패키지**를 한 번 올려 스코프 아래 **패키지 이름을 선점**합니다. 이후 실제 코드는 모노레포에서 빌드·배포합니다.
+
+### 실행
+
+```bash
+npm login   # @watcha-authentic publish 권한 계정 (Security Key)
+pnpm prepare-package <package-name>
+# 예: pnpm prepare-package react-foo
+#     → @watcha-authentic/react-foo@0.0.1
+```
+
+- 스크립트: [prepare-package.js](../project-attachment/script/prepare-package/prepare-package.js)
+- `npm whoami` 실패 시 즉시 종료 (login 필요)
+- 첫 publish 버전은 항상 **`0.0.1`** (템플릿 고정)
+
+### 자주 나는 오류
+
+| 메시지 | 원인 | 대응 |
+|--------|------|------|
+| `npm login이 필요` / whoami 실패 | 미로그인 | `npm login` |
+| `Cannot publish over previously published version "0.0.1"` | 같은 이름으로 `0.0.1` 이미 publish됨 | 레지스트리 등록은 완료된 상태 → **3단계로 진행**. 재실행 불필요 |
+| `404` / permission | org·스코프 publish 권한 없음, 또는 `~/.npmrc` 토큰만 사용 중 | org 멤버·권한 확인, 일상 작업은 **토큰 제거 후 `npm login`** |
+
+`prepare-package`는 **CI에서 돌지 않습니다**. 로컬 전용입니다.
+
+---
+
+## 3. `packages/<name>/` 스캐폴딩
+
+`lerna.json`의 `packages: ["packages/*"]`에 따라 **디렉터리만 추가하면** Lerna·pnpm 워크스페이스에 자동 포함됩니다.
+
+### 참고할 기존 패키지
+
+| 유형 | 참고 경로 |
+|------|-----------|
+| React 라이브러리 (tsdown) | `packages/react-event-callback/` |
+| ESLint/Prettier 설정 | `packages/eslint-config/`, `packages/prettier-config/` |
+
+### 최소 구성 (React 라이브러리 예)
+
+```
+packages/<name>/
+├── package.json      # name, exports, scripts(validate, build, lint)
+├── tsconfig.json
+├── tsdown.config.mts
+├── eslint.config.mts
+├── src/index.ts
+├── README.md
+├── LICENSE
+└── project-attachment/post-build.sh   # 필요 시 (기존 패키지와 동일 패턴)
+```
+
+`package.json`에서 맞출 항목:
+
+- `name`: `@watcha-authentic/<name>` (`prepare-package`와 동일)
+- `publishConfig.access`: `public`
+- `repository` / `homepage`: 이 저장소·패키지 경로
+- `scripts.validate`: 보통 `tsc && lint && build`
+- `files`: 배포 tarball에 넣을 경로 (보통 `dist`)
+
+### 로컬 확인
+
+```bash
+pnpm install
+pnpm validate --filter=@watcha-authentic/<name>
+pnpm build --filter=@watcha-authentic/<name>
+```
+
+### playground (선택)
+
+UI·동작을 눈으로 보려면 [apps/playground/package.json](../apps/playground/package.json)에 `workspace:*` 의존성을 추가합니다. 필수는 아닙니다.
+
+---
+
+## 4. README 작성
+
+[PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md)에 맞춰 `packages/<name>/README.md`를 작성합니다.
+
+- 섹션 제목(앵커)은 **영어**
+- `package.json`의 `description`, `peerDependencies`와 내용 일치
+- Usage 예제는 **실제 export** 기준
+
+---
+
+## 5. PR · CI · 정식 배포
+
+1. PR 생성 → [validate.yml](../.github/workflows/validate.yml)에서 `validate-targets` (변경 패키지만)
+2. 리뷰 후 `master` merge
+3. [publish.yml](../.github/workflows/publish.yml) `publish-latest` job: `build-targets` → `lerna publish` (conventional commits, independent versioning)
+
+버전은 **패키지별로** 올라갑니다 (`lerna.json` `version: independent`).
+
+### 배포 전 검증 (선택)
+
+```bash
+npm login
+pnpm publish:canary <name>
+# 설치: pnpm add @watcha-authentic/<name>@canary
+```
+
+---
+
+## 체크리스트
+
+- [ ] Notion: Trusted Publisher(`publish.yml`) 등록
+- [ ] `npm login` 후 `pnpm prepare-package <name>` 성공 (또는 해당 이름 `0.0.1` 이미 존재)
+- [ ] `packages/<name>/` 추가, `pnpm validate --filter=...` 통과
+- [ ] `packages/<name>/README.md` ([가이드](./PACKAGE_README_GUIDE.md) 준수)
+- [ ] PR CI green → `master` merge
+- [ ] npm에 정식 버전·`latest` 태그 반영 확인
+
+---
+
+## FAQ
+
+**Q. `prepare-package` 없이 `packages/`만 추가하면?**  
+A. CI `lerna publish` 시 npm에 패키지가 없으면 실패할 수 있습니다. Notion 절차에 따라 **레지스트리 선등록**을 권장합니다.
+
+**Q. 패키지 이름을 바꾸고 싶다면?**  
+A. npm 패키지 이름 변경은 사실상 불가에 가깝습니다. 새 이름으로 `prepare-package` + 새 디렉터리가 필요합니다.
+
+**Q. `prepare-package-registry` 스크립트는?**  
+A. `package.json` scripts에 연결되어 있지 않으며, 운영 경로는 **`prepare-package`** 입니다.

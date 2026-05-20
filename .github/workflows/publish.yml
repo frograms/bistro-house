@@ -128,7 +128,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Publish patch (npm-oidc)
+      - name: Run patch publish (with build)
         run: |
           CHANGED_PACKAGES=$(bash ./project-attachment/changed-targets.sh 2>/dev/null)
           for PACKAGE_PATH in $CHANGED_PACKAGES; do
