@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - "patch/**"
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -36,9 +37,9 @@ jobs:
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
           fi
 
-  publish:
+  publish-latest:
     needs: preflight
-    if: needs.preflight.outputs.has_changes == 'true'
+    if: needs.preflight.outputs.has_changes == 'true' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -102,3 +103,46 @@ jobs:
           done
         env:
           GH_TOKEN: ${{ github.token }}
+
+  publish-patch:
+    needs: preflight
+    if: needs.preflight.outputs.has_changes == 'true' && startsWith(github.ref, 'refs/heads/patch/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-action
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Publish patch (npm-oidc)
+        run: |
+          CHANGED_PACKAGES=$(bash ./project-attachment/changed-targets.sh 2>/dev/null)
+          for PACKAGE_PATH in $CHANGED_PACKAGES; do
+            PACKAGE_SHORT=$(basename "$PACKAGE_PATH")
+            echo "📦 patch 배포: $PACKAGE_SHORT"
+            OUTPUT=$(bash ./project-attachment/package/publish-patch.sh "$PACKAGE_SHORT" npm-oidc 2>&1 | tee /dev/stderr)
+            TAG=$(echo "$OUTPUT" | grep '^publish-prerelease-result-tag=' | tail -1 | cut -d= -f2-)
+            if [ -z "$TAG" ]; then
+              echo "❌ 태그 결과를 찾지 못했습니다 (publish-prerelease-result-tag 결과를 반환받지 못했습니다)."
+              exit 1
+            fi
+            git tag "$TAG"
+            echo "🏷️  git tag: $TAG"
+          done
+
+      - name: Push tags
+        run: git push origin --tags
