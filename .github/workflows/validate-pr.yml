@@ -1,3 +1,7 @@
+# pull_request 에 변경점이 있을때(푸쉬 등) 마다 워크스페이스를 validate 합니다.
+#
+# on: pull_request — opened, synchronize, reopened
+# job validate-pr — setup-action 후 루트 pnpm validate
 name: Validate PR
 
 on:
@@ -8,9 +12,9 @@ permissions:
   id-token: write
 
 jobs:
-  validate:
+  validate-pr:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -20,5 +24,5 @@ jobs:
       - name: Setup Environment
         uses: ./.github/actions/setup-action
 
-      - name: Run validation
-        run: pnpm validate-targets
+      - name: Run validate to workspace
+        run: pnpm validate

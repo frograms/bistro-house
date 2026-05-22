@@ -1,3 +1,11 @@
+# master·patch/** push 시 preflight에서 잡힌 변경 패키지를 검증한 뒤 npm에 배포한다.
+#
+# on: push — master (latest), patch/** (patch dist-tag)
+# 흐름: preflight → validate → publish-latest | publish-patch
+#
+# preflight — publish_type (latest | patch | none), changed_packages
+# validate  — changed_packages → validate-targets.sh
+# publish-* — needs validate, publish_type에 따라 latest(Lerna+Release) 또는 patch
 name: Publish Packages
 
 on:
@@ -16,7 +24,10 @@ jobs:
     permissions:
       contents: read
     outputs:
-      has_changes: ${{ steps.preflight.outputs.has_changes }}
+      publish_type: ${{ steps.preflight.outputs.publish_type }}
+      changed_packages: ${{ steps.preflight.outputs.changed_packages }}
+    env:
+      BRANCH_PUBLISH_TYPE: ${{ github.ref == 'refs/heads/master' && 'latest' || 'patch' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -26,20 +37,68 @@ jobs:
       - name: Setup Environment
         uses: ./.github/actions/setup-action
 
-      - name: Check changed packages
+      - name: Resolve publish targets
         id: preflight
         run: |
-          CHANGED_PACKAGES=$(bash ./project-attachment/changed-targets.sh 2>/dev/null)
+          case "$BRANCH_PUBLISH_TYPE" in
+            latest)
+              CHANGED_PACKAGES=$(bash ./project-attachment/get-changed-targets-by-latest.sh)
+              ;;
+            patch)
+              CHANGED_PACKAGES=$(bash ./project-attachment/get-changed-targets-by-commit.sh "${{ github.sha }}")
+              ;;
+            *)
+              echo "❌ 지원하지 않는 BRANCH_PUBLISH_TYPE: $BRANCH_PUBLISH_TYPE" >&2
+              exit 1
+              ;;
+          esac
+
           if [ -z "$CHANGED_PACKAGES" ]; then
-            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            resolve_publish_type=none
             echo "배포 대상 패키지가 없습니다."
           else
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            resolve_publish_type=$BRANCH_PUBLISH_TYPE
+            echo "변경 패키지:"
+            echo "$CHANGED_PACKAGES"
           fi
 
-  publish-latest:
+          # export publish_type
+          echo "publish_type=$resolve_publish_type" >> "$GITHUB_OUTPUT"
+          # export changed_packages
+          {
+            echo "changed_packages<<EOF"
+            echo "$CHANGED_PACKAGES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+  validate:
     needs: preflight
-    if: needs.preflight.outputs.has_changes == 'true' && github.ref == 'refs/heads/master'
+    if: needs.preflight.outputs.publish_type != 'none'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      publish_type: ${{ needs.preflight.outputs.publish_type }}
+      changed_packages: ${{ needs.preflight.outputs.changed_packages }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-action
+
+      - name: Validate changed packages
+        run: |
+          printf '%s\n' '${{ needs.preflight.outputs.changed_packages }}' \
+            | bash ./project-attachment/validate-targets.sh
+
+  publish-latest:
+    needs: validate
+    if: needs.validate.outputs.publish_type == 'latest'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -62,13 +121,14 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Build packages
-        run: pnpm build-targets
+        run: |
+          printf '%s\n' '${{ needs.validate.outputs.changed_packages }}' \
+            | bash ./project-attachment/build-targets.sh
 
       - name: Run Lerna publish (no push)
         run: |
           pnpm lerna publish --yes --conventional-commits --no-push 2>&1 | tee lerna-publish.log
 
-      # 라이브러리간 종속성이 있는경우 lock 재구성
       - name: Re-install to refresh lockfile
         run: pnpm install
 
@@ -94,7 +154,6 @@ jobs:
         if: steps.get-tags.outputs.tags != '[]'
         run: |
           set -e
-          # JSON 배열을 파싱하여 각 태그에 대해 릴리즈 생성
           jq -r '.[]' <<< '${{ steps.get-tags.outputs.tags }}' | while read -r TAG_NAME; do
             echo "Creating release for tag: $TAG_NAME"
             gh release create "$TAG_NAME" \
@@ -105,8 +164,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
   publish-patch:
-    needs: preflight
-    if: needs.preflight.outputs.has_changes == 'true' && startsWith(github.ref, 'refs/heads/patch/')
+    needs: validate
+    if: needs.validate.outputs.publish_type == 'patch'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -130,8 +189,9 @@ jobs:
 
       - name: Run patch publish (with build)
         run: |
-          CHANGED_PACKAGES=$(bash ./project-attachment/changed-targets.sh 2>/dev/null)
-          for PACKAGE_PATH in $CHANGED_PACKAGES; do
+          CHANGED_PACKAGES='${{ needs.validate.outputs.changed_packages }}'
+          while IFS= read -r PACKAGE_PATH; do
+            [ -z "$PACKAGE_PATH" ] && continue
             PACKAGE_SHORT=$(basename "$PACKAGE_PATH")
             echo "📦 patch 배포: $PACKAGE_SHORT"
             OUTPUT=$(bash ./project-attachment/package/publish-patch.sh "$PACKAGE_SHORT" npm-oidc 2>&1 | tee /dev/stderr)
@@ -142,7 +202,7 @@ jobs:
             fi
             git tag "$TAG"
             echo "🏷️  git tag: $TAG"
-          done
+          done <<< "$CHANGED_PACKAGES"
 
       - name: Push tags
         run: git push origin --tags

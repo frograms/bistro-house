@@ -5,8 +5,6 @@
 # 실행
 # - bash ./project-attachment/package/publish-prerelease.sh <channel> <package> [auth]
 # - auth: login (기본) | npm-oidc
-# - pnpm publish:canary <package> — publish-canary.sh 가 canary 를 넘김
-# - pnpm publish:patch <package> — publish-patch.sh 가 patch 를 넘김
 #
 # 채널
 # - canary {version}-canary.{branch}.{n} dist-tag: canary
@@ -38,9 +36,6 @@ version_bumped=0
 
 usage() {
   echo "사용법:"
-  echo "  pnpm publish:canary <package>"
-  echo "  pnpm publish:patch <package>"
-  echo ""
   echo "  bash ./project-attachment/package/publish-prerelease.sh <channel> <package> [auth]"
   echo ""
   echo "  <auth>     npm 인증 방식 (생략 시 login)"
