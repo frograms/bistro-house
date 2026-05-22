@@ -34,7 +34,7 @@ flowchart LR
 | 2 | `pnpm prepare-package <name>` | npm에 `@watcha-authentic/<name>@0.0.1` 존재 |
 | 3 | `packages/<name>/` 구현 | `pnpm validate --filter=@watcha-authentic/<name>` 성공 |
 | 4 | README 작성 | [PACKAGE_README_GUIDE](./PACKAGE_README_GUIDE.md) 준수 |
-| 5 | PR → `master` | `validate-targets` 통과 후 Lerna 정식 배포 |
+| 5 | PR → `master` | `validate-pr` 통과 후 Lerna 정식 배포 |
 
 카나리만 먼저 검증할 때는 **1번 직후** `pnpm publish:canary <name>`(로컬 `npm login`)을 쓸 수 있습니다.
 
@@ -140,9 +140,9 @@ UI·동작을 눈으로 보려면 [apps/playground/package.json](../apps/playgro
 
 ## 5. PR · CI · 정식 배포
 
-1. PR 생성 → [validate.yml](../.github/workflows/validate.yml)에서 `validate-targets` (변경 패키지만)
+1. PR 생성 → [validate-pr.yml](../.github/workflows/validate-pr.yml)에서 `pnpm validate` (모노레포 전체)
 2. 리뷰 후 `master` merge
-3. [publish.yml](../.github/workflows/publish.yml) `publish-latest` job: `build-targets` → `lerna publish` (conventional commits, independent versioning)
+3. [publish.yml](../.github/workflows/publish.yml) `publish-latest` job: validate → build → `lerna publish` (conventional commits, independent versioning)
 
 버전은 **패키지별로** 올라갑니다 (`lerna.json` `version: independent`).
 
