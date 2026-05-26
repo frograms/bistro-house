@@ -12,4 +12,4 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 package_name="${1:-}"
 npm_auth="${2:-login}"
 
-bash "$script_dir/publish-prerelease.sh" patch "$package_name" "$npm_auth"
+bash "$script_dir/publish-prerelease.sh" patch "$package_name" "$npm_auth" false
