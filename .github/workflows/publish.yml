@@ -129,7 +129,7 @@ jobs:
 
       - name: Run Lerna publish (no push)
         run: |
-          pnpm lerna publish --yes --conventional-commits --no-push 2>&1 | tee lerna-publish.log
+          pnpm lerna publish --yes --conventional-commits --no-push
 
       - name: Re-install to refresh lockfile
         run: pnpm install --no-frozen-lockfile
@@ -146,24 +146,10 @@ jobs:
           git push origin $GITHUB_REF_NAME
           git push origin --tags
 
-      - name: Get published tags from lerna
-        id: get-tags
-        uses: ./.github/actions/get-published-tags-from-lerna-action
+      - name: Create GitHub releases
+        uses: ./.github/actions/create-package-releases-action
         with:
-          lerna_log_file: lerna-publish.log
-
-      - name: Create releases for published tags
-        if: steps.get-tags.outputs.tags != '[]'
-        run: |
-          set -e
-          jq -r '.[]' <<< '${{ steps.get-tags.outputs.tags }}' | while read -r TAG_NAME; do
-            echo "Creating release for tag: $TAG_NAME"
-            gh release create "$TAG_NAME" \
-              --generate-notes \
-              --title "$TAG_NAME"
-          done
-        env:
-          GH_TOKEN: ${{ github.token }}
+          changed_packages: ${{ needs.validate.outputs.changed_packages }}
 
   publish-patch:
     needs: validate

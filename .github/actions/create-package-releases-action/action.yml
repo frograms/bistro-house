@@ -1,0 +1,56 @@
+name: "Create package GitHub releases"
+description: "Resolve current-version tag targets from changed packages and create GitHub releases"
+
+inputs:
+  changed_packages:
+    description: "Multiline absolute paths to changed packages (preflight output)"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Create GitHub releases
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -e
+        export GH_TOKEN
+
+        manifest=$(printf '%s\n' '${{ inputs.changed_packages }}' \
+          | bash ./project-attachment/current-version-info-targets.sh)
+
+        echo "Release manifest:"
+        echo "$manifest" | jq .
+
+        if [ -z "$manifest" ] || [ "$manifest" = "[]" ]; then
+          echo "릴리즈 대상이 없습니다."
+          exit 0
+        fi
+
+        jq -c '.[]' <<< "$manifest" | while read -r entry; do
+          tag=$(echo "$entry" | jq -r '.tag')
+          package_path=$(echo "$entry" | jq -r '.package_path')
+
+          if git rev-parse "$tag^{commit}" >/dev/null 2>&1; then
+            echo "태그 확인: $tag"
+          else
+            echo "❌ git 태그 없음: $tag (push 이후에 실행하세요)" >&2
+            exit 1
+          fi
+
+          notes_file=$(mktemp)
+          if bash ./project-attachment/extract-package-changelog-entry.sh "$package_path" > "$notes_file"; then
+            echo "CHANGELOG 본문으로 릴리즈 생성: $tag"
+            gh release create "$tag" \
+              --title "$tag" \
+              --notes-file "$notes_file"
+          else
+            echo "CHANGELOG 없음 — generate-notes로 릴리즈 생성: $tag"
+            gh release create "$tag" \
+              --title "$tag" \
+              --generate-notes
+          fi
+
+          rm -f "$notes_file"
+        done
