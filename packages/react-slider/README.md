@@ -170,4 +170,3 @@ function App() {
 - `animationDuration`: 애니메이션 지속 시간 (기본값: 500ms)
 - `enableDrag`: 드래그 기능 활성화 여부 (기본값: true)
 - `visibleCount`: 중앙 기준 좌우로 보여줄 요소 개수 (기본값: 1)
-- 테스트
