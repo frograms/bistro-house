@@ -130,7 +130,7 @@ jobs:
           pnpm lerna publish --yes --conventional-commits --no-push 2>&1 | tee lerna-publish.log
 
       - name: Re-install to refresh lockfile
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Amend lockfile if changed
         run: |
