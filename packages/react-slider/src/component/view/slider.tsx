@@ -786,3 +786,5 @@ export const Slider = forwardRef(SliderComponent) as <ItemType = unknown>(
     ref?: React.ForwardedRef<HTMLUListElement>;
   }
 ) => React.ReactElement;
+
+error;
