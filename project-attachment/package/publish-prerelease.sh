@@ -32,7 +32,7 @@ package_dir=""
 package_json=""
 current_version=""
 publish_version=""
-version_bumped=0
+cleanup_pending=0
 
 # --- usage ---
 
@@ -270,27 +270,17 @@ publish_package() {
     cd "$root_dir/$package_dir"
     npm version "$publish_version" --no-git-tag-version
   )
-  version_bumped=1
+  cleanup_pending=1
 
   (
     cd "$root_dir/$package_dir"
     npm publish --tag "$channel" --access public
   )
-
-  (
-    cd "$root_dir/$package_dir"
-    npm version "$current_version" --no-git-tag-version
-  )
-  version_bumped=0
 }
 
 restore_package_version() {
-  if [ "$version_bumped" != "1" ]; then
-    return 0
-  fi
-
   echo ""
-  echo "⚠️  배포가 중단되어 package.json 버전을 ${current_version}(으)로 되돌립니다..."
+  echo "↩️  package.json 버전을 ${current_version}(으)로 복원합니다..."
   if (
     cd "$root_dir/$package_dir"
     npm version "$current_version" --no-git-tag-version
@@ -301,7 +291,6 @@ restore_package_version() {
   else
     echo "❌ 버전 복원에 실패했습니다. ${package_json} 을 수동으로 확인해 주세요."
   fi
-  version_bumped=0
 }
 
 # --- cleanup (EXIT trap) ---
@@ -310,7 +299,12 @@ cleanup() {
   if [ "$cleanup_on" != "true" ]; then
     return 0
   fi
+  if [ "$cleanup_pending" != "1" ]; then
+    return 0
+  fi
+
   restore_package_version
+  cleanup_pending=0
 }
 
 # --- run ---
