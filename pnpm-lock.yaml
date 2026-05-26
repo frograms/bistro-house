@@ -460,6 +460,42 @@ importers:
         specifier: ~5.9.3
         version: 5.9.3
 
+  packages/test-package:
+    devDependencies:
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.50.0
+        version: 8.53.1(@typescript-eslint/parser@8.53.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.50.0
+        version: 8.53.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      '@watcha-authentic/eslint-config':
+        specifier: ^0.2.0
+        version: 0.2.0(@next/eslint-plugin-next@15.5.9)(@typescript-eslint/eslint-plugin@8.53.1(@typescript-eslint/parser@8.53.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/parser@8.53.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.2(jiti@2.6.1)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2(jiti@2.6.1)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.2(jiti@2.6.1)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.2(jiti@2.6.1)))(eslint-plugin-react@7.37.5(eslint@9.39.2(jiti@2.6.1)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.2(jiti@2.6.1)
+      eslint-import-resolver-typescript:
+        specifier: ^3.6.0
+        version: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.2(jiti@2.6.1))
+      eslint-plugin-import:
+        specifier: ^2.31.0
+        version: 2.32.0(@typescript-eslint/parser@8.53.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2(jiti@2.6.1))
+      eslint-plugin-perfectionist:
+        specifier: ^5.9.0
+        version: 5.9.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      eslint-plugin-simple-import-sort:
+        specifier: ^12.1.1
+        version: 12.1.1(eslint@9.39.2(jiti@2.6.1))
+      jiti:
+        specifier: ^2.6.1
+        version: 2.6.1
+      tsdown:
+        specifier: ^0.21.5
+        version: 0.21.5(typescript@5.9.3)
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+
 packages:
 
   '@babel/code-frame@7.28.6':
