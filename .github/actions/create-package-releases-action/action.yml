@@ -18,7 +18,7 @@ runs:
         export GH_TOKEN
 
         manifest=$(printf '%s\n' '${{ inputs.changed_packages }}' \
-          | bash ./project-attachment/current-version-info-targets.sh)
+          | bash ./project-attachment/script/target/current-version-info-targets.sh)
 
         echo "Release manifest:"
         echo "$manifest" | jq .
@@ -40,7 +40,7 @@ runs:
           fi
 
           notes_file=$(mktemp)
-          if bash ./project-attachment/extract-package-changelog-entry.sh "$package_path" > "$notes_file"; then
+          if bash ./project-attachment/script/extract-package-changelog-entry.sh "$package_path" > "$notes_file"; then
             echo "CHANGELOG 본문으로 릴리즈 생성: $tag"
             gh release create "$tag" \
               --title "$tag" \

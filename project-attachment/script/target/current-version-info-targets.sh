@@ -2,7 +2,7 @@
 # 변경된 패키지 경로(stdin)마다 Lerna git 태그 형식(name@version) JSON manifest를 출력합니다.
 #
 # Usage:
-#   printf '%s\n' "$PATHS" | bash ./project-attachment/current-version-info-targets.sh
+#   printf '%s\n' "$PATHS" | bash ./project-attachment/script/target/current-version-info-targets.sh
 #
 # 출력: 한 줄 JSON 배열
 #   [{"tag":"@scope/pkg@1.0.0","package_path":"/abs/path/to/pkg"}, ...]

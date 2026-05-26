@@ -2,7 +2,7 @@
 
 # canary 채널 배포 — publish-prerelease.sh 로 위임합니다.
 #
-# Usage: bash ./project-attachment/package/publish-canary.sh <package>
+# Usage: bash ./project-attachment/script/publish-canary.sh <package>
 #
 # auth 는 publish-prerelease.sh 에 login 으로 전달합니다.
 # - 자세한 값: publish-prerelease.sh --help

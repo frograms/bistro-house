@@ -3,7 +3,7 @@
 # @watcha-authentic/* 패키지를 prerelease 배포 채널로 배포합니다.
 #
 # 실행
-# - bash ./project-attachment/package/publish-prerelease.sh <channel> <package> [auth] <cleanup>
+# - bash ./project-attachment/script/publish-prerelease.sh <channel> <package> [auth] <cleanup>
 # - auth: login (기본) | npm-oidc
 # - cleanup: true | false — EXIT 시 이 스크립트에서 수정한 사항에 대해 버전 복원 여부 (publish-canary/patch 에서 전달)
 #
@@ -38,7 +38,7 @@ cleanup_pending=0
 
 usage() {
   echo "사용법:"
-  echo "  bash ./project-attachment/package/publish-prerelease.sh <channel> <package> [auth] <cleanup>"
+  echo "  bash ./project-attachment/script/publish-prerelease.sh <channel> <package> [auth] <cleanup>"
   echo ""
   echo "  <auth>     npm 인증 방식 (생략 시 login)"
   echo "    login    npm login 후 whoami 로 확인"

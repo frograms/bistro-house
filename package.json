@@ -14,7 +14,7 @@
     "lint": "turbo run lint",
     "build": "turbo run build",
     "build:packages": "pnpm build --filter '@watcha-authentic/*'",
-    "publish:canary": "bash ./project-attachment/package/publish-canary.sh",
+    "publish:canary": "bash ./project-attachment/script/publish-canary.sh",
     "prepare-package": "node ./project-attachment/script/prepare-package/prepare-package.js",
     "format": "prettier --write \"**/*.{js,ts,jsx,tsx,css,scss,html,json,md}\" && prettier --write \"{*.js,*.ts,*.jsx,*.tsx,*.css,*.scss,*.html,*.json,*.md}\""
   },

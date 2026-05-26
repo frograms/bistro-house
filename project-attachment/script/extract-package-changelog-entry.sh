@@ -1,7 +1,7 @@
 #!/bin/bash
 # package.json version에 해당하는 CHANGELOG.md 최상단 섹션을 stdout으로 출력합니다.
 #
-# Usage: bash ./project-attachment/extract-package-changelog-entry.sh <package-root>
+# Usage: bash ./project-attachment/script/extract-package-changelog-entry.sh <package-root>
 
 set -e
 
