@@ -258,6 +258,12 @@ resolve_publish_version() {
 
 # --- build & publish ---
 
+run_validate_targets() {
+  local package_path
+  package_path="$(cd "$root_dir/$package_dir" && pwd)"
+  bash "$script_dir/target/validate-targets.sh" "$package_path"
+}
+
 build_package() {
   echo "🔨 ${full_package_name} 빌드 중..."
   pnpm build --filter="$full_package_name"
@@ -318,6 +324,7 @@ run() {
   validate "$package_arg" || return 1
 
   echo "🔥 ${full_package_name} — channel: ${channel}"
+  run_validate_targets || return 1
   build_package
   publish_package
 
