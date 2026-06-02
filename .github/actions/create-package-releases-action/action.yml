@@ -1,9 +1,9 @@
 name: "Create package GitHub releases"
-description: "Resolve current-version tag targets from changed packages and create GitHub releases"
+description: "Resolve current-version tag targets from changed packages and create GitHub releases (notes via gh generate-notes)"
 
 inputs:
   changed_packages:
-    description: "Multiline absolute paths to changed packages (preflight output)"
+    description: "줄바꿈으로 구분된 packages 절대경로 (multiline). 예) .../packages/react-motion\\n.../packages/react-slider"
     required: true
 
 runs:
@@ -39,18 +39,8 @@ runs:
             exit 1
           fi
 
-          notes_file=$(mktemp)
-          if bash ./project-attachment/script/extract-package-changelog-entry.sh "$package_path" > "$notes_file"; then
-            echo "CHANGELOG 본문으로 릴리즈 생성: $tag"
-            gh release create "$tag" \
-              --title "$tag" \
-              --notes-file "$notes_file"
-          else
-            echo "CHANGELOG 없음 — generate-notes로 릴리즈 생성: $tag"
-            gh release create "$tag" \
-              --title "$tag" \
-              --generate-notes
-          fi
-
-          rm -f "$notes_file"
+          echo "generate-notes로 릴리즈 생성: $tag ($package_path)"
+          gh release create "$tag" \
+            --title "$tag" \
+            --generate-notes
         done
