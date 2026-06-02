@@ -4,6 +4,8 @@
 
 리액트기반 접근성 관련 유틸 패키지입니다. 키보드 네비게이션 등 접근성 기능을 제공합니다.
 
+릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=react-a11y)
+
 ## Table of contents
 
 - [Dependencies](#dependencies)
