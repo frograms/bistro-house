@@ -44,10 +44,10 @@ jobs:
         run: |
           case "$BRANCH_PUBLISH_TYPE" in
             latest)
-              CHANGED_PACKAGES=$(bash ./project-attachment/get-changed-targets-by-latest.sh)
+              CHANGED_PACKAGES=$(bash ./project-attachment/script/get-changed-targets-by-latest.sh)
               ;;
             patch)
-              CHANGED_PACKAGES=$(bash ./project-attachment/get-changed-targets-by-commit.sh "${{ github.sha }}")
+              CHANGED_PACKAGES=$(bash ./project-attachment/script/get-changed-targets-by-commit.sh "${{ github.sha }}")
               ;;
             *)
               echo "❌ 지원하지 않는 BRANCH_PUBLISH_TYPE: $BRANCH_PUBLISH_TYPE" >&2
@@ -96,7 +96,7 @@ jobs:
       - name: Validate changed packages
         run: |
           printf '%s\n' '${{ needs.preflight.outputs.changed_packages }}' \
-            | bash ./project-attachment/validate-targets.sh
+            | bash ./project-attachment/script/target/validate-targets.sh
 
   publish-latest:
     needs: validate
@@ -125,11 +125,11 @@ jobs:
       - name: Build packages
         run: |
           printf '%s\n' '${{ needs.validate.outputs.changed_packages }}' \
-            | bash ./project-attachment/build-targets.sh
+            | bash ./project-attachment/script/target/build-targets.sh
 
       - name: Run Lerna publish (no push)
         run: |
-          pnpm lerna publish --yes --conventional-commits --no-push 2>&1 | tee lerna-publish.log
+          pnpm lerna publish --yes --conventional-commits --no-push
 
       - name: Re-install to refresh lockfile
         run: pnpm install --no-frozen-lockfile
@@ -143,27 +143,13 @@ jobs:
 
       - name: Push commit and tags
         run: |
-          git push origin $GITHUB_REF_NAME
+          git push origin "$GITHUB_REF_NAME"
           git push origin --tags
 
-      - name: Get published tags from lerna
-        id: get-tags
-        uses: ./.github/actions/get-published-tags-from-lerna-action
+      - name: Create GitHub releases
+        uses: ./.github/actions/create-package-releases-action
         with:
-          lerna_log_file: lerna-publish.log
-
-      - name: Create releases for published tags
-        if: steps.get-tags.outputs.tags != '[]'
-        run: |
-          set -e
-          jq -r '.[]' <<< '${{ steps.get-tags.outputs.tags }}' | while read -r TAG_NAME; do
-            echo "Creating release for tag: $TAG_NAME"
-            gh release create "$TAG_NAME" \
-              --generate-notes \
-              --title "$TAG_NAME"
-          done
-        env:
-          GH_TOKEN: ${{ github.token }}
+          changed_packages: ${{ needs.validate.outputs.changed_packages }}
 
   publish-patch:
     needs: validate
@@ -179,7 +165,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_WEB_PAT }}
 
       - name: Setup Environment
         uses: ./.github/actions/setup-action
@@ -196,15 +182,34 @@ jobs:
             [ -z "$PACKAGE_PATH" ] && continue
             PACKAGE_SHORT=$(basename "$PACKAGE_PATH")
             echo "📦 patch 배포: $PACKAGE_SHORT"
-            OUTPUT=$(bash ./project-attachment/package/publish-patch.sh "$PACKAGE_SHORT" npm-oidc 2>&1 | tee /dev/stderr)
+            OUTPUT=$(bash ./project-attachment/script/publish-patch.sh "$PACKAGE_SHORT" npm-oidc 2>&1 | tee /dev/stderr)
             TAG=$(echo "$OUTPUT" | grep '^publish-prerelease-result-tag=' | tail -1 | cut -d= -f2-)
             if [ -z "$TAG" ]; then
               echo "❌ 태그 결과를 찾지 못했습니다 (publish-prerelease-result-tag 결과를 반환받지 못했습니다)."
               exit 1
             fi
+            echo "📝 CHANGELOG: $PACKAGE_SHORT @ $GITHUB_SHA"
+            node ./project-attachment/script/generate-package-changelog.mjs \
+              "$PACKAGE_SHORT" "$GITHUB_SHA"
             git tag "$TAG"
             echo "🏷️  git tag: $TAG"
           done <<< "$CHANGED_PACKAGES"
 
-      - name: Push tags
-        run: git push origin --tags
+      - name: Commit CHANGELOG
+        run: |
+          git add packages/*/CHANGELOG.md
+          if git diff --staged --quiet; then
+            echo "CHANGELOG 변경 없음"
+          else
+            git commit -m "chore(patch): update changelogs"
+          fi
+
+      - name: Push commit and tags
+        run: |
+          git push origin "$GITHUB_REF_NAME"
+          git push origin --tags
+
+      - name: Create GitHub releases
+        uses: ./.github/actions/create-package-releases-action
+        with:
+          changed_packages: ${{ needs.validate.outputs.changed_packages }}

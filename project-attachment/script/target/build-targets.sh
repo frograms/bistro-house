@@ -5,7 +5,7 @@
 #
 # Usage:
 #   .../build-targets.sh [package-root ...]
-#   bash ./project-attachment/get-changed-targets-by-latest.sh | bash ./project-attachment/build-targets.sh
+#   bash ./project-attachment/script/get-changed-targets-by-latest.sh | bash ./project-attachment/script/target/build-targets.sh
 #   printf '%s\n' ... | .../build-targets.sh
 
 set -e

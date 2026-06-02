@@ -5,6 +5,7 @@
   "command": {
     "publish": {
       "conventionalCommits": true,
+      "changelogPreset": "angular",
       "message": "chore(release): publish packages"
     }
   }
