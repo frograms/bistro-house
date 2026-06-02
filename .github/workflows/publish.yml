@@ -127,7 +127,7 @@ jobs:
           printf '%s\n' '${{ needs.validate.outputs.changed_packages }}' \
             | bash ./project-attachment/script/target/build-targets.sh
 
-      - name: Run Lerna publish (no push)
+      - name: Run Lerna-Lite publish (no push)
         run: |
           pnpm lerna publish --yes --conventional-commits --no-push
 
