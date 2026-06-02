@@ -4,6 +4,8 @@
 
 Watcha 공통 ESLint(flat config) 패키지입니다. TypeScript, React, Remix, Vite, Rsbuild, Next.js 등 환경별 규칙 블록과 프리셋을 조합해 사용할 수 있습니다.
 
+릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=eslint-config)
+
 ## Table of contents
 
 - [Dependencies](#dependencies)

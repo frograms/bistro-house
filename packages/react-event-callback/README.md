@@ -4,6 +4,8 @@
 
 리액트에서 동작되는 이벤트 콜백 디펜던시 유지 패키지입니다. 항상 최신 callback을 참조하면서 dependency 변경으로 인한 재실행을 방지하는 훅을 제공합니다.
 
+릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=react-event-callback)
+
 ## Table of contents
 
 - [Dependencies](#dependencies)
