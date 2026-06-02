@@ -131,15 +131,24 @@ jobs:
         run: |
           pnpm lerna publish --yes --conventional-commits --no-push
 
-      - name: Re-install to refresh lockfile
-        run: pnpm install --no-frozen-lockfile
-
-      - name: Amend lockfile if changed
+      - name: Sync lockfile into release commit
         run: |
-          if ! git diff --quiet pnpm-lock.yaml; then
-            git add pnpm-lock.yaml
-            git commit -m "chore: update lockfile"
+          mapfile -t RELEASE_TAGS < <(git tag --points-at HEAD)
+
+          # Re-install to refresh lockfile
+          pnpm install --no-frozen-lockfile
+
+          if git diff --quiet pnpm-lock.yaml; then
+            echo "pnpm-lock.yaml 변경 없음"
+            exit 0
           fi
+
+          git add pnpm-lock.yaml
+          git commit --amend --no-edit
+
+          for tag in "${RELEASE_TAGS[@]}"; do
+            git tag -f "$tag"
+          done
 
       - name: Push commit and tags
         run: |
