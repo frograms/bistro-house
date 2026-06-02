@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.1](https://github.com/frograms/bistro-house/compare/@watcha-authentic/test-package@0.6.0...@watcha-authentic/test-package@0.6.1) (2026-06-02)
+
+**Note:** Version bump only for package @watcha-authentic/test-package
+
 # 0.6.0 (2026-06-02)
 
 * chore!: @watcha-authentic/* v1.0.0 stable release ([4554c9a](https://github.com/frograms/bistro-house/commit/4554c9ae7f7c6653a1f2ea4f26fa944513f7bf8c))
