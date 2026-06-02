@@ -1,5 +1,5 @@
 export const testFunction = () => {
-  return "test";
+  return "test1";
 };
 
 export const testFunction2 = () => {
