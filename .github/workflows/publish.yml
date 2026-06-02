@@ -188,26 +188,12 @@ jobs:
               echo "❌ 태그 결과를 찾지 못했습니다 (publish-prerelease-result-tag 결과를 반환받지 못했습니다)."
               exit 1
             fi
-            echo "📝 CHANGELOG: $PACKAGE_SHORT @ $GITHUB_SHA"
-            node ./project-attachment/script/generate-package-changelog.mjs \
-              "$PACKAGE_SHORT" "$GITHUB_SHA"
             git tag "$TAG"
             echo "🏷️  git tag: $TAG"
           done <<< "$CHANGED_PACKAGES"
 
-      - name: Commit CHANGELOG
-        run: |
-          git add packages/*/CHANGELOG.md
-          if git diff --staged --quiet; then
-            echo "CHANGELOG 변경 없음"
-          else
-            git commit -m "chore(patch): update changelogs"
-          fi
-
-      - name: Push commit and tags
-        run: |
-          git push origin "$GITHUB_REF_NAME"
-          git push origin --tags
+      - name: Push tags
+        run: git push origin --tags
 
       - name: Create GitHub releases
         uses: ./.github/actions/create-package-releases-action
