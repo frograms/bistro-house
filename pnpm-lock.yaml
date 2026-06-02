@@ -150,6 +150,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.50.0
         version: 8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      '@watcha-authentic/prettier-config':
+        specifier: ^1.0.0
+        version: 1.0.0(prettier@3.8.3)
       eslint:
         specifier: ^9.39.2
         version: 9.39.4(jiti@2.7.0)
@@ -174,6 +177,9 @@ importers:
       eslint-plugin-simple-import-sort:
         specifier: ^12.1.1
         version: 12.1.1(eslint@9.39.4(jiti@2.7.0))
+      prettier:
+        specifier: ^3.7.4
+        version: 3.8.3
       tsdown:
         specifier: ^0.21.5
         version: 0.21.10(typescript@5.9.3)
@@ -241,6 +247,9 @@ importers:
       '@watcha-authentic/eslint-config':
         specifier: ^1.0.0
         version: 1.0.0(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))
+      '@watcha-authentic/prettier-config':
+        specifier: ^1.0.0
+        version: 1.0.0(prettier@3.8.3)
       eslint:
         specifier: ^9.39.2
         version: 9.39.4(jiti@2.7.0)
@@ -265,6 +274,9 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.7.0
+      prettier:
+        specifier: ^3.7.4
+        version: 3.8.3
       react:
         specifier: ^19.0.0
         version: 19.2.7
@@ -295,6 +307,9 @@ importers:
       '@watcha-authentic/eslint-config':
         specifier: ^1.0.0
         version: 1.0.0(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))
+      '@watcha-authentic/prettier-config':
+        specifier: ^1.0.0
+        version: 1.0.0(prettier@3.8.3)
       eslint:
         specifier: ^9.39.2
         version: 9.39.4(jiti@2.7.0)
@@ -319,6 +334,9 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.7.0
+      prettier:
+        specifier: ^3.7.4
+        version: 3.8.3
       react:
         specifier: ^19.0.0
         version: 19.2.7
@@ -353,6 +371,9 @@ importers:
       '@watcha-authentic/eslint-config':
         specifier: ^1.0.0
         version: 1.0.0(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))
+      '@watcha-authentic/prettier-config':
+        specifier: ^1.0.0
+        version: 1.0.0(prettier@3.8.3)
       eslint:
         specifier: ^9.39.2
         version: 9.39.4(jiti@2.7.0)
@@ -377,6 +398,9 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.7.0
+      prettier:
+        specifier: ^3.7.4
+        version: 3.8.3
       react:
         specifier: ^19.0.0
         version: 19.2.7
@@ -417,6 +441,9 @@ importers:
       '@watcha-authentic/eslint-config':
         specifier: ^1.0.0
         version: 1.0.0(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))
+      '@watcha-authentic/prettier-config':
+        specifier: ^1.0.0
+        version: 1.0.0(prettier@3.8.3)
       cssnano:
         specifier: ^7.0.0
         version: 7.1.9(postcss@8.5.15)
@@ -453,6 +480,9 @@ importers:
       postcss-load-config:
         specifier: ^6.0.0
         version: 6.0.1(jiti@2.7.0)(postcss@8.5.15)(yaml@2.9.0)
+      prettier:
+        specifier: ^3.7.4
+        version: 3.8.3
       react:
         specifier: ^19.0.0
         version: 19.2.7
