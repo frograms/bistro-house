@@ -26,15 +26,6 @@ importers:
       '@watcha-authentic/prettier-config':
         specifier: ^0.1.0
         version: 0.1.1(prettier@3.8.1)
-      conventional-changelog-angular:
-        specifier: 7.0.0
-        version: 7.0.0
-      conventional-changelog-writer:
-        specifier: 6.0.1
-        version: 6.0.1
-      conventional-commits-parser:
-        specifier: 4.0.0
-        version: 4.0.0
       eslint:
         specifier: ^9.39.2
         version: 9.39.2(jiti@2.6.1)
@@ -50,9 +41,6 @@ importers:
       eslint-plugin-simple-import-sort:
         specifier: ^12.1.1
         version: 12.1.1(eslint@9.39.2(jiti@2.6.1))
-      git-raw-commits:
-        specifier: 3.0.0
-        version: 3.0.0
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
