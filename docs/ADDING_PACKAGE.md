@@ -96,7 +96,7 @@ pnpm prepare-package <package-name>
 
 ```
 packages/<name>/
-├── package.json      # name, exports, scripts(validate, build, lint)
+├── package.json      # name, exports, scripts(test, lint, build, typecheck)
 ├── tsconfig.json
 ├── tsdown.config.mts
 ├── eslint.config.mts
@@ -111,7 +111,7 @@ packages/<name>/
 - `name`: `@watcha-authentic/<name>` (`prepare-package`와 동일)
 - `publishConfig.access`: `public`
 - `repository` / `homepage`: 이 저장소·패키지 경로
-- `scripts.validate`: 보통 `tsc && lint && build`
+- `scripts`: `test`, `lint`, `build`, `typecheck` (`tsc`) — 루트 `pnpm validate`가 turbo로 일괄 실행
 - `files`: 배포 tarball에 넣을 경로 (보통 `dist`)
 
 ### 로컬 확인

@@ -10,7 +10,7 @@
     "dev": "turbo run dev",
     "dev:playground": "pnpm build:packages && turbo run dev --filter=playground",
     "test": "turbo run test",
-    "validate": "turbo run validate",
+    "validate": "turbo run test lint build typecheck",
     "lint": "turbo run lint",
     "build": "turbo run build",
     "build:packages": "pnpm build --filter '@watcha-authentic/*'",
