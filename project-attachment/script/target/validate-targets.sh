@@ -7,7 +7,7 @@
 #
 # Usage:
 #   .../validate-targets.sh [package-root ...]
-#   bash ./project-attachment/get-changed-targets-by-latest.sh | bash ./project-attachment/validate-targets.sh
+#   bash ./project-attachment/script/get-changed-targets-by-latest.sh | bash ./project-attachment/script/target/validate-targets.sh
 #   printf '%s\n' ... | .../validate-targets.sh
 
 set -e

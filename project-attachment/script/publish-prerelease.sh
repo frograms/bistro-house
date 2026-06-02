@@ -3,8 +3,9 @@
 # @watcha-authentic/* 패키지를 prerelease 배포 채널로 배포합니다.
 #
 # 실행
-# - bash ./project-attachment/package/publish-prerelease.sh <channel> <package> [auth]
+# - bash ./project-attachment/script/publish-prerelease.sh <channel> <package> [auth] <cleanup>
 # - auth: login (기본) | npm-oidc
+# - cleanup: true | false — EXIT 시 이 스크립트에서 수정한 사항에 대해 버전 복원 여부 (publish-canary/patch 에서 전달)
 #
 # 채널
 # - canary {version}-canary.{branch}.{n} dist-tag: canary
@@ -23,6 +24,7 @@ root_dir="$(cd "$script_dir/../.." && pwd)"
 
 channel=""
 npm_auth="login"
+cleanup_on=""
 
 full_package_name=""
 short_name=""
@@ -30,17 +32,21 @@ package_dir=""
 package_json=""
 current_version=""
 publish_version=""
-version_bumped=0
+cleanup_pending=0
 
 # --- usage ---
 
 usage() {
   echo "사용법:"
-  echo "  bash ./project-attachment/package/publish-prerelease.sh <channel> <package> [auth]"
+  echo "  bash ./project-attachment/script/publish-prerelease.sh <channel> <package> [auth] <cleanup>"
   echo ""
   echo "  <auth>     npm 인증 방식 (생략 시 login)"
   echo "    login    npm login 후 whoami 로 확인"
   echo "    npm-oidc npm OIDC(Trusted Publishing) 자동 인증"
+  echo ""
+  echo "  <cleanup>  true | false (필수 — 래퍼 publish-canary/patch 가 전달)"
+  echo "    true     EXIT 시 이 스크립트에서 수정한 사항에 대해(package.json 등) 버전 복원"
+  echo "    false    EXIT 복원 없음"
   echo ""
   echo "  <channel>  canary | patch"
   echo "    canary  {version}-canary.{branch}.{n}"
@@ -264,27 +270,17 @@ publish_package() {
     cd "$root_dir/$package_dir"
     npm version "$publish_version" --no-git-tag-version
   )
-  version_bumped=1
+  cleanup_pending=1
 
   (
     cd "$root_dir/$package_dir"
     npm publish --tag "$channel" --access public
   )
-
-  (
-    cd "$root_dir/$package_dir"
-    npm version "$current_version" --no-git-tag-version
-  )
-  version_bumped=0
 }
 
 restore_package_version() {
-  if [ "$version_bumped" != "1" ]; then
-    return 0
-  fi
-
   echo ""
-  echo "⚠️  배포가 중단되어 package.json 버전을 ${current_version}(으)로 되돌립니다..."
+  echo "↩️  package.json 버전을 ${current_version}(으)로 복원합니다..."
   if (
     cd "$root_dir/$package_dir"
     npm version "$current_version" --no-git-tag-version
@@ -295,7 +291,20 @@ restore_package_version() {
   else
     echo "❌ 버전 복원에 실패했습니다. ${package_json} 을 수동으로 확인해 주세요."
   fi
-  version_bumped=0
+}
+
+# --- cleanup (EXIT trap) ---
+
+cleanup() {
+  if [ "$cleanup_on" != "true" ]; then
+    return 0
+  fi
+  if [ "$cleanup_pending" != "1" ]; then
+    return 0
+  fi
+
+  restore_package_version
+  cleanup_pending=0
 }
 
 # --- run ---
@@ -320,11 +329,12 @@ run() {
 
 # --- main ---
 
-trap restore_package_version EXIT
+trap cleanup EXIT
 
 channel="${1:-}"
 package_name="${2:-}"
 npm_auth="${3:-login}"
+cleanup_on="${4:-}"
 
 if [ "$channel" = "-h" ] || [ "$channel" = "--help" ]; then
   usage
@@ -343,8 +353,15 @@ if [ -z "$channel" ] || [ -z "$package_name" ]; then
   exit 1
 fi
 
-if [ $# -gt 3 ]; then
-  echo "❌ 오류: 알 수 없는 인자가 있습니다: ${*:4}"
+if [ -z "$cleanup_on" ]; then
+  echo "❌ 오류: cleanup 인자(true|false)가 필요합니다."
+  echo ""
+  usage
+  exit 1
+fi
+
+if [ $# -gt 4 ]; then
+  echo "❌ 오류: 알 수 없는 인자가 있습니다: ${*:5}"
   echo ""
   usage
   exit 1
