@@ -5,7 +5,7 @@
     "eslint",
     "config"
   ],
-  "version": "0.2.2",
+  "version": "0.2.3",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/eslint-config#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
