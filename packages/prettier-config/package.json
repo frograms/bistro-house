@@ -5,7 +5,7 @@
     "prettier",
     "config"
   ],
-  "version": "0.2.1",
+  "version": "1.0.0",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/prettier-config#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
