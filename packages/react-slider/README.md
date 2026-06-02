@@ -4,6 +4,8 @@
 
 리액트기반 슬라이더 컴포넌트입니다. 드래그/스와이프, 키보드 네비게이션을 지원하며 무한 루프 슬라이더를 제공합니다.
 
+릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=react-slider)
+
 ## Table of contents
 
 - [Dependencies](#dependencies)

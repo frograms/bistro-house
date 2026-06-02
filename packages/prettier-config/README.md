@@ -4,6 +4,8 @@
 
 Watcha 공통 Prettier 설정 패키지입니다.
 
+릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=prettier-config)
+
 ## Table of contents
 
 - [Dependencies](#dependencies)

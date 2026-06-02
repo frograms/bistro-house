@@ -4,6 +4,8 @@
 
 리액트기반 포인터 기반 이벤트의 모션, 제스쳐 핸들링 패키지입니다. 마우스, 터치 이벤트를 통합하여 포인터 이벤트를 처리하고 드래그, 스와이프 등의 제스쳐를 지원합니다.
 
+릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=react-motion)
+
 ## Table of contents
 
 - [Dependencies](#dependencies)

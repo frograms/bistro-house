@@ -14,7 +14,7 @@
 
 | 순서 | 영문 제목 (앵커) | 설명 |
 |------|------------------|------|
-| 1 | (없음) | `# 패키지명` + npm 뱃지 + 한 줄 설명 |
+| 1 | (없음) | `# 패키지명` + npm 뱃지 + 한 줄 설명 + **릴리즈 링크** |
 | 2 | `Table of contents` | `#table-of-contents` — 아래 주요 `##`로 점프 |
 | 3 | `Dependencies` | `#dependencies` — Runtime / Peer 하위 구분 |
 | 4 | `Installation` | `#installation` — `pnpm` 기준 |
@@ -30,10 +30,20 @@
 [![npm version](https://img.shields.io/npm/v/@watcha-authentic/{package-name})](https://www.npmjs.com/package/@watcha-authentic/{package-name})
 
 {한 줄 설명 — package.json의 description과 동일하거나 확장}
+
+릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q={package-name})
 ```
 
 - `{package-name}`: 스코프 뒤 이름만 (예: `react-slider`, `eslint-config`).
 - 뱃지·npm 링크의 패키지 경로가 실제 배포명과 일치하는지 확인합니다.
+
+### 릴리즈 링크
+
+- **CHANGELOG**: Lerna(latest) 배포 시 갱신되는 `./CHANGELOG.md`를 가리킵니다.
+- **GitHub Releases**: [bistro-house Releases](https://github.com/frograms/bistro-house/releases) 검색 URL입니다.
+  - `q=`에는 **`@watcha-authentic/` 없이** `{package-name}`만 넣습니다. (예: `eslint-config`, `react-slider`)
+  - 릴리즈 제목이 `@watcha-authentic/eslint-config@1.0.0` 형태라, 짧은 이름으로 검색해야 필터가 동작합니다.
+  - `@watcha-authentic%2Feslint-config`처럼 스코프 전체를 `q=`에 넣으면 검색이 기대대로 되지 않을 수 있습니다.
 
 ## 2. 목차 (Table of contents)
 
@@ -110,6 +120,8 @@ pnpm add @watcha-authentic/{package-name} {필요 시 peer 패키지}
 [![npm version](https://img.shields.io/npm/v/@watcha-authentic/{package-name})](https://www.npmjs.com/package/@watcha-authentic/{package-name})
 
 {설명}
+
+릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q={package-name})
 
 ## Table of contents
 
