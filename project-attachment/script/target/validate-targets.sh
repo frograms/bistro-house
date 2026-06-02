@@ -3,7 +3,8 @@
 # 해당 패키지에 다음 스크립트가 구현되어 있어야 합니다.
 # - test
 # - lint
-# - validate
+# - build
+# - typecheck
 #
 # Usage:
 #   .../validate-targets.sh [package-root ...]
@@ -40,11 +41,12 @@ while IFS= read -r PACKAGE_PATH; do
 
   HAS_LINT=$(node -p "require('$PACKAGE_PATH/package.json').scripts?.lint ? 'yes' : 'no'")
   HAS_TEST=$(node -p "require('$PACKAGE_PATH/package.json').scripts?.test ? 'yes' : 'no'")
-  HAS_VALIDATE=$(node -p "require('$PACKAGE_PATH/package.json').scripts?.validate ? 'yes' : 'no'")
-  if [ "$HAS_LINT" = "yes" ] && [ "$HAS_TEST" = "yes" ] && [ "$HAS_VALIDATE" = "yes" ]; then
+  HAS_BUILD=$(node -p "require('$PACKAGE_PATH/package.json').scripts?.build ? 'yes' : 'no'")
+  HAS_TYPECHECK=$(node -p "require('$PACKAGE_PATH/package.json').scripts?.typecheck ? 'yes' : 'no'")
+  if [ "$HAS_LINT" = "yes" ] && [ "$HAS_TEST" = "yes" ] && [ "$HAS_BUILD" = "yes" ] && [ "$HAS_TYPECHECK" = "yes" ]; then
     FILTER_ARGS+=("--filter=$PACKAGE_NAME")
   else
-    echo "⛔️ $PACKAGE_NAME 패키지에 밸리데이션 필수 스크립트(test, lint, validate)가 없습니다. 스크립트를 구성해주세요."
+    echo "⛔️ $PACKAGE_NAME 패키지에 밸리데이션 필수 스크립트(test, lint, build, typecheck)가 없습니다. 스크립트를 구성해주세요."
     exit 1
   fi
 done <<< "$CHANGED_PACKAGES"
@@ -54,7 +56,7 @@ if [ ${#FILTER_ARGS[@]} -eq 0 ]; then
   exit 1
 fi
 
-if ! pnpm exec turbo run test lint validate "${FILTER_ARGS[@]}"; then
+if ! pnpm exec turbo run test lint build typecheck "${FILTER_ARGS[@]}"; then
   echo "❌ 밸리데이션 검사에 실패 했습니다."
   exit 1
 fi

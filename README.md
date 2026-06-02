@@ -48,7 +48,7 @@ pnpm dev:playground    # playground 개발 서버
 | `pnpm dev:playground`           | playground 개발 서버                        |
 | `pnpm build`                    | 전체 빌드                                   |
 | `pnpm build:packages`           | `@watcha-authentic/*`만 빌드                |
-| `pnpm validate`                 | 전체 validate                               |
+| `pnpm validate`                 | 전체 test · lint · build · typecheck (turbo) |
 | `pnpm lint`                     | 전체 lint                                   |
 | `pnpm test`                     | 전체 test                                   |
 | `pnpm publish:canary <package>` | 카나리 버전 npm 배포 (로컬)                 |
