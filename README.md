@@ -60,7 +60,7 @@ pnpm dev:playground    # playground 개발 서버
 | 워크플로                                       | 트리거          | 역할                                                                        |
 | ---------------------------------------------- | --------------- | --------------------------------------------------------------------------- |
 | [validate-pr.yml](.github/workflows/validate-pr.yml) | PR              | `pnpm validate` (모노레포 전체)                                             |
-| [publish.yml](.github/workflows/publish.yml)   | `master` push   | preflight → validate(changed) → Lerna 배포 (`publish-latest`)               |
+| [publish.yml](.github/workflows/publish.yml)   | `master` push   | preflight → validate(changed) → Lerna-Lite 배포 (`publish-latest`)          |
 | [publish.yml](.github/workflows/publish.yml)   | `patch/**` push | preflight → validate(changed) → patch 배포 (`publish-patch`)                |
 
 ## 배포
@@ -70,10 +70,17 @@ pnpm dev:playground    # playground 개발 서버
 `master`에 merge되면 [publish.yml](.github/workflows/publish.yml)이 실행됩니다.
 
 1. 변경된 패키지 검증·빌드 (`publish.yml`)
-2. `lerna publish` (conventional commits)
+2. `lerna publish` (Lerna-Lite, conventional commits)
 3. 필요 시 `pnpm-lock.yaml` 커밋 후 push, 태그·GitHub Release
 
-버전은 패키지별 independent versioning (`lerna.json`)입니다.
+버전은 패키지별 independent versioning (`lerna.json`)입니다. 릴리스 CLI는 [Lerna-Lite](https://github.com/lerna-lite/lerna-lite) (`@lerna-lite/*`)이며, 명령은 기존과 같이 `pnpm lerna`를 사용합니다.
+
+로컬에서 배포 영향만 확인할 때:
+
+```bash
+pnpm exec lerna changed --parseable
+pnpm lerna publish --yes --conventional-commits --no-push --dry-run
+```
 
 ### 카나리 배포
 

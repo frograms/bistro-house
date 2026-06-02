@@ -34,7 +34,7 @@ flowchart LR
 | 2 | `pnpm prepare-package <name>` | npm에 `@watcha-authentic/<name>@0.0.1` 존재 |
 | 3 | `packages/<name>/` 구현 | `pnpm validate --filter=@watcha-authentic/<name>` 성공 |
 | 4 | README 작성 | [PACKAGE_README_GUIDE](./PACKAGE_README_GUIDE.md) 준수 |
-| 5 | PR → `master` | `validate-pr` 통과 후 Lerna 정식 배포 |
+| 5 | PR → `master` | `validate-pr` 통과 후 Lerna-Lite 정식 배포 |
 
 카나리만 먼저 검증할 때는 **1번 직후** `pnpm publish:canary <name>`(로컬 `npm login`)을 쓸 수 있습니다.
 
@@ -83,7 +83,7 @@ pnpm prepare-package <package-name>
 
 ## 3. `packages/<name>/` 스캐폴딩
 
-`lerna.json`의 `packages: ["packages/*"]`에 따라 **디렉터리만 추가하면** Lerna·pnpm 워크스페이스에 자동 포함됩니다.
+`lerna.json`의 `packages: ["packages/*"]`에 따라 **디렉터리만 추가하면** Lerna-Lite·pnpm 워크스페이스에 자동 포함됩니다.
 
 ### 참고할 기존 패키지
 
