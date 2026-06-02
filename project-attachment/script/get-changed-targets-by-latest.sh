@@ -1,5 +1,5 @@
 #!/bin/bash
-# latest(lerna changed) 기준으로 변경된 packages/* 경로(절대 경로)를 한 줄에 하나씩 출력합니다.
+# latest(Lerna-Lite `lerna changed`) 기준으로 변경된 packages/* 경로(절대 경로)를 한 줄에 하나씩 출력합니다.
 #
 # Usage: bash get-changed-targets-by-latest.sh
 #
