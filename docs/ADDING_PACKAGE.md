@@ -5,11 +5,11 @@
 
 ## 관련 문서
 
-| 문서 | 용도 |
-|------|------|
-| [bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d) (Notion) | OIDC(Trusted Publishing), org 권한 |
-| [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md) | `packages/<name>/README.md` 형식 |
-| [README.md](../README.md) | 로컬 개발, 배포(카나리·patch·latest) 개요 |
+| 문서                                                                                                                          | 용도                                      |
+| ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| [bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d) (Notion) | OIDC(Trusted Publishing), org 권한        |
+| [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md)                                                                          | `packages/<name>/README.md` 형식          |
+| [README.md](../README.md)                                                                                                     | 로컬 개발, 배포(카나리·patch·latest) 개요 |
 
 ## 전제
 
@@ -28,13 +28,13 @@ flowchart LR
   D --> E[5. PR / master 배포]
 ```
 
-| 단계 | 작업 | 완료 기준 |
-|------|------|-----------|
-| 1 | Notion에 따라 **Trusted Publisher** 등록 | `publish.yml`로 CI publish 가능 |
-| 2 | `pnpm prepare-package <name>` | npm에 `@watcha-authentic/<name>@0.0.1` 존재 |
-| 3 | `packages/<name>/` 구현 | `pnpm validate --filter=@watcha-authentic/<name>` 성공 |
-| 4 | README 작성 | [PACKAGE_README_GUIDE](./PACKAGE_README_GUIDE.md) 준수 |
-| 5 | PR → `master` | `validate-pr` 통과 후 Lerna-Lite 정식 배포 |
+| 단계 | 작업                                     | 완료 기준                                              |
+| ---- | ---------------------------------------- | ------------------------------------------------------ |
+| 1    | Notion에 따라 **Trusted Publisher** 등록 | `publish.yml`로 CI publish 가능                        |
+| 2    | `pnpm prepare-package <name>`            | npm에 `@watcha-authentic/<name>@0.0.1` 존재            |
+| 3    | `packages/<name>/` 구현                  | `pnpm validate --filter=@watcha-authentic/<name>` 성공 |
+| 4    | README 작성                              | [PACKAGE_README_GUIDE](./PACKAGE_README_GUIDE.md) 준수 |
+| 5    | PR → `master`                            | `validate-pr` 통과 후 Lerna-Lite 정식 배포             |
 
 카나리만 먼저 검증할 때는 **1번 직후** `pnpm publish:canary <name>`(로컬 `npm login`)을 쓸 수 있습니다.
 
@@ -71,11 +71,11 @@ pnpm prepare-package <package-name>
 
 ### 자주 나는 오류
 
-| 메시지 | 원인 | 대응 |
-|--------|------|------|
-| `npm login이 필요` / whoami 실패 | 미로그인 | `npm login` |
-| `Cannot publish over previously published version "0.0.1"` | 같은 이름으로 `0.0.1` 이미 publish됨 | 레지스트리 등록은 완료된 상태 → **3단계로 진행**. 재실행 불필요 |
-| `404` / permission | org·스코프 publish 권한 없음, 또는 `~/.npmrc` 토큰만 사용 중 | org 멤버·권한 확인, 일상 작업은 **토큰 제거 후 `npm login`** |
+| 메시지                                                     | 원인                                                         | 대응                                                            |
+| ---------------------------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------- |
+| `npm login이 필요` / whoami 실패                           | 미로그인                                                     | `npm login`                                                     |
+| `Cannot publish over previously published version "0.0.1"` | 같은 이름으로 `0.0.1` 이미 publish됨                         | 레지스트리 등록은 완료된 상태 → **3단계로 진행**. 재실행 불필요 |
+| `404` / permission                                         | org·스코프 publish 권한 없음, 또는 `~/.npmrc` 토큰만 사용 중 | org 멤버·권한 확인, 일상 작업은 **토큰 제거 후 `npm login`**    |
 
 `prepare-package`는 **CI에서 돌지 않습니다**. 로컬 전용입니다.
 
@@ -87,10 +87,10 @@ pnpm prepare-package <package-name>
 
 ### 참고할 기존 패키지
 
-| 유형 | 참고 경로 |
-|------|-----------|
-| React 라이브러리 (tsdown) | `packages/react-event-callback/` |
-| ESLint/Prettier 설정 | `packages/eslint-config/`, `packages/prettier-config/` |
+| 유형                      | 참고 경로                                              |
+| ------------------------- | ------------------------------------------------------ |
+| React 라이브러리 (tsdown) | `packages/react-event-callback/`                       |
+| ESLint/Prettier 설정      | `packages/eslint-config/`, `packages/prettier-config/` |
 
 ### 최소 구성 (React 라이브러리 예)
 

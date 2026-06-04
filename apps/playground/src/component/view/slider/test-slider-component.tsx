@@ -44,16 +44,16 @@ export const TestSliderComponent = () => {
       <p>page: {currentIndex}</p>
       <div
         style={{
+          background: "red",
           display: "flex",
           justifyContent: "center",
-          background: "red",
         }}>
         <div
           style={{
-            width: 500,
-            overflow: "hidden",
             background: "orange",
+            overflow: "hidden",
             padding: 16,
+            width: 500,
           }}>
           <Slider
             ref={slider}

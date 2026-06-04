@@ -7,26 +7,21 @@ export const reactConfigs: Linter.Config[] = [
     files: ["**/*.{jsx,tsx}"],
     languageOptions: {
       ecmaVersion: "latest",
-      sourceType: "module",
+      globals: {
+        JSX: "readonly",
+        React: "readonly",
+      },
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
         },
       },
-      globals: {
-        React: "readonly",
-        JSX: "readonly",
-      },
+      sourceType: "module",
     },
     plugins: {
       react: reactPlugin,
       "react-hooks": {
         rules: reactHooksPlugin.rules,
-      },
-    },
-    settings: {
-      react: {
-        version: "detect",
       },
     },
     rules: {
@@ -69,6 +64,11 @@ export const reactConfigs: Linter.Config[] = [
       "react/prop-types": "off",
       "react/react-in-jsx-scope": "off",
       "react/self-closing-comp": "warn",
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
     },
   },
 ];

@@ -4,9 +4,9 @@ import { useCallback, useEffect } from "react";
 import type { AccessibilityOptions } from "../../script/type/accessibility-type";
 
 type UseAccessibilityHandlerProps<ElementType extends HTMLElement> = {
-  target: React.RefObject<ElementType | null>;
   handler: (event: KeyboardEvent) => void;
   options?: AccessibilityOptions<ElementType>;
+  target: React.RefObject<ElementType | null>;
 };
 
 export const useAccessibilityHandler = <ElementType extends HTMLElement>({

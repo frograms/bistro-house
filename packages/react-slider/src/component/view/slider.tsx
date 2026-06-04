@@ -52,23 +52,7 @@ type ExtendedItem<ItemType> = {
 };
 
 export type SliderProps<ItemType> = {
-  className?: string;
-  /**
-   * - 슬라이더 영역의 오버플로우 처리 방식입니다.
-   * - 기본값은 "visible" 입니다.
-   */
-  overflow?: "hidden" | "visible";
-  itemProps?: React.HTMLAttributes<HTMLLIElement>;
-  wrapProps?: React.HTMLAttributes<HTMLUListElement>;
-  contentProps?: React.HTMLAttributes<HTMLDivElement>;
-  items: Array<ItemType>;
-  onCreateItemView: (item: ItemType, index: number) => React.ReactNode;
-  onItemKey: (item: ItemType) => React.Key;
-  /**
-   * - item 간 거리입니다.
-   * - 기본값은 0 입니다.
-   */
-  gap?: number;
+  a11yOptions?: AccessibilityOptions<HTMLUListElement>;
   /**
    * - 슬라이드 애니메이션 지속 시간(milliseconds)입니다.
    * - 기본값은 500 입니다.
@@ -79,48 +63,63 @@ export type SliderProps<ItemType> = {
    * - 기본값은 "ease" 입니다.
    */
   animationTimingFunction?: CSSProperties["transitionTimingFunction"];
+  className?: string;
+  contentProps?: React.HTMLAttributes<HTMLDivElement>;
   /**
    * - 초기 인덱스입니다.
    * - 기본값은 0 입니다.
    */
   defaultIndex?: number;
   /**
-   * - 중앙 기준 좌우로 보여줄 요소 개수입니다.
-   * - 예: 1이면 좌1 + 중앙1 + 우1 = 3개, 2이면 좌2 + 중앙1 + 우2 = 5개
-   * - 기본값은 1 입니다.
+   * - 렌더링된 아이템의 a, img 등의 요소에 draggable 값을 제한 합니다.
+   * - 기본값은 true 입니다.
    */
-  visibleCount?: number;
-  /**
-   * - 인덱스 변경 시 호출되는 콜백입니다.
-   * - cause: 슬라이드 원인 ('swipe': 키보드 네비게이션, 'drag': 드래그/스와이프, undefined: 외부 prop 변경)
-   */
-  onIndexChange?: (newIndex: number, cause: SlideTriggerEvent) => void;
+  disableDraggableItems?: boolean;
   /**
    * - 드래그 기능 활성화 여부입니다.
    * - 기본값은 true 입니다.
    */
   enableDrag?: boolean;
   /**
-   * - 렌더링된 아이템의 a, img 등의 요소에 draggable 값을 제한 합니다.
-   * - 기본값은 true 입니다.
+   * - item 간 거리입니다.
+   * - 기본값은 0 입니다.
    */
-  disableDraggableItems?: boolean;
+  gap?: number;
+  itemProps?: React.HTMLAttributes<HTMLLIElement>;
+  items: Array<ItemType>;
+  onCreateItemView: (item: ItemType, index: number) => React.ReactNode;
   onDraggingNow?: (isDragging: boolean) => void;
-  a11yOptions?: AccessibilityOptions<HTMLUListElement>;
+  /**
+   * - 인덱스 변경 시 호출되는 콜백입니다.
+   * - cause: 슬라이드 원인 ('swipe': 키보드 네비게이션, 'drag': 드래그/스와이프, undefined: 외부 prop 변경)
+   */
+  onIndexChange?: (newIndex: number, cause: SlideTriggerEvent) => void;
+  onItemKey: (item: ItemType) => React.Key;
+  /**
+   * - 슬라이더 영역의 오버플로우 처리 방식입니다.
+   * - 기본값은 "visible" 입니다.
+   */
+  overflow?: "hidden" | "visible";
+  /**
+   * - 중앙 기준 좌우로 보여줄 요소 개수입니다.
+   * - 예: 1이면 좌1 + 중앙1 + 우1 = 3개, 2이면 좌2 + 중앙1 + 우2 = 5개
+   * - 기본값은 1 입니다.
+   */
+  visibleCount?: number;
+  wrapProps?: React.HTMLAttributes<HTMLUListElement>;
 };
 
 type ElementState = {
-  point: Point2D;
-  /**
-   * - 드래그 시 기준이 되는 원본 위치
-   */
-  originPoint: Point2D;
-  zIndex: number;
   /**
    * - 개별 요소의 애니메이션 활성화 여부
    * - 점프하는 요소(왼쪽↔오른쪽)는 false
    */
   enableAnimation: boolean;
+  /**
+   * - 드래그 시 기준이 되는 원본 위치
+   */
+  originPoint: Point2D;
+  point: Point2D;
   /**
    * - 현재 위치 타입
    * - "center" | "left" | "right"
@@ -131,6 +130,7 @@ type ElementState = {
    * - 0: 정중앙, 1: 한 아이템 너비만큼 떨어짐
    */
   transition: number;
+  zIndex: number;
 };
 
 type ElementInfo = {
@@ -140,24 +140,24 @@ type ElementInfo = {
 
 const SliderComponent = <ItemType = unknown,>(
   {
-    className,
-    overflow = "visible",
+    a11yOptions,
     animationDuration = 500,
     animationTimingFunction = "ease",
-    a11yOptions,
+    className,
+    contentProps,
     defaultIndex = 0,
+    disableDraggableItems = true,
     enableDrag = true,
     gap = 0,
     itemProps,
-    contentProps,
     items,
-    visibleCount = 1,
-    disableDraggableItems = true,
-    wrapProps,
     onCreateItemView,
     onDraggingNow,
     onIndexChange,
     onItemKey,
+    overflow = "visible",
+    visibleCount = 1,
+    wrapProps,
   }: SliderProps<ItemType>,
   ref: React.ForwardedRef<HTMLUListElement>
 ) => {
@@ -177,11 +177,11 @@ const SliderComponent = <ItemType = unknown,>(
         const item = items[i];
         if (item === undefined) {
           console.warn("Item element 를 찾을 수 없습니다.", {
-            minItems,
-            mult,
+            i,
             items,
             m,
-            i,
+            minItems,
+            mult,
           });
           continue;
         }
@@ -368,9 +368,9 @@ const SliderComponent = <ItemType = unknown,>(
       prevStates,
     }: {
       centerIndex: number;
-      itemIndexs: Array<number>;
       // TODO options 로 통합?
       enableAnimation?: boolean;
+      itemIndexs: Array<number>;
       prevStates?: Array<ElementState>;
     }) => {
       return itemIndexs.map<ElementState>((itemIndex) => {
@@ -614,7 +614,6 @@ const SliderComponent = <ItemType = unknown,>(
 
   const { withPointerMove } = usePointerMove({
     enabled: enableDrag,
-    target: wrapRef,
     onDraggingNow: (isDragging) => {
       setEnableScrollAnimator(!isDragging);
       onDraggingNow?.(isDragging);
@@ -657,10 +656,10 @@ const SliderComponent = <ItemType = unknown,>(
         }
       }
     },
+    target: wrapRef,
   });
 
   useAccessibilityHandler({
-    target: wrapRef,
     handler: (event: KeyboardEvent) => {
       if (event.key === "ArrowLeft") {
         event.preventDefault();
@@ -671,6 +670,7 @@ const SliderComponent = <ItemType = unknown,>(
       }
     },
     options: a11yOptions,
+    target: wrapRef,
   });
 
   useImperativeHandle(

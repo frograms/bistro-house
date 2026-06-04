@@ -5,26 +5,26 @@ export const remixConfigs: Linter.Config[] = [
   {
     files: ["**/*.{ts,tsx,js,jsx}"],
     languageOptions: {
+      // Remix globals
       globals: {
-        // Remix globals
-        loader: "readonly",
         action: "readonly",
+        context: "readonly",
         headers: "readonly",
+        loader: "readonly",
         params: "readonly",
         request: "readonly",
-        context: "readonly",
       },
     },
     plugins: {
       "react-refresh": reactRefreshPlugin,
     },
     rules: {
+      // Remix specific rules
+      "import/no-duplicates": "error",
       "react-refresh/only-export-components": [
         "error",
         { allowConstantExport: true },
       ],
-      // Remix specific rules
-      "import/no-duplicates": "error",
     },
   },
 ];

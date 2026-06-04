@@ -16,13 +16,13 @@
     "build:packages": "pnpm build --filter '@watcha-authentic/*'",
     "publish:canary": "bash ./project-attachment/script/publish-canary.sh",
     "prepare-package": "node ./project-attachment/script/prepare-package/prepare-package.js",
-    "format": "prettier --write \"**/*.{js,ts,jsx,tsx,css,scss,html,json,md}\" && prettier --write \"{*.js,*.ts,*.jsx,*.tsx,*.css,*.scss,*.html,*.json,*.md}\""
+    "format": "prettier --write \"**/*.{js,ts,mts,mjs,cjs,jsx,tsx,css,scss,html,json,md}\" && prettier --write \"{*.js,*.ts,*.mts,*.mjs,*.cjs,*.jsx,*.tsx,*.css,*.scss,*.html,*.json,*.md}\""
   },
   "devDependencies": {
     "@types/node": "^24",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
-    "@watcha-authentic/eslint-config": "^1.0.0",
+    "@watcha-authentic/eslint-config": "^1.1.0",
     "@watcha-authentic/prettier-config": "^1.0.0",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^3.6.0",
