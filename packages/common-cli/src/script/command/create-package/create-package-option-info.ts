@@ -1,5 +1,4 @@
 import type { CreatePackageType } from "../../../type/create-package";
-import type { OptionValues } from "../../module/option/option-builder-types";
 import { defineOptionInfo } from "../../module/option/resolve-option-info";
 
 export const PACKAGE_MANAGER_VALUES = ["npm", "yarn", "pnpm", "bun"] as const;
@@ -153,7 +152,3 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "boolean",
   },
 });
-
-export type CreatePackageOptions = OptionValues<
-  typeof CREATE_PACKAGE_OPTION_INFO
->;

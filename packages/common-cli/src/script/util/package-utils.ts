@@ -1,32 +1,6 @@
-import { spawnSync } from "child_process";
 import fs from "fs-extra";
 
 import type { Dependency } from "../../type/dependency";
-
-type DependencyTarget = "--save-peer" | "--save-dev" | "--save-prod";
-
-type InstallPackageSyncArgs = {
-  dependencyTargets?: Array<DependencyTarget>;
-  packageList: string[];
-  packageManager?: "pnpm";
-  packageRootPath: string;
-};
-
-export const installPackageSync = ({
-  dependencyTargets = ["--save-prod"],
-  packageList,
-  packageManager = "pnpm",
-  packageRootPath,
-}: InstallPackageSyncArgs) => {
-  return spawnSync(
-    packageManager,
-    ["add", ...packageList, ...dependencyTargets],
-    {
-      cwd: packageRootPath,
-      stdio: "inherit",
-    }
-  );
-};
 
 export const setDependenciesToPackageJson = (
   packageJsonPath: string,
