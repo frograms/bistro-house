@@ -1,9 +1,5 @@
 import { askQuestion } from "../../util/cli-utils";
-import type {
-  OptionInfoMap,
-  OptionInit,
-  OptionRawInput,
-} from "./option-builder-types";
+import type { OptionInfoMap, OptionRawInput } from "./option-builder-types";
 
 const readStringFromRaw = (value: unknown): string | undefined => {
   if (typeof value !== "string") return undefined;
@@ -42,25 +38,24 @@ export const fillOptionRawInput = async <const T extends OptionInfoMap>(
       continue;
     }
 
+    const { defaultValue } = init;
+
     if (!value && !skipInteraction) {
-      const measuredDefault = init.cliDefault?.toString();
       const answer = await askQuestion({
-        defaultValue: measuredDefault,
-        description: measuredDefault
-          ? `${init.description} (기본값: ${measuredDefault})`
+        defaultValue,
+        description: defaultValue
+          ? `${init.description} (기본값: ${defaultValue})`
           : init.description,
         query: init.name,
       });
       const trimmed = answer.trim();
-      value = trimmed.length > 0 ? trimmed : init.cliDefault;
+      value = trimmed.length > 0 ? trimmed : defaultValue;
     } else if (!value && skipInteraction) {
-      value = init.cliDefault;
+      value = defaultValue;
     }
 
-    if (init.inputRequired) {
-      value = value ?? init.cliDefault;
-    } else if (init.coerceEmpty) {
-      value = value ?? "";
+    if (value === undefined && defaultValue !== undefined) {
+      value = defaultValue;
     }
 
     if (value !== undefined) {

@@ -1,23 +1,24 @@
 export type OptionInit = {
   choices?: readonly string[];
-  cliDefault?: string;
-  coerceEmpty?: boolean;
   description: string;
   flags: string;
-  inputRequired?: boolean;
-} & { name: string } & (
-    | (
-        | ({ type: "boolean" } & { required: true })
+  name: string;
+} &
+  // boolean
+  (| ({ defaultValue?: boolean } & (
+        | { required: true; type: "boolean" }
         | { required?: false; type: "boolean" }
-      )
-    | (
-        | ({ type: "string" } & { required: true })
+      ))
+    // string
+    | ({ defaultValue?: string } & (
+        | { required: true; type: "string" }
         | { required?: false; type: "string" }
-      )
-    | (
-        | ({ type: "string[]" } & { required: true })
+      ))
+    // string[]
+    | ({ defaultValue?: string[] } & (
+        | { required: true; type: "string[]" }
         | { required?: false; type: "string[]" }
-      )
+      ))
   );
 
 export type OptionValue<Init extends OptionInit> = Init extends {

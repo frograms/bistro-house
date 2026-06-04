@@ -11,14 +11,12 @@ export const PACKAGE_TYPE_VALUES: CreatePackageType[] = [
 
 export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
   authorEmail: {
-    coerceEmpty: true,
     description: "author 이메일. 미입력 시 git user.email",
     flags: "--ae, --author-email <author-email>",
     name: "author-email",
     type: "string",
   },
   authorName: {
-    coerceEmpty: true,
     description:
       "author 이름. scope 가 있으면 @{scope}#{name} 형태. 미입력 시 git user.name",
     flags: "--an, --author-name <author-name>",
@@ -26,7 +24,6 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "string",
   },
   authorUrl: {
-    coerceEmpty: true,
     description: "author URL",
     flags: "--au, --author-url <author-url>",
     name: "author-url",
@@ -51,7 +48,6 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "string",
   },
   licenseHolder: {
-    coerceEmpty: true,
     description: "LICENSE Copyright 보유자. 미입력 시 author-name",
     flags: "--lh, --license-holder <license-holder>",
     name: "license-holder",
@@ -59,15 +55,13 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
   },
   packageManager: {
     choices: PACKAGE_MANAGER_VALUES,
-    cliDefault: "pnpm",
+    defaultValue: "pnpm",
     description: "패키지 매니저: npm, yarn, pnpm, bun (기본 pnpm)",
     flags: "--pm, --package-manager <package-manager>",
-    inputRequired: true,
     name: "package-manager",
     type: "string",
   },
   packageName: {
-    coerceEmpty: true,
     description:
       "npm 패키지명. 미입력 시 @{scope}/{project-name} 또는 {project-name}",
     flags: "--pkg-n, --package-name <package-name>",
@@ -94,7 +88,6 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "string",
   },
   projectGitUrl: {
-    coerceEmpty: true,
     description: "Git 저장소 URL (https://github.com/org/repo)",
     flags: "--pgu, --project-git-url <project-git-url>",
     name: "project-git-url",
@@ -115,7 +108,6 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "string",
   },
   projectOrganization: {
-    coerceEmpty: true,
     description: "npm scope (조직명). 예: watcha-authentic",
     flags: "--po, --project-organization <project-organization>",
     name: "project-organization",
