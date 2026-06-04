@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-import "../script/util/commander-utils";
-
 import { Command } from "commander";
 import path from "path";
 

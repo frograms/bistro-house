@@ -6,11 +6,12 @@ import { dependencyConfigs } from "../../config/dependency-configs";
 import { askQuestion } from "../../util/cli-utils";
 import {
   createFolder,
-  overwriteFile,
+  overwriteFileByOptionInfo,
   resolvePath,
 } from "../../util/file-utils";
 import { setDependenciesToPackageJson } from "../../util/package-utils";
 import type { CreatePackageContext } from "./create-package-context";
+import { CREATE_PACKAGE_OPTION_INFO } from "./create-package-option-info";
 
 const runShellAction = (action: string, cwd: string, label: string) => {
   const parts = action.trim().split(/\s+/);
@@ -41,20 +42,17 @@ const applyRegistryPublishConfig = (
   );
 };
 
-export const scaffoldPackage = async (context: CreatePackageContext) => {
-  const {
-    canPublish,
-    configVariables,
-    eslintConfig,
-    executeDir,
-    outputDir,
-    packageType,
-    registryAlias,
-    registryUrl,
-    skipInteraction,
-    targetTemplateDir,
-    tsconfig,
-  } = context;
+export const scaffoldPackage = async (
+  context: CreatePackageContext
+): Promise<void> => {
+  const { configInfo, optionInfo } = context;
+  const { executeDir, outputDir, packageType, targetTemplateDir } = configInfo;
+  const canPublish = optionInfo.canPublish.value ?? false;
+  const eslintConfig = optionInfo.eslintConfig.value;
+  const registryAlias = optionInfo.registryAlias.value;
+  const registryUrl = optionInfo.registryUrl.value;
+  const tsconfig = optionInfo.tsconfig.value;
+  const skipInteraction = optionInfo.yes.value ?? false;
 
   if (!fs.existsSync(targetTemplateDir)) {
     throw new Error(`템플릿을 찾을 수 없습니다: ${targetTemplateDir}`);
@@ -128,11 +126,23 @@ export const scaffoldPackage = async (context: CreatePackageContext) => {
     );
   }
 
-  overwriteFile(`${outputDir}/package.json`, configVariables);
+  overwriteFileByOptionInfo(
+    `${outputDir}/package.json`,
+    optionInfo,
+    CREATE_PACKAGE_OPTION_INFO
+  );
   if (fs.existsSync(path.join(outputDir, "LICENSE"))) {
-    overwriteFile(`${outputDir}/LICENSE`, configVariables);
+    overwriteFileByOptionInfo(
+      `${outputDir}/LICENSE`,
+      optionInfo,
+      CREATE_PACKAGE_OPTION_INFO
+    );
   }
-  overwriteFile(`${outputDir}/README.md`, configVariables);
+  overwriteFileByOptionInfo(
+    `${outputDir}/README.md`,
+    optionInfo,
+    CREATE_PACKAGE_OPTION_INFO
+  );
 
   const packageJsonPath = path.join(outputDir, "package.json");
   applyRegistryPublishConfig(packageJsonPath, registryAlias, registryUrl);
@@ -143,14 +153,14 @@ export const scaffoldPackage = async (context: CreatePackageContext) => {
     createFolder(path.join(outputDir, "src/component"));
   }
 
-  setDependenciesToPackageJson(
-    packageJsonPath,
-    dependencyConfigs[packageType]
-  );
+  setDependenciesToPackageJson(packageJsonPath, dependencyConfigs[packageType]);
 };
 
 export const installDependencies = (context: CreatePackageContext) => {
-  const { outputDir, packageManager, withoutInstall } = context;
+  const { configInfo, optionInfo } = context;
+  const { outputDir } = configInfo;
+  const packageManager = optionInfo.packageManager.value ?? "pnpm";
+  const withoutInstall = optionInfo.withoutInstall.value ?? false;
 
   if (!withoutInstall) {
     spawnSync(packageManager, ["install"], {
@@ -161,7 +171,10 @@ export const installDependencies = (context: CreatePackageContext) => {
 };
 
 export const runPostActions = (context: CreatePackageContext) => {
-  const { executeDir, outputDir, postAction, postTargetAction } = context;
+  const { configInfo, optionInfo } = context;
+  const { executeDir, outputDir } = configInfo;
+  const postAction = optionInfo.postAction.value;
+  const postTargetAction = optionInfo.postTargetAction.value;
 
   try {
     if (postTargetAction) {

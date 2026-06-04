@@ -1,106 +1,96 @@
 import path from "path";
 
-import { loadJsonFromFile } from "../../util/file-utils";
+import type { CreatePackageType } from "../../../type/create-package";
+import {
+  type BuiltOption,
+  type ResolvedOptionInfo,
+} from "../../module/option/option";
+import type {
+  BuiltOptionValue,
+  OptionInit,
+} from "../../module/option/option-builder-types";
 import { readGitConfig } from "../../util/git-utils";
-import type { CreatePackageInput } from "./create-package-input";
+import type { CREATE_PACKAGE_OPTION_INFO } from "./create-package-option-info";
+
+const updateValue = <Init extends OptionInit>(
+  option: BuiltOption<Init>,
+  value: (prev: BuiltOptionValue<Init>) => BuiltOptionValue<Init>
+): BuiltOption<Init> => ({
+  ...option,
+  value: value(option.value),
+});
+
+export type CreatePackageOptionInfo = ResolvedOptionInfo<
+  typeof CREATE_PACKAGE_OPTION_INFO
+>;
 
 export type CreatePackageContext = {
-  canPublish: boolean;
-  configVariables: Record<string, string>;
-  eslintConfig?: string;
-  executeDir: string;
-  outputDir: string;
-  packageManager: string;
-  packageRoot: string;
-  packageType: CreatePackageInput["type"];
-  postAction?: string;
-  postTargetAction?: string;
-  projectName: string;
-  registryAlias?: string;
-  registryUrl?: string;
-  skipInteraction: boolean;
-  targetTemplateDir: string;
-  tsconfig?: string;
-  withoutInstall: boolean;
-};
-
-const resolveHomepage = ({
-  explicitHomepage,
-  projectGitUrl,
-}: {
-  explicitHomepage?: string;
-  projectGitUrl: string;
-}) => {
-  if (explicitHomepage) return explicitHomepage;
-  if (projectGitUrl) return `${projectGitUrl}#readme`;
-  return "";
+  configInfo: {
+    executeDir: string;
+    outputDir: string;
+    packageRoot: string;
+    packageType: CreatePackageType;
+    targetTemplateDir: string;
+  };
+  optionInfo: CreatePackageOptionInfo;
 };
 
 export const buildCreatePackageContext = (
-  input: CreatePackageInput
+  options: CreatePackageOptionInfo
 ): CreatePackageContext => {
-  const authorName =
-    input.authorName || readGitConfig("user.name") || "";
-  const authorEmail =
-    input.authorEmail || readGitConfig("user.email") || "";
-  const licenseHolder = input.licenseHolder || authorName;
-  const projectHomepage = resolveHomepage({
-    explicitHomepage: input.projectHomepage,
-    projectGitUrl: input.projectGitUrl,
-  });
+  const authorName = options.authorName.value || readGitConfig("user.name");
+  const projectGitUrl = options.projectGitUrl.value;
+  const projectOrganization = options.projectOrganization.value;
 
-  const executeDir = process.env.INIT_CWD || process.cwd();
-  const packageRoot = path.join(__dirname, "../../../..");
-  const cliPackageJson = loadJsonFromFile<{ name: string }>(
-    path.join(packageRoot, "package.json")
-  );
-
-  const configVariables: Record<string, string> = {
-    "author-email": authorEmail,
-    "author-name": input.projectOrganization
-      ? `@${input.projectOrganization}#${authorName}`
-      : authorName,
-    "author-url": input.authorUrl,
-    "cli-package-name": cliPackageJson.name,
-    "license-holder": licenseHolder,
-    "package-name":
-      input.packageName ||
-      (input.projectOrganization
-        ? `@${input.projectOrganization}/${input.projectName}`
-        : input.projectName),
-    "project-description": input.projectDescription,
-    "project-git-url": input.projectGitUrl,
-    "project-homepage": projectHomepage,
-    "project-name": input.projectName,
+  const optionInfo: CreatePackageOptionInfo = {
+    ...options,
+    authorEmail: updateValue(
+      options.authorEmail,
+      (prev) => prev || readGitConfig("user.email")
+    ),
+    authorName: updateValue(options.authorName, () =>
+      projectOrganization ? `@${projectOrganization}#${authorName}` : authorName
+    ),
+    licenseHolder: updateValue(
+      options.licenseHolder,
+      (prev) => prev || authorName
+    ),
+    packageName: updateValue(
+      options.packageName,
+      (prev) =>
+        prev ||
+        (projectOrganization
+          ? `@${projectOrganization}/${options.projectName.value}`
+          : options.projectName.value)
+    ),
+    projectHomepage: updateValue(
+      options.projectHomepage,
+      (prev) => prev || (projectGitUrl ? `${projectGitUrl}#readme` : undefined)
+    ),
   };
 
+  const packageType = optionInfo.type.value as CreatePackageType;
+  const executeDir = process.env.INIT_CWD || process.cwd();
+  const packageRoot = path.join(__dirname, "../../../..");
   const targetTemplateDir = path.join(
     packageRoot,
     "project-resource/package-template",
-    input.type
+    packageType
   );
+  const destDir = optionInfo.destDir.value;
   const outputDir = path.join(
-    input.destDir ? path.join(executeDir, input.destDir) : executeDir,
-    input.projectName
+    destDir ? path.join(executeDir, destDir) : executeDir,
+    optionInfo.projectName.value
   );
 
   return {
-    canPublish: input.canPublish,
-    configVariables,
-    eslintConfig: input.eslintConfig,
-    executeDir,
-    outputDir,
-    packageManager: input.packageManager,
-    packageRoot,
-    packageType: input.type,
-    postAction: input.postAction,
-    postTargetAction: input.postTargetAction,
-    projectName: input.projectName,
-    registryAlias: input.registryAlias,
-    registryUrl: input.registryUrl,
-    skipInteraction: input.skipInteraction,
-    targetTemplateDir,
-    tsconfig: input.tsconfig,
-    withoutInstall: input.withoutInstall,
+    configInfo: {
+      executeDir,
+      outputDir,
+      packageRoot,
+      packageType,
+      targetTemplateDir,
+    },
+    optionInfo,
   };
 };

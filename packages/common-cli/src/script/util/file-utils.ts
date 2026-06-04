@@ -1,6 +1,9 @@
 import fs from "fs-extra";
 import path from "path";
 
+import type { ResolvedOptionInfo } from "../module/option/option";
+import type { OptionInfoMap } from "../module/option/option-builder-types";
+
 export const resolvePath = (filePath: string, baseDir: string): string => {
   return path.isAbsolute(filePath) ? filePath : path.resolve(baseDir, filePath);
 };
@@ -22,6 +25,23 @@ export const overwriteFile = (
   }
 
   fs.writeFileSync(path, fileContent);
+};
+
+export const overwriteFileByOptionInfo = <T extends OptionInfoMap>(
+  filePath: string,
+  options: ResolvedOptionInfo<T>,
+  info: T
+) => {
+  const overwrites: Record<string, string> = {};
+
+  for (const key of Object.keys(info) as (keyof T & string)[]) {
+    const { value } = options[key];
+    if (typeof value === "string") {
+      overwrites[info[key].name] = value;
+    }
+  }
+
+  overwriteFile(filePath, overwrites);
 };
 
 export const loadJsonFromFile = <T = Record<string, unknown>>(
