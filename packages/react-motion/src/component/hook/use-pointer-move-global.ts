@@ -25,9 +25,9 @@ export const usePointerMoveGlobal = <ElementType extends Node = HTMLElement>(
 ): UsePointerMoveGlobalActions<ElementType> => {
   const {
     nativePointerHandlers,
-    withPointerMove,
     // pointerEvents 를 rest 에서 omit 합니다.
     pointerEvents: _pointerEvents,
+    withPointerMove,
     ...rest
   } = usePointerMove<ElementType>(props);
 

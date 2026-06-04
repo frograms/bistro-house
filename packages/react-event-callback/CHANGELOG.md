@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/frograms/bistro-house/compare/@watcha-authentic/react-event-callback@1.0.1...@watcha-authentic/react-event-callback@1.0.2) (2026-06-04)
+
+**Note:** Version bump only for package @watcha-authentic/react-event-callback
+
+## [1.0.1](https://github.com/frograms/bistro-house/compare/@watcha-authentic/react-event-callback@1.0.0...@watcha-authentic/react-event-callback@1.0.1) (2026-06-04)
+
+**Note:** Version bump only for package @watcha-authentic/react-event-callback
+
 # [1.0.0](https://github.com/frograms/bistro-house/compare/@watcha-authentic/react-event-callback@0.2.3...@watcha-authentic/react-event-callback@1.0.0) (2026-06-02)
 
 **Note:** Version bump only for package @watcha-authentic/react-event-callback

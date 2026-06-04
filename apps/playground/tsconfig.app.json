@@ -29,7 +29,9 @@
     "paths": {
       "@watcha-authentic/react-slider/*": ["../../packages/react-slider/src/*"],
       "@watcha-authentic/react-motion/*": ["../../packages/react-motion/src/*"],
-      "@watcha-authentic/react-event-callback/*": ["../../packages/react-event-callback/src/*"],
+      "@watcha-authentic/react-event-callback/*": [
+        "../../packages/react-event-callback/src/*"
+      ],
       "@watcha-authentic/react-a11y/*": ["../../packages/react-a11y/src/*"]
     }
   },
