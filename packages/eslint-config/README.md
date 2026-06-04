@@ -23,13 +23,13 @@ Watcha 공통 ESLint(flat config) 패키지입니다. TypeScript, React, Remix, 
 
 **사용하는 프리셋·규칙 블록에 맞게 호스트 프로젝트에 설치**해야 합니다. 누락 시 ESLint가 플러그인/파서를 불러오지 못합니다.
 
-| 구분 | 패키지 |
-|------|--------|
-| 공통 | `eslint`, `eslint-plugin-import`, `eslint-plugin-perfectionist`, `eslint-plugin-simple-import-sort`, `eslint-import-resolver-typescript` |
-| TypeScript | `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin` |
-| React | `eslint-plugin-react`, `eslint-plugin-react-hooks` |
-| React Refresh (Vite / Rsbuild / Remix 등) | `eslint-plugin-react-refresh` |
-| Next.js | `@next/eslint-plugin-next` |
+| 구분                                      | 패키지                                                                                                                                   |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 공통                                      | `eslint`, `eslint-plugin-import`, `eslint-plugin-perfectionist`, `eslint-plugin-simple-import-sort`, `eslint-import-resolver-typescript` |
+| TypeScript                                | `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`                                                                          |
+| React                                     | `eslint-plugin-react`, `eslint-plugin-react-hooks`                                                                                       |
+| React Refresh (Vite / Rsbuild / Remix 등) | `eslint-plugin-react-refresh`                                                                                                            |
+| Next.js                                   | `@next/eslint-plugin-next`                                                                                                               |
 
 아래 설치 예시는 자주 쓰는 조합입니다.
 
@@ -135,11 +135,7 @@ import {
   reactConfigs,
 } from "@watcha-authentic/eslint-config";
 
-export default [
-  ...baseConfigs,
-  ...typescriptConfigs,
-  ...reactConfigs,
-];
+export default [...baseConfigs, ...typescriptConfigs, ...reactConfigs];
 ```
 
 ### Extending a preset
@@ -183,8 +179,8 @@ module.exports = [...vitePreset];
 
 ### Preset exports
 
-- `reactPreset` — base + typescript + react  
-- `remixPreset` — base + typescript + react + remix  
-- `vitePreset` — base + typescript + react + vite  
-- `rsbuildPreset` — base + typescript + react + rsbuild  
-- `nextPreset` — base + typescript + react + next  
+- `reactPreset` — base + typescript + react
+- `remixPreset` — base + typescript + react + remix
+- `vitePreset` — base + typescript + react + vite
+- `rsbuildPreset` — base + typescript + react + rsbuild
+- `nextPreset` — base + typescript + react + next

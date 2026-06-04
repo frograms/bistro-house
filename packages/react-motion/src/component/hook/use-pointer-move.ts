@@ -41,17 +41,17 @@ export type UsePointerMoveActions<ElementType extends Node = HTMLElement> = {
 export type UsePointerMoveProps<ElementType extends Node = HTMLElement> = {
   defaultCursorStyle?: CSSProperties["cursor"];
   /**
+   * - 드래그 <> 클릭을 구분하는 임계값(px). 기본값은 5 입니다.
+   */
+  dragThreshold?: number;
+  /**
    * - 드래그 기능 활성화 여부입니다. 기본값은 true 입니다.
    */
   enabled?: boolean;
   movingCursorStyle?: CSSProperties["cursor"];
-  target: RefObject<ElementType | null>;
-  /**
-   * - 드래그 <> 클릭을 구분하는 임계값(px). 기본값은 5 입니다.
-   */
-  dragThreshold?: number;
   onDraggingNow?: (isDragging: boolean) => void;
   onPointDrag?: (data: PointerMoveData) => void;
+  target: RefObject<ElementType | null>;
 };
 
 const DEFAULT_STYLE: HTMLAttributes<HTMLElement>["style"] = {
@@ -87,9 +87,9 @@ export const usePointerMove = <ElementType extends Node = HTMLElement>({
   dragThreshold = 5,
   enabled = true,
   movingCursorStyle = "grabbing",
-  target,
   onDraggingNow,
   onPointDrag,
+  target,
 }: UsePointerMoveProps<ElementType>): UsePointerMoveActions<ElementType> => {
   const [cursorStyle, setCursorStyle] = useState<
     CSSProperties["cursor"] | undefined
@@ -438,13 +438,13 @@ export const usePointerMove = <ElementType extends Node = HTMLElement>({
     },
     style,
     withPointerMove: {
-      ref: target,
-      style,
       onPointerCancel,
       onPointerDown,
       onPointerLeave,
       onPointerMove,
       onPointerUp,
+      ref: target,
+      style,
     },
   };
 };

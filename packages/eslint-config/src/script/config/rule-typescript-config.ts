@@ -16,8 +16,8 @@ const recommendedConfigs = Array.isArray(
 export const typescriptConfigs: Linter.Config[] = [
   ...recommendedConfigs,
   {
-    ignores: ["dist/**", "node_modules/**"],
     files: ["**/*.ts", "**/*.tsx"],
+    ignores: ["dist/**", "node_modules/**"],
     languageOptions: {
       ecmaVersion: "latest",
       parser: tsParser,
@@ -27,34 +27,34 @@ export const typescriptConfigs: Linter.Config[] = [
         },
       },
     },
+    rules: {
+      "@typescript-eslint/ban-ts-comment": "warn",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/interface-name-prefix": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-empty-interface": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-inferrable-types": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          // ignoreRestSiblings: true, // 구조 분해 할당 시 나머지 연산자 사용을 허용하여 경고 무시
+        },
+      ],
+      "@typescript-eslint/no-var-requires": "off",
+      "no-unused-vars": "off",
+    },
     settings: {
       "import/resolver": {
         typescript: {
           project,
         },
       },
-    },
-    rules: {
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-          caughtErrorsIgnorePattern: "^_",
-          // ignoreRestSiblings: true, // 구조 분해 할당 시 나머지 연산자 사용을 허용하여 경고 무시
-        },
-      ],
-      "@typescript-eslint/interface-name-prefix": "off",
-      "@typescript-eslint/explicit-function-return-type": "off",
-      "@typescript-eslint/explicit-module-boundary-types": "off",
-      "@typescript-eslint/no-inferrable-types": "off",
-      "@typescript-eslint/ban-ts-comment": "warn",
-      "@typescript-eslint/no-empty-interface": "warn",
-      "@typescript-eslint/no-empty-function": "off",
-      "@typescript-eslint/no-var-requires": "off",
-      "@typescript-eslint/no-non-null-assertion": "off",
-      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
   {
