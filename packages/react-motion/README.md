@@ -59,11 +59,7 @@ function App() {
   });
 
   return (
-    <div
-      ref={targetRef}
-      style={style}
-      {...pointerEvents}
-    >
+    <div ref={targetRef} style={style} {...pointerEvents}>
       Drag me!
     </div>
   );

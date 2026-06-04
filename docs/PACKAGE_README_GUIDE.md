@@ -12,15 +12,15 @@
 
 아래 순서를 기본으로 하고, 패키지 특성에 따라 섹션을 추가·생략합니다.
 
-| 순서 | 영문 제목 (앵커) | 설명 |
-|------|------------------|------|
-| 1 | (없음) | `# 패키지명` + npm 뱃지 + 한 줄 설명 + **릴리즈 링크** |
-| 2 | `Table of contents` | `#table-of-contents` — 아래 주요 `##`로 점프 |
-| 3 | `Dependencies` | `#dependencies` — Runtime / Peer 하위 구분 |
-| 4 | `Installation` | `#installation` — `pnpm` 기준 |
-| 5 | `Usage` | `#usage` — 하위에 시나리오별 `###` (영어) |
-| 선택 | `Main props` 등 | 컴포넌트·API 문서가 필요할 때 |
-| 선택 | `Exported symbols` 등 | 설정 패키지처럼 export 목록이 중요할 때 |
+| 순서 | 영문 제목 (앵커)      | 설명                                                   |
+| ---- | --------------------- | ------------------------------------------------------ |
+| 1    | (없음)                | `# 패키지명` + npm 뱃지 + 한 줄 설명 + **릴리즈 링크** |
+| 2    | `Table of contents`   | `#table-of-contents` — 아래 주요 `##`로 점프           |
+| 3    | `Dependencies`        | `#dependencies` — Runtime / Peer 하위 구분             |
+| 4    | `Installation`        | `#installation` — `pnpm` 기준                          |
+| 5    | `Usage`               | `#usage` — 하위에 시나리오별 `###` (영어)              |
+| 선택 | `Main props` 등       | 컴포넌트·API 문서가 필요할 때                          |
+| 선택 | `Exported symbols` 등 | 설정 패키지처럼 export 목록이 중요할 때                |
 
 ## 1. 제목 · 뱃지 · 설명
 
@@ -77,19 +77,19 @@
 
 ## 4. 설치 (Installation)
 
-~~~markdown
+````markdown
 ## Installation
 
 ```bash
 pnpm add @watcha-authentic/{package-name} {필요 시 peer 패키지}
 ```
-~~~
+````
 
 - dev 전용이면 `pnpm add -D ...` 로 맞춥니다.
 
 ## 5. 사용 예 (Usage)
 
-~~~markdown
+````markdown
 ## Usage
 
 {진입점에서 노출하는 API 한 줄 요약}
@@ -99,7 +99,7 @@ pnpm add @watcha-authentic/{package-name} {필요 시 peer 패키지}
 ```tsx
 // 실제 export 이름 사용
 ```
-~~~
+````
 
 - 하위 시나리오 제목도 **영어 `###`** (예: `Navigation with ref`, `Extending a preset`).
 - 코드 블록 언어는 실제와 맞게 `tsx` / `js` / `json` 등 선택합니다.
@@ -114,7 +114,7 @@ pnpm add @watcha-authentic/{package-name} {필요 시 peer 패키지}
 
 아래를 복사한 뒤 `{placeholder}`만 바꿉니다.
 
-~~~markdown
+````markdown
 # @watcha-authentic/{package-name}
 
 [![npm version](https://img.shields.io/npm/v/@watcha-authentic/{package-name})](https://www.npmjs.com/package/@watcha-authentic/{package-name})
@@ -154,7 +154,7 @@ pnpm add @watcha-authentic/{package-name}
 ```{lang}
 {code}
 ```
-~~~
+````
 
 ## 참고
 

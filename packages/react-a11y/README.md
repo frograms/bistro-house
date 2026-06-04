@@ -59,8 +59,7 @@ function App() {
       ref={targetRef}
       tabIndex={0}
       role="button"
-      aria-label="Clickable element"
-    >
+      aria-label="Clickable element">
       Accessible element
     </div>
   );
