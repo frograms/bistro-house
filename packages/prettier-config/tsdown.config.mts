@@ -1,17 +1,17 @@
 import { defineConfig, type UserConfig } from "tsdown";
 
 const sharedConfig: UserConfig = {
-  entry: ["src/index.ts"],
-  tsconfig: "tsconfig.json",
-  outDir: "dist",
-  target: "es2020",
-  platform: "node",
   deps: { skipNodeModulesBundle: true },
+  entry: ["src/index.ts"],
   fixedExtension: true,
+  outDir: "dist",
   outExtensions: () => ({ dts: ".d.ts" }),
+  platform: "node",
+  target: "es2020",
+  tsconfig: "tsconfig.json",
 };
 
 export default defineConfig([
-  { ...sharedConfig, format: "esm", dts: false, clean: true },
-  { ...sharedConfig, format: "cjs", dts: true, clean: false },
+  { ...sharedConfig, clean: true, dts: false, format: "esm" },
+  { ...sharedConfig, clean: false, dts: true, format: "cjs" },
 ]);

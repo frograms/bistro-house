@@ -6,8 +6,8 @@ export const nextConfigs: Linter.Config[] = [
     files: ["**/*.{js,ts,jsx,tsx}"],
     languageOptions: {
       globals: {
-        React: "readonly",
         JSX: "readonly",
+        React: "readonly",
       },
     },
     plugins: {

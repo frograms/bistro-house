@@ -7,6 +7,7 @@ export const baseConfig: Config = {
   htmlWhitespaceSensitivity: "css",
   insertPragma: false,
   jsxSingleQuote: false,
+  printWidth: 80,
   proseWrap: "preserve",
   quoteProps: "as-needed",
   requirePragma: false,
@@ -16,5 +17,4 @@ export const baseConfig: Config = {
   trailingComma: "es5",
   useTabs: false,
   vueIndentScriptAndStyle: false,
-  printWidth: 80,
 };
