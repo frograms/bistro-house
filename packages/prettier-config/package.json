@@ -5,7 +5,7 @@
     "prettier",
     "config"
   ],
-  "version": "1.0.1",
+  "version": "1.0.2",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/prettier-config#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
@@ -46,7 +46,7 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
-    "@watcha-authentic/eslint-config": "^1.1.0",
+    "@watcha-authentic/eslint-config": "^1.1.1",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.31.0",

@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.1](https://github.com/frograms/bistro-house/compare/@watcha-authentic/eslint-config@1.1.0...@watcha-authentic/eslint-config@1.1.1) (2026-06-04)
+
+**Note:** Version bump only for package @watcha-authentic/eslint-config
+
 # [1.1.0](https://github.com/frograms/bistro-house/compare/@watcha-authentic/eslint-config@1.0.0...@watcha-authentic/eslint-config@1.1.0) (2026-06-04)
 
 ### Features
