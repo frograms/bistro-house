@@ -6,7 +6,7 @@
     "event",
     "callback"
   ],
-  "version": "1.0.1",
+  "version": "1.0.2",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/react-event-callback#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
@@ -49,8 +49,8 @@
     "@types/react-dom": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
-    "@watcha-authentic/eslint-config": "^1.1.0",
-    "@watcha-authentic/prettier-config": "^1.0.0",
+    "@watcha-authentic/eslint-config": "^1.1.1",
+    "@watcha-authentic/prettier-config": "^1.0.2",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.31.0",
