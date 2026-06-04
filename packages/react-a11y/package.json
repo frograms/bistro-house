@@ -7,7 +7,7 @@
     "accessibility",
     "utility"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/react-a11y#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
@@ -46,7 +46,7 @@
     "dist"
   ],
   "dependencies": {
-    "@watcha-authentic/react-event-callback": "^1.0.0"
+    "@watcha-authentic/react-event-callback": "^1.0.1"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

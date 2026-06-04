@@ -161,6 +161,9 @@ export const baseConfigs: Linter.Config[] = [
       // named import/export는 알파벳순 정렬을 권장합니다.
       "perfectionist/sort-named-exports": "warn",
       "perfectionist/sort-named-imports": "warn",
+      // 객체 리터럴·구조 분해 키 알파벳순 정렬 (sort-keys와 중복 사용 금지)
+      "perfectionist/sort-object-types": "warn",
+      "perfectionist/sort-objects": "warn",
       // 함수 콜백을 선호하는 경우 화살표 함수를 사용할 것
       "prefer-arrow-callback": "warn",
       "prefer-const": "error",
