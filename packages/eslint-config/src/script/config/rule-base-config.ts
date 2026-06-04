@@ -179,6 +179,9 @@ export const baseConfigs: Linter.Config[] = [
       // named import/export는 알파벳순 정렬을 권장합니다.
       "perfectionist/sort-named-exports": "warn",
       "perfectionist/sort-named-imports": "warn",
+      // 객체 리터럴·구조 분해 키 알파벳순 정렬 (sort-keys와 중복 사용 금지)
+      "perfectionist/sort-objects": "warn",
+      "perfectionist/sort-object-types": "warn",
       // 익명의 기본값 내보내기를 비허용합니다.
       "import/no-anonymous-default-export": [
         "error",
