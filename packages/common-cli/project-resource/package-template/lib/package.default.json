@@ -1,0 +1,13 @@
+{
+  "name": "{package-name}",
+  "description": "{project-description}",
+  "version": "0.0.0",
+  "scripts": {
+    "test": "echo Test skipped...",
+    "typecheck": "tsc",
+    "lint": "eslint .",
+    "build": "rm -rf ./dist && tsdown && pnpm build:post",
+    "build:post": "bash ./project-attachment/post-build.sh"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,41 @@
+{
+  "name": "{package-name}",
+  "description": "{project-description}",
+  "version": "0.0.0",
+  "homepage": "{project-homepage}",
+  "author": {
+    "name": "{author-name}",
+    "email": "{author-email}",
+    "url": "{author-url}"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+{project-git-url}.git"
+  },
+  "bugs": {
+    "url": "{project-git-url}/issues",
+    "email": "{author-email}"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "echo Test skipped...",
+    "typecheck": "tsc",
+    "lint": "eslint .",
+    "build": "rm -rf ./dist && tsdown && pnpm build:post",
+    "build:post": "bash ./project-attachment/post-build.sh"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "license": "MIT"
+}
