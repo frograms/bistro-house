@@ -2,25 +2,25 @@ import path from "path";
 
 import type { CreatePackageType } from "../../../type/create-package";
 import {
-  type BuiltOption,
-  type ResolvedOptionInfo,
-} from "../../module/option/option";
+  type CustomBuiltOption,
+  type CustomResolvedOptionInfo,
+} from "../../module/option/custom-option";
 import type {
   BuiltOptionValue,
   OptionInit,
-} from "../../module/option/option-builder-types";
+} from "../../module/option/custom-option-types";
 import { readGitConfig } from "../../util/git-utils";
 import type { CREATE_PACKAGE_OPTION_INFO } from "./create-package-option-info";
 
 const updateValue = <Init extends OptionInit>(
-  option: BuiltOption<Init>,
+  option: CustomBuiltOption<Init>,
   value: (prev: BuiltOptionValue<Init>) => BuiltOptionValue<Init>
-): BuiltOption<Init> => ({
+): CustomBuiltOption<Init> => ({
   ...option,
   value: value(option.value),
 });
 
-export type CreatePackageOptionInfo = ResolvedOptionInfo<
+export type CreatePackageOptionInfo = CustomResolvedOptionInfo<
   typeof CREATE_PACKAGE_OPTION_INFO
 >;
 

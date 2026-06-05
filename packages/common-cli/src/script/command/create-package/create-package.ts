@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { CustomCommand } from "../../module/option/custom-command";
+import { CustomCommand } from "../../module/command/custom-command";
 import { buildCreatePackageContext } from "./create-package-context";
 import { CREATE_PACKAGE_OPTION_INFO } from "./create-package-option-info";
 import {

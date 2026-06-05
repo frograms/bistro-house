@@ -1,8 +1,8 @@
 import fs from "fs-extra";
 import path from "path";
 
-import type { ResolvedOptionInfo } from "../module/option/option";
-import type { OptionInfoMap } from "../module/option/option-builder-types";
+import type { CustomResolvedOptionInfo } from "../module/option/custom-option";
+import type { OptionInfoMap } from "../module/option/custom-option-types";
 
 export const resolvePath = (filePath: string, baseDir: string): string => {
   return path.isAbsolute(filePath) ? filePath : path.resolve(baseDir, filePath);
@@ -29,7 +29,7 @@ export const overwriteFile = (
 
 export const overwriteFileByOptionInfo = <T extends OptionInfoMap>(
   filePath: string,
-  options: ResolvedOptionInfo<T>,
+  options: CustomResolvedOptionInfo<T>,
   info: T
 ) => {
   const overwrites: Record<string, string> = {};

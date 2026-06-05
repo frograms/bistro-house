@@ -1,5 +1,5 @@
 import type { CreatePackageType } from "../../../type/create-package";
-import { defineOptionInfo } from "../../module/option/resolve-option-info";
+import { defineOptionInfo } from "../../module/option/custom-option-utils";
 
 export const PACKAGE_MANAGER_VALUES = ["npm", "yarn", "pnpm", "bun"] as const;
 export const PACKAGE_TYPE_VALUES: CreatePackageType[] = [

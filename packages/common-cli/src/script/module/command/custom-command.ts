@@ -1,5 +1,9 @@
+import { Command } from "commander";
+
 import { askQuestion } from "../../util/cli-utils";
-import type { OptionInfoMap, OptionRawInput } from "./option-builder-types";
+import type { CustomResolvedOptionInfo } from "../option/custom-option";
+import type { OptionInfoMap, OptionRawInput } from "../option/custom-option-types";
+import { resolveOptionInfo } from "../option/custom-option-utils";
 
 const readStringFromRaw = (value: unknown): string | undefined => {
   if (typeof value !== "string") return undefined;
@@ -7,7 +11,7 @@ const readStringFromRaw = (value: unknown): string | undefined => {
   return trimmed.length > 0 ? trimmed : undefined;
 };
 
-export const fillOptionRawInput = async <const T extends OptionInfoMap>(
+const fillOptionRawInput = async <const T extends OptionInfoMap>(
   info: T,
   raw: Record<string, unknown>
 ): Promise<OptionRawInput<T>> => {
@@ -67,3 +71,50 @@ export const fillOptionRawInput = async <const T extends OptionInfoMap>(
 
   return filled;
 };
+
+const applyOptionInfoToCommand = (
+  command: Command,
+  info: OptionInfoMap
+): Command => {
+  for (const init of Object.values(info)) {
+    if (init.type === "boolean") {
+      command.option(init.flags, init.description);
+      continue;
+    }
+
+    if (init.required) {
+      command.requiredOption(init.flags, init.description);
+    } else {
+      command.option(init.flags, init.description);
+    }
+  }
+
+  return command;
+};
+
+export class CustomCommand<const T extends OptionInfoMap> extends Command {
+  readonly optionInfo: T;
+
+  constructor(name: string, optionInfo: T) {
+    super(name);
+    this.optionInfo = optionInfo;
+    this.storeOptionsAsProperties(false);
+    applyOptionInfoToCommand(this, this.optionInfo);
+  }
+
+  async resolveOptions(
+    raw: Record<string, unknown>
+  ): Promise<CustomResolvedOptionInfo<T>> {
+    const filled = await fillOptionRawInput(this.optionInfo, raw);
+    return resolveOptionInfo(this.optionInfo, filled);
+  }
+
+  action(
+    handler: (options: CustomResolvedOptionInfo<T>) => void | Promise<void>
+  ): this {
+    return super.action(async (raw: Record<string, unknown>) => {
+      const options = await this.resolveOptions(raw);
+      await handler(options);
+    });
+  }
+}
