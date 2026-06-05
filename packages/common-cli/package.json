@@ -1,6 +1,6 @@
 {
   "name": "@watcha-authentic/common-cli",
-  "description": "bistro-house 패키지 스캐폴딩 CLI",
+  "description": "몇가지 유용한 기능을 제공하는 CLI",
   "keywords": [
     "cli",
     "scaffold",
