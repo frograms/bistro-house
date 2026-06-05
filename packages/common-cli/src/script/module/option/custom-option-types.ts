@@ -40,7 +40,6 @@ export type BuiltOptionValue<Init extends OptionInit> = Init extends {
 
 export type OptionInitDef = { [K in string]: OptionInit };
 
-/** fill 이후 옵션 값 맵 (OptionInitDef 키 → OptionValue) */
 export type OptionValueDef<T extends OptionInitDef> = {
   [K in keyof T]?: OptionValue<T[K]>;
 };
