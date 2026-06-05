@@ -59,12 +59,6 @@ const fillOptionRawInput = async <const T extends OptionInitDef>(
       });
       const trimmed = answer.trim();
       value = trimmed.length > 0 ? trimmed : defaultValue;
-    } else if (!value && skipInteraction) {
-      value = defaultValue;
-    }
-
-    if (value === undefined && defaultValue !== undefined) {
-      value = defaultValue;
     }
 
     if (value !== undefined) {
