@@ -1,3 +1,5 @@
+import type { CustomBuiltOption } from "./custom-option";
+
 export type OptionInit = {
   description: string;
   flags: string;
@@ -36,18 +38,13 @@ export type BuiltOptionValue<Init extends OptionInit> = Init extends {
   ? OptionValue<Init>
   : OptionValue<Init> | undefined;
 
-export type OptionValueArgs<Init extends OptionInit> = Init extends {
-  required: true;
-}
-  ? [value: OptionValue<Init>]
-  : [value?: OptionValue<Init>];
+export type OptionInitDef = { [K in string]: OptionInit };
 
-export type OptionInfoMap = { [K in string]: OptionInit };
-
-export type OptionRawInput<T extends OptionInfoMap> = {
+/** fill 이후 옵션 값 맵 (OptionInitDef 키 → OptionValue) */
+export type OptionValueDef<T extends OptionInitDef> = {
   [K in keyof T]?: OptionValue<T[K]>;
 };
 
-export type OptionValues<T extends OptionInfoMap> = {
-  [K in keyof T]: BuiltOptionValue<T[K]>;
+export type CustomResolvedOptionInfo<T extends OptionInitDef> = {
+  [K in keyof T]: CustomBuiltOption<T[K]>;
 };

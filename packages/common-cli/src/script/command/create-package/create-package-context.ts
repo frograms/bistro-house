@@ -1,10 +1,8 @@
 import path from "path";
 
 import type { CreatePackageType } from "../../../type/create-package";
-import {
-  type CustomBuiltOption,
-  type CustomResolvedOptionInfo,
-} from "../../module/option/custom-option";
+import type { CustomBuiltOption } from "../../module/option/custom-option";
+import type { CustomResolvedOptionInfo } from "../../module/option/custom-option-types";
 import type {
   BuiltOptionValue,
   OptionInit,

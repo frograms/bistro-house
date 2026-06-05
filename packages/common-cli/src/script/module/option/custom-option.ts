@@ -1,12 +1,10 @@
 import type {
   BuiltOptionValue,
-  OptionInfoMap,
   OptionInit,
   OptionValue,
-  OptionValueArgs,
 } from "./custom-option-types";
 
-const customIsRequiredValueMissing = <Init extends OptionInit>(
+const isRequiredValueMissing = <Init extends OptionInit>(
   init: Init,
   value: OptionValue<Init> | undefined
 ): boolean => {
@@ -25,26 +23,13 @@ const customIsRequiredValueMissing = <Init extends OptionInit>(
   return false;
 };
 
-export const customToBuiltOption = <Init extends OptionInit>(
-  init: Init,
-  value?: OptionValue<Init>
-): CustomBuiltOption<Init> =>
-  new CustomBuiltOption(
-    init,
-    value ?? (init.defaultValue as OptionValue<Init>)
-  );
-
-export type CustomResolvedOptionInfo<T extends OptionInfoMap> = {
-  [K in keyof T]: CustomBuiltOption<T[K]>;
-};
-
 export class CustomOption<Init extends OptionInit> {
   constructor(public init: Init) {}
 
-  build(...args: OptionValueArgs<Init>): CustomBuiltOption<Init> {
+  build(value: BuiltOptionValue<Init>): CustomBuiltOption<Init> {
     return new CustomBuiltOption(
       this.init,
-      args[0] as OptionValue<Init> | undefined
+      value ?? (this.init.defaultValue as BuiltOptionValue<Init>)
     );
   }
 }
@@ -54,7 +39,7 @@ export class CustomBuiltOption<Init extends OptionInit> {
     public init: Init,
     value?: OptionValue<Init>
   ) {
-    if (customIsRequiredValueMissing(init, value)) {
+    if (isRequiredValueMissing(init, value)) {
       throw new Error(`${init.name} 은(는) 필수입니다.`);
     }
     this.value = value as BuiltOptionValue<Init>;

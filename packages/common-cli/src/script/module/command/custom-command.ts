@@ -1,8 +1,11 @@
 import { Command } from "commander";
 
 import { askQuestion } from "../../util/cli-utils";
-import type { CustomResolvedOptionInfo } from "../option/custom-option";
-import type { OptionInfoMap, OptionRawInput } from "../option/custom-option-types";
+import type {
+  CustomResolvedOptionInfo,
+  OptionInitDef,
+  OptionValueDef,
+} from "../option/custom-option-types";
 import { resolveOptionInfo } from "../option/custom-option-utils";
 
 const readStringFromRaw = (value: unknown): string | undefined => {
@@ -11,11 +14,11 @@ const readStringFromRaw = (value: unknown): string | undefined => {
   return trimmed.length > 0 ? trimmed : undefined;
 };
 
-const fillOptionRawInput = async <const T extends OptionInfoMap>(
+const fillOptionRawInput = async <const T extends OptionInitDef>(
   info: T,
   raw: Record<string, unknown>
-): Promise<OptionRawInput<T>> => {
-  const filled = {} as OptionRawInput<T>;
+): Promise<OptionValueDef<T>> => {
+  const filled = {} as OptionValueDef<T>;
   const skipInteraction =
     "yes" in info && info.yes.type === "boolean" ? !!raw.yes : false;
 
@@ -23,14 +26,14 @@ const fillOptionRawInput = async <const T extends OptionInfoMap>(
     const init = info[key];
 
     if (init.type === "boolean") {
-      filled[key] = !!raw[key] as OptionRawInput<T>[typeof key];
+      filled[key] = !!raw[key] as OptionValueDef<T>[typeof key];
       continue;
     }
 
     if (init.type === "string[]") {
       const value = raw[key];
       if (Array.isArray(value)) {
-        filled[key] = value as OptionRawInput<T>[typeof key];
+        filled[key] = value as OptionValueDef<T>[typeof key];
       }
       continue;
     }
@@ -38,7 +41,7 @@ const fillOptionRawInput = async <const T extends OptionInfoMap>(
     let value = readStringFromRaw(raw[key]);
 
     if (init.required) {
-      filled[key] = value as OptionRawInput<T>[typeof key];
+      filled[key] = value as OptionValueDef<T>[typeof key];
       continue;
     }
 
@@ -65,7 +68,7 @@ const fillOptionRawInput = async <const T extends OptionInfoMap>(
     }
 
     if (value !== undefined) {
-      filled[key] = value as OptionRawInput<T>[typeof key];
+      filled[key] = value as OptionValueDef<T>[typeof key];
     }
   }
 
@@ -74,7 +77,7 @@ const fillOptionRawInput = async <const T extends OptionInfoMap>(
 
 const applyOptionInfoToCommand = (
   command: Command,
-  info: OptionInfoMap
+  info: OptionInitDef
 ): Command => {
   for (const init of Object.values(info)) {
     if (init.type === "boolean") {
@@ -92,7 +95,7 @@ const applyOptionInfoToCommand = (
   return command;
 };
 
-export class CustomCommand<const T extends OptionInfoMap> extends Command {
+export class CustomCommand<const T extends OptionInitDef> extends Command {
   readonly optionInfo: T;
 
   constructor(name: string, optionInfo: T) {
