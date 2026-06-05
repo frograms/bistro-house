@@ -6,12 +6,14 @@ import { dependencyConfigs } from "../../config/dependency-configs";
 import { askQuestion } from "../../util/cli-utils";
 import {
   createFolder,
-  overwriteFileByOptionInfo,
+  overwriteFile,
   resolvePath,
 } from "../../util/file-utils";
 import { setDependenciesToPackageJson } from "../../util/package-utils";
-import type { CreatePackageContext } from "./create-package-context";
-import { CREATE_PACKAGE_OPTION_INFO } from "./create-package-option-info";
+import type {
+  CreatePackageContext,
+  CreatePackageOptionInfo,
+} from "./create-package-context";
 
 const runShellAction = (action: string, cwd: string, label: string) => {
   const parts = action.trim().split(/\s+/);
@@ -23,6 +25,20 @@ const runShellAction = (action: string, cwd: string, label: string) => {
   }
 
   spawnSync(command, args, { cwd, stdio: "inherit" });
+};
+
+const buildOverwrites = (
+  options: CreatePackageOptionInfo
+): Record<string, string> => {
+  const overwrites: Record<string, string> = {};
+
+  for (const key of Object.keys(options)) {
+    const { init, value } = options[key as keyof CreatePackageOptionInfo];
+    if (value === undefined) continue;
+    overwrites[init.name] = String(value);
+  }
+
+  return overwrites;
 };
 
 const applyRegistryPublishConfig = (
@@ -126,23 +142,12 @@ export const scaffoldPackage = async (
     );
   }
 
-  overwriteFileByOptionInfo(
-    `${outputDir}/package.json`,
-    optionInfo,
-    CREATE_PACKAGE_OPTION_INFO
-  );
+  const overwrites = buildOverwrites(optionInfo);
+  overwriteFile(`${outputDir}/package.json`, overwrites);
   if (fs.existsSync(path.join(outputDir, "LICENSE"))) {
-    overwriteFileByOptionInfo(
-      `${outputDir}/LICENSE`,
-      optionInfo,
-      CREATE_PACKAGE_OPTION_INFO
-    );
+    overwriteFile(`${outputDir}/LICENSE`, overwrites);
   }
-  overwriteFileByOptionInfo(
-    `${outputDir}/README.md`,
-    optionInfo,
-    CREATE_PACKAGE_OPTION_INFO
-  );
+  overwriteFile(`${outputDir}/README.md`, overwrites);
 
   const packageJsonPath = path.join(outputDir, "package.json");
   applyRegistryPublishConfig(packageJsonPath, registryAlias, registryUrl);
