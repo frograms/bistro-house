@@ -2,10 +2,10 @@ import { CustomBuiltOption } from "./custom-option";
 import type {
   BuiltOptionValue,
   CustomResolvedOptionInfo,
-  OptionInitDef,
   OptionInit,
-  OptionValueDef,
+  OptionInitDef,
   OptionValue,
+  OptionValueDef,
 } from "./custom-option-types";
 
 export const toCustomBuiltOption = <Init extends OptionInit>(
