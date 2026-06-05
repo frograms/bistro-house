@@ -38,7 +38,8 @@ export const fillOptionRawInput = async <const T extends OptionInfoMap>(
       continue;
     }
 
-    const { defaultValue } = init;
+    const { choices, defaultValue } = init;
+    const oneOf = choices ? [...choices] : undefined;
 
     if (!value && !skipInteraction) {
       const answer = await askQuestion({
@@ -46,6 +47,7 @@ export const fillOptionRawInput = async <const T extends OptionInfoMap>(
         description: defaultValue
           ? `${init.description} (기본값: ${defaultValue})`
           : init.description,
+        oneOf,
         query: init.name,
       });
       const trimmed = answer.trim();

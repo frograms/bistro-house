@@ -1,5 +1,4 @@
 export type OptionInit = {
-  choices?: readonly string[];
   description: string;
   flags: string;
   name: string;
@@ -10,7 +9,7 @@ export type OptionInit = {
         | { required?: false; type: "boolean" }
       ))
     // string
-    | ({ defaultValue?: string } & (
+    | ({ choices?: readonly string[]; defaultValue?: string } & (
         | { required: true; type: "string" }
         | { required?: false; type: "string" }
       ))
