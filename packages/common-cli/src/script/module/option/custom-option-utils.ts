@@ -8,6 +8,11 @@ import type {
   OptionValueDef,
 } from "./custom-option-types";
 
+type MatchOptionInitKeys<
+  T extends OptionInit,
+  V extends OptionInit = OptionInit,
+> = Record<Exclude<keyof T, V extends V ? keyof V : never>, never>;
+
 export const toCustomBuiltOption = <Init extends OptionInit>(
   init: Init,
   value: BuiltOptionValue<Init>
@@ -17,8 +22,9 @@ export const toCustomBuiltOption = <Init extends OptionInit>(
     (value ?? init.defaultValue) as OptionValue<Init> | undefined
   );
 
-export const defineOptionInfo = <const T extends OptionInitDef>(info: T): T =>
-  info;
+export const defineOptionInfo = <const T extends OptionInitDef>(
+  info: T & { readonly [K in keyof T]: MatchOptionInitKeys<T[K]> }
+): T => info;
 
 export const resolveOptionInfo = <const T extends OptionInitDef>(
   info: T,
