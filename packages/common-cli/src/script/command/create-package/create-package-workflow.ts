@@ -74,9 +74,9 @@ export const scaffoldPackage = async (
     throw new Error(`템플릿을 찾을 수 없습니다: ${targetTemplateDir}`);
   }
 
+  // 제거 또는 덮어쓰기
   if (fs.existsSync(outputDir)) {
     let requestRemove = false;
-
     if (!skipInteraction) {
       requestRemove =
         (await askQuestion({
@@ -91,8 +91,10 @@ export const scaffoldPackage = async (
     if (requestRemove) fs.removeSync(outputDir);
   }
 
+  // template 복사
   fs.copySync(targetTemplateDir, outputDir);
 
+  // template 별 설정 - gitignore
   if (fs.existsSync(path.join(outputDir, "gitignore"))) {
     fs.renameSync(
       path.join(outputDir, "gitignore"),
@@ -100,6 +102,7 @@ export const scaffoldPackage = async (
     );
   }
 
+  // template 별 설정 - tsconfig
   if (fs.existsSync(path.join(outputDir, "tsconfig.default.json"))) {
     fs.renameSync(
       path.join(outputDir, "tsconfig.default.json"),
@@ -128,6 +131,7 @@ export const scaffoldPackage = async (
     );
   }
 
+  // update - eslint-config
   if (eslintConfig) {
     ["eslint.config.mts", "eslint.config.mjs", "eslint.config.js"].forEach(
       (file) => {
@@ -142,23 +146,28 @@ export const scaffoldPackage = async (
     );
   }
 
+  // placeholder 업데이트
   const overwrites = buildOverwrites(optionInfo);
+  // placeholder 업데이트 - package.json
   overwriteFile(`${outputDir}/package.json`, overwrites);
-  if (fs.existsSync(path.join(outputDir, "LICENSE"))) {
-    overwriteFile(`${outputDir}/LICENSE`, overwrites);
-  }
+  // placeholder 업데이트 - LICENSE
+  overwriteFile(`${outputDir}/LICENSE`, overwrites);
+  // placeholder 업데이트 - README.md
   overwriteFile(`${outputDir}/README.md`, overwrites);
 
+  // package.json
   const packageJsonPath = path.join(outputDir, "package.json");
+  // package.json - 레지스트리 설정
   applyRegistryPublishConfig(packageJsonPath, registryAlias, registryUrl);
+  // package.json - 의존성 추가
+  setDependenciesToPackageJson(packageJsonPath, dependencyConfigs[packageType]);
 
+  // 기본 작업 폴더 생성
   createFolder(path.join(outputDir, "src/script"));
   createFolder(path.join(outputDir, "src/resource"));
   if (packageType !== "lib") {
     createFolder(path.join(outputDir, "src/component"));
   }
-
-  setDependenciesToPackageJson(packageJsonPath, dependencyConfigs[packageType]);
 };
 
 export const installDependencies = (context: CreatePackageContext) => {
