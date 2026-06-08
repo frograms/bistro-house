@@ -14,6 +14,7 @@ import type {
   CreatePackageContext,
   CreatePackageOptionInfo,
 } from "./create-package-context";
+import { applyVariant } from "./create-package-workflow-utils";
 
 const runShellAction = (action: string, cwd: string, label: string) => {
   const parts = action.trim().split(/\s+/);
@@ -94,7 +95,7 @@ export const scaffoldPackage = async (
   // template 복사
   fs.copySync(targetTemplateDir, outputDir);
 
-  // template 별 설정 - gitignore
+  // gitignore 를 .gitignore 로 변경
   if (fs.existsSync(path.join(outputDir, "gitignore"))) {
     fs.renameSync(
       path.join(outputDir, "gitignore"),
@@ -102,28 +103,15 @@ export const scaffoldPackage = async (
     );
   }
 
-  // template 별 설정 - tsconfig
-  if (fs.existsSync(path.join(outputDir, "tsconfig.default.json"))) {
-    fs.renameSync(
-      path.join(outputDir, "tsconfig.default.json"),
-      path.join(outputDir, "tsconfig.json")
-    );
-  }
+  // variant select - package.json
+  applyVariant({
+    onSelectVariant: () => (canPublish ? "publish" : "default"),
+    outputDir,
+    outputFileName: "package.json",
+    variantFileName: "_VARIANT-*-package.json",
+  });
 
-  fs.rmSync(
-    path.join(
-      outputDir,
-      !canPublish ? "package.publish.json" : "package.default.json"
-    )
-  );
-  fs.renameSync(
-    path.join(
-      outputDir,
-      canPublish ? "package.publish.json" : "package.default.json"
-    ),
-    path.join(outputDir, "package.json")
-  );
-
+  // override - tsconfig
   if (tsconfig) {
     fs.copyFileSync(
       resolvePath(tsconfig, executeDir),
@@ -131,7 +119,7 @@ export const scaffoldPackage = async (
     );
   }
 
-  // update - eslint-config
+  // override - eslint-config
   if (eslintConfig) {
     ["eslint.config.mts", "eslint.config.mjs", "eslint.config.js"].forEach(
       (file) => {
