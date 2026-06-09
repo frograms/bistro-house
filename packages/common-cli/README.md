@@ -4,8 +4,22 @@ bistro-house 모노레포에서 `@watcha-authentic/*` 패키지를 생성하는 
 
 ## 실행
 
+레포 루트:
+
 ```bash
-pnpm --filter @watcha-authentic/common-cli dev create-package --help
+pnpm --filter=@watcha-authentic/common-cli dev create-package --help
+```
+
+패키지 디렉터리 (`packages/common-cli`):
+
+```bash
+pnpm dev create-package --help
+```
+
+빌드 후 bin (배포와 동일):
+
+```bash
+pnpm --filter @watcha-authentic/common-cli exec watcha-common-cli create-package --help
 ```
 
 ## 패키지 타입
@@ -30,7 +44,7 @@ pnpm add-package
 ## 옵션 예시
 
 ```bash
-pnpm --filter @watcha-authentic/common-cli dev create-package \
+pnpm --filter=@watcha-authentic/common-cli dev create-package \
   --type react \
   --project-name my-pkg \
   --project-description "설명" \
