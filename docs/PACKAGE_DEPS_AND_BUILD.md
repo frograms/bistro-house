@@ -136,3 +136,74 @@ build: rm -rf ./dist && tsdown && pnpm build:post
 | `eslint-config` | 다수 optional `peerDependencies` + preset별 설치 예시 |
 | `prettier-config` | runtime dep 없음, Node `lib` tsdown |
 | `common-cli` | CLI `dependencies`, `unbundle` multi-entry |
+
+## 예제: resolve vs external (`react-slider`)
+
+`@watcha-authentic/react-slider`는 **내부 패키지는 npm이 transitive로 resolve**하고, **React는 호스트가 resolve**하도록 나눈 대표 케이스입니다.
+
+### `package.json` 분류
+
+```json
+{
+  "dependencies": {
+    "@watcha-authentic/react-a11y": "^1.0.2",
+    "@watcha-authentic/react-event-callback": "^1.0.2",
+    "@watcha-authentic/react-motion": "^1.0.2"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
+```
+
+| 패키지 | `package.json` | tsdown dist | 소비자 install 시 |
+| ------ | -------------- | ----------- | ----------------- |
+| `@watcha-authentic/react-motion` 등 | `dependencies` | **external** (`import … from "@watcha-authentic/…"`) | `pnpm add react-slider` 시 **함께 설치** (transitive) |
+| `react`, `react-dom` | `peerDependencies` | **external** (`import … from "react"`) | 호스트가 **직접** `pnpm add react react-dom` |
+| `react` (로컬 lint/typecheck) | `devDependencies` | dist에 **포함되지 않음** | tarball·런타임과 무관 |
+
+### 빌드 후 `dist/index.mjs` (발췌)
+
+```js
+import React, { … } from "react";
+import { useEventCallback } from "@watcha-authentic/react-event-callback";
+import { useAccessibilityHandler } from "@watcha-authentic/react-a11y";
+import { addPoint, usePointerMove } from "@watcha-authentic/react-motion";
+```
+
+- **`@watcha-authentic/*`** — 번들에 넣지 않음. npm이 dependency tree로 **resolve**.
+- **`react`** — 번들에 넣지 않음. 앱의 `node_modules/react` **한 벌**을 쓰도록 peer로 강제.
+
+반대로 `eslint-config`는 ESLint 플러그인 전부 **peer(+ optional)** 이라 dist import가 `eslint-plugin-*`로만 남고, 호스트 toolchain이 **resolve**합니다.
+
+### 의도와 다르게 보일 때
+
+| dist에서 보이는 것 | 의심 |
+| ------------------ | ---- |
+| `react` 코드가 dist 안에 인라인됨 | `react`가 `dependencies`에 들어갔거나 tsdown `noExternal` 등으로 번들됨 |
+| `@watcha-authentic/*` import가 없는데 소스에서 import함 | `dependencies` 누락 또는 잘못된 번들 설정 |
+| `dist/component/**` 등 entry 밖 파일 | Turbo cache hit 등으로 **clean build가 안 된 잔재** — `pnpm turbo run build --force` 후 재확인 |
+
+## 주의사항
+
+**dist 산출물은 PR·배포 전에 반드시 직접 확인**하세요. `package.json`만 맞춰도 tsdown·Turbo cache·예전 설정 잔재 때문에 dist import가 의도와 어긋날 수 있습니다.
+
+```bash
+pnpm --filter=@watcha-authentic/<name> run build   # turbo 우회, rm -rf dist 포함
+rg '^import |require\\(' packages/<name>/dist/index.mjs
+npm pack --dry-run --pack-destination /tmp   # (패키지 디렉터리에서) tarball 파일 목록
+```
+
+확인 포인트:
+
+- `dependencies` / `peerDependencies`에 있는 패키지가 dist에서 **external import**로 남는지
+- 번들에 넣으면 안 되는 패키지(React, eslint 플러그인 등)가 **dist 본문에 섞이지 않았는지**
+- `exports["."]` entry 외 **불필요한 dist 파일**이 없는지
+
+현재 CI는 `validate`(build 통과)까지만 있고, **dist import ↔ `package.json` 종속성 정합성을 자동 검사하는 파이프라인은 없습니다.** 향후 스크립트 또는 CI job으로 추가하는 것을 권장합니다. 추적: [#22](https://github.com/frograms/bistro-house/issues/22).
+
