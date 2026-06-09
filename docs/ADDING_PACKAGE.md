@@ -9,6 +9,7 @@
 | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
 | [bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d) (Notion) | OIDC(Trusted Publishing), org 권한        |
 | [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md)                                                                          | `packages/<name>/README.md` 형식          |
+| [PACKAGE_DEPS_AND_BUILD.md](./PACKAGE_DEPS_AND_BUILD.md)                                                                      | `dependencies` / `peerDependencies` · tsdown |
 | [README.md](../README.md)                                                                                                     | 로컬 개발, 배포(카나리·patch·latest) 개요 |
 
 ## 전제
