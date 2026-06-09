@@ -6,7 +6,7 @@ import { dependencyConfigs } from "../../config/dependency-configs";
 import { askQuestion } from "../../util/cli-utils";
 import {
   createFolder,
-  overwriteFile,
+  overwritePlaceholdersInDir,
   resolvePath,
 } from "../../util/file-utils";
 import { setDependenciesToPackageJson } from "../../util/package-utils";
@@ -136,12 +136,7 @@ export const scaffoldPackage = async (
 
   // placeholder 업데이트
   const overwrites = buildOverwrites(optionInfo);
-  // placeholder 업데이트 - package.json
-  overwriteFile(`${outputDir}/package.json`, overwrites);
-  // placeholder 업데이트 - LICENSE
-  overwriteFile(`${outputDir}/LICENSE`, overwrites);
-  // placeholder 업데이트 - README.md
-  overwriteFile(`${outputDir}/README.md`, overwrites);
+  overwritePlaceholdersInDir(outputDir, overwrites);
 
   // package.json
   const packageJsonPath = path.join(outputDir, "package.json");

@@ -24,6 +24,24 @@ export const overwriteFile = (
   fs.writeFileSync(path, fileContent);
 };
 
+/** outputDir 트리 하위 파일에 overwriteFile 적용 */
+export const overwritePlaceholdersInDir = (
+  dir: string,
+  overwrites: Record<string, string>
+) => {
+  if (!fs.existsSync(dir) || Object.keys(overwrites).length === 0) return;
+
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      overwritePlaceholdersInDir(fullPath, overwrites);
+      continue;
+    }
+
+    overwriteFile(fullPath, overwrites);
+  }
+};
+
 export const loadJsonFromFile = <T = Record<string, unknown>>(
   path: string
 ): T => {
