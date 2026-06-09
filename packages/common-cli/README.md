@@ -82,7 +82,8 @@ npx @watcha-authentic/common-cli create-package \
 | `-d, --dest-dir <path>` | 생성 루트 (기본: cwd) |
 | `--po, --project-organization <scope>` | npm scope (예: `watcha-authentic`) |
 | `--pgu, --project-git-url <url>` | Git 저장소 URL |
-| `--cp, --can-publish` | publish용 `package.json` variant |
+| `--cp, --can-publish` | `publish.json` variant (배포 메타·dist entry) |
+| `--lic, --license <name>` | `private` (기본), `mit`, `isc`, `bsd-3-clause` |
 | `--wi, --without-install` | 생성 후 install 생략 |
 | `-y, --yes` | 대화형 입력 생략 |
 

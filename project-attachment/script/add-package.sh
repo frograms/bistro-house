@@ -6,7 +6,7 @@
 # 예: pnpm add-package lib my-pkg "패키지 설명"
 #     pnpm add-package lib my-pkg "패키지 설명" --yes --without-install
 #
-# 고정: author, can-publish, dest-dir, license-holder, project-git-url, project-organization, project-homepage
+# 고정: author, can-publish, dest-dir, license (mit), license-holder, project-git-url, project-organization, project-homepage
 # 4번째 인자부터 create-package에 그대로 전달.
 
 set -e
@@ -34,6 +34,7 @@ pnpm --filter=@watcha-authentic/common-cli dev create-package \
   --author-url=https://github.com/frograms \
   --can-publish \
   --dest-dir=./packages \
+  --license=mit \
   --license-holder='Watcha, Inc.' \
   --project-description="$project_description" \
   --project-git-url="$repo_git_url" \
