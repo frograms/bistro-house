@@ -1,1 +1,1 @@
-export const packageName = "{package-name}";
+// export your features
