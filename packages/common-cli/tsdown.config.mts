@@ -2,7 +2,6 @@ import { defineConfig } from "tsdown";
 
 export default defineConfig({
   clean: true,
-  deps: { skipNodeModulesBundle: true },
   dts: false,
   entry: ["src/**/*.ts", "!src/**/*.d.ts"],
   format: "cjs",

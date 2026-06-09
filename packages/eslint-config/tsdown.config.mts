@@ -1,7 +1,6 @@
 import { defineConfig, type UserConfig } from "tsdown";
 
 const sharedConfig: UserConfig = {
-  deps: { skipNodeModulesBundle: true },
   entry: ["src/index.ts"],
   fixedExtension: true,
   outDir: "dist",
