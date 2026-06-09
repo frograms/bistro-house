@@ -15,7 +15,7 @@
     "build:packages": "pnpm build --filter '@watcha-authentic/*'",
     "publish:canary": "bash ./project-attachment/script/publish-canary.sh",
     "prepare-package": "node ./project-attachment/script/prepare-package/prepare-package.js",
-    "add-package": "pnpm --filter=@watcha-authentic/common-cli dev create-package --dest-dir=./packages --project-organization=watcha-authentic --project-git-url=https://github.com/frograms/bistro-house --post-target-action='pnpm install' --post-action='pnpm install -w' --can-publish",
+    "add-package": "bash ./project-attachment/script/add-package.sh",
     "format": "prettier --write \"**/*.{js,ts,mts,mjs,cjs,jsx,tsx,css,scss,html,json,md}\" && prettier --write \"{*.js,*.ts,*.mts,*.mjs,*.cjs,*.jsx,*.tsx,*.css,*.scss,*.html,*.json,*.md}\""
   },
   "devDependencies": {

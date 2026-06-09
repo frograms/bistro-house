@@ -36,10 +36,12 @@ author·git url·license 보유자는 **CLI 입력** 또는 **git config**에서
 ## bistro-house에서 새 패키지 추가
 
 ```bash
-pnpm add-package
+pnpm add-package <type> <project-name> "<project-description>"
+# 예: pnpm add-package lib my-pkg "My package description"
 ```
 
-대화형으로 타입·이름·설명·author·homepage 등을 입력합니다. scope·git url 은 스크립트에 고정되어 있습니다.
+`project-homepage`는 `packages/<project-name>` 경로로 preset 스크립트가 자동 설정합니다.  
+추가 create-package 옵션은 4번째 인자부터 전달 (`--yes`, `--without-install` 등).
 
 ## 옵션 예시
 
