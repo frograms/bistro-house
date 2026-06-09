@@ -28,6 +28,7 @@ export type CreatePackageContext = {
     outputDir: string;
     packageRoot: string;
     packageType: CreatePackageType;
+    packageVariantRoot: string;
     targetTemplateDir: string;
   };
   optionInfo: CreatePackageOptionInfo;
@@ -75,6 +76,11 @@ export const buildCreatePackageContext = (
     "project-resource/package-template",
     packageType
   );
+  const packageVariantRoot = path.join(
+    packageRoot,
+    "project-resource/package-variant"
+  );
+
   const destDir = optionInfo.destDir.value;
   const outputDir = path.join(
     destDir ? path.join(executeDir, destDir) : executeDir,
@@ -87,6 +93,7 @@ export const buildCreatePackageContext = (
       outputDir,
       packageRoot,
       packageType,
+      packageVariantRoot,
       targetTemplateDir,
     },
     optionInfo,

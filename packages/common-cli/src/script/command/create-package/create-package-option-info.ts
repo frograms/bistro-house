@@ -1,4 +1,5 @@
 import type { CreatePackageType } from "../../../type/create-package";
+import { PACKAGE_LICENSE_VALUES } from "../../config/package-license-config";
 import { defineOptionInfo } from "../../module/option/custom-option-utils";
 
 export const PACKAGE_MANAGER_VALUES = ["npm", "yarn", "pnpm", "bun"] as const;
@@ -44,6 +45,14 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     description: "대체 eslint 설정 파일 경로 (지정 시 템플릿 eslint 대체)",
     flags: "--eslint-config <eslint-config>",
     name: "eslint-config",
+    type: "string",
+  },
+  license: {
+    choices: PACKAGE_LICENSE_VALUES,
+    defaultValue: "private",
+    description: `라이선스: ${PACKAGE_LICENSE_VALUES.join(", ")} (기본 private)`,
+    flags: "--lic, --license <license>",
+    name: "license",
     type: "string",
   },
   licenseHolder: {

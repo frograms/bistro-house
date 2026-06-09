@@ -3,68 +3,39 @@ import fs from "fs-extra";
 import path from "path";
 
 import { dependencyConfigs } from "../../config/dependency-configs";
+import type { PackageLicenseType } from "../../config/package-license-config";
 import { askQuestion } from "../../util/cli-utils";
 import {
   createFolder,
   overwritePlaceholdersInDir,
   resolvePath,
 } from "../../util/file-utils";
-import { setDependenciesToPackageJson } from "../../util/package-utils";
-import type {
-  CreatePackageContext,
-  CreatePackageOptionInfo,
-} from "./create-package-context";
-import { applyVariant } from "./create-package-workflow-utils";
-
-const runShellAction = (action: string, cwd: string, label: string) => {
-  const parts = action.trim().split(/\s+/);
-  const command = parts[0];
-  const args = parts.slice(1);
-
-  if (!command) {
-    throw new Error(`${label} 을 실행할 수 없습니다. command 가 없습니다.`);
-  }
-
-  spawnSync(command, args, { cwd, stdio: "inherit" });
-};
-
-const buildOverwrites = (
-  options: CreatePackageOptionInfo
-): Record<string, string> => {
-  const overwrites: Record<string, string> = {};
-
-  for (const key of Object.keys(options)) {
-    const { init, value } = options[key as keyof CreatePackageOptionInfo];
-    if (value === undefined) continue;
-    overwrites[init.name] = String(value);
-  }
-
-  return overwrites;
-};
-
-const applyRegistryPublishConfig = (
-  packageJsonPath: string,
-  registryAlias?: string,
-  registryUrl?: string
-) => {
-  if (!registryUrl) return;
-
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
-  packageJson.publishConfig = {
-    [registryAlias || "registry"]: registryUrl,
-  };
-  fs.writeFileSync(
-    packageJsonPath,
-    `${JSON.stringify(packageJson, null, 2)}\n`
-  );
-};
+import {
+  setPackageJsonDependencies,
+} from "../../util/package-utils";
+import type { CreatePackageContext } from "./create-package-context";
+import {
+  applyLicenseVariant,
+  applyPublishVariant,
+  applyRegistryPublishConfig,
+  buildOverwrites,
+  runShellAction,
+} from "./create-package-workflow-utils";
 
 export const scaffoldPackage = async (
   context: CreatePackageContext
 ): Promise<void> => {
   const { configInfo, optionInfo } = context;
-  const { executeDir, outputDir, packageType, targetTemplateDir } = configInfo;
+  const {
+    executeDir,
+    outputDir,
+    packageType,
+    packageVariantRoot,
+    targetTemplateDir,
+  } = configInfo;
   const canPublish = optionInfo.canPublish.value ?? false;
+  const license: PackageLicenseType =
+    (optionInfo.license.value as PackageLicenseType | undefined) ?? "private";
   const eslintConfig = optionInfo.eslintConfig.value;
   const registryAlias = optionInfo.registryAlias.value;
   const registryUrl = optionInfo.registryUrl.value;
@@ -103,12 +74,17 @@ export const scaffoldPackage = async (
     );
   }
 
-  // variant select - package.json
-  applyVariant({
-    onSelectVariant: () => (canPublish ? "publish" : "default"),
+  applyPublishVariant({
+    canPublish,
     outputDir,
-    outputFileName: "package.json",
-    variantFileName: "_VARIANT-*-package.json",
+    packageType,
+    packageVariantRoot,
+  });
+
+  applyLicenseVariant({
+    license,
+    outputDir,
+    packageVariantRoot,
   });
 
   // override - tsconfig
@@ -143,7 +119,10 @@ export const scaffoldPackage = async (
   // package.json - 레지스트리 설정
   applyRegistryPublishConfig(packageJsonPath, registryAlias, registryUrl);
   // package.json - 의존성 추가
-  setDependenciesToPackageJson(packageJsonPath, dependencyConfigs[packageType]);
+  setPackageJsonDependencies({
+    dependencies: dependencyConfigs[packageType],
+    path: packageJsonPath,
+  });
 
   // 기본 작업 폴더 생성
   createFolder(path.join(outputDir, "src/script"));

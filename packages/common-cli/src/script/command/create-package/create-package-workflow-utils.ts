@@ -1,70 +1,119 @@
+import { spawnSync } from "child_process";
 import fs from "fs-extra";
 import path from "path";
 
-const VARIANT_WILDCARD = "*";
+import type { CreatePackageType } from "../../../type/create-package";
+import { buildSystemConfigs } from "../../config/build-system-config";
+import {
+  licenseConfigs,
+  type PackageLicenseType,
+} from "../../config/package-license-config";
+import {
+  setPackageJsonAttribute,
+  writePackageJsonFile,
+} from "../../util/package-utils";
+import type { CreatePackageOptionInfo } from "./create-package-context";
 
-/** scaffold 후 남길 최종 파일명. 예: `package.json` */
-export type VariantTargetFileName = `${string}.${string}`;
-
-/** 템플릿 파일명. variant(`*`)는 런타임 선택. 예: `_VARIANT-*-package.json` */
-export type VariantTemplatePattern = `_VARIANT-*-${string}.${string}`;
-
-export type ApplyVariantOptions = {
-  onSelectVariant: () => string;
+export type ApplyPublishVariantOptions = {
+  canPublish: boolean;
   outputDir: string;
-  outputFileName: VariantTargetFileName;
-  variantFileName: VariantTemplatePattern;
+  packageType: CreatePackageType;
+  packageVariantRoot: string;
 };
 
-/**
- * 템플릿 variant 파일 중 하나를 선택해 최종 파일명으로 바꿉니다.
- *
- * `variantFileName`: `_VARIANT-{variant}-{name}.{ext}` (`VariantTemplatePattern`)
- * `outputFileName`: scaffold 후 남길 `{name}.{ext}` (`VariantTargetFileName`)
- * 예: `_VARIANT-default-package.json` → `package.json`
- *
- * 1. `onSelectVariant()`로 variant 선택
- * 2. 같은 `outputFileName` 대상 variant 파일 중 선택되지 않은 것 삭제
- * 3. 선택 파일을 `{outputDir}/{outputFileName}`으로 rename
- */
-export const applyVariant = ({
-  onSelectVariant,
+export type ApplyLicenseVariantOptions = {
+  license: PackageLicenseType;
+  outputDir: string;
+  packageVariantRoot: string;
+};
+
+export const runShellAction = (action: string, cwd: string, label: string) => {
+  const parts = action.trim().split(/\s+/);
+  const command = parts[0];
+  const args = parts.slice(1);
+
+  if (!command) {
+    throw new Error(`${label} 을 실행할 수 없습니다. command 가 없습니다.`);
+  }
+
+  spawnSync(command, args, { cwd, stdio: "inherit" });
+};
+
+export const buildOverwrites = (
+  options: CreatePackageOptionInfo
+): Record<string, string> => {
+  const overwrites: Record<string, string> = {};
+
+  for (const key of Object.keys(options)) {
+    const { init, value } = options[key as keyof CreatePackageOptionInfo];
+    if (value === undefined) continue;
+    overwrites[init.name] = String(value);
+  }
+
+  return overwrites;
+};
+
+export const applyRegistryPublishConfig = (
+  packageJsonPath: string,
+  registryAlias?: string,
+  registryUrl?: string
+) => {
+  if (!registryUrl) return;
+
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+  packageJson.publishConfig = {
+    [registryAlias || "registry"]: registryUrl,
+  };
+  writePackageJsonFile({ attribute: packageJson, path: packageJsonPath });
+};
+
+export const applyPublishVariant = ({
+  canPublish,
   outputDir,
-  outputFileName,
-  variantFileName,
-}: ApplyVariantOptions) => {
-  const wildcardIndex = variantFileName.indexOf(VARIANT_WILDCARD);
-  if (wildcardIndex === -1) {
+  packageType,
+  packageVariantRoot,
+}: ApplyPublishVariantOptions) => {
+  const packageJsonVariant = canPublish ? "publish.json" : "default.json";
+  const packageJsonSource = path.join(
+    packageVariantRoot,
+    "package-json",
+    packageJsonVariant
+  );
+
+  if (!fs.existsSync(packageJsonSource)) {
     throw new Error(
-      `variantFileName에 '*' 와일드카드가 없습니다: ${variantFileName}`
+      `package.json variant 를 찾을 수 없습니다: ${packageJsonSource}`
     );
   }
 
-  const prefix = variantFileName.slice(0, wildcardIndex);
-  const suffix = variantFileName.slice(wildcardIndex + VARIANT_WILDCARD.length);
+  const packageJsonPath = path.join(outputDir, "package.json");
+  fs.copyFileSync(packageJsonSource, packageJsonPath);
 
-  const variant = onSelectVariant();
-  const selectedFileName = `${prefix}${variant}${suffix}`;
+  setPackageJsonAttribute({
+    attribute: buildSystemConfigs[packageType],
+    path: packageJsonPath,
+  });
+};
 
-  for (const entry of fs.readdirSync(outputDir)) {
-    if (entry === selectedFileName) continue;
-    if (!entry.startsWith(prefix) || !entry.endsWith(suffix)) continue;
-
-    const variantPart = entry.slice(
-      prefix.length,
-      entry.length - suffix.length
+export const applyLicenseVariant = ({
+  license,
+  outputDir,
+  packageVariantRoot,
+}: ApplyLicenseVariantOptions) => {
+  if (license !== "private") {
+    const licenseSource = path.join(
+      packageVariantRoot,
+      "license",
+      `${license}.txt`
     );
-    if (!variantPart) continue;
-
-    fs.rmSync(path.join(outputDir, entry));
+    if (!fs.existsSync(licenseSource)) {
+      throw new Error(`license variant 를 찾을 수 없습니다: ${licenseSource}`);
+    }
+    fs.copyFileSync(licenseSource, path.join(outputDir, "LICENSE"));
   }
 
-  const selectedPath = path.join(outputDir, selectedFileName);
-  if (!fs.existsSync(selectedPath)) {
-    throw new Error(
-      `대상 variant 파일을 찾을 수 없습니다: ${selectedFileName}`
-    );
-  }
-
-  fs.renameSync(selectedPath, path.join(outputDir, outputFileName));
+  setPackageJsonAttribute({
+    attribute: licenseConfigs[license],
+    path: path.join(outputDir, "package.json"),
+  });
 };
