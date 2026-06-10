@@ -25,7 +25,7 @@
     "access": "public"
   },
   "scripts": {
-    "test": "echo Test skipped...",
+    "test": "vitest run",
     "typecheck": "tsc",
     "lint": "eslint .",
     "build": "rm -rf ./dist && tsdown && pnpm build:post",
@@ -73,7 +73,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tsdown": "^0.21.5",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.8"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

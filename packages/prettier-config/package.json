@@ -24,7 +24,7 @@
     "access": "public"
   },
   "scripts": {
-    "test": "echo Test skipped...",
+    "test": "vitest run",
     "typecheck": "tsc",
     "lint": "eslint .",
     "build": "rm -rf ./dist && tsdown && pnpm build:post",
@@ -55,7 +55,8 @@
     "jiti": "^2.6.1",
     "prettier": "^3.7.4",
     "tsdown": "^0.21.5",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.8"
   },
   "peerDependencies": {
     "prettier": "^3.0.0"

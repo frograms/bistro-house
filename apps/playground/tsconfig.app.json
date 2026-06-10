@@ -35,5 +35,6 @@
       "@watcha-authentic/react-a11y/*": ["../../packages/react-a11y/src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["**/*.test.*", "**/*.spec.*"]
 }
