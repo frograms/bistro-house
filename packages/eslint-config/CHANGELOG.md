@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.1](https://github.com/frograms/bistro-house/compare/@watcha-authentic/eslint-config@1.2.0...@watcha-authentic/eslint-config@1.2.1) (2026-06-11)
+
+### Bug Fixes
+
+* **eslint-config:** align globals peer with Vite 8 scaffold ([6554675](https://github.com/frograms/bistro-house/commit/6554675933d620959e54bc745245d68f2906b85d))
+
 # 1.2.0 (2026-06-11)
 
 ### Bug Fixes
