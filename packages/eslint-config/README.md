@@ -29,6 +29,7 @@ Watcha 공통 ESLint(flat config) 패키지입니다. TypeScript, React, Remix, 
 | TypeScript                                | `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`                                                                          |
 | React                                     | `eslint-plugin-react`, `eslint-plugin-react-hooks`                                                                                       |
 | React Refresh (Vite / Rsbuild / Remix 등) | `eslint-plugin-react-refresh`                                                                                                            |
+| Browser globals (Vite / Rsbuild)          | `globals`                                                                                                                                |
 | Next.js                                   | `@next/eslint-plugin-next`                                                                                                               |
 
 아래 설치 예시는 자주 쓰는 조합입니다.
@@ -46,7 +47,8 @@ pnpm add -D @watcha-authentic/eslint-config \
   @typescript-eslint/eslint-plugin@^8.0.0 \
   eslint-plugin-react@^7.0.0 \
   eslint-plugin-react-hooks@^7.0.0 \
-  eslint-plugin-react-refresh@^0.4.0
+  eslint-plugin-react-refresh@^0.4.0 \
+  globals@^17.6.0
 ```
 
 #### Example: Next.js and full plugin set
