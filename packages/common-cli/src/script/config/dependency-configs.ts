@@ -6,15 +6,16 @@ const sharedDependencies: Dependency[] = [
   {
     name: "@watcha-authentic/eslint-config",
     targets: ["--save-dev"],
-    version: "^1.1.1",
+    version: "^1.2.3",
   },
   {
     name: "@watcha-authentic/prettier-config",
     targets: ["--save-dev"],
-    version: "^1.0.2",
+    version: "^1.1.3",
   },
   { name: "prettier", targets: ["--save-dev"], version: "^3.7.4" },
   { name: "typescript", targets: ["--save-dev"], version: "~5.9.3" },
+  { name: "vitest", targets: ["--save-dev"], version: "^4.1.8" },
 ];
 
 // React 의존성
@@ -116,7 +117,12 @@ const eslintDependencyInfo: Record<CreatePackageType, Dependency[]> = {
     {
       name: "eslint-plugin-react-refresh",
       targets: ["--save-dev"],
-      version: "^0.4.11",
+      version: "^0.4.24",
+    },
+    {
+      name: "globals",
+      targets: ["--save-dev"],
+      version: "^17.6.0",
     },
   ],
 };
@@ -128,14 +134,14 @@ const buildDependencyInfo: Record<"tsdown" | "vite", Dependency[]> = {
     {
       name: "@types/node",
       targets: ["--save-dev"],
-      version: "^22",
+      version: "^24",
     },
     {
-      name: "@vitejs/plugin-react-swc",
+      name: "@vitejs/plugin-react",
       targets: ["--save-dev"],
-      version: "^4.3.1",
+      version: "^6.0.1",
     },
-    { name: "vite", targets: ["--save-dev"], version: "^8.0.3" },
+    { name: "vite", targets: ["--save-dev"], version: "^8.0.12" },
     {
       name: "vite-plugin-dts",
       targets: ["--save-dev"],
