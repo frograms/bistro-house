@@ -8,7 +8,7 @@
     "gesture",
     "event"
   ],
-  "version": "1.0.2",
+  "version": "1.1.0",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/react-motion#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
@@ -47,15 +47,15 @@
     "dist"
   ],
   "dependencies": {
-    "@watcha-authentic/react-event-callback": "^1.0.2"
+    "@watcha-authentic/react-event-callback": "^1.1.0"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
-    "@watcha-authentic/eslint-config": "^1.1.1",
-    "@watcha-authentic/prettier-config": "^1.0.2",
+    "@watcha-authentic/eslint-config": "^1.2.0",
+    "@watcha-authentic/prettier-config": "^1.1.0",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.31.0",
