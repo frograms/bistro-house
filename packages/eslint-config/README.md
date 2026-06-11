@@ -48,7 +48,7 @@ pnpm add -D @watcha-authentic/eslint-config \
   eslint-plugin-react@^7.0.0 \
   eslint-plugin-react-hooks@^7.0.0 \
   eslint-plugin-react-refresh@^0.4.0 \
-  globals@^14.0.0
+  globals@^17.6.0
 ```
 
 #### Example: Next.js and full plugin set
