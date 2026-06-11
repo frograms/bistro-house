@@ -150,7 +150,7 @@ jobs:
           git commit --amend --no-edit
 
           for tag in "${RELEASE_TAGS[@]}"; do
-            git tag -f "$tag"
+            git tag -fa "$tag" -m "$tag"
           done
 
       - name: Push commit and tags
