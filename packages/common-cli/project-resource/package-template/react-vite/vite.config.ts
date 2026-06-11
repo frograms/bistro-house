@@ -1,4 +1,4 @@
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
@@ -9,7 +9,7 @@ export default defineConfig({
       fileName: (format) => `index.${format === "es" ? "js" : "cjs"}`,
       formats: ["es", "cjs"],
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: ["react", "react-dom", "react/jsx-runtime"],
       output: {
         globals: {
@@ -27,4 +27,7 @@ export default defineConfig({
       tsconfigPath: "tsconfig.type.json",
     }),
   ],
+  resolve: {
+    tsconfigPaths: true,
+  },
 });
