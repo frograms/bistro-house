@@ -64,7 +64,7 @@ npx @watcha-authentic/common-cli create-package \
   -t lib \
   --pn my-pkg \
   --pd "My package description" \
-  -d ./packages
+  -d ./packages/my-pkg
 ```
 
 필수 옵션:
@@ -72,14 +72,14 @@ npx @watcha-authentic/common-cli create-package \
 | Option | Description |
 | ------ | ----------- |
 | `-t, --type <type>` | `lib`, `react`, `react-vite` |
-| `--pn, --project-name <name>` | 프로젝트 폴더명 (kebab-case 권장) |
+| `--pn, --project-name <name>` | 프로젝트 이름 (메타·placeholder. `--dest-dir` 생략 시 폴더명) |
 | `--pd, --project-description <text>` | `package.json` `description` |
 
 자주 쓰는 옵션:
 
 | Option | Description |
 | ------ | ----------- |
-| `-d, --dest-dir <path>` | 생성 루트 (기본: cwd) |
+| `-d, --dest-dir <path>` | 최종 생성 경로 (기본: `{cwd}/{project-name}/`) |
 | `--po, --project-organization <scope>` | npm scope (예: `watcha-authentic`) |
 | `--pgu, --project-git-url <url>` | Git 저장소 URL |
 | `--cp, --can-publish` | `publish.json` variant (배포 메타·dist entry) |

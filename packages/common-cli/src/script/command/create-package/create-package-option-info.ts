@@ -36,7 +36,8 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "boolean",
   },
   destDir: {
-    description: "패키지를 생성할 워크스페이스 루트 상대 경로",
+    description:
+      "패키지를 생성할 최종 경로 (미지정 시 {cwd}/{project-name}/)",
     flags: "-d, --dest-dir <dest-dir>",
     name: "dest-dir",
     type: "string",
@@ -109,7 +110,8 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "string",
   },
   projectName: {
-    description: "프로젝트 이름 (폴더명, kebab-case 권장)",
+    description:
+      "프로젝트 이름 (package.json·placeholder용, kebab-case 권장. --dest-dir 미지정 시 출력 폴더명)",
     flags: "--pn, --project-name <project-name>",
     name: "project-name",
     required: true,

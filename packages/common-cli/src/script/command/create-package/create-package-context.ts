@@ -82,10 +82,9 @@ export const buildCreatePackageContext = (
   );
 
   const destDir = optionInfo.destDir.value;
-  const outputDir = path.join(
-    destDir ? path.join(executeDir, destDir) : executeDir,
-    optionInfo.projectName.value
-  );
+  const outputDir = destDir
+    ? path.join(executeDir, destDir)
+    : path.join(executeDir, optionInfo.projectName.value);
 
   return {
     configInfo: {
