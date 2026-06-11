@@ -157,8 +157,8 @@ importers:
         specifier: ^8.50.0
         version: 8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@watcha-authentic/prettier-config':
-        specifier: ^1.1.0
-        version: 1.1.0(prettier@3.8.3)
+        specifier: ^1.1.3
+        version: 1.1.3(prettier@3.8.3)
       eslint:
         specifier: ^9.39.2
         version: 9.39.4(jiti@2.7.0)
@@ -208,8 +208,8 @@ importers:
         specifier: ^8.50.0
         version: 8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@watcha-authentic/eslint-config':
-        specifier: ^1.2.0
-        version: 1.2.0(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@14.0.0)
+        specifier: ^1.2.3
+        version: 1.2.3(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@17.6.0)
       eslint:
         specifier: ^9.39.2
         version: 9.39.4(jiti@2.7.0)
@@ -244,8 +244,8 @@ importers:
   packages/react-a11y:
     dependencies:
       '@watcha-authentic/react-event-callback':
-        specifier: ^1.1.0
-        version: 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^1.1.3
+        version: 1.1.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@types/react':
         specifier: ^19.0.0
@@ -260,11 +260,11 @@ importers:
         specifier: ^8.50.0
         version: 8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@watcha-authentic/eslint-config':
-        specifier: ^1.2.0
-        version: 1.2.0(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@14.0.0)
+        specifier: ^1.2.3
+        version: 1.2.3(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@17.6.0)
       '@watcha-authentic/prettier-config':
-        specifier: ^1.1.0
-        version: 1.1.0(prettier@3.8.3)
+        specifier: ^1.1.3
+        version: 1.1.3(prettier@3.8.3)
       eslint:
         specifier: ^9.39.2
         version: 9.39.4(jiti@2.7.0)
@@ -323,11 +323,11 @@ importers:
         specifier: ^8.50.0
         version: 8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@watcha-authentic/eslint-config':
-        specifier: ^1.2.0
-        version: 1.2.0(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@14.0.0)
+        specifier: ^1.2.3
+        version: 1.2.3(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@17.6.0)
       '@watcha-authentic/prettier-config':
-        specifier: ^1.1.0
-        version: 1.1.0(prettier@3.8.3)
+        specifier: ^1.1.3
+        version: 1.1.3(prettier@3.8.3)
       eslint:
         specifier: ^9.39.2
         version: 9.39.4(jiti@2.7.0)
@@ -374,8 +374,8 @@ importers:
   packages/react-motion:
     dependencies:
       '@watcha-authentic/react-event-callback':
-        specifier: ^1.1.0
-        version: 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^1.1.3
+        version: 1.1.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@types/react':
         specifier: ^19.0.0
@@ -390,11 +390,11 @@ importers:
         specifier: ^8.50.0
         version: 8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@watcha-authentic/eslint-config':
-        specifier: ^1.2.0
-        version: 1.2.0(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@14.0.0)
+        specifier: ^1.2.3
+        version: 1.2.3(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@17.6.0)
       '@watcha-authentic/prettier-config':
-        specifier: ^1.1.0
-        version: 1.1.0(prettier@3.8.3)
+        specifier: ^1.1.3
+        version: 1.1.3(prettier@3.8.3)
       eslint:
         specifier: ^9.39.2
         version: 9.39.4(jiti@2.7.0)
@@ -441,14 +441,14 @@ importers:
   packages/react-slider:
     dependencies:
       '@watcha-authentic/react-a11y':
-        specifier: ^1.1.0
-        version: 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^1.1.3
+        version: 1.1.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@watcha-authentic/react-event-callback':
-        specifier: ^1.1.0
-        version: 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^1.1.3
+        version: 1.1.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@watcha-authentic/react-motion':
-        specifier: ^1.1.0
-        version: 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^1.1.3
+        version: 1.1.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@types/react':
         specifier: ^19.0.0
@@ -463,11 +463,11 @@ importers:
         specifier: ^8.50.0
         version: 8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@watcha-authentic/eslint-config':
-        specifier: ^1.2.0
-        version: 1.2.0(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@14.0.0)
+        specifier: ^1.2.3
+        version: 1.2.3(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@17.6.0)
       '@watcha-authentic/prettier-config':
-        specifier: ^1.1.0
-        version: 1.1.0(prettier@3.8.3)
+        specifier: ^1.1.3
+        version: 1.1.3(prettier@3.8.3)
       cssnano:
         specifier: ^7.0.0
         version: 7.1.9(postcss@8.5.15)
@@ -1538,8 +1538,8 @@ packages:
       eslint-plugin-react-refresh:
         optional: true
 
-  '@watcha-authentic/eslint-config@1.2.0':
-    resolution: {integrity: sha512-g0uI0AKeWGGVAHniPkDUNhelbLjJKFoz/LnZOfS/pojF07IE1a+1gQ3tjoSN0+l0S6ObTVdzhS91xZUq8tTGzA==}
+  '@watcha-authentic/eslint-config@1.2.3':
+    resolution: {integrity: sha512-B4CeST9gB03NTeU37wKosMg+htu7tdbOQ9zMoN2RhhMhI8bHFcfRd1uMF1GVOL9Dotxcfx8MnG3IXGEVowUzDQ==}
     peerDependencies:
       '@next/eslint-plugin-next': ^15.0.0
       '@typescript-eslint/eslint-plugin': ^8.0.0
@@ -1552,7 +1552,7 @@ packages:
       eslint-plugin-react-hooks: ^7.0.0
       eslint-plugin-react-refresh: ^0.4.0
       eslint-plugin-simple-import-sort: ^12.0.0
-      globals: ^14.0.0
+      globals: ^17.6.0
     peerDependenciesMeta:
       '@next/eslint-plugin-next':
         optional: true
@@ -1576,25 +1576,25 @@ packages:
     peerDependencies:
       prettier: ^3.0.0
 
-  '@watcha-authentic/prettier-config@1.1.0':
-    resolution: {integrity: sha512-8BX9TDikBK68Tv8YGWOJYNQrrcc2vkaLhh/NIk55b0FBNsLyI1a8QF07X5YtkXUHgPFRKC4WEfWTBeJUw210eg==}
+  '@watcha-authentic/prettier-config@1.1.3':
+    resolution: {integrity: sha512-c6+sYu8tHvKIJN1Y0zb8+PSJ1ZmUquKa2y93Fm2UyarwqnFb0QshoUZCjGmw3A4f0u4uRoOzEY+Ku02eeAfxFA==}
     peerDependencies:
       prettier: ^3.0.0
 
-  '@watcha-authentic/react-a11y@1.1.0':
-    resolution: {integrity: sha512-j6lvFIR2wMSEK28ACUgCx6AQCL8gE/T3cjruxhRtSyvIixp2jZi9YI5zkj4qh7UZKoxm8PgWXdyemJx3hZupzg==}
+  '@watcha-authentic/react-a11y@1.1.3':
+    resolution: {integrity: sha512-pQxuv+7vbyaeEiloyEvZCAiUj9ng61iMYbTzMV9CQIGSUn7UJcShHXgRZGWHJ6iqe4BkTaCwaBfuLKEzw8BXfg==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
 
-  '@watcha-authentic/react-event-callback@1.1.0':
-    resolution: {integrity: sha512-+kGtANZFlNBkpbup06M7PYTRItuq7uHHKYdWJB2rWJLXe0OBSjDN1RgHBaWX66ihSRu+uB9jMo6M9mi0nqHVEQ==}
+  '@watcha-authentic/react-event-callback@1.1.3':
+    resolution: {integrity: sha512-vcdkmuOhQgWhU1mWkbg5BfOhLDVsiyQFHclPSSrURexA+G+JtfioRik4PRHKyf7HOxQKE9ZrcRTVlk2HAko7IQ==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
 
-  '@watcha-authentic/react-motion@1.1.0':
-    resolution: {integrity: sha512-0jYlpFa76AydcNMKZf28wdbkMdXIlDoz4IPGysiY6ZMwKCZ04BmqCHSg62zE+x5CIqQ7CkYt96+FySReUlhfoA==}
+  '@watcha-authentic/react-motion@1.1.3':
+    resolution: {integrity: sha512-LX8D49VVPYzqWp6dXHeuEkm1P7BN0VUmEOKq2MO6+KLDmBUPMHRkPG9ZA1npDwIAUzn6rnEW9IOZ8ZGv0KV82A==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
@@ -5200,7 +5200,7 @@ snapshots:
       eslint-plugin-react-hooks: 7.1.1(eslint@9.39.4(jiti@2.7.0))
       eslint-plugin-react-refresh: 0.4.26(eslint@9.39.4(jiti@2.7.0))
 
-  '@watcha-authentic/eslint-config@1.2.0(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@14.0.0)':
+  '@watcha-authentic/eslint-config@1.2.3(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@17.6.0)':
     dependencies:
       eslint: 9.39.4(jiti@2.7.0)
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0))
@@ -5214,30 +5214,30 @@ snapshots:
       eslint-plugin-react: 7.37.5(eslint@9.39.4(jiti@2.7.0))
       eslint-plugin-react-hooks: 7.1.1(eslint@9.39.4(jiti@2.7.0))
       eslint-plugin-react-refresh: 0.4.26(eslint@9.39.4(jiti@2.7.0))
-      globals: 14.0.0
+      globals: 17.6.0
 
   '@watcha-authentic/prettier-config@1.0.0(prettier@3.8.3)':
     dependencies:
       prettier: 3.8.3
 
-  '@watcha-authentic/prettier-config@1.1.0(prettier@3.8.3)':
+  '@watcha-authentic/prettier-config@1.1.3(prettier@3.8.3)':
     dependencies:
       prettier: 3.8.3
 
-  '@watcha-authentic/react-a11y@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@watcha-authentic/react-a11y@1.1.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
-      '@watcha-authentic/react-event-callback': 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@watcha-authentic/react-event-callback': 1.1.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
 
-  '@watcha-authentic/react-event-callback@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@watcha-authentic/react-event-callback@1.1.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
 
-  '@watcha-authentic/react-motion@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@watcha-authentic/react-motion@1.1.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
-      '@watcha-authentic/react-event-callback': 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@watcha-authentic/react-event-callback': 1.1.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
 

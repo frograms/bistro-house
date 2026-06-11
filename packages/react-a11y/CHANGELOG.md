@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.3](https://github.com/frograms/bistro-house/compare/@watcha-authentic/react-a11y@1.1.2...@watcha-authentic/react-a11y@1.1.3) (2026-06-11)
+
+**Note:** Version bump only for package @watcha-authentic/react-a11y
+
+## [1.1.2](https://github.com/frograms/bistro-house/compare/@watcha-authentic/react-a11y@1.1.1...@watcha-authentic/react-a11y@1.1.2) (2026-06-11)
+
+**Note:** Version bump only for package @watcha-authentic/react-a11y
+
+## [1.1.1](https://github.com/frograms/bistro-house/compare/@watcha-authentic/react-a11y@1.1.0...@watcha-authentic/react-a11y@1.1.1) (2026-06-11)
+
+**Note:** Version bump only for package @watcha-authentic/react-a11y
+
 # 1.1.0 (2026-06-11)
 
 ### Bug Fixes
