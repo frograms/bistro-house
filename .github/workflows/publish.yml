@@ -131,12 +131,15 @@ jobs:
         run: |
           pnpm lerna publish --yes --conventional-commits --no-push
 
+      - name: Wait for published packages on npm registry
+        run: bash ./project-attachment/script/wait-for-published-packages.sh
+
+      - name: Install workspace dependencies
+        run: pnpm install --no-frozen-lockfile
+
       - name: Sync lockfile into release commit
         run: |
           mapfile -t RELEASE_TAGS < <(git tag --points-at HEAD)
-
-          # Re-install to refresh lockfile
-          pnpm install --no-frozen-lockfile
 
           if git diff --quiet pnpm-lock.yaml; then
             echo "pnpm-lock.yaml 변경 없음"
