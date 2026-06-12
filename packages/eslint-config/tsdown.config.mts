@@ -2,7 +2,21 @@ import { defineConfig, type UserConfig } from "tsdown";
 
 const sharedConfig: UserConfig = {
   deps: { skipNodeModulesBundle: true },
-  entry: ["src/index.ts"],
+  entry: [
+    "src/preset-node-index.ts",
+    "src/preset-react-index.ts",
+    "src/preset-remix-index.ts",
+    "src/preset-vite-index.ts",
+    "src/preset-rsbuild-index.ts",
+    "src/preset-next-index.ts",
+    "src/config-base-index.ts",
+    "src/config-typescript-index.ts",
+    "src/config-react-index.ts",
+    "src/config-remix-index.ts",
+    "src/config-vite-index.ts",
+    "src/config-rsbuild-index.ts",
+    "src/config-next-index.ts",
+  ],
   fixedExtension: true,
   outDir: "dist",
   outExtensions: () => ({ dts: ".d.ts" }),
