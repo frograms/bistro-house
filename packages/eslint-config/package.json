@@ -5,7 +5,7 @@
     "eslint",
     "config"
   ],
-  "version": "1.2.3",
+  "version": "2.0.0",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/eslint-config#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
@@ -30,14 +30,71 @@
     "build": "rm -rf ./dist && tsdown && pnpm build:post",
     "build:post": "bash ./project-attachment/post-build.sh"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+    "./node": {
+      "types": "./dist/preset-node-index.d.ts",
+      "import": "./dist/preset-node-index.mjs",
+      "require": "./dist/preset-node-index.cjs"
+    },
+    "./react": {
+      "types": "./dist/preset-react-index.d.ts",
+      "import": "./dist/preset-react-index.mjs",
+      "require": "./dist/preset-react-index.cjs"
+    },
+    "./remix": {
+      "types": "./dist/preset-remix-index.d.ts",
+      "import": "./dist/preset-remix-index.mjs",
+      "require": "./dist/preset-remix-index.cjs"
+    },
+    "./vite": {
+      "types": "./dist/preset-vite-index.d.ts",
+      "import": "./dist/preset-vite-index.mjs",
+      "require": "./dist/preset-vite-index.cjs"
+    },
+    "./rsbuild": {
+      "types": "./dist/preset-rsbuild-index.d.ts",
+      "import": "./dist/preset-rsbuild-index.mjs",
+      "require": "./dist/preset-rsbuild-index.cjs"
+    },
+    "./next": {
+      "types": "./dist/preset-next-index.d.ts",
+      "import": "./dist/preset-next-index.mjs",
+      "require": "./dist/preset-next-index.cjs"
+    },
+    "./configs/base": {
+      "types": "./dist/config-base-index.d.ts",
+      "import": "./dist/config-base-index.mjs",
+      "require": "./dist/config-base-index.cjs"
+    },
+    "./configs/typescript": {
+      "types": "./dist/config-typescript-index.d.ts",
+      "import": "./dist/config-typescript-index.mjs",
+      "require": "./dist/config-typescript-index.cjs"
+    },
+    "./configs/react": {
+      "types": "./dist/config-react-index.d.ts",
+      "import": "./dist/config-react-index.mjs",
+      "require": "./dist/config-react-index.cjs"
+    },
+    "./configs/remix": {
+      "types": "./dist/config-remix-index.d.ts",
+      "import": "./dist/config-remix-index.mjs",
+      "require": "./dist/config-remix-index.cjs"
+    },
+    "./configs/vite": {
+      "types": "./dist/config-vite-index.d.ts",
+      "import": "./dist/config-vite-index.mjs",
+      "require": "./dist/config-vite-index.cjs"
+    },
+    "./configs/rsbuild": {
+      "types": "./dist/config-rsbuild-index.d.ts",
+      "import": "./dist/config-rsbuild-index.mjs",
+      "require": "./dist/config-rsbuild-index.cjs"
+    },
+    "./configs/next": {
+      "types": "./dist/config-next-index.d.ts",
+      "import": "./dist/config-next-index.mjs",
+      "require": "./dist/config-next-index.cjs"
     }
   },
   "files": [

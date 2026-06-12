@@ -1,6 +1,7 @@
-import { baseConfigs } from "./src/script/config/rule-base-config";
-import { typescriptConfigs } from "./src/script/config/rule-typescript-config";
+import type { Linter } from "eslint";
 
-const eslintConfig = [...baseConfigs, ...typescriptConfigs];
+import { nodePreset } from "./src/preset-node-index";
+
+const eslintConfig: Linter.Config[] = [...nodePreset];
 
 export default eslintConfig;

@@ -16,6 +16,6 @@ emit_changed_packages() {
   done
 }
 
-pnpm exec lerna changed --parseable | emit_changed_packages
+bash ./project-attachment/script/run-lerna-with-publish-scope.sh changed --parseable | emit_changed_packages
 
 set -e

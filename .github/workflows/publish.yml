@@ -129,7 +129,8 @@ jobs:
 
       - name: Run Lerna-Lite publish (no push)
         run: |
-          pnpm lerna publish --yes --conventional-commits --no-push
+          bash ./project-attachment/script/run-lerna-with-publish-scope.sh \
+            publish --yes --conventional-commits --no-push
 
       - name: Wait for published packages on npm registry
         run: bash ./project-attachment/script/wait-for-published-packages.sh
@@ -141,14 +142,21 @@ jobs:
         run: |
           mapfile -t RELEASE_TAGS < <(git tag --points-at HEAD)
 
-          if git diff --quiet pnpm-lock.yaml; then
-            echo "pnpm-lock.yaml 변경 없음"
+          # lerna-publish-scope 파일이 있으면 삭제 합니다
+          git rm -f lerna-publish-scope.txt 2>/dev/null || true
+
+          # lock 변경사항이 있으면 커밋에 추가 합니다
+          git diff --quiet pnpm-lock.yaml || git add pnpm-lock.yaml
+
+          # HEAD 기준으로 변경사항(staged)이 없으면 이하 작업을 건너뜁니다
+          if git diff --cached --quiet && git diff --quiet; then
+            echo "release commit 수정 없음"
             exit 0
           fi
 
-          git add pnpm-lock.yaml
+          # HEAD 를 staged 항목들을 더해 수정 합니다.
           git commit --amend --no-edit
-
+          # amend 로 HEAD 해쉬가 변경 되었으므로 태그를 새로운 HEAD에 이동합니다
           for tag in "${RELEASE_TAGS[@]}"; do
             git tag -fa "$tag" -m "$tag"
           done
