@@ -10,9 +10,7 @@ import {
   overwritePlaceholdersInDir,
   resolvePath,
 } from "../../util/file-utils";
-import {
-  setPackageJsonDependencies,
-} from "../../util/package-utils";
+import { setPackageJsonDependencies } from "../../util/package-utils";
 import type { CreatePackageContext } from "./create-package-context";
 import {
   applyLicenseVariant,

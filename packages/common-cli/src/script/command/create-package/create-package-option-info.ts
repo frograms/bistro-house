@@ -36,8 +36,7 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "boolean",
   },
   destDir: {
-    description:
-      "패키지를 생성할 최종 경로 (미지정 시 {cwd}/{project-name}/)",
+    description: "패키지를 생성할 최종 경로 (미지정 시 {cwd}/{project-name}/)",
     flags: "-d, --dest-dir <dest-dir>",
     name: "dest-dir",
     type: "string",

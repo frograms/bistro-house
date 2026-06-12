@@ -69,32 +69,32 @@ npx @watcha-authentic/common-cli create-package \
 
 필수 옵션:
 
-| Option | Description |
-| ------ | ----------- |
-| `-t, --type <type>` | `lib`, `react`, `react-vite` |
-| `--pn, --project-name <name>` | 프로젝트 이름 (메타·placeholder. `--dest-dir` 생략 시 폴더명) |
-| `--pd, --project-description <text>` | `package.json` `description` |
+| Option                               | Description                                                   |
+| ------------------------------------ | ------------------------------------------------------------- |
+| `-t, --type <type>`                  | `lib`, `react`, `react-vite`                                  |
+| `--pn, --project-name <name>`        | 프로젝트 이름 (메타·placeholder. `--dest-dir` 생략 시 폴더명) |
+| `--pd, --project-description <text>` | `package.json` `description`                                  |
 
 자주 쓰는 옵션:
 
-| Option | Description |
-| ------ | ----------- |
-| `-d, --dest-dir <path>` | 최종 생성 경로 (기본: `{cwd}/{project-name}/`) |
-| `--po, --project-organization <scope>` | npm scope (예: `watcha-authentic`) |
-| `--pgu, --project-git-url <url>` | Git 저장소 URL |
-| `--cp, --can-publish` | `publish.json` variant (배포 메타·dist entry) |
-| `--lic, --license <name>` | `private` (기본), `mit`, `isc`, `bsd-3-clause` |
-| `--wi, --without-install` | 생성 후 install 생략 |
-| `-y, --yes` | 대화형 입력 생략 |
+| Option                                 | Description                                    |
+| -------------------------------------- | ---------------------------------------------- |
+| `-d, --dest-dir <path>`                | 최종 생성 경로 (기본: `{cwd}/{project-name}/`) |
+| `--po, --project-organization <scope>` | npm scope (예: `watcha-authentic`)             |
+| `--pgu, --project-git-url <url>`       | Git 저장소 URL                                 |
+| `--cp, --can-publish`                  | `publish.json` variant (배포 메타·dist entry)  |
+| `--lic, --license <name>`              | `private` (기본), `mit`, `isc`, `bsd-3-clause` |
+| `--wi, --without-install`              | 생성 후 install 생략                           |
+| `-y, --yes`                            | 대화형 입력 생략                               |
 
 전체 옵션 목록은 `create-package --help`와 동일합니다.
 
 ### Package types
 
-| `--type` | Build | React peer | 설명 |
-| -------- | ----- | ---------- | ---- |
-| `lib` | tsdown (`platform: node`) | 없음 | React 없는 TypeScript 라이브러리 |
-| `react` | tsdown (`platform: neutral`) | `react`, `react-dom` | React hook·컴포넌트 라이브러리 |
-| `react-vite` | Vite library mode | `react`, `react-dom` | Vite 기반 React 패키지 |
+| `--type`     | Build                        | React peer           | 설명                             |
+| ------------ | ---------------------------- | -------------------- | -------------------------------- |
+| `lib`        | tsdown (`platform: node`)    | 없음                 | React 없는 TypeScript 라이브러리 |
+| `react`      | tsdown (`platform: neutral`) | `react`, `react-dom` | React hook·컴포넌트 라이브러리   |
+| `react-vite` | Vite library mode            | `react`, `react-dom` | Vite 기반 React 패키지           |
 
 `lib` / `react` 템플릿에는 `@watcha-authentic/eslint-config`, `@watcha-authentic/prettier-config` 설정이 포함됩니다.

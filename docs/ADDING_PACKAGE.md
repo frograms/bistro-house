@@ -5,13 +5,13 @@
 
 ## 관련 문서
 
-| 문서                                                                                                                          | 용도                                      |
-| ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| [bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d) (Notion) | OIDC(Trusted Publishing), org 권한        |
-| [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md)                                                                          | `packages/<name>/README.md` 형식          |
+| 문서                                                                                                                          | 용도                                         |
+| ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| [bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d) (Notion) | OIDC(Trusted Publishing), org 권한           |
+| [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md)                                                                          | `packages/<name>/README.md` 형식             |
 | [PACKAGE_DEPS_AND_BUILD.md](./PACKAGE_DEPS_AND_BUILD.md)                                                                      | `dependencies` / `peerDependencies` · tsdown |
-| [MAINTAINER_GUIDE.md](./MAINTAINER_GUIDE.md)                                                                                  | 유지보수 인덱스 (CI·배포·스크립트)        |
-| [../README.md](../README.md)                                                                                                  | 저장소 개요 · 패키지 목록 · 기여 시작     |
+| [MAINTAINER_GUIDE.md](./MAINTAINER_GUIDE.md)                                                                                  | 유지보수 인덱스 (CI·배포·스크립트)           |
+| [../README.md](../README.md)                                                                                                  | 저장소 개요 · 패키지 목록 · 기여 시작        |
 
 ## 전제
 
@@ -95,11 +95,11 @@ pnpm prepare-package <package-name>
 pnpm add-package <type> <project-name> <project-description> [options...]
 ```
 
-| 인자 | 설명 |
-| ---- | ---- |
-| `type` | `lib` · `react` · `react-vite` |
-| `project-name` | 폴더명·npm 패키지 접미사 (kebab-case 권장) |
-| `project-description` | `package.json` `description` |
+| 인자                  | 설명                                       |
+| --------------------- | ------------------------------------------ |
+| `type`                | `lib` · `react` · `react-vite`             |
+| `project-name`        | 폴더명·npm 패키지 접미사 (kebab-case 권장) |
+| `project-description` | `package.json` `description`               |
 
 스크립트가 고정하는 값: `@watcha-authentic` scope, 출력 경로 `packages/<project-name>/`, MIT 라이선스, 배포용 `package.json` variant, 저장소·author 메타.  
 4번째 인자부터는 `create-package` 옵션을 그대로 넘길 수 있습니다 (`--yes`, `--without-install` 등).
