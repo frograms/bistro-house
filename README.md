@@ -73,12 +73,14 @@ pnpm dev:playground    # playground 개발 서버
 2. `lerna publish` (Lerna-Lite, conventional commits)
 3. 필요 시 `pnpm-lock.yaml` 커밋 후 push, 태그·GitHub Release
 
+이번 release에서 publish 범위만 좁히려면 merge PR에 루트 `lerna-publish-scope.txt`를 추가합니다. `pnpm lerna list`에 나오는 npm package name을 한 줄에 하나씩 적습니다 (예: `@watcha-authentic/eslint-config`). CI가 `lerna changed`·`lerna publish`에 동일 scope를 적용하고, publish 후 release commit에서 파일을 삭제합니다. 파일이 없으면 기존과 같습니다.
+
 버전은 패키지별 independent versioning (`lerna.json`)입니다. 릴리스 CLI는 [Lerna-Lite](https://github.com/lerna-lite/lerna-lite) (`@lerna-lite/*`)이며, 명령은 기존과 같이 `pnpm lerna`를 사용합니다.
 
 로컬에서 배포 영향만 확인할 때:
 
 ```bash
-pnpm exec lerna changed --parseable
+pnpm lerna changed --parseable
 pnpm lerna publish --yes --conventional-commits --no-push --dry-run
 ```
 
