@@ -9,8 +9,10 @@ Watcha 공통 ESLint(flat config) 패키지입니다. 환경별 **preset** subpa
 ## Table of contents
 
 - [Subpath exports](#subpath-exports)
-- [Peer dependencies](#peer-dependencies)
 - [Installation](#installation)
+- [Peer dependencies](#peer-dependencies)
+- [프리셋별 종속성 가이드](#프리셋별-종속성-가이드)
+- [config block별 종속성 가이드](#config-block별-종속성-가이드)
 - [Usage](#usage)
 
 ## Subpath exports
@@ -40,6 +42,12 @@ v2부터 root export(`.`)는 없습니다. preset 또는 config subpath를 impor
 | `@watcha-authentic/eslint-config/configs/remix` | `remixConfigs` |
 | `@watcha-authentic/eslint-config/configs/rsbuild` | `rsbuildConfigs` |
 
+## Installation
+
+사용할 preset 또는 config block을 [Subpath exports](#subpath-exports)에서 고른 뒤, 아래 [프리셋별 종속성 가이드](#프리셋별-종속성-가이드) 또는 [config block별 종속성 가이드](#config-block별-종속성-가이드)에서 해당 명령을 복사해 설치하세요.
+
+각 명령에는 `@watcha-authentic/eslint-config`와 필요한 peer가 모두 포함되어 있습니다.
+
 ## Peer dependencies
 
 **Runtime dependencies는 없습니다.** ESLint 플러그인·파서는 소비자 프로젝트에서 설치합니다.
@@ -56,24 +64,20 @@ npm은 subpath별 peer를 선언할 수 없으므로, `package.json`의 peer는 
 | `eslint-plugin-simple-import-sort` |
 | `eslint-import-resolver-typescript` |
 
-### preset / config별 추가 peer
+## 프리셋별 종속성 가이드
 
-| subpath | 추가로 설치할 peer |
-| ------- | ------------------ |
-| `/node`, `/configs/base`, `/configs/typescript` | `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin` |
-| `/react`, `/configs/react` | + `eslint-plugin-react`, `eslint-plugin-react-hooks` |
-| `/vite`, `/configs/vite` | + `eslint-plugin-react-refresh`, `globals` |
-| `/rsbuild`, `/configs/rsbuild` | + `eslint-plugin-react-refresh`, `globals` |
-| `/remix`, `/configs/remix` | + `eslint-plugin-react-refresh` |
-| `/next`, `/configs/next` | + `@next/eslint-plugin-next` |
+preset subpath는 **해당 preset 구성에 포함된 config peer의 합집합**입니다. 아래 명령을 복사해 peer를 한 번에 설치하세요.
 
-preset subpath는 위 표에서 **해당 preset 구성에 포함된 config peer의 합집합**입니다.
+| preset | subpath | 구성 |
+| ------ | ------- | ---- |
+| `nodePreset` | `/node` | base + typescript |
+| `reactPreset` | `/react` | base + typescript + react |
+| `vitePreset` | `/vite` | base + typescript + react + vite |
+| `nextPreset` | `/next` | base + typescript + react + next |
+| `remixPreset` | `/remix` | base + typescript + react + remix |
+| `rsbuildPreset` | `/rsbuild` | base + typescript + react + rsbuild |
 
-예: `/vite` → 공통 + TypeScript + React + react-refresh + globals
-
-### 설치 예시
-
-#### Node / TypeScript (`/node`)
+### `/node` — `nodePreset`
 
 ```bash
 pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
@@ -86,7 +90,7 @@ pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
   @typescript-eslint/eslint-plugin@^8.0.0
 ```
 
-#### React library (`/react`)
+### `/react` — `reactPreset`
 
 ```bash
 pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
@@ -101,7 +105,7 @@ pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
   eslint-plugin-react-hooks@^7.0.0
 ```
 
-#### Vite + React (`/vite`)
+### `/vite` — `vitePreset`
 
 ```bash
 pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
@@ -118,7 +122,39 @@ pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
   globals@^17.6.0
 ```
 
-#### Next.js (`/next`)
+### `/next` — `nextPreset`
+
+```bash
+pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
+  eslint@^9.0.0 \
+  eslint-plugin-import@^2.0.0 \
+  eslint-plugin-perfectionist@^5.0.0 \
+  eslint-plugin-simple-import-sort@^12.0.0 \
+  eslint-import-resolver-typescript@^3.6.0 \
+  @typescript-eslint/parser@^8.0.0 \
+  @typescript-eslint/eslint-plugin@^8.0.0 \
+  eslint-plugin-react@^7.0.0 \
+  eslint-plugin-react-hooks@^7.0.0 \
+  @next/eslint-plugin-next@^15.0.0
+```
+
+### `/remix` — `remixPreset`
+
+```bash
+pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
+  eslint@^9.0.0 \
+  eslint-plugin-import@^2.0.0 \
+  eslint-plugin-perfectionist@^5.0.0 \
+  eslint-plugin-simple-import-sort@^12.0.0 \
+  eslint-import-resolver-typescript@^3.6.0 \
+  @typescript-eslint/parser@^8.0.0 \
+  @typescript-eslint/eslint-plugin@^8.0.0 \
+  eslint-plugin-react@^7.0.0 \
+  eslint-plugin-react-hooks@^7.0.0 \
+  eslint-plugin-react-refresh@^0.4.0
+```
+
+### `/rsbuild` — `rsbuildPreset`
 
 ```bash
 pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
@@ -132,16 +168,141 @@ pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
   eslint-plugin-react@^7.0.0 \
   eslint-plugin-react-hooks@^7.0.0 \
   eslint-plugin-react-refresh@^0.4.0 \
+  globals@^17.6.0
+```
+
+## config block별 종속성 가이드
+
+config block은 preset처럼 **조합**해서 씁니다. import하는 block peer의 **합집합**을 설치하세요.
+
+아래 명령은 block을 **권장 순서대로 누적**했을 때(`base` → `typescript` → `react` → 환경별 block) 필요한 peer 전체입니다.
+
+| export | subpath | 누적 구성 |
+| ------ | ------- | --------- |
+| `baseConfigs` | `/configs/base` | base |
+| `typescriptConfigs` | `/configs/typescript` | base + typescript |
+| `reactConfigs` | `/configs/react` | base + typescript + react |
+| `viteConfigs` | `/configs/vite` | base + typescript + react + vite |
+| `nextConfigs` | `/configs/next` | base + typescript + react + next |
+| `remixConfigs` | `/configs/remix` | base + typescript + react + remix |
+| `rsbuildConfigs` | `/configs/rsbuild` | base + typescript + react + rsbuild |
+
+### `/configs/base` — `baseConfigs`
+
+```bash
+pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
+  eslint@^9.0.0 \
+  eslint-plugin-import@^2.0.0 \
+  eslint-plugin-perfectionist@^5.0.0 \
+  eslint-plugin-simple-import-sort@^12.0.0 \
+  eslint-import-resolver-typescript@^3.6.0
+```
+
+### `/configs/typescript` — `typescriptConfigs`
+
+`baseConfigs` + `typescriptConfigs` 조합 기준
+
+```bash
+pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
+  eslint@^9.0.0 \
+  eslint-plugin-import@^2.0.0 \
+  eslint-plugin-perfectionist@^5.0.0 \
+  eslint-plugin-simple-import-sort@^12.0.0 \
+  eslint-import-resolver-typescript@^3.6.0 \
+  @typescript-eslint/parser@^8.0.0 \
+  @typescript-eslint/eslint-plugin@^8.0.0
+```
+
+### `/configs/react` — `reactConfigs`
+
+`baseConfigs` + `typescriptConfigs` + `reactConfigs` 조합 기준
+
+```bash
+pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
+  eslint@^9.0.0 \
+  eslint-plugin-import@^2.0.0 \
+  eslint-plugin-perfectionist@^5.0.0 \
+  eslint-plugin-simple-import-sort@^12.0.0 \
+  eslint-import-resolver-typescript@^3.6.0 \
+  @typescript-eslint/parser@^8.0.0 \
+  @typescript-eslint/eslint-plugin@^8.0.0 \
+  eslint-plugin-react@^7.0.0 \
+  eslint-plugin-react-hooks@^7.0.0
+```
+
+### `/configs/vite` — `viteConfigs`
+
+`baseConfigs` + `typescriptConfigs` + `reactConfigs` + `viteConfigs` 조합 기준
+
+```bash
+pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
+  eslint@^9.0.0 \
+  eslint-plugin-import@^2.0.0 \
+  eslint-plugin-perfectionist@^5.0.0 \
+  eslint-plugin-simple-import-sort@^12.0.0 \
+  eslint-import-resolver-typescript@^3.6.0 \
+  @typescript-eslint/parser@^8.0.0 \
+  @typescript-eslint/eslint-plugin@^8.0.0 \
+  eslint-plugin-react@^7.0.0 \
+  eslint-plugin-react-hooks@^7.0.0 \
+  eslint-plugin-react-refresh@^0.4.0 \
+  globals@^17.6.0
+```
+
+### `/configs/next` — `nextConfigs`
+
+`baseConfigs` + `typescriptConfigs` + `reactConfigs` + `nextConfigs` 조합 기준
+
+```bash
+pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
+  eslint@^9.0.0 \
+  eslint-plugin-import@^2.0.0 \
+  eslint-plugin-perfectionist@^5.0.0 \
+  eslint-plugin-simple-import-sort@^12.0.0 \
+  eslint-import-resolver-typescript@^3.6.0 \
+  @typescript-eslint/parser@^8.0.0 \
+  @typescript-eslint/eslint-plugin@^8.0.0 \
+  eslint-plugin-react@^7.0.0 \
+  eslint-plugin-react-hooks@^7.0.0 \
   @next/eslint-plugin-next@^15.0.0
 ```
 
-## Installation
+### `/configs/remix` — `remixConfigs`
+
+`baseConfigs` + `typescriptConfigs` + `reactConfigs` + `remixConfigs` 조합 기준
 
 ```bash
-pnpm add -D @watcha-authentic/eslint-config@^2.0.0
+pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
+  eslint@^9.0.0 \
+  eslint-plugin-import@^2.0.0 \
+  eslint-plugin-perfectionist@^5.0.0 \
+  eslint-plugin-simple-import-sort@^12.0.0 \
+  eslint-import-resolver-typescript@^3.6.0 \
+  @typescript-eslint/parser@^8.0.0 \
+  @typescript-eslint/eslint-plugin@^8.0.0 \
+  eslint-plugin-react@^7.0.0 \
+  eslint-plugin-react-hooks@^7.0.0 \
+  eslint-plugin-react-refresh@^0.4.0
 ```
 
-위 [Peer dependencies](#peer-dependencies)에 맞춰 플러그인·파서를 추가로 설치하세요.
+### `/configs/rsbuild` — `rsbuildConfigs`
+
+`baseConfigs` + `typescriptConfigs` + `reactConfigs` + `rsbuildConfigs` 조합 기준
+
+```bash
+pnpm add -D @watcha-authentic/eslint-config@^2.0.0 \
+  eslint@^9.0.0 \
+  eslint-plugin-import@^2.0.0 \
+  eslint-plugin-perfectionist@^5.0.0 \
+  eslint-plugin-simple-import-sort@^12.0.0 \
+  eslint-import-resolver-typescript@^3.6.0 \
+  @typescript-eslint/parser@^8.0.0 \
+  @typescript-eslint/eslint-plugin@^8.0.0 \
+  eslint-plugin-react@^7.0.0 \
+  eslint-plugin-react-hooks@^7.0.0 \
+  eslint-plugin-react-refresh@^0.4.0 \
+  globals@^17.6.0
+```
 
 ## Usage
 
