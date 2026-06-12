@@ -5,11 +5,13 @@
 
 ## 관련 문서
 
-| 문서                                                                                                                          | 용도                                      |
-| ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| [bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d) (Notion) | OIDC(Trusted Publishing), org 권한        |
-| [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md)                                                                          | `packages/<name>/README.md` 형식          |
-| [README.md](../README.md)                                                                                                     | 로컬 개발, 배포(카나리·patch·latest) 개요 |
+| 문서                                                                                                                          | 용도                                         |
+| ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| [bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d) (Notion) | OIDC(Trusted Publishing), org 권한           |
+| [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md)                                                                          | `packages/<name>/README.md` 형식             |
+| [PACKAGE_DEPS_AND_BUILD.md](./PACKAGE_DEPS_AND_BUILD.md)                                                                      | `dependencies` / `peerDependencies` · tsdown |
+| [MAINTAINER_GUIDE.md](./MAINTAINER_GUIDE.md)                                                                                  | 유지보수 인덱스 (CI·배포·스크립트)           |
+| [../README.md](../README.md)                                                                                                  | 저장소 개요 · 패키지 목록 · 기여 시작        |
 
 ## 전제
 
@@ -84,6 +86,44 @@ pnpm prepare-package <package-name>
 ## 3. `packages/<name>/` 스캐폴딩
 
 `lerna.json`의 `packages: ["packages/*"]`에 따라 **디렉터리만 추가하면** Lerna-Lite·pnpm 워크스페이스에 자동 포함됩니다.
+
+### `pnpm add-package` (권장)
+
+모노레포 convention에 맞춘 스캐폴딩은 루트에서 실행합니다. 내부적으로 [`@watcha-authentic/common-cli`](../packages/common-cli/README.md) `create-package`를 호출합니다.
+
+```bash
+pnpm add-package <type> <project-name> <project-description> [options...]
+```
+
+| 인자                  | 설명                                       |
+| --------------------- | ------------------------------------------ |
+| `type`                | `lib` · `react` · `react-vite`             |
+| `project-name`        | 폴더명·npm 패키지 접미사 (kebab-case 권장) |
+| `project-description` | `package.json` `description`               |
+
+스크립트가 고정하는 값: `@watcha-authentic` scope, 출력 경로 `packages/<project-name>/`, MIT 라이선스, 배포용 `package.json` variant, 저장소·author 메타.  
+4번째 인자부터는 `create-package` 옵션을 그대로 넘길 수 있습니다 (`--yes`, `--without-install` 등).
+
+```bash
+# TypeScript 라이브러리 (tsdown)
+pnpm add-package lib my-pkg "My package description"
+
+# React 라이브러리 (tsdown + React peer)
+pnpm add-package react my-react-pkg "React hook library"
+
+# Vite library mode (React peer)
+pnpm add-package react-vite my-vite-pkg "Vite-based React package"
+
+# install 생략 후 루트에서 한 번에 install
+pnpm add-package lib my-pkg "My package description" --yes --without-install
+pnpm install
+```
+
+- 스크립트: [add-package.sh](../project-attachment/script/add-package.sh)
+- 생성 위치: `packages/<project-name>/`
+- 템플릿·옵션 상세: `pnpm --filter=@watcha-authentic/common-cli dev create-package --help`
+
+수동으로 디렉터리를 만들 때는 아래 **최소 구성**을 참고하세요.
 
 ### 참고할 기존 패키지
 
@@ -160,7 +200,7 @@ pnpm publish:canary <name>
 
 - [ ] Notion: Trusted Publisher(`publish.yml`) 등록
 - [ ] `npm login` 후 `pnpm prepare-package <name>` 성공 (또는 해당 이름 `0.0.1` 이미 존재)
-- [ ] `packages/<name>/` 추가, `pnpm validate --filter=...` 통과
+- [ ] `pnpm add-package ...` 또는 수동으로 `packages/<name>/` 추가, `pnpm validate --filter=...` 통과
 - [ ] `packages/<name>/README.md` ([가이드](./PACKAGE_README_GUIDE.md) 준수)
 - [ ] PR CI green → `master` merge
 - [ ] npm에 정식 버전·`latest` 태그 반영 확인

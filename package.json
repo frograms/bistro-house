@@ -7,8 +7,7 @@
     "pnpm": "^9.9.0"
   },
   "scripts": {
-    "dev": "turbo run dev",
-    "dev:playground": "pnpm build:packages && turbo run dev --filter=playground",
+    "dev": "pnpm build:packages && turbo run dev --filter=playground",
     "test": "turbo run test",
     "validate": "turbo run test lint build typecheck",
     "lint": "turbo run lint",
@@ -16,6 +15,7 @@
     "build:packages": "pnpm build --filter '@watcha-authentic/*'",
     "publish:canary": "bash ./project-attachment/script/publish-canary.sh",
     "prepare-package": "node ./project-attachment/script/prepare-package/prepare-package.js",
+    "add-package": "bash ./project-attachment/script/add-package.sh",
     "format": "prettier --write \"**/*.{js,ts,mts,mjs,cjs,jsx,tsx,css,scss,html,json,md}\" && prettier --write \"{*.js,*.ts,*.mts,*.mjs,*.cjs,*.jsx,*.tsx,*.css,*.scss,*.html,*.json,*.md}\""
   },
   "devDependencies": {
