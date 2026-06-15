@@ -1,4 +1,4 @@
-import { vitePreset } from "@watcha-authentic/eslint-config";
+import { vitePreset } from "@watcha-authentic/eslint-config/vite";
 
 import workspaceImportFixer from "./project-attachment/eslint-rule/workspace-import-fixer.js";
 

@@ -1,5 +1,5 @@
-import lint from "@watcha-authentic/eslint-config";
+import { vitePreset } from "@watcha-authentic/eslint-config/vite";
 
-const eslintConfig = [...lint.vitePreset];
+const eslintConfig = [...vitePreset];
 
 export default eslintConfig;
