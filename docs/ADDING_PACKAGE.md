@@ -68,9 +68,9 @@ pnpm prepare-package <package-name>
 
 ### 버전
 
-- npm 레지스트리: **`0.0.1`** (빈 placeholder)
-- `add-package` 스캐폴드 `package.json`: **`0.0.0`** (개발 초기값)
-- `master` merge 후 Lerna-Lite가 conventional commit 기준으로 **다음 버전**을 publish합니다 (`0.0.1` 위에 덮어쓰지 않음).
+- npm 레지스트리(`prepare-package`): **`0.0.1`** (빈 placeholder, 이름 선점용)
+- `add-package` 스캐폴드 `package.json`: **`1.0.0`** (모노레포 개발·첫 정식 배포 시작점)
+- `master` merge 후 Lerna-Lite가 **`1.0.0`**을 publish합니다 (`0.0.1` placeholder 위에 올라감).
 
 ### 자주 나는 오류
 

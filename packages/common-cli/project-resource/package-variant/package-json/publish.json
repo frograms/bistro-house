@@ -1,7 +1,7 @@
 {
   "name": "{package-name}",
   "description": "{project-description}",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "homepage": "{project-homepage}",
   "author": {
     "name": "{author-name}",
