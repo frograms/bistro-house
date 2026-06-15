@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.5](https://github.com/frograms/bistro-house/compare/@watcha-authentic/prettier-config@1.1.4...@watcha-authentic/prettier-config@1.1.5) (2026-06-15)
+
+**Note:** Version bump only for package @watcha-authentic/prettier-config
+
 ## [1.1.4](https://github.com/frograms/bistro-house/compare/@watcha-authentic/prettier-config@1.1.3...@watcha-authentic/prettier-config@1.1.4) (2026-06-15)
 
 **Note:** Version bump only for package @watcha-authentic/prettier-config

@@ -6,7 +6,7 @@
     "scaffold",
     "package"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/common-cli#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
@@ -44,8 +44,8 @@
     "@types/node": "^24",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
-    "@watcha-authentic/eslint-config": "^2.0.1",
-    "@watcha-authentic/prettier-config": "^1.1.4",
+    "@watcha-authentic/eslint-config": "^2.0.2",
+    "@watcha-authentic/prettier-config": "^1.1.5",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.31.0",
