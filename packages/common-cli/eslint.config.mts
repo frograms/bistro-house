@@ -1,8 +1,9 @@
-import lint from "@watcha-authentic/eslint-config";
+import { baseConfigs } from "@watcha-authentic/eslint-config/configs/base";
+import { typescriptConfigs } from "@watcha-authentic/eslint-config/configs/typescript";
 
 const eslintConfig = [
-  ...lint.baseConfigs,
-  ...lint.typescriptConfigs,
+  ...baseConfigs,
+  ...typescriptConfigs,
   {
     ignores: ["project-resource/package-template/**"],
   },
