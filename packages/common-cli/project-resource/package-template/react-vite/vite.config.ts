@@ -27,6 +27,7 @@ export default defineConfig({
       tsconfigPath: "tsconfig.type.json",
     }),
   ],
+  publicDir: false,
   resolve: {
     tsconfigPaths: true,
   },
