@@ -30,8 +30,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@17.6.0)
       '@watcha-authentic/prettier-config':
-        specifier: ^1.0.0
-        version: 1.0.0(prettier@3.8.3)
+        specifier: ^1.1.4
+        version: 1.1.4(prettier@3.8.3)
       eslint:
         specifier: ^9.39.2
         version: 9.39.4(jiti@2.7.0)
@@ -1611,11 +1611,6 @@ packages:
         optional: true
       globals:
         optional: true
-
-  '@watcha-authentic/prettier-config@1.0.0':
-    resolution: {integrity: sha512-VpiCrPh4tpWUOLKqoSCn6kC5seXC0oxfsfUsmHtC0ZEyGYrDU7konURp6QXEE8baynv9+BrCiWpRLR3DYPkmAA==}
-    peerDependencies:
-      prettier: ^3.0.0
 
   '@watcha-authentic/prettier-config@1.1.4':
     resolution: {integrity: sha512-nad5OoBZJMlzxpHe0bnWWVZN4jQGLb4tPY6WsRppsETyr82d1VaK/kpcCeSGoV9lK5w/1+8L8CNv54Cp+jMZ3Q==}
@@ -5219,10 +5214,6 @@ snapshots:
       eslint-plugin-react-hooks: 7.1.1(eslint@9.39.4(jiti@2.7.0))
       eslint-plugin-react-refresh: 0.4.26(eslint@9.39.4(jiti@2.7.0))
       globals: 17.6.0
-
-  '@watcha-authentic/prettier-config@1.0.0(prettier@3.8.3)':
-    dependencies:
-      prettier: 3.8.3
 
   '@watcha-authentic/prettier-config@1.1.4(prettier@3.8.3)':
     dependencies:
