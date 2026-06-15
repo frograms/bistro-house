@@ -46,6 +46,10 @@ export const validateOptionInfo = <T extends OptionInitDef>(
   optionInfo: CustomResolvedOptionInfo<T>
 ): void => {
   for (const key of Object.keys(optionInitDef) as Array<keyof T & string>) {
-    validateOption(optionInitDef[key], optionInfo[key].value);
+    const init = optionInitDef[key];
+    if (!init) {
+      throw new Error(`옵션 "${key}" 정의가 없습니다.`);
+    }
+    validateOption(init, optionInfo[key].value);
   }
 };

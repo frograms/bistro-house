@@ -24,6 +24,12 @@ const fillOptionRawInput = async <const T extends OptionInitDef>(
 
   for (const key of Object.keys(info) as (keyof T & string)[]) {
     const init = info[key];
+    if (!init) {
+      console.warn(
+        `⚠️  옵션 "${key}" 정의가 없어 입력값을 채우지 않습니다.`
+      );
+      continue;
+    }
 
     if (init.type === "boolean") {
       filled[key] = !!raw[key] as OptionValueDef<T>[typeof key];

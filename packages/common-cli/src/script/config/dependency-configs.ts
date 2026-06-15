@@ -6,12 +6,12 @@ const sharedDependencies: Dependency[] = [
   {
     name: "@watcha-authentic/eslint-config",
     targets: ["--save-dev"],
-    version: "^2.0.0",
+    version: "^2.0.1",
   },
   {
     name: "@watcha-authentic/prettier-config",
     targets: ["--save-dev"],
-    version: "^1.1.3",
+    version: "^1.1.4",
   },
   { name: "prettier", targets: ["--save-dev"], version: "^3.7.4" },
   { name: "typescript", targets: ["--save-dev"], version: "~5.9.3" },

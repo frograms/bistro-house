@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "CommonJS",
     "lib": ["ES2020"],
+    "module": "CommonJS",
     "outDir": "dist",
     "rootDir": "src",
     "moduleResolution": "node",
@@ -11,6 +11,8 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
     "noEmitOnError": true,
     "skipLibCheck": true
   },
@@ -18,7 +20,8 @@
   "exclude": [
     "dist",
     "node_modules",
-    "**/__tests__/**",
+    "**/*.test.*",
+    "**/*.spec.*",
     "project-resource/**/*"
   ]
 }
