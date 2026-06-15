@@ -4,9 +4,9 @@
 #
 # 사용: bash ./project-attachment/script/add-package.sh <type> <project-name> <project-description> [options...]
 # 예: pnpm add-package lib my-pkg "패키지 설명"
-#     pnpm add-package lib my-pkg "패키지 설명" --yes --without-install
+#     pnpm add-package lib my-pkg "패키지 설명" --without-install
 #
-# 고정: author, can-publish, dest-dir(=packages/<name>), license (mit), license-holder, project-git-url, project-organization, project-homepage
+# 고정: author, can-publish, dest-dir(=packages/<name>), license (mit), license-holder, project-git-url, project-organization, project-homepage, --yes
 # 4번째 인자부터 create-package에 그대로 전달.
 
 set -e
@@ -42,4 +42,5 @@ pnpm --filter=@watcha-authentic/common-cli dev create-package \
   --project-name="$project_name" \
   --project-organization=watcha-authentic \
   --type="$package_type" \
+  --yes \
   "$@"
