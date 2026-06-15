@@ -4,6 +4,7 @@
 
 ## 원칙
 
+- **대상 독자는 npm 등으로 패키지를 쓰는 외부 사용자**입니다. `packages/*/README.md`는 npm·GitHub에 노출되므로, 모노레포 내부 워크플로(`pnpm --filter`, `pnpm dev`, preset 스크립트, `docs/` maintainer 문서 등)는 **README에 적지 않습니다**. 내부 절차는 `docs/`(예: `ADDING_PACKAGE.md`)에 둡니다.
 - **섹션 제목(`##`, 주요 `###`)은 영어**로 둡니다. GitHub 등에서 생성되는 **앵커(slug)가 영문**이 되도록 하기 위함입니다. 본문 설명은 한글로 작성해도 됩니다.
 - **`package.json`의 `name`, `description`, `dependencies`, `peerDependencies`**와 내용이 어긋나지 않게 유지합니다.
 - **사용 예**는 `src/index.ts`(또는 실제 진입점)에서 **export되는 심볼**을 기준으로 작성합니다. 존재하지 않는 API 이름을 적지 않습니다.
@@ -77,6 +78,8 @@
 
 ## 4. 설치 (Installation)
 
+라이브러리·설정 패키지:
+
 ````markdown
 ## Installation
 
@@ -86,6 +89,18 @@ pnpm add @watcha-authentic/{package-name} {필요 시 peer 패키지}
 ````
 
 - dev 전용이면 `pnpm add -D ...` 로 맞춥니다.
+
+**bin CLI 패키지**는 호스트에 dependency로 넣기보다 `npx` / `pnpm dlx` / 전역 설치(`npm install -g`) 예시를 우선합니다. 모노레포에서의 `dev`·`exec` 실행법은 README에 넣지 않습니다.
+
+````markdown
+## Installation
+
+```bash
+npx @watcha-authentic/{package-name} --help
+# 또는
+pnpm dlx @watcha-authentic/{package-name} --help
+```
+````
 
 ## 5. 사용 예 (Usage)
 

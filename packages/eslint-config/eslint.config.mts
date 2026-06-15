@@ -2,6 +2,6 @@ import type { Linter } from "eslint";
 
 import { nodePreset } from "./src/preset-node-index";
 
-const config: Linter.Config[] = [...nodePreset];
+const eslintConfig: Linter.Config[] = [...nodePreset];
 
-export default config;
+export default eslintConfig;

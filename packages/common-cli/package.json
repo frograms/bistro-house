@@ -1,0 +1,66 @@
+{
+  "name": "@watcha-authentic/common-cli",
+  "description": "몇가지 유용한 기능을 제공하는 CLI",
+  "keywords": [
+    "cli",
+    "scaffold",
+    "package"
+  ],
+  "version": "1.0.0",
+  "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/common-cli#readme",
+  "author": {
+    "name": "@watcha-authentic#web-dev-group",
+    "email": "web-dev-group@watcha.com",
+    "url": "https://github.com/frograms"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frograms/bistro-house.git"
+  },
+  "bugs": {
+    "url": "https://github.com/frograms/bistro-house/issues",
+    "email": "web-dev-group@watcha.com"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "ts-node ./src/bin/main.ts",
+    "test": "vitest run",
+    "typecheck": "tsc",
+    "lint": "eslint .",
+    "build": "rm -rf ./dist && tsdown && pnpm build:post",
+    "build:post": "bash ./project-attachment/post-build.sh"
+  },
+  "bin": {
+    "watcha-common-cli": "./dist/bin/main.cjs"
+  },
+  "files": [
+    "dist",
+    "project-resource"
+  ],
+  "devDependencies": {
+    "@types/fs-extra": "~11.0.4",
+    "@types/node": "^24",
+    "@typescript-eslint/eslint-plugin": "^8.50.0",
+    "@typescript-eslint/parser": "^8.50.0",
+    "@watcha-authentic/eslint-config": "^2.0.1",
+    "@watcha-authentic/prettier-config": "^1.1.4",
+    "eslint": "^9.39.2",
+    "eslint-import-resolver-typescript": "^3.6.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-perfectionist": "^5.9.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "jiti": "^2.6.1",
+    "prettier": "^3.7.4",
+    "ts-node": "~10.9.2",
+    "tsdown": "^0.21.5",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.8"
+  },
+  "dependencies": {
+    "commander": "~13.1.0",
+    "fs-extra": "~11.3.0"
+  },
+  "license": "MIT"
+}
