@@ -5,7 +5,7 @@
     "eslint",
     "config"
   ],
-  "version": "2.0.2",
+  "version": "2.0.3",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/eslint-config#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
@@ -104,7 +104,7 @@
     "@next/eslint-plugin-next": "^15.0.0",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
-    "@watcha-authentic/prettier-config": "^1.1.5",
+    "@watcha-authentic/prettier-config": "^1.1.6",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.31.0",
