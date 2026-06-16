@@ -1,6 +1,6 @@
 {
   "name": "@watcha-authentic/prettier-config",
-  "description": "watcha common prettier package",
+  "description": "Watcha 공통 Prettier 설정",
   "keywords": [
     "prettier",
     "config"

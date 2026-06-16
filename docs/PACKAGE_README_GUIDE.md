@@ -7,7 +7,49 @@
 - **대상 독자는 npm 등으로 패키지를 쓰는 외부 사용자**입니다. `packages/*/README.md`는 npm·GitHub에 노출되므로, 모노레포 내부 워크플로(`pnpm --filter`, `pnpm dev`, preset 스크립트, `docs/` maintainer 문서 등)는 **README에 적지 않습니다**. 내부 절차는 `docs/`(예: `ADDING_PACKAGE.md`)에 둡니다.
 - **섹션 제목(`##`, 주요 `###`)은 영어**로 둡니다. GitHub 등에서 생성되는 **앵커(slug)가 영문**이 되도록 하기 위함입니다. 본문 설명은 한글로 작성해도 됩니다.
 - **`package.json`의 `name`, `description`, `dependencies`, `peerDependencies`**와 내용이 어긋나지 않게 유지합니다.
-- **사용 예**는 `src/index.ts`(또는 실제 진입점)에서 **export되는 심볼**을 기준으로 작성합니다. 존재하지 않는 API 이름을 적지 않습니다.
+- **사용 예**는 실제로 import할 수 있는 **공개 API 이름**을 기준으로 작성합니다. 존재하지 않는 API 이름을 적지 않습니다.
+
+## UX writing (한글 본문)
+
+README는 **설치·사용 방법을 빠르게 이해**하는 문서입니다. 구현 내부(`src/index.ts`, re-export 등)보다 **사용자가 무엇을 할 수 있는지**를 먼저 씁니다.
+
+### 톤
+
+- **짧고 구어체에 가깝게**: “~입니다”, “~할 수 있습니다”를 기본으로 합니다.
+- **독자 = 패키지를 쓰는 개발자**: “호스트 프로젝트”, “소비자”, “런타임 dependencies” 같은 내부·직역 표현은 피합니다.
+- **영어 용어는 코드·공식 패키지명에만**: `react`, `peerDependencies`, `exports`처럼 그대로 두는 것은 괜찮습니다. 본문에 “디펜던시”, “노출”, “재수출”, “실행기”처럼 어색한 혼용은 쓰지 않습니다.
+
+### 자주 쓰는 표현
+
+| 피할 표현 | 대신 쓸 표현 |
+| --------- | ------------ |
+| 리액트기반 ~ | React용 ~ / React에서 ~ |
+| ~을 노출합니다 | ~을 제공합니다 / import해서 쓸 수 있습니다 |
+| `src/index.ts`에서 … | (문장 생략하고 Usage 예제로 바로 시작) |
+| 호스트 프로젝트 | 프로젝트 / 사용하는 앱 |
+| 재수출합니다 | (내부 구현 설명 생략) Watcha 공통 설정을 제공합니다 |
+| 디펜던시 | 의존성 |
+| 함께 내려받아지는 | 함께 설치되는 |
+| Prettier 실행기 | Prettier 본체 |
+| 반드시 직접 설치 | 프로젝트에 함께 설치 |
+
+### 한 줄 설명 (제목 아래)
+
+`package.json` `description`과 맞추되, README에서는 **한 문장으로 무엇을 해 주는지**만 적습니다.
+
+```markdown
+React용 슬라이더 컴포넌트입니다. 드래그·스와이프, 키보드 탐색, 무한 루프를 지원합니다.
+```
+
+### Dependencies 섹션
+
+- **Runtime**: “이 패키지와 함께 설치되는 패키지” 정도로 짧게.
+- **Peer**: “React와 React DOM은 프로젝트에 **함께 설치**해야 합니다.”처럼 **무엇을 왜** 설치하는지 한 줄로.
+
+### Usage 섹션
+
+- `src/index.ts` 경로나 export 메커니즘은 적지 않습니다.
+- 시나리오 제목(`### Basic usage` 등) 아래 **바로 코드**로 시작해도 됩니다.
 
 ## 권장 섹션 순서
 
@@ -107,8 +149,6 @@ pnpm dlx @watcha-authentic/{package-name} --help
 ````markdown
 ## Usage
 
-{진입점에서 노출하는 API 한 줄 요약}
-
 ### Basic usage
 
 ```tsx
@@ -152,7 +192,7 @@ pnpm dlx @watcha-authentic/{package-name} --help
 
 ### Peer dependencies
 
-**호스트 프로젝트에 반드시 설치해야 합니다.**
+**React와 React DOM은 프로젝트에 함께 설치해야 합니다.**
 
 - `{peer}` `{version-range}`
 

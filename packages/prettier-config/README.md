@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@watcha-authentic/prettier-config)](https://www.npmjs.com/package/@watcha-authentic/prettier-config)
 
-Watcha 공통 Prettier 설정 패키지입니다.
+Watcha 공통 Prettier 설정입니다. `baseConfig`를 import해서 바로 쓸 수 있습니다.
 
 릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=prettier-config)
 
@@ -20,7 +20,7 @@ Watcha 공통 Prettier 설정 패키지입니다.
 
 ### Peer dependencies
 
-**호스트 프로젝트에 Prettier를 반드시 설치**해야 합니다. 이 패키지는 Prettier 실행기를 포함하지 않습니다.
+**Prettier는 프로젝트에 별도로 설치해야 합니다.** 이 패키지에는 Prettier 본체가 포함되어 있지 않습니다.
 
 - `prettier` `^3.0.0`
 
@@ -31,8 +31,6 @@ pnpm add -D @watcha-authentic/prettier-config prettier@^3.0.0
 ```
 
 ## Usage
-
-`src/index.ts`는 `rule-base-config`의 **`baseConfig`** 만 재수출합니다.
 
 ### ESM (prettier.config)
 
