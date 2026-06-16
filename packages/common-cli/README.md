@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@watcha-authentic/common-cli)](https://www.npmjs.com/package/@watcha-authentic/common-cli)
 
-몇 가지 유용한 기능을 제공하는 CLI입니다. `@watcha-authentic/*` npm 패키지 템플릿(`lib`, `react`, `react-vite`)을 복사·치환해 새 프로젝트를 만듭니다.
+몇 가지 유용한 기능을 제공하는 CLI입니다. `@watcha-authentic/*` npm 패키지 템플릿(`lib`, `react`, `react-vite`)을 복사·치환해 새 패키지를 만듭니다.
 
 릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=common-cli)
 

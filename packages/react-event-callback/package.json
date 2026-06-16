@@ -1,6 +1,6 @@
 {
   "name": "@watcha-authentic/react-event-callback",
-  "description": "리액트에서 동작되는 이벤트 콜백 디펜던시 유지 패키지",
+  "description": "effect 재실행 없이 최신 콜백을 쓰게 해 주는 React 훅",
   "keywords": [
     "react",
     "event",

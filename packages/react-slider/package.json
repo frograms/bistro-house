@@ -1,6 +1,6 @@
 {
   "name": "@watcha-authentic/react-slider",
-  "description": "리액트기반 슬라이더 컴포넌트",
+  "description": "React용 슬라이더 컴포넌트",
   "keywords": [
     "react",
     "slider",

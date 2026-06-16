@@ -1,6 +1,6 @@
 {
   "name": "@watcha-authentic/react-motion",
-  "description": "리액트기반 포인터 기반 이벤트의 모션, 제스쳐 핸들링 패키지",
+  "description": "React용 포인터·제스처 훅과 유틸",
   "keywords": [
     "react",
     "motion",

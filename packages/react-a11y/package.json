@@ -1,6 +1,6 @@
 {
   "name": "@watcha-authentic/react-a11y",
-  "description": "리액트기반 접근성 관련 유틸 패키지",
+  "description": "React 앱용 접근성 유틸리티",
   "keywords": [
     "react",
     "a11y",

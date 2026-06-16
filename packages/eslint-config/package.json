@@ -1,6 +1,6 @@
 {
   "name": "@watcha-authentic/eslint-config",
-  "description": "watcha common eslint package",
+  "description": "Watcha 공통 ESLint(flat config) 설정",
   "keywords": [
     "eslint",
     "config"
