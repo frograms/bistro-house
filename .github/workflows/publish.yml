@@ -108,19 +108,26 @@ jobs:
       packages: write
       id-token: write
     steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.RELEASE_WEB_PAT }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup Environment
         uses: ./.github/actions/setup-action
 
       - name: Configure Git
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+          git config --global user.email "${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
 
       - name: Build packages
         run: |
@@ -181,19 +188,26 @@ jobs:
       packages: write
       id-token: write
     steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.RELEASE_WEB_PAT }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup Environment
         uses: ./.github/actions/setup-action
 
       - name: Configure Git
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+          git config --global user.email "${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
 
       - name: Run patch publish (with build)
         run: |
