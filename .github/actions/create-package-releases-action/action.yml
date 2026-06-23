@@ -11,8 +11,11 @@ runs:
   steps:
     - name: Create GitHub releases
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         set -e
+        export GH_TOKEN
 
         manifest=$(printf '%s\n' '${{ inputs.changed_packages }}' \
           | bash ./project-attachment/script/target/current-version-info-targets.sh)
