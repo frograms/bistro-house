@@ -60,34 +60,40 @@ npx @watcha-authentic/common-cli create-package --help
 
 ```bash
 npx @watcha-authentic/common-cli create-package \
-  -y \
-  -t lib \
-  --pn my-pkg \
-  --pd "My package description" \
-  -d ./packages/my-pkg
+  --type lib \
+  --project-name my-pkg \
+  --project-description "My package description" \
+  --yes
 ```
 
-필수 옵션:
+옵션 (`create-package --help`와 동일):
 
-| Option                               | Description                                                   |
-| ------------------------------------ | ------------------------------------------------------------- |
-| `-t, --type <type>`                  | `lib`, `react`, `react-vite`                                  |
-| `--pn, --project-name <name>`        | 프로젝트 이름 (메타·placeholder. `--dest-dir` 생략 시 폴더명) |
-| `--pd, --project-description <text>` | `package.json` `description`                                  |
-
-자주 쓰는 옵션:
-
-| Option                                 | Description                                    |
-| -------------------------------------- | ---------------------------------------------- |
-| `-d, --dest-dir <path>`                | 최종 생성 경로 (기본: `{cwd}/{project-name}/`) |
-| `--po, --project-organization <scope>` | npm scope (예: `watcha-authentic`)             |
-| `--pgu, --project-git-url <url>`       | Git 저장소 URL                                 |
-| `--cp, --can-publish`                  | `publish.json` variant (배포 메타·dist entry)  |
-| `--lic, --license <name>`              | `private` (기본), `mit`, `isc`, `bsd-3-clause` |
-| `--wi, --without-install`              | 생성 후 install 생략                           |
-| `-y, --yes`                            | 대화형 입력 생략                               |
-
-전체 옵션 목록은 `create-package --help`와 동일합니다.
+| Option | Description | 필수 옵션 |
+| ------ | ----------- | --------- |
+| `-t, --type <type>` | 패키지 타입: `lib`(tsdown), `react`(tsdown+React), `react-vite`(Vite 라이브러리 모드) | 필수 |
+| `--pn, --project-name <name>` | 프로젝트 이름 (메타·placeholder. `--dest-dir` 생략 시 폴더명) | 필수 |
+| `--pd, --project-description <text>` | `package.json` `description` | 필수 |
+| `--ae, --author-email <email>` | author 이메일. 미입력 시 git `user.email` | 옵셔널 |
+| `--an, --author-name <name>` | author 이름. scope 있으면 `@{scope}#{name}`. 미입력 시 git `user.name` | 옵셔널 |
+| `--au, --author-url <url>` | author URL | 옵셔널 |
+| `--cp, --can-publish` | 배포용 `package.json` 템플릿 사용 (기본 `false`) | 옵셔널 |
+| `-d, --dest-dir <path>` | 최종 생성 경로 (미지정 시 `{cwd}/{project-name}/`) | 옵셔널 |
+| `--eslint-config <path>` | 대체 eslint 설정 파일 (지정 시 템플릿 eslint 대체) | 옵셔널 |
+| `--lic, --license <name>` | `private`(기본), `mit`, `isc`, `bsd-3-clause` | 옵셔널 |
+| `--lh, --license-holder <name>` | LICENSE Copyright 보유자. 미입력 시 author-name | 옵셔널 |
+| `--pm, --package-manager <pm>` | `npm`, `yarn`, `pnpm`, `bun` (기본 `pnpm`) | 옵셔널 |
+| `--pkg-n, --package-name <name>` | npm 패키지명. 미입력 시 `@{scope}/{project-name}` 또는 `{project-name}` | 옵셔널 |
+| `--pa, --post-action <cmd>` | 생성 후 cwd에서 실행할 shell 명령 | 옵셔널 |
+| `--pta, --post-target-action <cmd>` | 생성 후 outputDir에서 실행할 shell 명령 | 옵셔널 |
+| `--pgu, --project-git-url <url>` | Git 저장소 URL (`https://github.com/org/repo`) | 옵셔널 |
+| `--ph, --project-homepage <url>` | `package.json` homepage. 미입력 시 `project-git-url#readme` | 옵셔널 |
+| `--po, --project-organization <scope>` | npm scope (예: `watcha-authentic`) | 옵셔널 |
+| `--rvm, --react-vite-mode <mode>` | `react-vite` 타입 전용. `sandbox`(기본, with dev app), `library-only`(library build만) | 옵셔널 |
+| `--ra, --registry-alias <key>` | private 레지스트리 `publishConfig` 키 (`--registry-url`과 함께) | 옵셔널 |
+| `--ru, --registry-url <url>` | private npm 레지스트리 URL | 옵셔널 |
+| `--ts, --tsconfig <path>` | 대체 `tsconfig.json` 경로 | 옵셔널 |
+| `--wi, --without-install` | 생성 후 install 생략 | 옵셔널 |
+| `-y, --yes` | 대화형 입력 생략 (기본 `false`. 필수값은 CLI로 전달) | 옵셔널 |
 
 ### Package types
 
