@@ -24,6 +24,13 @@ export const overwriteFile = (
   fs.writeFileSync(path, fileContent);
 };
 
+const PLACEHOLDER_SKIP_DIRS = new Set([
+  ".git",
+  ".turbo",
+  "dist",
+  "node_modules",
+]);
+
 /** outputDir 트리 하위 파일에 overwriteFile 적용 */
 export const overwritePlaceholdersInDir = (
   dir: string,
@@ -33,10 +40,16 @@ export const overwritePlaceholdersInDir = (
 
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);
+
+    if (entry.isSymbolicLink()) continue;
+
     if (entry.isDirectory()) {
+      if (PLACEHOLDER_SKIP_DIRS.has(entry.name)) continue;
       overwritePlaceholdersInDir(fullPath, overwrites);
       continue;
     }
+
+    if (!entry.isFile()) continue;
 
     overwriteFile(fullPath, overwrites);
   }
