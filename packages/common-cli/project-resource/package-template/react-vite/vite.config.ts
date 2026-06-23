@@ -5,6 +5,7 @@ import dts from "vite-plugin-dts";
 export default defineConfig({
   build: {
     lib: {
+      cssFileName: "style",
       entry: "src/index.ts",
       fileName: (format) => `index.${format === "es" ? "js" : "cjs"}`,
       formats: ["es", "cjs"],

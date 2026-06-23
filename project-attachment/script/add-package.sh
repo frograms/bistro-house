@@ -41,6 +41,7 @@ pnpm --filter=@watcha-authentic/common-cli dev create-package \
   --project-homepage="$project_homepage" \
   --project-name="$project_name" \
   --project-organization=watcha-authentic \
+  --react-vite-mode=library-only \
   --type="$package_type" \
   --yes \
   "$@"

@@ -8,6 +8,7 @@ export const PACKAGE_TYPE_VALUES: CreatePackageType[] = [
   "react",
   "react-vite",
 ];
+export const REACT_VITE_MODE_VALUES = ["sandbox", "library-only"] as const;
 
 export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
   authorEmail: {
@@ -30,6 +31,7 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "string",
   },
   canPublish: {
+    defaultValue: false,
     description: "배포용 package.json 템플릿 사용",
     flags: "--cp, --can-publish",
     name: "can-publish",
@@ -122,6 +124,15 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     name: "project-organization",
     type: "string",
   },
+  reactViteMode: {
+    choices: REACT_VITE_MODE_VALUES,
+    defaultValue: "sandbox",
+    description:
+      "react-vite 타입 전용 옵션: sandbox(기본, with dev app), library-only(library build만)",
+    flags: "--rvm, --react-vite-mode <react-vite-mode>",
+    name: "react-vite-mode",
+    type: "string",
+  },
   registryAlias: {
     description: "private 레지스트리 publishConfig 키 (--registry-url 과 함께)",
     flags: "--ra, --registry-alias <registry-alias>",
@@ -156,6 +167,7 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "boolean",
   },
   yes: {
+    defaultValue: false,
     description: "대화형 입력 생략 (필수값은 CLI 로 전달)",
     flags: "-y, --yes",
     name: "yes",
