@@ -3,6 +3,7 @@ import "../resource/style/app.css";
 import { useState } from "react";
 
 import heroImg from "../resource/image/hero.png";
+import iconsSprite from "../resource/image/icons.svg";
 import reactLogo from "../resource/image/react.svg";
 import viteLogo from "../resource/image/vite.svg";
 
@@ -37,7 +38,7 @@ const App = () => {
       <section id="next-steps">
         <div id="docs">
           <svg aria-hidden="true" className="icon" role="presentation">
-            <use href="/icons.svg#documentation-icon" />
+            <use href={`${iconsSprite}#documentation-icon`} />
           </svg>
           <h2>Documentation</h2>
           <p>Your questions, answered</p>
@@ -58,7 +59,7 @@ const App = () => {
         </div>
         <div id="social">
           <svg aria-hidden="true" className="icon" role="presentation">
-            <use href="/icons.svg#social-icon" />
+            <use href={`${iconsSprite}#social-icon`} />
           </svg>
           <h2>Connect with us</h2>
           <p>Join the Vite community</p>
@@ -72,7 +73,7 @@ const App = () => {
                   aria-hidden="true"
                   className="button-icon"
                   role="presentation">
-                  <use href="/icons.svg#github-icon" />
+                  <use href={`${iconsSprite}#github-icon`} />
                 </svg>
                 GitHub
               </a>
@@ -83,7 +84,7 @@ const App = () => {
                   aria-hidden="true"
                   className="button-icon"
                   role="presentation">
-                  <use href="/icons.svg#discord-icon" />
+                  <use href={`${iconsSprite}#discord-icon`} />
                 </svg>
                 Discord
               </a>
@@ -94,7 +95,7 @@ const App = () => {
                   aria-hidden="true"
                   className="button-icon"
                   role="presentation">
-                  <use href="/icons.svg#x-icon" />
+                  <use href={`${iconsSprite}#x-icon`} />
                 </svg>
                 X.com
               </a>
@@ -108,7 +109,7 @@ const App = () => {
                   aria-hidden="true"
                   className="button-icon"
                   role="presentation">
-                  <use href="/icons.svg#bluesky-icon" />
+                  <use href={`${iconsSprite}#bluesky-icon`} />
                 </svg>
                 Bluesky
               </a>
