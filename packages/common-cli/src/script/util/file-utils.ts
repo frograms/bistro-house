@@ -31,6 +31,27 @@ const PLACEHOLDER_SKIP_DIRS = new Set([
   "node_modules",
 ]);
 
+const PLACEHOLDER_BASENAMES = new Set(["LICENSE", "gitignore"]);
+
+const PLACEHOLDER_EXTENSIONS = new Set([
+  ".css",
+  ".html",
+  ".js",
+  ".json",
+  ".md",
+  ".mjs",
+  ".mts",
+  ".ts",
+  ".tsx",
+  ".txt",
+]);
+
+const isPlaceholderTarget = (filePath: string): boolean => {
+  const basename = path.basename(filePath);
+  if (PLACEHOLDER_BASENAMES.has(basename)) return true;
+  return PLACEHOLDER_EXTENSIONS.has(path.extname(filePath));
+};
+
 /** outputDir 트리 하위 파일에 overwriteFile 적용 */
 export const overwritePlaceholdersInDir = (
   dir: string,
@@ -49,7 +70,7 @@ export const overwritePlaceholdersInDir = (
       continue;
     }
 
-    if (!entry.isFile()) continue;
+    if (!entry.isFile() || !isPlaceholderTarget(fullPath)) continue;
 
     overwriteFile(fullPath, overwrites);
   }
