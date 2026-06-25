@@ -99,7 +99,12 @@ export const scaffoldPackage = async (
 
   // variant - style
   if (style !== undefined) {
-    applyStyleTypeVariant({ outputDir, packageType, packageVariantRoot, style });
+    applyStyleTypeVariant({
+      outputDir,
+      packageType,
+      packageVariantRoot,
+      style,
+    });
   }
 
   // variant - license
