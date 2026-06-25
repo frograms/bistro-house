@@ -1,5 +1,6 @@
 import type { CreatePackageType } from "../../../type/create-package";
 import { PACKAGE_LICENSE_VALUES } from "../../config/package-license-config";
+import { PACKAGE_STYLE_VALUES } from "../../config/style-dependency-configs";
 import { defineOptionInfo } from "../../module/option/custom-option-utils";
 
 export const PACKAGE_MANAGER_VALUES = ["npm", "yarn", "pnpm", "bun"] as const;
@@ -143,6 +144,14 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     description: "private npm 레지스트리 URL",
     flags: "--ru, --registry-url <registry-url>",
     name: "registry-url",
+    type: "string",
+  },
+  style: {
+    choices: PACKAGE_STYLE_VALUES,
+    description:
+      "스타일 빌드 방식: css, scss (기본값은 lib/react 는 스타일 개발에 필요한 별도 처리 없음, react-vite 는 기본적으로 css 사용)",
+    flags: "--st, --style <style>",
+    name: "style",
     type: "string",
   },
   tsconfig: {
