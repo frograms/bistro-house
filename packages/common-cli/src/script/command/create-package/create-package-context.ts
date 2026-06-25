@@ -10,6 +10,9 @@ import type {
 import { readGitConfig } from "../../util/git-utils";
 import type { CREATE_PACKAGE_OPTION_INFO } from "./create-package-option-info";
 
+/**
+ * - 값을 특정 조건등에 의해 더 맞는값으로 변환하는 유틸 함수 입니다. (필요한 경우만 사용)
+ */
 const updateValue = <Init extends OptionInit>(
   option: CustomBuiltOption<Init>,
   value: (prev: BuiltOptionValue<Init>) => BuiltOptionValue<Init>

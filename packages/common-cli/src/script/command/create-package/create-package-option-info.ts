@@ -1,5 +1,6 @@
 import type { CreatePackageType } from "../../../type/create-package";
 import { PACKAGE_LICENSE_VALUES } from "../../config/package-license-config";
+import { PACKAGE_STYLE_VALUES } from "../../config/style-dependency-configs";
 import { defineOptionInfo } from "../../module/option/custom-option-utils";
 
 export const PACKAGE_MANAGER_VALUES = ["npm", "yarn", "pnpm", "bun"] as const;
@@ -8,6 +9,7 @@ export const PACKAGE_TYPE_VALUES: CreatePackageType[] = [
   "react",
   "react-vite",
 ];
+export const REACT_VITE_MODE_VALUES = ["sandbox", "library-only"] as const;
 
 export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
   authorEmail: {
@@ -30,6 +32,7 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "string",
   },
   canPublish: {
+    defaultValue: false,
     description: "배포용 package.json 템플릿 사용",
     flags: "--cp, --can-publish",
     name: "can-publish",
@@ -122,6 +125,15 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     name: "project-organization",
     type: "string",
   },
+  reactViteMode: {
+    choices: REACT_VITE_MODE_VALUES,
+    defaultValue: "sandbox",
+    description:
+      "react-vite 타입 전용 옵션: sandbox(기본, with dev app), library-only(library build만)",
+    flags: "--rvm, --react-vite-mode <react-vite-mode>",
+    name: "react-vite-mode",
+    type: "string",
+  },
   registryAlias: {
     description: "private 레지스트리 publishConfig 키 (--registry-url 과 함께)",
     flags: "--ra, --registry-alias <registry-alias>",
@@ -132,6 +144,14 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     description: "private npm 레지스트리 URL",
     flags: "--ru, --registry-url <registry-url>",
     name: "registry-url",
+    type: "string",
+  },
+  style: {
+    choices: PACKAGE_STYLE_VALUES,
+    description:
+      "스타일 빌드 방식: css, scss (기본값은 lib/react 는 스타일 개발에 필요한 별도 처리 없음, react-vite 는 기본적으로 css 사용)",
+    flags: "--st, --style <style>",
+    name: "style",
     type: "string",
   },
   tsconfig: {
@@ -156,6 +176,7 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "boolean",
   },
   yes: {
+    defaultValue: false,
     description: "대화형 입력 생략 (필수값은 CLI 로 전달)",
     flags: "-y, --yes",
     name: "yes",

@@ -1,6 +1,42 @@
-import type { CreatePackageType } from "../../type/create-package";
+import type {
+  CreatePackageType,
+  ReactViteMode,
+} from "../../type/create-package";
 
 type PackageJsonFragment = Record<string, unknown>;
+
+export type BuildSystemConfigType =
+  | "lib"
+  | "react"
+  | "react-vite-sandbox"
+  | "react-vite-library-only";
+
+const BUILD_SYSTEM_CONFIG_TYPE_MAP: Record<
+  Exclude<CreatePackageType, "react-vite">,
+  BuildSystemConfigType
+> &
+  Record<
+    Extract<CreatePackageType, "react-vite">,
+    Record<ReactViteMode, BuildSystemConfigType>
+  > = {
+  lib: "lib",
+  react: "react",
+  "react-vite": {
+    "library-only": "react-vite-library-only",
+    sandbox: "react-vite-sandbox",
+  },
+};
+
+export const toBuildSystemConfigType = (
+  packageType: CreatePackageType,
+  options: { reactViteMode: ReactViteMode }
+): BuildSystemConfigType => {
+  if (packageType === "react-vite") {
+    return BUILD_SYSTEM_CONFIG_TYPE_MAP[packageType][options.reactViteMode];
+  } else {
+    return BUILD_SYSTEM_CONFIG_TYPE_MAP[packageType];
+  }
+};
 
 const tsdownBuildSystemConfig: PackageJsonFragment = {
   exports: {
@@ -22,7 +58,20 @@ const tsdownBuildSystemConfig: PackageJsonFragment = {
   types: "./dist/index.d.ts",
 };
 
-const viteBuildSystemConfig: PackageJsonFragment = {
+const viteLibraryOnlyScripts = {
+  build: "rm -rf ./dist && tsc -b && vite build",
+  lint: "eslint .",
+  test: "vitest run",
+  typecheck: "tsc -b",
+};
+
+const viteSandboxScripts = {
+  ...viteLibraryOnlyScripts,
+  dev: "vite",
+  preview: "vite preview",
+};
+
+const viteBuildSystemBase: PackageJsonFragment = {
   exports: {
     ".": {
       import: "./dist/index.js",
@@ -32,23 +81,22 @@ const viteBuildSystemConfig: PackageJsonFragment = {
   },
   main: "./dist/index.cjs",
   module: "./dist/index.js",
-  scripts: {
-    build: "rm -rf ./dist && tsc -b && vite build",
-    dev: "vite",
-    lint: "eslint .",
-    preview: "vite preview",
-    test: "vitest run",
-    typecheck: "tsc -b",
-  },
   type: "module",
   types: "./dist/index.d.ts",
 };
 
 export const buildSystemConfigs: Record<
-  CreatePackageType,
+  BuildSystemConfigType,
   PackageJsonFragment
 > = {
   lib: tsdownBuildSystemConfig,
   react: tsdownBuildSystemConfig,
-  "react-vite": viteBuildSystemConfig,
+  "react-vite-library-only": {
+    ...viteBuildSystemBase,
+    scripts: viteLibraryOnlyScripts,
+  },
+  "react-vite-sandbox": {
+    ...viteBuildSystemBase,
+    scripts: viteSandboxScripts,
+  },
 };

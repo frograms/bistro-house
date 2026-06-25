@@ -2,8 +2,10 @@ import { spawnSync } from "child_process";
 import fs from "fs-extra";
 import path from "path";
 
-import { dependencyConfigs } from "../../config/dependency-configs";
+import type { PackageStyle, ReactViteMode } from "../../../type/create-package";
 import type { PackageLicenseType } from "../../config/package-license-config";
+import { styleDependencyConfigInfos } from "../../config/style-dependency-configs";
+import { typeDependencyConfigs } from "../../config/type-dependency-configs";
 import { askQuestion } from "../../util/cli-utils";
 import {
   createFolder,
@@ -14,8 +16,10 @@ import { setPackageJsonDependencies } from "../../util/package-utils";
 import type { CreatePackageContext } from "./create-package-context";
 import {
   applyLicenseVariant,
-  applyPublishVariant,
+  applyPackageJsonVariant,
+  applyReactViteSandboxVariant,
   applyRegistryPublishConfig,
+  applyStyleTypeVariant,
   buildOverwrites,
   runShellAction,
 } from "./create-package-workflow-utils";
@@ -31,14 +35,21 @@ export const scaffoldPackage = async (
     packageVariantRoot,
     targetTemplateDir,
   } = configInfo;
-  const canPublish = optionInfo.canPublish.value ?? false;
+  const canPublish =
+    optionInfo.canPublish.value ?? optionInfo.canPublish.init.defaultValue;
   const license: PackageLicenseType =
-    (optionInfo.license.value as PackageLicenseType | undefined) ?? "private";
+    (optionInfo.license.value as PackageLicenseType | undefined) ??
+    optionInfo.license.init.defaultValue;
   const eslintConfig = optionInfo.eslintConfig.value;
   const registryAlias = optionInfo.registryAlias.value;
   const registryUrl = optionInfo.registryUrl.value;
   const tsconfig = optionInfo.tsconfig.value;
-  const skipInteraction = optionInfo.yes.value ?? false;
+  const skipInteraction =
+    optionInfo.yes.value ?? optionInfo.yes.init.defaultValue;
+  const reactViteMode: ReactViteMode =
+    (optionInfo.reactViteMode.value as ReactViteMode | undefined) ??
+    optionInfo.reactViteMode.init.defaultValue;
+  const style = optionInfo.style.value as PackageStyle | undefined;
 
   if (!fs.existsSync(targetTemplateDir)) {
     throw new Error(`템플릿을 찾을 수 없습니다: ${targetTemplateDir}`);
@@ -72,13 +83,26 @@ export const scaffoldPackage = async (
     );
   }
 
-  applyPublishVariant({
+  // variant - publish
+  applyPackageJsonVariant({
     canPublish,
     outputDir,
     packageType,
     packageVariantRoot,
+    reactViteMode,
   });
 
+  // variant - react-vite
+  if (packageType === "react-vite" && reactViteMode === "sandbox") {
+    applyReactViteSandboxVariant({ outputDir, packageVariantRoot });
+  }
+
+  // variant - style
+  if (style !== undefined) {
+    applyStyleTypeVariant({ outputDir, packageType, packageVariantRoot, style });
+  }
+
+  // variant - license
   applyLicenseVariant({
     license,
     outputDir,
@@ -118,7 +142,12 @@ export const scaffoldPackage = async (
   applyRegistryPublishConfig(packageJsonPath, registryAlias, registryUrl);
   // package.json - 의존성 추가
   setPackageJsonDependencies({
-    dependencies: dependencyConfigs[packageType],
+    dependencies: [
+      ...typeDependencyConfigs[packageType],
+      ...(style !== undefined
+        ? styleDependencyConfigInfos[packageType][style]
+        : []),
+    ],
     path: packageJsonPath,
   });
 

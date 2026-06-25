@@ -2,8 +2,15 @@ import { spawnSync } from "child_process";
 import fs from "fs-extra";
 import path from "path";
 
-import type { CreatePackageType } from "../../../type/create-package";
-import { buildSystemConfigs } from "../../config/build-system-config";
+import type {
+  CreatePackageType,
+  PackageStyle,
+  ReactViteMode,
+} from "../../../type/create-package";
+import {
+  buildSystemConfigs,
+  toBuildSystemConfigType,
+} from "../../config/build-system-config";
 import {
   licenseConfigs,
   type PackageLicenseType,
@@ -14,11 +21,12 @@ import {
 } from "../../util/package-utils";
 import type { CreatePackageOptionInfo } from "./create-package-context";
 
-export type ApplyPublishVariantOptions = {
+export type ApplyPackageJsonVariantOptions = {
   canPublish: boolean;
   outputDir: string;
   packageType: CreatePackageType;
   packageVariantRoot: string;
+  reactViteMode: ReactViteMode;
 };
 
 export type ApplyLicenseVariantOptions = {
@@ -67,12 +75,13 @@ export const applyRegistryPublishConfig = (
   writePackageJsonFile({ attribute: packageJson, path: packageJsonPath });
 };
 
-export const applyPublishVariant = ({
+export const applyPackageJsonVariant = ({
   canPublish,
   outputDir,
   packageType,
   packageVariantRoot,
-}: ApplyPublishVariantOptions) => {
+  reactViteMode,
+}: ApplyPackageJsonVariantOptions) => {
   const packageJsonVariant = canPublish ? "publish.json" : "default.json";
   const packageJsonSource = path.join(
     packageVariantRoot,
@@ -90,9 +99,69 @@ export const applyPublishVariant = ({
   fs.copyFileSync(packageJsonSource, packageJsonPath);
 
   setPackageJsonAttribute({
-    attribute: buildSystemConfigs[packageType],
+    attribute:
+      buildSystemConfigs[
+        toBuildSystemConfigType(packageType, { reactViteMode })
+      ],
     path: packageJsonPath,
   });
+};
+
+export const applyReactViteSandboxVariant = ({
+  outputDir,
+  packageVariantRoot,
+}: {
+  outputDir: string;
+  packageVariantRoot: string;
+}) => {
+  const sandboxVariantDir = path.join(
+    packageVariantRoot,
+    "react-vite",
+    "sandbox"
+  );
+
+  if (!fs.existsSync(sandboxVariantDir)) {
+    throw new Error(
+      `react-vite sandbox variant 를 찾을 수 없습니다: ${sandboxVariantDir}`
+    );
+  }
+
+  fs.copySync(sandboxVariantDir, outputDir, { overwrite: true });
+};
+
+export const applyStyleTypeVariant = ({
+  outputDir,
+  packageType,
+  packageVariantRoot,
+  style,
+}: {
+  outputDir: string;
+  packageType: CreatePackageType;
+  packageVariantRoot: string;
+  style: PackageStyle;
+}) => {
+  /**
+   * - react-vite 는 기본적으로 css, scss 타입이 제공 되므로 별도의 variant 작업을 하지 않습니다.
+   * - "types": ["vite/client"] in tsconfig.app.json
+   */
+  if (packageType === "react-vite") {
+    return;
+  }
+
+  const styleModulePath = path.join(
+    packageVariantRoot,
+    "style-type",
+    style,
+    "style.d.ts"
+  );
+
+  if (!fs.existsSync(styleModulePath)) {
+    throw new Error(
+      `style module declaration 을 찾을 수 없습니다: ${styleModulePath}`
+    );
+  }
+
+  fs.copyFileSync(styleModulePath, path.join(outputDir, "src/style.d.ts"));
 };
 
 export const applyLicenseVariant = ({
