@@ -150,7 +150,7 @@ const buildDependencyInfo: Record<"tsdown" | "vite", Dependency[]> = {
   ],
 };
 
-export const dependencyConfigs: Record<CreatePackageType, Dependency[]> = {
+export const typeDependencyConfigs: Record<CreatePackageType, Dependency[]> = {
   lib: [
     ...sharedDependencies,
     ...eslintDependencyInfo.lib,

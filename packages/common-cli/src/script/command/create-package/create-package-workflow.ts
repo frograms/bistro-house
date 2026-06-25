@@ -3,7 +3,7 @@ import fs from "fs-extra";
 import path from "path";
 
 import type { ReactViteMode } from "../../../type/create-package";
-import { dependencyConfigs } from "../../config/dependency-configs";
+import { typeDependencyConfigs } from "../../config/type-dependency-configs";
 import type { PackageLicenseType } from "../../config/package-license-config";
 import { askQuestion } from "../../util/cli-utils";
 import {
@@ -134,7 +134,7 @@ export const scaffoldPackage = async (
   applyRegistryPublishConfig(packageJsonPath, registryAlias, registryUrl);
   // package.json - 의존성 추가
   setPackageJsonDependencies({
-    dependencies: dependencyConfigs[packageType],
+    dependencies: typeDependencyConfigs[packageType],
     path: packageJsonPath,
   });
 
