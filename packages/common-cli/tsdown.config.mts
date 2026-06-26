@@ -3,7 +3,7 @@ import { defineConfig } from "tsdown";
 export default defineConfig({
   clean: true,
   dts: false,
-  entry: ["src/**/*.ts", "!src/**/*.d.ts"],
+  entry: ["src/bin/main.ts"],
   format: "cjs",
   outDir: "dist",
   platform: "node",
