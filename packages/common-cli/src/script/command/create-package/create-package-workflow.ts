@@ -20,6 +20,7 @@ import {
   applyReactViteSandboxVariant,
   applyRegistryPublishConfig,
   applyStyleTypeVariant,
+  applyTsdownConfigVariant,
   buildOverwrites,
   runShellAction,
 } from "./create-package-workflow-utils";
@@ -90,6 +91,13 @@ export const scaffoldPackage = async (
     packageType,
     packageVariantRoot,
     reactViteMode,
+  });
+
+  // variant - tsdown (lib / react)
+  applyTsdownConfigVariant({
+    outputDir,
+    packageType,
+    packageVariantRoot,
   });
 
   // variant - react-vite

@@ -6,6 +6,7 @@ import type {
   CreatePackageType,
   PackageStyle,
   ReactViteMode,
+  TsdownPackageType,
 } from "../../../type/create-package";
 import {
   buildSystemConfigs,
@@ -129,6 +130,38 @@ export const applyReactViteSandboxVariant = ({
   fs.copySync(sandboxVariantDir, outputDir, { overwrite: true });
 };
 
+const TSDOWN_CONFIG_VARIANT_BASENAMES: Record<TsdownPackageType, string> = {
+  lib: "lib.tsdown.config.mts",
+  react: "react.tsdown.config.mts",
+};
+
+export const applyTsdownConfigVariant = ({
+  outputDir,
+  packageType,
+  packageVariantRoot,
+}: {
+  outputDir: string;
+  packageType: CreatePackageType;
+  packageVariantRoot: string;
+}) => {
+  if (packageType === "react-vite") {
+    return;
+  }
+
+  const variantBasename = TSDOWN_CONFIG_VARIANT_BASENAMES[packageType];
+  const source = path.join(
+    packageVariantRoot,
+    "tsdown-config",
+    variantBasename
+  );
+
+  if (!fs.existsSync(source)) {
+    throw new Error(`tsdown config variant 를 찾을 수 없습니다: ${source}`);
+  }
+
+  fs.copyFileSync(source, path.join(outputDir, "tsdown.config.mts"));
+};
+
 export const applyStyleTypeVariant = ({
   outputDir,
   packageType,
@@ -142,7 +175,7 @@ export const applyStyleTypeVariant = ({
 }) => {
   /**
    * - react-vite 는 기본적으로 css, scss 타입이 제공 되므로 별도의 variant 작업을 하지 않습니다.
-   * - "types": ["vite/client"] in tsconfig.app.json
+   *   - "types": ["vite/client"] in tsconfig.app.json
    */
   if (packageType === "react-vite") {
     return;
