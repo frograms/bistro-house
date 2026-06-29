@@ -3,7 +3,7 @@ import type {
   ReactViteMode,
   TsdownPackageType,
   VitePackageType,
-} from "../../type/create-package";
+} from "../constant/create-package";
 
 type PackageJsonFragment = Record<string, unknown>;
 

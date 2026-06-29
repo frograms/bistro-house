@@ -1,5 +1,5 @@
-import type { CreatePackageType } from "../../type/create-package";
 import type { Dependency } from "../../type/dependency";
+import type { CreatePackageType } from "../constant/create-package";
 
 // 공유 의존성
 const sharedDependencies: Dependency[] = [

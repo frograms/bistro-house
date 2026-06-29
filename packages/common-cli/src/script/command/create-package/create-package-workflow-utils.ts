@@ -7,7 +7,7 @@ import type {
   PackageStyle,
   ReactViteMode,
   TsdownPackageType,
-} from "../../../type/create-package";
+} from "../../constant/create-package";
 import {
   buildSystemConfigs,
   toBuildSystemConfigType,

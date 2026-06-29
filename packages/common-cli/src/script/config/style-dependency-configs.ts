@@ -1,10 +1,8 @@
+import type { Dependency } from "../../type/dependency";
 import type {
   CreatePackageType,
   PackageStyle,
-} from "../../type/create-package";
-import type { Dependency } from "../../type/dependency";
-
-export const PACKAGE_STYLE_VALUES = ["css", "scss"] as const;
+} from "../constant/create-package";
 
 // tsdown 용 css 의존성
 const tsdownCssDependencies: Dependency[] = [
