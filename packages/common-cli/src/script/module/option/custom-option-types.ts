@@ -22,12 +22,18 @@ export type OptionInit = {
       ))
   );
 
+type StringOptionValue<Init extends OptionInit> = Init extends {
+  choices: readonly string[];
+}
+  ? Init["choices"][number]
+  : string;
+
 export type OptionValue<Init extends OptionInit> = Init extends {
   type: "boolean";
 }
   ? boolean
   : Init extends { type: "string" }
-    ? string
+    ? StringOptionValue<Init>
     : Init extends { type: "string[]" }
       ? string[]
       : never;
@@ -36,7 +42,9 @@ export type BuiltOptionValue<Init extends OptionInit> = Init extends {
   required: true;
 }
   ? OptionValue<Init>
-  : OptionValue<Init> | undefined;
+  : Init extends { defaultValue: unknown }
+    ? OptionValue<Init>
+    : OptionValue<Init> | undefined;
 
 export type OptionInitDef = { [K in string]: OptionInit };
 

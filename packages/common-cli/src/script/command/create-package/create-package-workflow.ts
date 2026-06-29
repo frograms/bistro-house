@@ -6,13 +6,8 @@ import {
   buildSystemConfigs,
   toBuildSystemConfigType,
 } from "../../config/build-system-config";
-import type { PackageLicenseType } from "../../config/package-license-config";
 import { styleDependencyConfigInfos } from "../../config/style-dependency-configs";
 import { typeDependencyConfigs } from "../../config/type-dependency-configs";
-import type {
-  PackageStyle,
-  ReactViteMode,
-} from "../../constant/create-package";
 import { askQuestion } from "../../util/cli-utils";
 import { runShellAction, toRecord } from "../../util/common-utils";
 import {
@@ -43,21 +38,15 @@ export const scaffoldPackage = async (
     packageVariantRoot,
     targetTemplateDir,
   } = configInfo;
-  const canPublish =
-    optionInfo.canPublish.value ?? optionInfo.canPublish.init.defaultValue;
-  const license: PackageLicenseType =
-    (optionInfo.license.value as PackageLicenseType | undefined) ??
-    optionInfo.license.init.defaultValue;
+  const canPublish = optionInfo.canPublish.value;
+  const license = optionInfo.license.value;
   const eslintConfig = optionInfo.eslintConfig.value;
   const registryAlias = optionInfo.registryAlias.value;
   const registryUrl = optionInfo.registryUrl.value;
   const tsconfig = optionInfo.tsconfig.value;
-  const skipInteraction =
-    optionInfo.yes.value ?? optionInfo.yes.init.defaultValue;
-  const reactViteMode: ReactViteMode =
-    (optionInfo.reactViteMode.value as ReactViteMode | undefined) ??
-    optionInfo.reactViteMode.init.defaultValue;
-  const style = optionInfo.style.value as PackageStyle | undefined;
+  const skipInteraction = optionInfo.yes.value;
+  const reactViteMode = optionInfo.reactViteMode.value;
+  const style = optionInfo.style.value;
 
   if (!fs.existsSync(targetTemplateDir)) {
     throw new Error(`템플릿을 찾을 수 없습니다: ${targetTemplateDir}`);
@@ -200,8 +189,8 @@ export const scaffoldPackage = async (
 export const installDependencies = (context: CreatePackageContext) => {
   const { configInfo, optionInfo } = context;
   const { outputDir } = configInfo;
-  const packageManager = optionInfo.packageManager.value ?? "pnpm";
-  const withoutInstall = optionInfo.withoutInstall.value ?? false;
+  const packageManager = optionInfo.packageManager.value;
+  const withoutInstall = optionInfo.withoutInstall.value;
 
   if (!withoutInstall) {
     spawnSync(packageManager, ["install"], {
@@ -214,8 +203,8 @@ export const installDependencies = (context: CreatePackageContext) => {
 export const formatGeneratedPackage = (context: CreatePackageContext) => {
   const { configInfo, optionInfo } = context;
   const { outputDir } = configInfo;
-  const packageManager = optionInfo.packageManager.value ?? "pnpm";
-  const withoutInstall = optionInfo.withoutInstall.value ?? false;
+  const packageManager = optionInfo.packageManager.value;
+  const withoutInstall = optionInfo.withoutInstall.value;
 
   if (withoutInstall) {
     return;
