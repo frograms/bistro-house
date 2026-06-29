@@ -2,28 +2,34 @@ import { spawnSync } from "child_process";
 import fs from "fs-extra";
 import path from "path";
 
-import type { PackageStyle, ReactViteMode } from "../../../type/create-package";
+import {
+  buildSystemConfigs,
+  toBuildSystemConfigType,
+} from "../../config/build-system-config";
 import type { PackageLicenseType } from "../../config/package-license-config";
 import { styleDependencyConfigInfos } from "../../config/style-dependency-configs";
 import { typeDependencyConfigs } from "../../config/type-dependency-configs";
+import type {
+  PackageStyle,
+  ReactViteMode,
+} from "../../constant/create-package";
 import { askQuestion } from "../../util/cli-utils";
+import { runShellAction, toRecord } from "../../util/common-utils";
 import {
   createFolder,
   overwritePlaceholdersInDir,
   resolvePath,
 } from "../../util/file-utils";
-import { setPackageJsonDependencies } from "../../util/package-utils";
-import type { CreatePackageContext } from "./create-package-context";
 import {
-  applyLicenseVariant,
-  applyPackageJsonVariant,
-  applyReactViteSandboxVariant,
-  applyRegistryPublishConfig,
-  applyStyleTypeVariant,
-  applyTsdownConfigVariant,
-  buildOverwrites,
-  runShellAction,
-} from "./create-package-workflow-utils";
+  setPackageJsonAttribute,
+  setPackageJsonDependencies,
+} from "../../util/package-utils";
+import type { CreatePackageContext } from "./create-package-context";
+import { applyVariantLicense } from "./variant/variant-license";
+import { applyVariantPackageJson } from "./variant/variant-package-json";
+import { applyVariantReactViteSandbox } from "./variant/variant-react-vite-sandbox";
+import { applyVariantStyleType } from "./variant/variant-style-type";
+import { applyVariantTsdownConfig } from "./variant/variant-tsdown-config";
 
 export const scaffoldPackage = async (
   context: CreatePackageContext
@@ -84,17 +90,15 @@ export const scaffoldPackage = async (
     );
   }
 
-  // variant - publish
-  applyPackageJsonVariant({
+  // variant - package.json
+  applyVariantPackageJson({
     canPublish,
     outputDir,
-    packageType,
     packageVariantRoot,
-    reactViteMode,
   });
 
   // variant - tsdown (lib / react)
-  applyTsdownConfigVariant({
+  applyVariantTsdownConfig({
     outputDir,
     packageType,
     packageVariantRoot,
@@ -102,12 +106,12 @@ export const scaffoldPackage = async (
 
   // variant - react-vite
   if (packageType === "react-vite" && reactViteMode === "sandbox") {
-    applyReactViteSandboxVariant({ outputDir, packageVariantRoot });
+    applyVariantReactViteSandbox({ outputDir, packageVariantRoot });
   }
 
   // variant - style
   if (style !== undefined) {
-    applyStyleTypeVariant({
+    applyVariantStyleType({
       outputDir,
       packageType,
       packageVariantRoot,
@@ -116,7 +120,7 @@ export const scaffoldPackage = async (
   }
 
   // variant - license
-  applyLicenseVariant({
+  applyVariantLicense({
     license,
     outputDir,
     packageVariantRoot,
@@ -146,13 +150,22 @@ export const scaffoldPackage = async (
   }
 
   // placeholder 업데이트
-  const overwrites = buildOverwrites(optionInfo);
+  const overwrites = toRecord(optionInfo);
   overwritePlaceholdersInDir(outputDir, overwrites);
 
   // package.json
   const packageJsonPath = path.join(outputDir, "package.json");
   // package.json - 레지스트리 설정
-  applyRegistryPublishConfig(packageJsonPath, registryAlias, registryUrl);
+  if (registryUrl) {
+    setPackageJsonAttribute({
+      attribute: {
+        publishConfig: {
+          [registryAlias || "registry"]: registryUrl,
+        },
+      },
+      path: packageJsonPath,
+    });
+  }
   // package.json - 의존성 추가
   setPackageJsonDependencies({
     dependencies: [
@@ -161,6 +174,14 @@ export const scaffoldPackage = async (
         ? styleDependencyConfigInfos[packageType][style]
         : []),
     ],
+    path: packageJsonPath,
+  });
+  // package.json - build system 설정
+  setPackageJsonAttribute({
+    attribute:
+      buildSystemConfigs[
+        toBuildSystemConfigType(packageType, { reactViteMode })
+      ],
     path: packageJsonPath,
   });
 
@@ -195,11 +216,11 @@ export const runPostActions = (context: CreatePackageContext) => {
   try {
     if (postTargetAction) {
       console.info("🎬 Post-target-action 실행 중...");
-      runShellAction(postTargetAction, outputDir, "Post-target-action");
+      runShellAction(postTargetAction, outputDir);
     }
     if (postAction) {
       console.info("🎬 Post-action 실행 중...");
-      runShellAction(postAction, executeDir, "Post-action");
+      runShellAction(postAction, executeDir);
     }
   } catch (error) {
     console.error(error);
