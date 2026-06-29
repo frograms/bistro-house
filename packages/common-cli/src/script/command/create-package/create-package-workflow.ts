@@ -25,6 +25,7 @@ import {
   setPackageJsonDependencies,
 } from "../../util/package-utils";
 import type { CreatePackageContext } from "./create-package-context";
+import { applyTransformTsdownConfig } from "./transform/transform-tsdown-config";
 import { applyVariantLicense } from "./variant/variant-license";
 import { applyVariantPackageJson } from "./variant/variant-package-json";
 import { applyVariantReactViteSandbox } from "./variant/variant-react-vite-sandbox";
@@ -125,6 +126,9 @@ export const scaffoldPackage = async (
     outputDir,
     packageVariantRoot,
   });
+
+  // transform - tsdown config (style 선택 시 css 블록 주입)
+  applyTransformTsdownConfig({ outputDir, packageType, style });
 
   // override - tsconfig
   if (tsconfig) {

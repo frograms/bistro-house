@@ -1,9 +1,6 @@
 import { defineConfig, type UserConfig } from "tsdown";
 
 const sharedConfig: UserConfig = {
-  css: {
-    minify: true,
-  },
   entry: ["src/index.ts"],
   fixedExtension: true,
   outDir: "dist",
