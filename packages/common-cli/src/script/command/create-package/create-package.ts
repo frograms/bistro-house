@@ -5,6 +5,7 @@ import { validateOptionInfo } from "../../module/option/custom-option-validate";
 import { buildCreatePackageContext } from "./create-package-context";
 import { CREATE_PACKAGE_OPTION_INFO } from "./create-package-option-info";
 import {
+  formatGeneratedPackage,
   installDependencies,
   runPostActions,
   scaffoldPackage,
@@ -21,5 +22,6 @@ export const createPackageCommand = new CustomCommand(
     await scaffoldPackage(context);
     installDependencies(context);
     runPostActions(context);
+    formatGeneratedPackage(context);
     console.info(`✅ ${context.configInfo.outputDir} 에 생성 되었습니다.`);
   });

@@ -211,6 +211,31 @@ export const installDependencies = (context: CreatePackageContext) => {
   }
 };
 
+export const formatGeneratedPackage = (context: CreatePackageContext) => {
+  const { configInfo, optionInfo } = context;
+  const { outputDir } = configInfo;
+  const packageManager = optionInfo.packageManager.value ?? "pnpm";
+  const withoutInstall = optionInfo.withoutInstall.value ?? false;
+
+  if (withoutInstall) {
+    return;
+  }
+
+  console.info("✨ Prettier 포맷 적용 중...");
+  const result = spawnSync(
+    packageManager,
+    ["exec", "prettier", "--write", "."],
+    {
+      cwd: outputDir,
+      stdio: "inherit",
+    }
+  );
+
+  if (result.status !== 0) {
+    console.warn("⚠️ 프로젝트 생성은 완료되었으나, 포맷 적용에 실패했습니다.");
+  }
+};
+
 export const runPostActions = (context: CreatePackageContext) => {
   const { configInfo, optionInfo } = context;
   const { executeDir, outputDir } = configInfo;
