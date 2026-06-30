@@ -21,16 +21,17 @@ const createCssProperty = (): ts.PropertyAssignment =>
     )
   );
 
+const createVanillaExtractPluginCall = (): ts.CallExpression =>
+  ts.factory.createCallExpression(
+    ts.factory.createIdentifier("vanillaExtractPlugin"),
+    undefined,
+    []
+  );
+
 const createVanillaExtractPluginsProperty = (): ts.PropertyAssignment =>
   ts.factory.createPropertyAssignment(
     "plugins",
-    ts.factory.createArrayLiteralExpression([
-      ts.factory.createCallExpression(
-        ts.factory.createIdentifier("vanillaExtractPlugin"),
-        undefined,
-        []
-      ),
-    ])
+    ts.factory.createArrayLiteralExpression([createVanillaExtractPluginCall()])
   );
 
 const getPropertyNameText = (name: ts.PropertyName): string | undefined => {
@@ -55,21 +56,95 @@ const hasProperty = (
       getPropertyNameText(property.name) === name
   );
 
+const patchVanillaExtractPluginsProperty = (
+  property: ts.PropertyAssignment
+): ts.PropertyAssignment => {
+  if (
+    getPropertyNameText(property.name) !== "plugins" ||
+    !ts.isArrayLiteralExpression(property.initializer)
+  ) {
+    return property;
+  }
+
+  const hasVanillaExtractPlugin = property.initializer.elements.some(
+    (element) =>
+      ts.isCallExpression(element) &&
+      ts.isIdentifier(element.expression) &&
+      element.expression.text === "vanillaExtractPlugin"
+  );
+
+  if (hasVanillaExtractPlugin) {
+    return property;
+  }
+
+  const [firstElement, ...restElements] = property.initializer.elements;
+  const newElements =
+    firstElement === undefined
+      ? [createVanillaExtractPluginCall()]
+      : [firstElement, createVanillaExtractPluginCall(), ...restElements];
+
+  return ts.factory.updatePropertyAssignment(
+    property,
+    property.name,
+    ts.factory.updateArrayLiteralExpression(property.initializer, newElements)
+  );
+};
+
 const patchSharedConfigProperty = ({
   node,
+  patchExistingProperty,
   property,
 }: {
   node: ts.VariableDeclaration;
+  patchExistingProperty?: (
+    property: ts.PropertyAssignment
+  ) => ts.PropertyAssignment;
   property: ts.PropertyAssignment;
 }): ts.VariableDeclaration => {
+  const propertyName = getPropertyNameText(property.name);
+
   if (
     !ts.isIdentifier(node.name) ||
     node.name.text !== SHARED_CONFIG_NAME ||
     !node.initializer ||
     !ts.isObjectLiteralExpression(node.initializer) ||
-    hasProperty(node.initializer, getPropertyNameText(property.name) ?? "")
+    !propertyName
   ) {
     return node;
+  }
+
+  if (hasProperty(node.initializer, propertyName)) {
+    if (!patchExistingProperty) {
+      return node;
+    }
+
+    let didPatch = false;
+    const properties = node.initializer.properties.map((objectProperty) => {
+      if (
+        ts.isPropertyAssignment(objectProperty) &&
+        getPropertyNameText(objectProperty.name) === propertyName
+      ) {
+        const patchedProperty = patchExistingProperty(objectProperty);
+        if (patchedProperty !== objectProperty) {
+          didPatch = true;
+        }
+        return patchedProperty;
+      }
+
+      return objectProperty;
+    });
+
+    if (!didPatch) {
+      return node;
+    }
+
+    return ts.factory.updateVariableDeclaration(
+      node,
+      node.name,
+      node.exclamationToken,
+      node.type,
+      ts.factory.updateObjectLiteralExpression(node.initializer, properties)
+    );
   }
 
   const newInitializer = ts.factory.updateObjectLiteralExpression(
@@ -113,10 +188,14 @@ const hasVanillaExtractImport = (sourceFile: ts.SourceFile): boolean =>
 
 const transformSourceFile = ({
   addImport,
+  patchExistingProperty,
   patchProperty,
   sourceText,
 }: {
   addImport?: () => ts.ImportDeclaration;
+  patchExistingProperty?: (
+    property: ts.PropertyAssignment
+  ) => ts.PropertyAssignment;
   patchProperty: ts.PropertyAssignment;
   sourceText: string;
 }): string => {
@@ -146,6 +225,7 @@ const transformSourceFile = ({
 
         const patchedNode = patchSharedConfigProperty({
           node,
+          patchExistingProperty,
           property: patchProperty,
         });
         if (patchedNode !== node) {
@@ -202,6 +282,7 @@ export const patchSharedConfigCss = (sourceText: string): string =>
 export const patchSharedConfigVanillaExtract = (sourceText: string): string =>
   transformSourceFile({
     addImport: createVanillaExtractImport,
+    patchExistingProperty: patchVanillaExtractPluginsProperty,
     patchProperty: createVanillaExtractPluginsProperty(),
     sourceText,
   });

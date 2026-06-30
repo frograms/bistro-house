@@ -3,7 +3,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { describe, expect, it } from "vitest";
 
-import { patchSharedConfigCss, patchSharedConfigVanillaExtract } from "./transform-tsdown-config";
+import {
+  patchSharedConfigCss,
+  patchSharedConfigVanillaExtract,
+} from "./transform-tsdown-config";
 
 const variantDir = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -69,5 +72,25 @@ describe("patchSharedConfigVanillaExtract", () => {
     const patchedTwice = patchSharedConfigVanillaExtract(patchedOnce);
 
     expect(patchedTwice.match(/vanillaExtractPlugin\(\)/g)?.length).toBe(1);
+  });
+
+  it("기존 plugins 배열에 vanillaExtractPlugin 을 추가한다", () => {
+    const source = `
+import { defineConfig, type UserConfig } from "tsdown";
+import somePlugin from "some-plugin";
+
+const sharedConfig: UserConfig = {
+  entry: ["src/index.ts"],
+  plugins: [somePlugin()],
+};
+
+export default defineConfig([{ ...sharedConfig }]);
+`;
+    const patched = patchSharedConfigVanillaExtract(source);
+
+    expect(patched).toContain("@vanilla-extract/rollup-plugin");
+    expect(patched).toMatch(
+      /plugins:\s*\[\s*somePlugin\(\),\s*vanillaExtractPlugin\(\)/
+    );
   });
 });
