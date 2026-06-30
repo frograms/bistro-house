@@ -53,6 +53,7 @@ describe("patchSharedConfigVanillaExtract", () => {
     expect(patched).toContain("@vanilla-extract/rollup-plugin");
     expect(patched).toContain("vanillaExtractPlugin({");
     expect(patched).toContain('name: "style.css"');
+    expect(patched).toContain('assetFileNames: "[name][extname]"');
     expect(patched).toMatch(/plugins:\s*\[\s*vanillaExtractPlugin\(\{/);
   });
 
@@ -73,6 +74,7 @@ describe("patchSharedConfigVanillaExtract", () => {
     const patchedTwice = patchSharedConfigVanillaExtract(patchedOnce);
 
     expect(patchedTwice.match(/vanillaExtractPlugin\(\{/g)?.length).toBe(1);
+    expect(patchedTwice.match(/assetFileNames:/g)?.length).toBe(1);
   });
 
   it("기존 plugins 배열에 vanillaExtractPlugin 을 추가한다", () => {

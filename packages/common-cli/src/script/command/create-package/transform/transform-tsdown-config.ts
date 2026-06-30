@@ -52,6 +52,20 @@ const createVanillaExtractPluginsProperty = (): ts.PropertyAssignment =>
     ts.factory.createArrayLiteralExpression([createVanillaExtractPluginCall()])
   );
 
+const createVanillaExtractOutputOptionsProperty = (): ts.PropertyAssignment =>
+  ts.factory.createPropertyAssignment(
+    "outputOptions",
+    ts.factory.createObjectLiteralExpression(
+      [
+        ts.factory.createPropertyAssignment(
+          "assetFileNames",
+          ts.factory.createStringLiteral("[name][extname]")
+        ),
+      ],
+      false
+    )
+  );
+
 const getPropertyNameText = (name: ts.PropertyName): string | undefined => {
   if (ts.isIdentifier(name)) {
     return name.text;
@@ -105,6 +119,30 @@ const patchVanillaExtractPluginsProperty = (
     property,
     property.name,
     ts.factory.updateArrayLiteralExpression(property.initializer, newElements)
+  );
+};
+
+const patchVanillaExtractOutputOptionsProperty = (
+  property: ts.PropertyAssignment
+): ts.PropertyAssignment => {
+  if (
+    getPropertyNameText(property.name) !== "outputOptions" ||
+    !ts.isObjectLiteralExpression(property.initializer) ||
+    hasProperty(property.initializer, "assetFileNames")
+  ) {
+    return property;
+  }
+
+  return ts.factory.updatePropertyAssignment(
+    property,
+    property.name,
+    ts.factory.updateObjectLiteralExpression(property.initializer, [
+      ts.factory.createPropertyAssignment(
+        "assetFileNames",
+        ts.factory.createStringLiteral("[name][extname]")
+      ),
+      ...property.initializer.properties,
+    ])
   );
 };
 
@@ -297,13 +335,20 @@ export const patchSharedConfigCss = (sourceText: string): string =>
     sourceText,
   });
 
-export const patchSharedConfigVanillaExtract = (sourceText: string): string =>
-  transformSourceFile({
+export const patchSharedConfigVanillaExtract = (sourceText: string): string => {
+  const sourceTextWithPlugin = transformSourceFile({
     addImport: createVanillaExtractImport,
     patchExistingProperty: patchVanillaExtractPluginsProperty,
     patchProperty: createVanillaExtractPluginsProperty(),
     sourceText,
   });
+
+  return transformSourceFile({
+    patchExistingProperty: patchVanillaExtractOutputOptionsProperty,
+    patchProperty: createVanillaExtractOutputOptionsProperty(),
+    sourceText: sourceTextWithPlugin,
+  });
+};
 
 const patchTsdownConfigByStyle = ({
   sourceText,
