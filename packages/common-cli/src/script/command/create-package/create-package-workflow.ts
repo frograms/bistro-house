@@ -2,27 +2,31 @@ import { spawnSync } from "child_process";
 import fs from "fs-extra";
 import path from "path";
 
-import type { PackageStyle, ReactViteMode } from "../../../type/create-package";
-import type { PackageLicenseType } from "../../config/package-license-config";
+import {
+  buildSystemConfigs,
+  toBuildSystemConfigType,
+} from "../../config/build-system-config";
 import { styleDependencyConfigInfos } from "../../config/style-dependency-configs";
 import { typeDependencyConfigs } from "../../config/type-dependency-configs";
 import { askQuestion } from "../../util/cli-utils";
+import { runShellAction, toRecord } from "../../util/common-utils";
 import {
   createFolder,
   overwritePlaceholdersInDir,
   resolvePath,
 } from "../../util/file-utils";
-import { setPackageJsonDependencies } from "../../util/package-utils";
-import type { CreatePackageContext } from "./create-package-context";
 import {
-  applyLicenseVariant,
-  applyPackageJsonVariant,
-  applyReactViteSandboxVariant,
-  applyRegistryPublishConfig,
-  applyStyleTypeVariant,
-  buildOverwrites,
-  runShellAction,
-} from "./create-package-workflow-utils";
+  setPackageJsonAttribute,
+  setPackageJsonDependencies,
+} from "../../util/package-utils";
+import type { CreatePackageContext } from "./create-package-context";
+import { applyTransformTsdownConfig } from "./transform/transform-tsdown-config";
+import { applyTransformViteConfig } from "./transform/transform-vite-config";
+import { applyVariantLicense } from "./variant/variant-license";
+import { applyVariantPackageJson } from "./variant/variant-package-json";
+import { applyVariantReactViteSandbox } from "./variant/variant-react-vite-sandbox";
+import { applyVariantStyleType } from "./variant/variant-style-type";
+import { applyVariantTsdownConfig } from "./variant/variant-tsdown-config";
 
 export const scaffoldPackage = async (
   context: CreatePackageContext
@@ -35,21 +39,15 @@ export const scaffoldPackage = async (
     packageVariantRoot,
     targetTemplateDir,
   } = configInfo;
-  const canPublish =
-    optionInfo.canPublish.value ?? optionInfo.canPublish.init.defaultValue;
-  const license: PackageLicenseType =
-    (optionInfo.license.value as PackageLicenseType | undefined) ??
-    optionInfo.license.init.defaultValue;
+  const canPublish = optionInfo.canPublish.value;
+  const license = optionInfo.license.value;
   const eslintConfig = optionInfo.eslintConfig.value;
   const registryAlias = optionInfo.registryAlias.value;
   const registryUrl = optionInfo.registryUrl.value;
   const tsconfig = optionInfo.tsconfig.value;
-  const skipInteraction =
-    optionInfo.yes.value ?? optionInfo.yes.init.defaultValue;
-  const reactViteMode: ReactViteMode =
-    (optionInfo.reactViteMode.value as ReactViteMode | undefined) ??
-    optionInfo.reactViteMode.init.defaultValue;
-  const style = optionInfo.style.value as PackageStyle | undefined;
+  const skipInteraction = optionInfo.yes.value;
+  const reactViteMode = optionInfo.reactViteMode.value;
+  const style = optionInfo.style.value;
 
   if (!fs.existsSync(targetTemplateDir)) {
     throw new Error(`템플릿을 찾을 수 없습니다: ${targetTemplateDir}`);
@@ -83,31 +81,50 @@ export const scaffoldPackage = async (
     );
   }
 
-  // variant - publish
-  applyPackageJsonVariant({
+  // variant - package.json
+  applyVariantPackageJson({
     canPublish,
+    outputDir,
+    packageVariantRoot,
+  });
+
+  // variant - tsdown (lib / react)
+  applyVariantTsdownConfig({
+    outputDir,
+    packageType,
+    packageVariantRoot,
+  });
+
+  // variant - react-vite
+  applyVariantReactViteSandbox({
     outputDir,
     packageType,
     packageVariantRoot,
     reactViteMode,
   });
 
-  // variant - react-vite
-  if (packageType === "react-vite" && reactViteMode === "sandbox") {
-    applyReactViteSandboxVariant({ outputDir, packageVariantRoot });
-  }
-
   // variant - style
   if (style !== undefined) {
-    applyStyleTypeVariant({ outputDir, packageType, packageVariantRoot, style });
+    applyVariantStyleType({
+      outputDir,
+      packageType,
+      packageVariantRoot,
+      style,
+    });
   }
 
   // variant - license
-  applyLicenseVariant({
+  applyVariantLicense({
     license,
     outputDir,
     packageVariantRoot,
   });
+
+  // transform - tsdown config
+  applyTransformTsdownConfig({ outputDir, packageType, style });
+
+  // transform - vite config
+  applyTransformViteConfig({ outputDir, packageType, style });
 
   // override - tsconfig
   if (tsconfig) {
@@ -133,13 +150,22 @@ export const scaffoldPackage = async (
   }
 
   // placeholder 업데이트
-  const overwrites = buildOverwrites(optionInfo);
+  const overwrites = toRecord(optionInfo);
   overwritePlaceholdersInDir(outputDir, overwrites);
 
   // package.json
   const packageJsonPath = path.join(outputDir, "package.json");
   // package.json - 레지스트리 설정
-  applyRegistryPublishConfig(packageJsonPath, registryAlias, registryUrl);
+  if (registryUrl) {
+    setPackageJsonAttribute({
+      attribute: {
+        publishConfig: {
+          [registryAlias || "registry"]: registryUrl,
+        },
+      },
+      path: packageJsonPath,
+    });
+  }
   // package.json - 의존성 추가
   setPackageJsonDependencies({
     dependencies: [
@@ -148,6 +174,14 @@ export const scaffoldPackage = async (
         ? styleDependencyConfigInfos[packageType][style]
         : []),
     ],
+    path: packageJsonPath,
+  });
+  // package.json - build system 설정
+  setPackageJsonAttribute({
+    attribute:
+      buildSystemConfigs[
+        toBuildSystemConfigType(packageType, { reactViteMode })
+      ],
     path: packageJsonPath,
   });
 
@@ -162,14 +196,55 @@ export const scaffoldPackage = async (
 export const installDependencies = (context: CreatePackageContext) => {
   const { configInfo, optionInfo } = context;
   const { outputDir } = configInfo;
-  const packageManager = optionInfo.packageManager.value ?? "pnpm";
-  const withoutInstall = optionInfo.withoutInstall.value ?? false;
+  const packageManager = optionInfo.packageManager.value;
+  const withoutInstall = optionInfo.withoutInstall.value;
 
   if (!withoutInstall) {
     spawnSync(packageManager, ["install"], {
       cwd: outputDir,
       stdio: "inherit",
     });
+  }
+};
+
+export const formatGeneratedPackage = (context: CreatePackageContext) => {
+  const { configInfo, optionInfo } = context;
+  const { outputDir } = configInfo;
+  const packageManager = optionInfo.packageManager.value;
+  const withoutInstall = optionInfo.withoutInstall.value;
+
+  if (withoutInstall) {
+    return;
+  }
+
+  console.info("🔧 ESLint 자동 수정 적용 중...");
+  const lintResult = spawnSync(
+    packageManager,
+    ["exec", "eslint", ".", "--fix"],
+    {
+      cwd: outputDir,
+      stdio: "inherit",
+    }
+  );
+
+  if (lintResult.status !== 0) {
+    console.warn(
+      "⚠️ 프로젝트 생성은 완료되었으나, ESLint 자동 수정에 실패했습니다."
+    );
+  }
+
+  console.info("✨ Prettier 포맷 적용 중...");
+  const formatResult = spawnSync(
+    packageManager,
+    ["exec", "prettier", "--write", "."],
+    {
+      cwd: outputDir,
+      stdio: "inherit",
+    }
+  );
+
+  if (formatResult.status !== 0) {
+    console.warn("⚠️ 프로젝트 생성은 완료되었으나, 포맷 적용에 실패했습니다.");
   }
 };
 
@@ -182,11 +257,11 @@ export const runPostActions = (context: CreatePackageContext) => {
   try {
     if (postTargetAction) {
       console.info("🎬 Post-target-action 실행 중...");
-      runShellAction(postTargetAction, outputDir, "Post-target-action");
+      runShellAction(postTargetAction, outputDir);
     }
     if (postAction) {
       console.info("🎬 Post-action 실행 중...");
-      runShellAction(postAction, executeDir, "Post-action");
+      runShellAction(postAction, executeDir);
     }
   } catch (error) {
     console.error(error);

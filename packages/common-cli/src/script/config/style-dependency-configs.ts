@@ -1,12 +1,10 @@
+import type { Dependency } from "../../type/dependency";
 import type {
   CreatePackageType,
   PackageStyle,
-} from "../../type/create-package";
-import type { Dependency } from "../../type/dependency";
+} from "../constant/create-package";
 
-export const PACKAGE_STYLE_VALUES = ["css", "scss"] as const;
-
-// tsdown 용 css 의존성
+// tsdown css 의존성
 const tsdownCssDependencies: Dependency[] = [
   {
     name: "@tsdown/css",
@@ -29,17 +27,62 @@ const sassEmbeddedDependencies: Dependency[] = [
   },
 ];
 
+// tsdown scss 의존성
+const tsdownScssDependencies: Dependency[] = [
+  ...tsdownCssDependencies,
+  {
+    name: "sass-embedded",
+    targets: ["--save-dev"],
+    version: "^1.100.0",
+  },
+];
+
+// vanilla-extract 의존성
+const vanillaExtractDependencies: Dependency[] = [
+  {
+    name: "@vanilla-extract/css",
+    targets: ["--save-prod"],
+    version: "^1.17.4",
+  },
+];
+
+// vanilla-extract tsdown 의존성
+const vanillaExtractTsdownDependencies: Dependency[] = [
+  ...vanillaExtractDependencies,
+  {
+    name: "@vanilla-extract/rollup-plugin",
+    targets: ["--save-dev"],
+    version: "^1.5.3",
+  },
+];
+
+// vanilla-extract vite 의존성
+const vanillaExtractViteDependencies: Dependency[] = [
+  ...vanillaExtractDependencies,
+  {
+    name: "@vanilla-extract/vite-plugin",
+    targets: ["--save-dev"],
+    version: "^5.2.3",
+  },
+];
+
 export const styleDependencyConfigInfos: Record<
   CreatePackageType,
   Record<PackageStyle, Dependency[]>
 > = {
   lib: {
     css: tsdownCssDependencies,
-    scss: [...tsdownCssDependencies, ...sassEmbeddedDependencies],
+    scss: tsdownScssDependencies,
+    "vanilla-extract": vanillaExtractTsdownDependencies,
   },
   react: {
     css: tsdownCssDependencies,
-    scss: [...tsdownCssDependencies, ...sassEmbeddedDependencies],
+    scss: tsdownScssDependencies,
+    "vanilla-extract": vanillaExtractTsdownDependencies,
   },
-  "react-vite": { css: [], scss: sassEmbeddedDependencies },
+  "react-vite": {
+    css: [],
+    scss: sassEmbeddedDependencies,
+    "vanilla-extract": vanillaExtractViteDependencies,
+  },
 };

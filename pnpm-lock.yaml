@@ -147,6 +147,9 @@ importers:
       fs-extra:
         specifier: ~11.3.0
         version: 11.3.5
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
     devDependencies:
       '@types/fs-extra':
         specifier: ~11.0.4
@@ -193,9 +196,6 @@ importers:
       tsdown:
         specifier: ^0.21.5
         version: 0.21.10(@tsdown/css@0.21.10)(typescript@5.9.3)
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
       vitest:
         specifier: ^4.1.8
         version: 4.1.8(@types/node@24.12.4)(happy-dom@20.10.2)(vite@8.0.16(@types/node@24.12.4)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))

@@ -1,14 +1,11 @@
 import { defineConfig, type UserConfig } from "tsdown";
 
 const sharedConfig: UserConfig = {
-  css: {
-    minify: true,
-  },
   entry: ["src/index.ts"],
   fixedExtension: true,
   outDir: "dist",
   outExtensions: () => ({ dts: ".d.ts" }),
-  platform: "node",
+  platform: "neutral",
   target: "es2020",
   tsconfig: "tsconfig.json",
 };

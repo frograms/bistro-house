@@ -1,15 +1,12 @@
-import type { CreatePackageType } from "../../../type/create-package";
 import { PACKAGE_LICENSE_VALUES } from "../../config/package-license-config";
-import { PACKAGE_STYLE_VALUES } from "../../config/style-dependency-configs";
+import {
+  CREATE_PACKAGE_TYPE_VALUES,
+  PACKAGE_STYLE_VALUES,
+  REACT_VITE_MODE_VALUES,
+} from "../../constant/create-package";
 import { defineOptionInfo } from "../../module/option/custom-option-utils";
 
 export const PACKAGE_MANAGER_VALUES = ["npm", "yarn", "pnpm", "bun"] as const;
-export const PACKAGE_TYPE_VALUES: CreatePackageType[] = [
-  "lib",
-  "react",
-  "react-vite",
-];
-export const REACT_VITE_MODE_VALUES = ["sandbox", "library-only"] as const;
 
 export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
   authorEmail: {
@@ -149,7 +146,7 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
   style: {
     choices: PACKAGE_STYLE_VALUES,
     description:
-      "스타일 빌드 방식: css, scss (기본값은 lib/react 는 스타일 개발에 필요한 별도 처리 없음, react-vite 는 기본적으로 css 사용)",
+      "스타일 빌드 방식: css, scss, vanilla-extract (기본값은 lib/react 는 스타일 개발에 필요한 별도 처리 없음, react-vite 는 기본적으로 css 사용)",
     flags: "--st, --style <style>",
     name: "style",
     type: "string",
@@ -161,7 +158,7 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
     type: "string",
   },
   type: {
-    choices: PACKAGE_TYPE_VALUES,
+    choices: CREATE_PACKAGE_TYPE_VALUES,
     description:
       "패키지 타입: lib(tsdown), react(tsdown+React), react-vite(Vite 라이브러리 모드)",
     flags: "-t, --type <type>",

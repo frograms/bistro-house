@@ -1,7 +1,9 @@
 import type {
   CreatePackageType,
   ReactViteMode,
-} from "../../type/create-package";
+  TsdownPackageType,
+  VitePackageType,
+} from "../constant/create-package";
 
 type PackageJsonFragment = Record<string, unknown>;
 
@@ -12,13 +14,10 @@ export type BuildSystemConfigType =
   | "react-vite-library-only";
 
 const BUILD_SYSTEM_CONFIG_TYPE_MAP: Record<
-  Exclude<CreatePackageType, "react-vite">,
+  TsdownPackageType,
   BuildSystemConfigType
 > &
-  Record<
-    Extract<CreatePackageType, "react-vite">,
-    Record<ReactViteMode, BuildSystemConfigType>
-  > = {
+  Record<VitePackageType, Record<ReactViteMode, BuildSystemConfigType>> = {
   lib: "lib",
   react: "react",
   "react-vite": {

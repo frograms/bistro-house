@@ -55,12 +55,12 @@
     "prettier": "^3.7.4",
     "ts-node": "~10.9.2",
     "tsdown": "^0.21.5",
-    "typescript": "~5.9.3",
     "vitest": "^4.1.8"
   },
   "dependencies": {
     "commander": "~13.1.0",
-    "fs-extra": "~11.3.0"
+    "fs-extra": "~11.3.0",
+    "typescript": "~5.9.3"
   },
   "license": "MIT"
 }
