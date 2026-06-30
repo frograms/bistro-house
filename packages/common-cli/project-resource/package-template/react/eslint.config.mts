@@ -1,5 +1,5 @@
-import { vitePreset } from "@watcha-authentic/eslint-config/vite";
+import { reactPreset } from "@watcha-authentic/eslint-config/react";
 
-const eslintConfig = [...vitePreset];
+const eslintConfig = [...reactPreset];
 
 export default eslintConfig;
