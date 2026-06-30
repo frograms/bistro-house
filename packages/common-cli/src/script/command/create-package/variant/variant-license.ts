@@ -5,6 +5,9 @@ import type { PackageLicenseType } from "../../../config/package-license-config"
 import { licenseConfigs } from "../../../config/package-license-config";
 import { setPackageJsonAttribute } from "../../../util/package-utils";
 
+/**
+ * - license 값에 따라 라이센스 배리에이션 파일을 세팅 합니다.
+ */
 export const applyVariantLicense = ({
   license,
   outputDir,

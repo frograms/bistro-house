@@ -95,9 +95,12 @@ export const scaffoldPackage = async (
   });
 
   // variant - react-vite
-  if (packageType === "react-vite" && reactViteMode === "sandbox") {
-    applyVariantReactViteSandbox({ outputDir, packageVariantRoot });
-  }
+  applyVariantReactViteSandbox({
+    outputDir,
+    packageType,
+    packageVariantRoot,
+    reactViteMode,
+  });
 
   // variant - style
   if (style !== undefined) {

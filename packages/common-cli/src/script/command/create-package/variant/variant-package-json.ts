@@ -1,6 +1,9 @@
 import fs from "fs-extra";
 import path from "path";
 
+/**
+ * - canPublish 값에 따라 package.json 배리에이션 파일을 세팅 합니다.
+ */
 export const applyVariantPackageJson = ({
   canPublish,
   outputDir,

@@ -12,6 +12,9 @@ const TSDOWN_CONFIG_VARIANT_BASENAMES: Record<TsdownPackageType, string> = {
   react: "react.tsdown.config.mts",
 };
 
+/**
+ * - type: lib, react 에 대한 tsdown config 배리에이션 파일을 세팅 합니다.
+ */
 export const applyVariantTsdownConfig = ({
   outputDir,
   packageType,
