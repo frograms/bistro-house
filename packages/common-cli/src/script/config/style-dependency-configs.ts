@@ -41,7 +41,7 @@ const tsdownScssDependencies: Dependency[] = [
 const vanillaExtractDependencies: Dependency[] = [
   {
     name: "@vanilla-extract/css",
-    targets: ["--save-dev"],
+    targets: ["--save-prod"],
     version: "^1.17.4",
   },
 ];
