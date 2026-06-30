@@ -7,6 +7,9 @@ import {
   type PackageStyle,
 } from "../../../constant/create-package";
 
+/**
+ * - type: lib, react + style: css, scss 에 대한 타입 배리에이션 파일을 세팅 합니다.
+ */
 export const applyVariantStyleType = ({
   outputDir,
   packageType,
@@ -22,7 +25,7 @@ export const applyVariantStyleType = ({
    * - react-vite 는 기본적으로 css, scss 타입이 제공 되므로 별도의 variant 작업을 하지 않습니다.
    *   - "types": ["vite/client"] in tsconfig.app.json
    */
-  if (isVitePackageType(packageType)) {
+  if (isVitePackageType(packageType) || style === "vanilla-extract") {
     return;
   }
 

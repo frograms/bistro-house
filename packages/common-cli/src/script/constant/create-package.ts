@@ -30,7 +30,11 @@ export const isVitePackageType = createStringUnionGuard(
   VITE_PACKAGE_TYPE_VALUES
 );
 
-export const PACKAGE_STYLE_VALUES = ["css", "scss"] as const;
+export const PACKAGE_STYLE_VALUES = [
+  "css",
+  "scss",
+  "vanilla-extract",
+] as const;
 export type PackageStyle = (typeof PACKAGE_STYLE_VALUES)[number];
 export const isPackageStyle = createStringUnionGuard(PACKAGE_STYLE_VALUES);
 

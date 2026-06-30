@@ -146,7 +146,7 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
   style: {
     choices: PACKAGE_STYLE_VALUES,
     description:
-      "스타일 빌드 방식: css, scss (기본값은 lib/react 는 스타일 개발에 필요한 별도 처리 없음, react-vite 는 기본적으로 css 사용)",
+      "스타일 빌드 방식: css, scss, vanilla-extract (기본값은 lib/react 는 스타일 개발에 필요한 별도 처리 없음, react-vite 는 기본적으로 css 사용)",
     flags: "--st, --style <style>",
     name: "style",
     type: "string",
