@@ -51,8 +51,9 @@ describe("patchSharedConfigVanillaExtract", () => {
     const patched = patchSharedConfigVanillaExtract(source);
 
     expect(patched).toContain("@vanilla-extract/rollup-plugin");
-    expect(patched).toContain("vanillaExtractPlugin()");
-    expect(patched).toMatch(/plugins:\s*\[\s*vanillaExtractPlugin\(\)/);
+    expect(patched).toContain("vanillaExtractPlugin({");
+    expect(patched).toContain('name: "style.css"');
+    expect(patched).toMatch(/plugins:\s*\[\s*vanillaExtractPlugin\(\{/);
   });
 
   it("lib / react variant 모두 패치 가능하다", () => {
@@ -71,7 +72,7 @@ describe("patchSharedConfigVanillaExtract", () => {
     const patchedOnce = patchSharedConfigVanillaExtract(source);
     const patchedTwice = patchSharedConfigVanillaExtract(patchedOnce);
 
-    expect(patchedTwice.match(/vanillaExtractPlugin\(\)/g)?.length).toBe(1);
+    expect(patchedTwice.match(/vanillaExtractPlugin\(\{/g)?.length).toBe(1);
   });
 
   it("기존 plugins 배열에 vanillaExtractPlugin 을 추가한다", () => {
@@ -90,7 +91,7 @@ export default defineConfig([{ ...sharedConfig }]);
 
     expect(patched).toContain("@vanilla-extract/rollup-plugin");
     expect(patched).toMatch(
-      /plugins:\s*\[\s*somePlugin\(\),\s*vanillaExtractPlugin\(\)/
+      /plugins:\s*\[\s*somePlugin\(\),\s*vanillaExtractPlugin\(\{/
     );
   });
 });

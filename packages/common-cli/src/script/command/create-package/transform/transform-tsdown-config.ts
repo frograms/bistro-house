@@ -25,7 +25,25 @@ const createVanillaExtractPluginCall = (): ts.CallExpression =>
   ts.factory.createCallExpression(
     ts.factory.createIdentifier("vanillaExtractPlugin"),
     undefined,
-    []
+    [
+      ts.factory.createObjectLiteralExpression(
+        [
+          ts.factory.createPropertyAssignment(
+            "extract",
+            ts.factory.createObjectLiteralExpression(
+              [
+                ts.factory.createPropertyAssignment(
+                  "name",
+                  ts.factory.createStringLiteral("style.css")
+                ),
+              ],
+              false
+            )
+          ),
+        ],
+        false
+      ),
+    ]
   );
 
 const createVanillaExtractPluginsProperty = (): ts.PropertyAssignment =>
