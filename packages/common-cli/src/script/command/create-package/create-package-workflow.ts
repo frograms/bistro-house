@@ -217,8 +217,24 @@ export const formatGeneratedPackage = (context: CreatePackageContext) => {
     return;
   }
 
+  console.info("🔧 ESLint 자동 수정 적용 중...");
+  const lintResult = spawnSync(
+    packageManager,
+    ["exec", "eslint", ".", "--fix"],
+    {
+      cwd: outputDir,
+      stdio: "inherit",
+    }
+  );
+
+  if (lintResult.status !== 0) {
+    console.warn(
+      "⚠️ 프로젝트 생성은 완료되었으나, ESLint 자동 수정에 실패했습니다."
+    );
+  }
+
   console.info("✨ Prettier 포맷 적용 중...");
-  const result = spawnSync(
+  const formatResult = spawnSync(
     packageManager,
     ["exec", "prettier", "--write", "."],
     {
@@ -227,7 +243,7 @@ export const formatGeneratedPackage = (context: CreatePackageContext) => {
     }
   );
 
-  if (result.status !== 0) {
+  if (formatResult.status !== 0) {
     console.warn("⚠️ 프로젝트 생성은 완료되었으나, 포맷 적용에 실패했습니다.");
   }
 };
