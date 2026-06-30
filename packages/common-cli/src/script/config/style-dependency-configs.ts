@@ -62,7 +62,7 @@ const vanillaExtractViteDependencies: Dependency[] = [
   {
     name: "@vanilla-extract/vite-plugin",
     targets: ["--save-dev"],
-    version: "^4.0.19",
+    version: "^5.2.3",
   },
 ];
 
