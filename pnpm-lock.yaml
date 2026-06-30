@@ -299,8 +299,8 @@ importers:
   packages/react-a11y:
     dependencies:
       '@watcha-authentic/react-event-callback':
-        specifier: ^1.1.6
-        version: 1.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^1.1.7
+        version: 1.1.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@types/react':
         specifier: ^19.0.0
@@ -429,8 +429,8 @@ importers:
   packages/react-motion:
     dependencies:
       '@watcha-authentic/react-event-callback':
-        specifier: ^1.1.6
-        version: 1.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^1.1.7
+        version: 1.1.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@types/react':
         specifier: ^19.0.0
@@ -496,14 +496,14 @@ importers:
   packages/react-slider:
     dependencies:
       '@watcha-authentic/react-a11y':
-        specifier: ^1.1.6
-        version: 1.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^1.1.7
+        version: 1.1.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@watcha-authentic/react-event-callback':
-        specifier: ^1.1.6
-        version: 1.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^1.1.7
+        version: 1.1.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@watcha-authentic/react-motion':
-        specifier: ^1.1.6
-        version: 1.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^1.1.7
+        version: 1.1.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@types/react':
         specifier: ^19.0.0
@@ -1762,20 +1762,20 @@ packages:
     peerDependencies:
       prettier: ^3.0.0
 
-  '@watcha-authentic/react-a11y@1.1.6':
-    resolution: {integrity: sha512-AkMENQUn96wkInmWO1uzZDQIo2NeLa0IySaBs3+cbtkLlbdELRQ/2b/aM3MIuqr+EchXngVxoGELYbKqk6WZ0A==}
+  '@watcha-authentic/react-a11y@1.1.7':
+    resolution: {integrity: sha512-CSuC5bqluZrSBg+8z/Zdqa0V7Q+cBv/12COsjYQ2STQC6M/PThQRBOrmtAhf7ihrfzvl7Od0e5TORKHJMnqMEw==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
 
-  '@watcha-authentic/react-event-callback@1.1.6':
-    resolution: {integrity: sha512-qbuHufYvbM8cxKp3Repc/8mw4ftjfF8LhU3SnydsqLezaHUCuWXM9Q2SmNmKfXCty324mgzlfxcAlrxyVv9Haw==}
+  '@watcha-authentic/react-event-callback@1.1.7':
+    resolution: {integrity: sha512-vlTSSU/lkwMSBcQJdiWn9IWbF70eyXvY6T68MmAtL4b3XMkybjbb5BM43Wcv9FF82WzeP00Ket2nHfNah5vxug==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
 
-  '@watcha-authentic/react-motion@1.1.6':
-    resolution: {integrity: sha512-SMji7vvDzyxZO4H7vopav9+g2U15BwnbnrOAZmPtxMGGGvAb+DBujU6VUkfdqP+8+d7eKAl9KQsQh9XDb8QbxA==}
+  '@watcha-authentic/react-motion@1.1.7':
+    resolution: {integrity: sha512-FiM65epRWbP2g6NefKLHgIjERKCLORZEKgIxz3AWOor8MgjJCSbJE0y2sp3GU0rNNjQGy410W5jNHzXFNmUP0w==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
@@ -5613,20 +5613,20 @@ snapshots:
     dependencies:
       prettier: 3.8.3
 
-  '@watcha-authentic/react-a11y@1.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@watcha-authentic/react-a11y@1.1.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
-      '@watcha-authentic/react-event-callback': 1.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@watcha-authentic/react-event-callback': 1.1.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
 
-  '@watcha-authentic/react-event-callback@1.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@watcha-authentic/react-event-callback@1.1.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
 
-  '@watcha-authentic/react-motion@1.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@watcha-authentic/react-motion@1.1.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
-      '@watcha-authentic/react-event-callback': 1.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@watcha-authentic/react-event-callback': 1.1.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
 
