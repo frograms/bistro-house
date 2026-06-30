@@ -10,6 +10,7 @@ import {
 } from "../../../constant/create-package";
 
 const SHARED_CONFIG_NAME = "sharedConfig";
+const VANILLA_EXTRACT_ROLLUP_MODULE = "@vanilla-extract/rollup-plugin";
 
 const createCssProperty = (): ts.PropertyAssignment =>
   ts.factory.createPropertyAssignment(
@@ -20,31 +21,60 @@ const createCssProperty = (): ts.PropertyAssignment =>
     )
   );
 
-const hasCssProperty = (objectLiteral: ts.ObjectLiteralExpression): boolean =>
+const createVanillaExtractPluginsProperty = (): ts.PropertyAssignment =>
+  ts.factory.createPropertyAssignment(
+    "plugins",
+    ts.factory.createArrayLiteralExpression([
+      ts.factory.createCallExpression(
+        ts.factory.createIdentifier("vanillaExtractPlugin"),
+        undefined,
+        []
+      ),
+    ])
+  );
+
+const getPropertyNameText = (name: ts.PropertyName): string | undefined => {
+  if (ts.isIdentifier(name)) {
+    return name.text;
+  }
+
+  if (ts.isStringLiteral(name)) {
+    return name.text;
+  }
+
+  return undefined;
+};
+
+const hasProperty = (
+  objectLiteral: ts.ObjectLiteralExpression,
+  name: string
+): boolean =>
   objectLiteral.properties.some(
     (property) =>
       ts.isPropertyAssignment(property) &&
-      ts.isIdentifier(property.name) &&
-      property.name.text === "css"
+      getPropertyNameText(property.name) === name
   );
 
-const patchSharedConfigVariable = (
-  node: ts.VariableDeclaration
-): ts.VariableDeclaration => {
+const patchSharedConfigProperty = ({
+  node,
+  property,
+}: {
+  node: ts.VariableDeclaration;
+  property: ts.PropertyAssignment;
+}): ts.VariableDeclaration => {
   if (
     !ts.isIdentifier(node.name) ||
     node.name.text !== SHARED_CONFIG_NAME ||
     !node.initializer ||
     !ts.isObjectLiteralExpression(node.initializer) ||
-    hasCssProperty(node.initializer)
+    hasProperty(node.initializer, getPropertyNameText(property.name) ?? "")
   ) {
     return node;
   }
 
-  const cssProperty = createCssProperty();
   const newInitializer = ts.factory.updateObjectLiteralExpression(
     node.initializer,
-    [cssProperty, ...node.initializer.properties]
+    [property, ...node.initializer.properties]
   );
 
   return ts.factory.updateVariableDeclaration(
@@ -56,7 +86,40 @@ const patchSharedConfigVariable = (
   );
 };
 
-export const patchSharedConfigCss = (sourceText: string): string => {
+const createVanillaExtractImport = (): ts.ImportDeclaration =>
+  ts.factory.createImportDeclaration(
+    undefined,
+    ts.factory.createImportClause(
+      undefined,
+      undefined,
+      ts.factory.createNamedImports([
+        ts.factory.createImportSpecifier(
+          false,
+          undefined,
+          ts.factory.createIdentifier("vanillaExtractPlugin")
+        ),
+      ])
+    ),
+    ts.factory.createStringLiteral(VANILLA_EXTRACT_ROLLUP_MODULE)
+  );
+
+const hasVanillaExtractImport = (sourceFile: ts.SourceFile): boolean =>
+  sourceFile.statements.some(
+    (statement) =>
+      ts.isImportDeclaration(statement) &&
+      ts.isStringLiteral(statement.moduleSpecifier) &&
+      statement.moduleSpecifier.text === VANILLA_EXTRACT_ROLLUP_MODULE
+  );
+
+const transformSourceFile = ({
+  addImport,
+  patchProperty,
+  sourceText,
+}: {
+  addImport?: () => ts.ImportDeclaration;
+  patchProperty: ts.PropertyAssignment;
+  sourceText: string;
+}): string => {
   const sourceFile = ts.createSourceFile(
     "tsdown.config.mts",
     sourceText,
@@ -67,6 +130,7 @@ export const patchSharedConfigCss = (sourceText: string): string => {
 
   let foundSharedConfig = false;
   let didPatch = false;
+  let didAddImport = false;
 
   const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
     const visit: ts.Visitor = (node) => {
@@ -80,7 +144,10 @@ export const patchSharedConfigCss = (sourceText: string): string => {
           foundSharedConfig = true;
         }
 
-        const patchedNode = patchSharedConfigVariable(node);
+        const patchedNode = patchSharedConfigProperty({
+          node,
+          property: patchProperty,
+        });
         if (patchedNode !== node) {
           didPatch = true;
         }
@@ -90,7 +157,19 @@ export const patchSharedConfigCss = (sourceText: string): string => {
       return ts.visitEachChild(node, visit, context);
     };
 
-    return (sourceFile) => ts.visitNode(sourceFile, visit) as ts.SourceFile;
+    return (sourceFile) => {
+      let transformedFile = ts.visitNode(sourceFile, visit) as ts.SourceFile;
+
+      if (addImport && !hasVanillaExtractImport(transformedFile) && didPatch) {
+        transformedFile = ts.factory.updateSourceFile(transformedFile, [
+          addImport(),
+          ...transformedFile.statements,
+        ]);
+        didAddImport = true;
+      }
+
+      return transformedFile;
+    };
   };
 
   const { transformed } = ts.transform(sourceFile, [transformer]);
@@ -106,7 +185,7 @@ export const patchSharedConfigCss = (sourceText: string): string => {
     );
   }
 
-  if (!didPatch) {
+  if (!didPatch && !didAddImport) {
     return sourceText;
   }
 
@@ -114,6 +193,36 @@ export const patchSharedConfigCss = (sourceText: string): string => {
   return printer.printFile(transformedFile);
 };
 
+export const patchSharedConfigCss = (sourceText: string): string =>
+  transformSourceFile({
+    patchProperty: createCssProperty(),
+    sourceText,
+  });
+
+export const patchSharedConfigVanillaExtract = (sourceText: string): string =>
+  transformSourceFile({
+    addImport: createVanillaExtractImport,
+    patchProperty: createVanillaExtractPluginsProperty(),
+    sourceText,
+  });
+
+const patchTsdownConfigByStyle = ({
+  sourceText,
+  style,
+}: {
+  sourceText: string;
+  style: PackageStyle;
+}): string => {
+  if (style === "vanilla-extract") {
+    return patchSharedConfigVanillaExtract(sourceText);
+  }
+
+  return patchSharedConfigCss(sourceText);
+};
+
+/**
+ * - type 및 style 값에 따라 tsdown config 를 패치 합니다.
+ */
 export const applyTransformTsdownConfig = ({
   outputDir,
   packageType,
@@ -134,5 +243,5 @@ export const applyTransformTsdownConfig = ({
   }
 
   const sourceText = fs.readFileSync(configPath, "utf8");
-  fs.writeFileSync(configPath, patchSharedConfigCss(sourceText));
+  fs.writeFileSync(configPath, patchTsdownConfigByStyle({ sourceText, style }));
 };

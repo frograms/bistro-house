@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { describe, expect, it } from "vitest";
 
-import { patchSharedConfigCss } from "./transform-tsdown-config";
+import { patchSharedConfigCss, patchSharedConfigVanillaExtract } from "./transform-tsdown-config";
 
 const variantDir = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -39,5 +39,35 @@ describe("patchSharedConfigCss", () => {
     const patchedTwice = patchSharedConfigCss(patchedOnce);
 
     expect(patchedTwice.match(/css:/g)?.length).toBe(1);
+  });
+});
+
+describe("patchSharedConfigVanillaExtract", () => {
+  it("sharedConfig 에 vanillaExtractPlugin 을 추가한다", () => {
+    const source = readVariant("lib.tsdown.config.mts");
+    const patched = patchSharedConfigVanillaExtract(source);
+
+    expect(patched).toContain("@vanilla-extract/rollup-plugin");
+    expect(patched).toContain("vanillaExtractPlugin()");
+    expect(patched).toMatch(/plugins:\s*\[\s*vanillaExtractPlugin\(\)/);
+  });
+
+  it("lib / react variant 모두 패치 가능하다", () => {
+    for (const basename of [
+      "lib.tsdown.config.mts",
+      "react.tsdown.config.mts",
+    ]) {
+      const patched = patchSharedConfigVanillaExtract(readVariant(basename));
+      expect(patched).toContain('platform: "');
+      expect(patched).not.toContain("css:");
+    }
+  });
+
+  it("이미 plugins 가 있으면 에러 없이 한 번만 유지한다", () => {
+    const source = readVariant("lib.tsdown.config.mts");
+    const patchedOnce = patchSharedConfigVanillaExtract(source);
+    const patchedTwice = patchSharedConfigVanillaExtract(patchedOnce);
+
+    expect(patchedTwice.match(/vanillaExtractPlugin\(\)/g)?.length).toBe(1);
   });
 });
