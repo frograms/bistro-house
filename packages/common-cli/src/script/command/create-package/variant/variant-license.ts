@@ -17,7 +17,7 @@ export const applyVariantLicense = ({
   outputDir: string;
   packageVariantRoot: string;
 }) => {
-  if (license !== "private") {
+  if (license !== "unlicensed") {
     const licenseSource = path.join(
       packageVariantRoot,
       "license",
