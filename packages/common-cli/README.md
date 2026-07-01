@@ -76,10 +76,10 @@ npx @watcha-authentic/common-cli create-package \
 | `--ae, --author-email <email>`         | author 이메일. 미입력 시 git `user.email`                                                                                            | 옵셔널    |
 | `--an, --author-name <name>`           | author 이름. scope 있으면 `@{scope}#{name}`. 미입력 시 git `user.name`                                                               | 옵셔널    |
 | `--au, --author-url <url>`             | author URL                                                                                                                           | 옵셔널    |
-| `--cp, --can-publish`                  | 배포용 `package.json` 템플릿 사용 (기본 `false`)                                                                                     | 옵셔널    |
+| `--cp, --can-publish`                  | 배포용 `package.json` 템플릿 사용 (기본 `false`, 비배포 시 `"private": true`)                                                      | 옵셔널    |
 | `-d, --dest-dir <path>`                | 최종 생성 경로 (미지정 시 `{cwd}/{project-name}/`)                                                                                   | 옵셔널    |
 | `--eslint-config <path>`               | 대체 eslint 설정 파일 (지정 시 템플릿 eslint 대체)                                                                                   | 옵셔널    |
-| `--lic, --license <name>`              | `private`(기본), `mit`, `isc`, `bsd-3-clause`                                                                                        | 옵셔널    |
+| `--lic, --license <name>`              | `unlicensed`(기본), `mit`, `isc`, `bsd-3-clause`                                                                                     | 옵셔널    |
 | `--lh, --license-holder <name>`        | LICENSE Copyright 보유자. 미입력 시 author-name                                                                                      | 옵셔널    |
 | `--pm, --package-manager <pm>`         | `npm`, `yarn`, `pnpm`, `bun` (기본 `pnpm`)                                                                                           | 옵셔널    |
 | `--pkg-n, --package-name <name>`       | npm 패키지명. 미입력 시 `@{scope}/{project-name}` 또는 `{project-name}`                                                              | 옵셔널    |
