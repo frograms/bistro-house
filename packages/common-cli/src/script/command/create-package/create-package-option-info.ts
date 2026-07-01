@@ -30,7 +30,7 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
   },
   canPublish: {
     defaultValue: false,
-    description: "배포용 package.json 템플릿 사용",
+    description: "배포용 package.json 템플릿 사용 (미사용 시 private: true)",
     flags: "--cp, --can-publish",
     name: "can-publish",
     type: "boolean",
@@ -49,8 +49,8 @@ export const CREATE_PACKAGE_OPTION_INFO = defineOptionInfo({
   },
   license: {
     choices: PACKAGE_LICENSE_VALUES,
-    defaultValue: "private",
-    description: `라이선스: ${PACKAGE_LICENSE_VALUES.join(", ")} (기본 private)`,
+    defaultValue: "unlicensed",
+    description: `라이선스: ${PACKAGE_LICENSE_VALUES.join(", ")} (기본 unlicensed)`,
     flags: "--lic, --license <license>",
     name: "license",
     type: "string",

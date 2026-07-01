@@ -2,7 +2,7 @@ export const PACKAGE_LICENSE_VALUES = [
   "mit",
   "isc",
   "bsd-3-clause",
-  "private",
+  "unlicensed",
 ] as const;
 
 export type PackageLicenseType = (typeof PACKAGE_LICENSE_VALUES)[number];
@@ -19,7 +19,7 @@ export const licenseConfigs: Record<PackageLicenseType, PackageJsonFragment> = {
   mit: {
     license: "MIT",
   },
-  private: {
-    private: true,
+  unlicensed: {
+    license: "UNLICENSED",
   },
 };
