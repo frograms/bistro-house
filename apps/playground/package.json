@@ -12,12 +12,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vanilla-extract/css": "^1.21.1",
     "@watcha-authentic/react-a11y": "workspace:*",
     "@watcha-authentic/react-event-callback": "workspace:*",
     "@watcha-authentic/react-motion": "workspace:*",
     "@watcha-authentic/react-slider": "workspace:*",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "react-markdown": "^10.1.0",
+    "react-router": "^8.1.0",
+    "rehype-slug": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.12.3",
@@ -25,6 +29,7 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
+    "@vanilla-extract/vite-plugin": "^5.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "@watcha-authentic/eslint-config": "^2.0.1",
     "eslint": "^9.39.2",
