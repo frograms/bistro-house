@@ -1,15 +1,9 @@
-import "../resource/css/common/app.css";
+import "../resource/style-sheet/global-style.css";
 
-import { TestSliderComponent } from "./view/slider/test-slider-component";
+import { RouterProvider } from "react-router";
+
+import { router } from "../script/route/_router";
 
 export const App = () => {
-  return (
-    <main>
-      <h1>Bistro House - playground</h1>
-      <section>
-        <h2>Slider</h2>
-        <TestSliderComponent />
-      </section>
-    </main>
-  );
+  return <RouterProvider router={router} />;
 };
