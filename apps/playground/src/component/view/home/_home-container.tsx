@@ -7,6 +7,9 @@ const PACKAGE_CARD_PAGES = PLAYGROUND_PAGES.filter((page, index, pages) => {
   return pages.findIndex((item) => item.packageName === page.packageName) === index;
 });
 
+const WATCHA_AUTHENTIC_NPM_ORG_URL =
+  "https://www.npmjs.com/org/watcha-authentic";
+
 export const HomeContainer = () => {
   return (
     <section className={homeContainerCss.section}>
@@ -17,6 +20,15 @@ export const HomeContainer = () => {
           확인할 수 있습니다.
         </p>
       </div>
+
+      <a
+        className={homeContainerCss.npmOrgLink}
+        href={WATCHA_AUTHENTIC_NPM_ORG_URL}
+        rel="noreferrer"
+        target="_blank">
+        <strong>WATCHA가 만든 더 많은 패키지 보기</strong>
+        <span aria-hidden="true">↗</span>
+      </a>
 
       <div className={homeContainerCss.exampleGrid}>
         {PACKAGE_CARD_PAGES.map((page) => (

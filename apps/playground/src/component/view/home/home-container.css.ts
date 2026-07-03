@@ -26,6 +26,21 @@ export const homeContainerCss = {
     gap: 16,
     padding: 24,
   }),
+  npmOrgLink: style({
+    alignItems: "center",
+    background:
+      "linear-gradient(135deg, rgb(255 5 88 / 0.08), rgb(17 24 39 / 0.04))",
+    border: "1px solid rgb(255 5 88 / 0.18)",
+    borderRadius: 16,
+    color: "#111827",
+    display: "flex",
+    gap: 14,
+    justifyContent: "space-between",
+    padding: "16px 18px",
+    textDecoration: "none",
+    transition:
+      "background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease",
+  }),
   section: style({
     display: "grid",
     gap: 20,
@@ -41,6 +56,30 @@ globalStyle(`${homeContainerCss.intro} p`, {
   color: "#4b5563",
   lineHeight: 1.7,
   margin: 0,
+});
+
+globalStyle(`${homeContainerCss.npmOrgLink}:hover`, {
+  borderColor: "#ff8ab2",
+  transform: "translateY(-1px)",
+});
+
+globalStyle(`${homeContainerCss.npmOrgLink} strong`, {
+  fontSize: 16,
+  lineHeight: 1.4,
+});
+
+globalStyle(`${homeContainerCss.npmOrgLink} > span:last-child`, {
+  alignItems: "center",
+  background: "#111827",
+  borderRadius: 999,
+  color: "#ffffff",
+  display: "inline-flex",
+  flexShrink: 0,
+  fontSize: 14,
+  fontWeight: 800,
+  height: 30,
+  justifyContent: "center",
+  width: 30,
 });
 
 globalStyle(`${homeContainerCss.exampleLink}:hover`, {
