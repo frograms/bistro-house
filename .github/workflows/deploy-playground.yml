@@ -1,0 +1,56 @@
+name: Deploy Playground
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "packages/**"
+      - "apps/playground/**"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-playground
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-action
+
+      - name: Validate playground
+        run: |
+          pnpm exec turbo run test lint build typecheck --filter=playground
+
+  deploy-playground:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-action
+
+      - name: Build playground
+        run: |
+          pnpm build:packages
+          pnpm build --filter=playground
+
+      - name: Deploy playground
+        run: |
+          echo "Not implemented..."
