@@ -1,9 +1,9 @@
-import { routeStatusContainerCss } from "./route-status-container.css";
+import { statusContainerCss } from "./status-container.css";
 
 export const ErrorContainer = () => {
   return (
-    <section className={routeStatusContainerCss.wrap}>
-      <div aria-hidden="true" className={routeStatusContainerCss.character}>
+    <section className={statusContainerCss.wrap}>
+      <div aria-hidden="true" className={statusContainerCss.character}>
         :(
       </div>
       <h2>일시적인 오류가 발생했습니다.</h2>

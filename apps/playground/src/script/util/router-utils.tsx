@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 import type { RouteObject } from "react-router";
 
-import { ErrorContainer } from "../../component/view/common/_error-container";
+import { ErrorContainer } from "../../component/view/_common/status-error-container";
 
 export const withChildrenRouteErrorElement = (
   routes: Array<RouteObject> | ReadonlyArray<RouteObject>

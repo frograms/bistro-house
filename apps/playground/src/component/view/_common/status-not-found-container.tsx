@@ -1,9 +1,9 @@
-import { routeStatusContainerCss } from "./route-status-container.css";
+import { statusContainerCss } from "./status-container.css";
 
 export const NotFoundContainer = () => {
   return (
-    <section className={routeStatusContainerCss.wrap}>
-      <div aria-hidden="true" className={routeStatusContainerCss.character}>
+    <section className={statusContainerCss.wrap}>
+      <div aria-hidden="true" className={statusContainerCss.character}>
         :(
       </div>
       <h2>페이지를 찾을 수 없습니다.</h2>

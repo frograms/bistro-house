@@ -1,6 +1,6 @@
 import { globalStyle, style } from "@vanilla-extract/css";
 
-export const routeStatusContainerCss = {
+export const statusContainerCss = {
   character: style({
     alignItems: "center",
     background:
@@ -19,22 +19,22 @@ export const routeStatusContainerCss = {
   }),
   wrap: style({
     alignContent: "center",
-    justifyItems: "center",
     display: "grid",
     gap: 12,
+    justifyItems: "center",
     minHeight: "100vh",
     padding: "48px 24px",
     textAlign: "center",
   }),
 };
 
-globalStyle(`${routeStatusContainerCss.wrap} h2`, {
+globalStyle(`${statusContainerCss.wrap} h2`, {
   fontSize: 32,
   lineHeight: 1.2,
   margin: 0,
 });
 
-globalStyle(`${routeStatusContainerCss.wrap} p`, {
+globalStyle(`${statusContainerCss.wrap} p`, {
   color: "#4b5563",
   fontSize: 16,
   lineHeight: 1.7,

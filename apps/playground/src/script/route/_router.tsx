@@ -1,8 +1,8 @@
 import { createBrowserRouter, type RouteObject } from "react-router";
 
 import { AppContent } from "../../component/app-content";
-import { ErrorContainer } from "../../component/view/common/_error-container";
-import { NotFoundContainer } from "../../component/view/common/_not-found-container";
+import { ErrorContainer } from "../../component/view/_common/status-error-container";
+import { NotFoundContainer } from "../../component/view/_common/status-not-found-container";
 import { withRouteComponent } from "../util/router-utils";
 import { commonRoutes } from "./common-routes";
 import { playgroundRoutes } from "./playground-routes";
