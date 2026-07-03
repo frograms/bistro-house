@@ -15,27 +15,27 @@ export const playgroundRoutes: ReadonlyArray<RouteObject> = [
     routes: [
       {
         element: <ReactSliderDocumentationContainer />,
-        path: "react-slider",
+        path: "/react-slider",
       },
       {
         element: <ReactSliderSingleContainer />,
-        path: "react-slider/single",
+        path: "/react-slider/single",
       },
       {
         element: <ReactSliderPeekContainer />,
-        path: "react-slider/peek",
+        path: "/react-slider/peek",
       },
       {
         element: <ReactMotionDocumentationContainer />,
-        path: "react-motion",
+        path: "/react-motion",
       },
       {
         element: <ReactMotionPointerContainer />,
-        path: "react-motion/pointer",
+        path: "/react-motion/pointer",
       },
       {
         element: <ReactMotionGlobalContainer />,
-        path: "react-motion/global",
+        path: "/react-motion/global",
       },
     ],
   }),

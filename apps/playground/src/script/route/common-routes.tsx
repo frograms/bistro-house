@@ -10,7 +10,7 @@ export const commonRoutes: ReadonlyArray<RouteObject> = [
     routes: [
       {
         element: <HomeContainer />,
-        index: true,
+        path: "/",
       },
     ],
   }),
