@@ -1,13 +1,7 @@
 import { Link } from "react-router";
 
-import { PLAYGROUND_PAGES } from "../../../script/config/playground-page-config";
+import { MENU_INFO } from "../../../script/config/menu-info-config";
 import { homeContainerCss } from "./_home-container.css";
-
-const PACKAGE_CARD_PAGES = PLAYGROUND_PAGES.filter((page, index, pages) => {
-  return (
-    pages.findIndex((item) => item.packageName === page.packageName) === index
-  );
-});
 
 const WATCHA_AUTHENTIC_NPM_ORG_URL =
   "https://www.npmjs.com/org/watcha-authentic";
@@ -33,14 +27,14 @@ export const HomeContainer = () => {
       </a>
 
       <div className={homeContainerCss.exampleGrid}>
-        {PACKAGE_CARD_PAGES.map((page) => (
+        {MENU_INFO.map((menuInfo) => (
           <Link
-            key={page.packageName}
+            key={menuInfo.packageName}
             className={homeContainerCss.exampleLink}
-            to={page.path}>
-            <small>{page.packageName}</small>
-            <strong>{page.packageLabel}</strong>
-            <span>{page.packageDescription}</span>
+            to={menuInfo.path}>
+            <small>{menuInfo.packageName}</small>
+            <strong>{menuInfo.packageLabel}</strong>
+            <span>{menuInfo.packageDescription}</span>
           </Link>
         ))}
       </div>

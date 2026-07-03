@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Outlet, useLocation } from "react-router";
 
-import { PLAYGROUND_PAGES } from "../../../script/config/playground-page-config";
+import { PAGE_INFOS } from "../../../script/config/menu-info-config";
 import { appContentCss } from "../../app-content.css";
 import { CommonPageToc } from "../_common/common-page-toc";
 
@@ -40,11 +40,12 @@ const GithubIcon = () => {
 };
 
 export const PackageAppContent = () => {
-  const location = useLocation();
+  const { pathname } = useLocation();
 
   const activePage = useMemo(() => {
-    return PLAYGROUND_PAGES.find((page) => page.path === location.pathname);
-  }, [location.pathname]);
+    return PAGE_INFOS.find((page) => page.path === pathname);
+  }, [pathname]);
+
   const hasTableOfContents = activePage?.showTableOfContents === true;
 
   return (

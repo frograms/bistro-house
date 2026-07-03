@@ -1,62 +1,29 @@
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 
 import { commonSidebarCss } from "./common-sidebar.css";
 
-export type CommonMenuItem = {
-  description: string;
-  exampleId: string;
-  exampleLabel: string;
-  isDocumentation?: boolean;
-  packageLabel: string;
-  packageName: string;
-  path: string;
+export type CommonSidebarItem = {
+  label: string;
+  to: string;
+};
+
+export type CommonSidebarSection = {
+  items: ReadonlyArray<CommonSidebarItem>;
+  label: string;
+  to: string;
 };
 
 type CommonSidebarProps = {
-  items: ReadonlyArray<CommonMenuItem>;
-};
-
-type CommonSidebarSection = {
-  documentationPath: string;
-  items: Array<CommonMenuItem>;
-  packageLabel: string;
-  packageName: string;
+  sections: ReadonlyArray<CommonSidebarSection>;
 };
 
 const WATCHA_ICON_SRC = "/images/watcha-icon.png";
 
-export const CommonSidebar = ({ items }: CommonSidebarProps) => {
+export const CommonSidebar = ({ sections }: CommonSidebarProps) => {
   const location = useLocation();
   const navigationId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const sections = useMemo(() => {
-    return items.reduce<Array<CommonSidebarSection>>((acc, item) => {
-      const section = acc.find(
-        ({ packageName }) => packageName === item.packageName
-      );
-      const isDocumentationItem = item.isDocumentation === true;
-
-      if (section) {
-        if (isDocumentationItem) {
-          section.documentationPath = item.path;
-          return acc;
-        }
-
-        section.items.push(item);
-        return acc;
-      }
-
-      acc.push({
-        documentationPath: isDocumentationItem ? item.path : item.path,
-        items: isDocumentationItem ? [] : [item],
-        packageLabel: item.packageLabel,
-        packageName: item.packageName,
-      });
-      return acc;
-    }, []);
-  }, [items]);
 
   // 모바일에서 페이지 전환 시에는 사이드 메뉴를 항상 닫습니다.
   useEffect(() => {
@@ -134,20 +101,20 @@ export const CommonSidebar = ({ items }: CommonSidebarProps) => {
         <div className={commonSidebarCss.navScrollArea}>
           {sections.map((section) => (
             <section
-              key={section.packageName}
+              key={section.to}
               className={commonSidebarCss.section}>
               <div className={commonSidebarCss.sectionHeader}>
                 <NavLink
                   className={commonSidebarCss.sectionHeaderLink}
-                  to={section.documentationPath}>
-                  {section.packageLabel}
+                  to={section.to}>
+                  {section.label}
                 </NavLink>
               </div>
 
               <div className={commonSidebarCss.menu}>
                 {section.items.map((item) => (
-                  <NavLink key={item.exampleId} to={item.path}>
-                    <span>{item.exampleLabel}</span>
+                  <NavLink key={item.to} to={item.to}>
+                    <span>{item.label}</span>
                   </NavLink>
                 ))}
               </div>
