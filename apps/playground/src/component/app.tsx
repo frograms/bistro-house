@@ -1,4 +1,4 @@
-import "../resource/style-sheet/global-style.css";
+import "../resource/css/common/global-style.css";
 
 import { RouterProvider } from "react-router";
 
