@@ -77,6 +77,7 @@ export const commonSidebarCss = {
     borderLeft: "1px solid #e5e7eb",
     display: "grid",
     gap: 1,
+    justifyItems: "start",
     paddingLeft: 12,
   }),
   menuButton: style({
@@ -233,7 +234,7 @@ globalStyle(`${commonSidebarCss.menu} a`, {
   borderLeft: "1px solid transparent",
   borderRadius: 0,
   color: "#52525b",
-  display: "block",
+  display: "inline-flex",
   marginLeft: -13,
   padding: "6px 10px 6px 13px",
   textAlign: "left",
