@@ -1,6 +1,6 @@
 import "@watcha-authentic/react-slider/resource/css/common/slider.css";
 
-import { commonPlaygroundExampleCss } from "../_common/common-playground-example.css";
+import { commonPlaygroundExampleCss } from "../../_common/common-playground-example.css";
 import { ReactSliderBasicSection } from "./_shared/react-slider-basic-section";
 
 type ReactSliderPlaygroundContainerProps = {

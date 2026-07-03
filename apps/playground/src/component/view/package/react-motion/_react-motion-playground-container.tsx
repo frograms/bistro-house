@@ -1,4 +1,4 @@
-import { commonPlaygroundExampleCss } from "../_common/common-playground-example.css";
+import { commonPlaygroundExampleCss } from "../../_common/common-playground-example.css";
 import { ReactMotionGlobalSection } from "./_shared/react-motion-global-section";
 import { ReactMotionPointerSection } from "./_shared/react-motion-pointer-section";
 

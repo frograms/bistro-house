@@ -1,29 +1,15 @@
-import { Navigate, type RouteObject } from "react-router";
+import type { RouteObject } from "react-router";
 
-import { AppContent } from "../../component/app-content";
-import { HomeContainer } from "../../component/view/home/_home-container";
+import { PackageAppContent } from "../../component/view/package/app-package-content";
 import { PLAYGROUND_PAGES } from "../config/playground-page-config";
+import { withRouteComponent } from "../util/router-utils";
 
-export const playgroundRoutes: Array<RouteObject> = [
-  {
-    children: [
-      {
-        element: <HomeContainer />,
-        index: true,
-      },
-      {
-        element: <Navigate to="/react-slider/single" replace />,
-        path: "react-slider/basic",
-      },
-      ...PLAYGROUND_PAGES.map<RouteObject>((page) => ({
-        element: page.renderPage(),
-        path: page.path.replace(/^\//, ""),
-      })),
-      {
-        element: <Navigate to="/" replace />,
-        path: "*",
-      },
-    ],
-    element: <AppContent />,
-  },
+export const playgroundRoutes: ReadonlyArray<RouteObject> = [
+  withRouteComponent({
+    AppContent: PackageAppContent,
+    routes: PLAYGROUND_PAGES.map<RouteObject>((page) => ({
+      element: page.renderPage(),
+      path: page.path.replace(/^\//, ""),
+    })),
+  }),
 ];

@@ -1,15 +1,14 @@
-import { usePointerMoveGlobal } from "@watcha-authentic/react-motion/component/hook/use-pointer-move-global";
+import { usePointerMove } from "@watcha-authentic/react-motion/component/hook/use-pointer-move";
 import type { Point2D } from "@watcha-authentic/react-motion/script/type/primitives";
 import { addPoint } from "@watcha-authentic/react-motion/script/util/point-utils";
 import { useCallback, useRef, useState } from "react";
 
-import { commonPlaygroundExampleCss } from "../../_common/common-playground-example.css";
-import { CommonPlaygroundNote } from "../../_common/common-playground-note";
-import { reactMotionGlobalSectionCss } from "./react-motion-global-section.css";
+import { commonPlaygroundExampleCss } from "../../../_common/common-playground-example.css";
+import { reactMotionPointerSectionCss } from "./react-motion-pointer-section.css";
 
 const DEFAULT_POINT: Point2D = { x: 0, y: 0 };
 
-export const ReactMotionGlobalSection = () => {
+export const ReactMotionPointerSection = () => {
   const target = useRef<HTMLDivElement>(null);
   const originPoint = useRef<Point2D>(DEFAULT_POINT);
 
@@ -24,7 +23,7 @@ export const ReactMotionGlobalSection = () => {
     setDistance(0);
   }, []);
 
-  const { withPointerMove } = usePointerMoveGlobal<HTMLDivElement>({
+  const { withPointerMove } = usePointerMove<HTMLDivElement>({
     enabled,
     onDraggingNow: setIsDragging,
     onPointDrag: ({ isEnd, transaction }) => {
@@ -46,12 +45,6 @@ export const ReactMotionGlobalSection = () => {
 
   return (
     <section className={commonPlaygroundExampleCss.exampleSection}>
-      <CommonPlaygroundNote
-        items={[
-          "드래그를 시작한 뒤 포인터가 카드 밖으로 나가도 전역 이벤트로 이동과 종료 상태를 계속 추적합니다.",
-        ]}
-      />
-
       <div className={commonPlaygroundExampleCss.controlPanel}>
         <p className={commonPlaygroundExampleCss.controlPanelTitle}>
           컨트롤
@@ -70,22 +63,19 @@ export const ReactMotionGlobalSection = () => {
               setEnabled(event.target.checked);
             }}
           />
-          <span>전역 포인터 이벤트 연결</span>
+          <span>포인터 이벤트 연결</span>
         </label>
       </div>
 
-      <div className={reactMotionGlobalSectionCss.stage}>
-        <div className={reactMotionGlobalSectionCss.stageGuide}>
-          카드를 잡고 움직인 뒤, 카드 바깥 영역까지 드래그해 보세요.
-        </div>
+      <div className={reactMotionPointerSectionCss.stage}>
         <div
-          ref={withPointerMove.ref}
-          className={reactMotionGlobalSectionCss.dragBox}
+          {...withPointerMove}
+          className={reactMotionPointerSectionCss.dragBox}
           style={{
             ...withPointerMove.style,
             transform: `translate3d(${currentPoint.x}px, ${currentPoint.y}px, 0)`,
           }}>
-          Global
+          Drag
         </div>
       </div>
 

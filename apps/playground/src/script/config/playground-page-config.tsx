@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 
 import type { CommonPlaygroundMenuItem } from "../../component/view/_common/common-playground-sidebar";
-import { ReactMotionDocumentationContainer } from "../../component/view/react-motion/_react-motion-documentation-container";
-import { ReactMotionPlaygroundContainer } from "../../component/view/react-motion/_react-motion-playground-container";
-import { ReactSliderDocumentationContainer } from "../../component/view/react-slider/_react-slider-documentation-container";
-import { ReactSliderPlaygroundContainer } from "../../component/view/react-slider/_react-slider-playground-container";
+import { ReactMotionDocumentationContainer } from "../../component/view/package/react-motion/_react-motion-documentation-container";
+import { ReactMotionPlaygroundContainer } from "../../component/view/package/react-motion/_react-motion-playground-container";
+import { ReactSliderDocumentationContainer } from "../../component/view/package/react-slider/_react-slider-documentation-container";
+import { ReactSliderPlaygroundContainer } from "../../component/view/package/react-slider/_react-slider-playground-container";
 
 export type PlaygroundPage = CommonPlaygroundMenuItem & {
   githubUrl: string;

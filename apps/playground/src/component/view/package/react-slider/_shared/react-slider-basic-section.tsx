@@ -6,8 +6,8 @@ import type { SlideTriggerEvent } from "@watcha-authentic/react-slider/script/ty
 import type { CSSProperties, ReactNode } from "react";
 import { useCallback, useRef, useState } from "react";
 
-import { commonPlaygroundExampleCss } from "../../_common/common-playground-example.css";
-import { CommonPlaygroundNote } from "../../_common/common-playground-note";
+import { commonPlaygroundExampleCss } from "../../../_common/common-playground-example.css";
+import { CommonPlaygroundNote } from "../../../_common/common-playground-note";
 import { reactSliderBasicSectionCss } from "./react-slider-basic-section.css";
 
 type SliderItem = {
