@@ -1,7 +1,6 @@
+import { App } from "@playground/component/app";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-
-import { App } from "./component/app";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

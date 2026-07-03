@@ -1,13 +1,12 @@
+import { PackageAppContent } from "@playground/component/view/package/app-package-content";
+import { ReactMotionDocumentationContainer } from "@playground/component/view/package/react-motion/_react-motion-documentation-container";
+import { ReactMotionGlobalContainer } from "@playground/component/view/package/react-motion/_react-motion-global-container";
+import { ReactMotionPointerContainer } from "@playground/component/view/package/react-motion/_react-motion-pointer-container";
+import { ReactSliderDocumentationContainer } from "@playground/component/view/package/react-slider/_react-slider-documentation-container";
+import { ReactSliderPeekContainer } from "@playground/component/view/package/react-slider/_react-slider-peek-container";
+import { ReactSliderSingleContainer } from "@playground/component/view/package/react-slider/_react-slider-single-container";
+import { withRouteComponent } from "@playground/script/util/router-utils";
 import type { RouteObject } from "react-router";
-
-import { PackageAppContent } from "../../component/view/package/app-package-content";
-import { ReactMotionDocumentationContainer } from "../../component/view/package/react-motion/_react-motion-documentation-container";
-import { ReactMotionGlobalContainer } from "../../component/view/package/react-motion/_react-motion-global-container";
-import { ReactMotionPointerContainer } from "../../component/view/package/react-motion/_react-motion-pointer-container";
-import { ReactSliderDocumentationContainer } from "../../component/view/package/react-slider/_react-slider-documentation-container";
-import { ReactSliderPeekContainer } from "../../component/view/package/react-slider/_react-slider-peek-container";
-import { ReactSliderSingleContainer } from "../../component/view/package/react-slider/_react-slider-single-container";
-import { withRouteComponent } from "../util/router-utils";
 
 export const playgroundRoutes: ReadonlyArray<RouteObject> = [
   withRouteComponent({

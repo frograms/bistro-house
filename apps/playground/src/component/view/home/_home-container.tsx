@@ -1,7 +1,6 @@
+import { homeContainerCss } from "@playground/component/view/home/_home-container.css";
+import { MENU_INFO } from "@playground/script/config/menu-info-config";
 import { Link } from "react-router";
-
-import { MENU_INFO } from "../../../script/config/menu-info-config";
-import { homeContainerCss } from "./_home-container.css";
 
 const WATCHA_AUTHENTIC_NPM_ORG_URL =
   "https://www.npmjs.com/org/watcha-authentic";

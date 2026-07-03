@@ -14,8 +14,7 @@ export type MenuInfo = {
   showTableOfContents?: boolean;
 };
 
-export type PageInfo = MenuItemInfo &
-  Omit<MenuInfo, "items">;
+export type PageInfo = MenuItemInfo & Omit<MenuInfo, "items">;
 
 export const MENU_INFO: ReadonlyArray<MenuInfo> = [
   {

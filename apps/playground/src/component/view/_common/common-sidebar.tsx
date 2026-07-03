@@ -1,7 +1,6 @@
+import { commonSidebarCss } from "@playground/component/view/_common/common-sidebar.css";
 import { useEffect, useId, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
-
-import { commonSidebarCss } from "./common-sidebar.css";
 
 export type CommonSidebarItem = {
   label: string;
@@ -100,9 +99,7 @@ export const CommonSidebar = ({ sections }: CommonSidebarProps) => {
         id={navigationId}>
         <div className={commonSidebarCss.navScrollArea}>
           {sections.map((section) => (
-            <section
-              key={section.to}
-              className={commonSidebarCss.section}>
+            <section key={section.to} className={commonSidebarCss.section}>
               <div className={commonSidebarCss.sectionHeader}>
                 <NavLink
                   className={commonSidebarCss.sectionHeaderLink}

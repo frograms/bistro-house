@@ -1,4 +1,4 @@
-import { statusContainerCss } from "./_status-container.css";
+import { statusContainerCss } from "@playground/component/view/_common/_status-container.css";
 
 export const NotFoundContainer = () => {
   return (

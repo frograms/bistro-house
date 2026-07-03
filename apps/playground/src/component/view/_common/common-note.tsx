@@ -1,6 +1,5 @@
+import { commonNoteCss } from "@playground/component/view/_common/common-note.css";
 import type { ReactNode } from "react";
-
-import { commonNoteCss } from "./common-note.css";
 
 type CommonNoteProps = {
   items: Array<ReactNode>;

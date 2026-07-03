@@ -1,10 +1,9 @@
+import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
+import { reactMotionPointerSectionCss } from "@playground/component/view/package/react-motion/react-motion-pointer-section.css";
 import { usePointerMove } from "@watcha-authentic/react-motion/component/hook/use-pointer-move";
 import type { Point2D } from "@watcha-authentic/react-motion/script/type/primitives";
 import { addPoint } from "@watcha-authentic/react-motion/script/util/point-utils";
 import { useCallback, useRef, useState } from "react";
-
-import { commonExampleCss } from "../../_common/common-example.css";
-import { reactMotionPointerSectionCss } from "./react-motion-pointer-section.css";
 
 const DEFAULT_POINT: Point2D = { x: 0, y: 0 };
 

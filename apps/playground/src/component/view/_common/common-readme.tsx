@@ -1,3 +1,4 @@
+import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
 import {
   type ComponentProps,
   isValidElement,
@@ -6,8 +7,6 @@ import {
 } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeSlug from "rehype-slug";
-
-import { commonExampleCss } from "./common-example.css";
 
 type CommonReadmeProps = {
   markdown: string;

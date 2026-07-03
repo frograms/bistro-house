@@ -1,9 +1,8 @@
+import { appContentCss } from "@playground/component/app-content.css";
+import { CommonPageToc } from "@playground/component/view/_common/common-page-toc";
+import { PAGE_INFOS } from "@playground/script/config/menu-info-config";
 import { useMemo } from "react";
 import { Outlet, useLocation } from "react-router";
-
-import { PAGE_INFOS } from "../../../script/config/menu-info-config";
-import { appContentCss } from "../../app-content.css";
-import { CommonPageToc } from "../_common/common-page-toc";
 
 const NpmIcon = () => {
   return (

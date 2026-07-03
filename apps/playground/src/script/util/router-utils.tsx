@@ -1,7 +1,6 @@
+import { ErrorContainer } from "@playground/component/view/_common/_status-error-container";
 import type { ComponentType } from "react";
 import type { RouteObject } from "react-router";
-
-import { ErrorContainer } from "../../component/view/_common/_status-error-container";
 
 export const withChildrenRouteErrorElement = (
   routes: Array<RouteObject> | ReadonlyArray<RouteObject>

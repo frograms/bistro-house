@@ -1,3 +1,6 @@
+import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
+import { CommonNote } from "@playground/component/view/_common/common-note";
+import { reactSliderSectionCss } from "@playground/component/view/package/react-slider/_shared/react-slider-section.css";
 import {
   Slider,
   type SliderRef,
@@ -5,10 +8,6 @@ import {
 import type { SlideTriggerEvent } from "@watcha-authentic/react-slider/script/type/slider-types";
 import type { CSSProperties, ReactNode } from "react";
 import { useCallback, useRef, useState } from "react";
-
-import { commonExampleCss } from "../../../_common/common-example.css";
-import { CommonNote } from "../../../_common/common-note";
-import { reactSliderSectionCss } from "./react-slider-section.css";
 
 type SliderItem = {
   accentColor: string;
@@ -215,9 +214,7 @@ const REACT_SLIDER_EXAMPLE_BY_VARIANT: Record<
   },
 };
 
-export const ReactSliderSection = ({
-  variant,
-}: ReactSliderSectionProps) => {
+export const ReactSliderSection = ({ variant }: ReactSliderSectionProps) => {
   const example = REACT_SLIDER_EXAMPLE_BY_VARIANT[variant];
   const notes = [
     "이 패키지에서 제공하는 Slider 컴포넌트는 한 번에 하나의 아이템을 슬라이드하는 기본 흐름에 맞춰져 있습니다. 아이템 너비를 직접 지정하지 말고, 슬라이더 컨테이너 기준으로 렌더링되도록 두세요.",

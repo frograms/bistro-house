@@ -1,7 +1,6 @@
+import { appContentCss } from "@playground/component/app-content.css";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
-
-import { appContentCss } from "../../app-content.css";
 
 type PageTocItem = {
   depth: 1 | 2 | 3 | 4;

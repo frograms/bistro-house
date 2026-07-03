@@ -1,7 +1,7 @@
 import "@watcha-authentic/react-slider/resource/css/common/slider.css";
 
-import { commonExampleCss } from "../../_common/common-example.css";
-import { ReactSliderSection } from "./_shared/react-slider-section";
+import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
+import { ReactSliderSection } from "@playground/component/view/package/react-slider/_shared/react-slider-section";
 
 export const ReactSliderPeekContainer = () => {
   return (
