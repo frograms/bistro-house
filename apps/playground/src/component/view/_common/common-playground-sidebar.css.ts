@@ -125,6 +125,12 @@ export const commonPlaygroundSidebarCss = {
   sectionHeader: style({
     paddingLeft: 1,
   }),
+  sectionHeaderLink: style({
+    color: "#111827",
+    display: "inline-block",
+    textDecoration: "none",
+    transition: "color 160ms ease",
+  }),
   wrap: style({
     "@media": {
       "(max-width: 720px)": {
@@ -191,7 +197,7 @@ globalStyle(`${commonPlaygroundSidebarCss.backdrop}[data-state='open']`, {
   },
 });
 
-globalStyle(`${commonPlaygroundSidebarCss.sectionHeader} p`, {
+globalStyle(`${commonPlaygroundSidebarCss.sectionHeader} a`, {
   "@media": {
     "(max-width: 720px)": {
       color: "#111827",
@@ -204,6 +210,13 @@ globalStyle(`${commonPlaygroundSidebarCss.sectionHeader} p`, {
   fontWeight: 800,
   margin: 0,
 });
+
+globalStyle(
+  `${commonPlaygroundSidebarCss.sectionHeader} a:hover, ${commonPlaygroundSidebarCss.sectionHeader} a[aria-current='page']`,
+  {
+    color: "#ff0558",
+  }
+);
 
 globalStyle(`${commonPlaygroundSidebarCss.menu} a`, {
   "@media": {

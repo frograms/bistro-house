@@ -21,12 +21,13 @@ export const PLAYGROUND_PAGES: ReadonlyArray<PlaygroundPage> = [
     exampleLabel: "Documentation",
     githubUrl:
       "https://github.com/frograms/bistro-house/tree/master/packages/react-slider#readme",
+    isDocumentation: true,
     npmUrl: "https://www.npmjs.com/package/@watcha-authentic/react-slider",
     packageDescription:
       "루프 이동, 드래그, 키보드 조작을 지원하는 React 슬라이더 컴포넌트입니다.",
     packageLabel: "React Slider",
     packageName: "@watcha-authentic/react-slider",
-    path: "/react-slider/documentation",
+    path: "/react-slider",
     renderPage: () => <ReactSliderDocumentationContainer />,
     showTableOfContents: true,
   },
@@ -64,12 +65,13 @@ export const PLAYGROUND_PAGES: ReadonlyArray<PlaygroundPage> = [
     exampleLabel: "Documentation",
     githubUrl:
       "https://github.com/frograms/bistro-house/tree/master/packages/react-motion#readme",
+    isDocumentation: true,
     npmUrl: "https://www.npmjs.com/package/@watcha-authentic/react-motion",
     packageDescription:
       "포인터 이동과 드래그 상태를 다루는 React 제스처 훅입니다.",
     packageLabel: "React Motion",
     packageName: "@watcha-authentic/react-motion",
-    path: "/react-motion/documentation",
+    path: "/react-motion",
     renderPage: () => <ReactMotionDocumentationContainer />,
     showTableOfContents: true,
   },

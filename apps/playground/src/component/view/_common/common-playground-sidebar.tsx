@@ -7,6 +7,7 @@ export type CommonPlaygroundMenuItem = {
   description: string;
   exampleId: string;
   exampleLabel: string;
+  isDocumentation?: boolean;
   packageLabel: string;
   packageName: string;
   path: string;
@@ -17,6 +18,7 @@ type CommonPlaygroundSidebarProps = {
 };
 
 type CommonPlaygroundSidebarSection = {
+  documentationPath: string;
   items: Array<CommonPlaygroundMenuItem>;
   packageLabel: string;
   packageName: string;
@@ -36,14 +38,21 @@ export const CommonPlaygroundSidebar = ({
       const section = acc.find(
         ({ packageName }) => packageName === item.packageName
       );
+      const isDocumentationItem = item.isDocumentation === true;
 
       if (section) {
+        if (isDocumentationItem) {
+          section.documentationPath = item.path;
+          return acc;
+        }
+
         section.items.push(item);
         return acc;
       }
 
       acc.push({
-        items: [item],
+        documentationPath: isDocumentationItem ? item.path : item.path,
+        items: isDocumentationItem ? [] : [item],
         packageLabel: item.packageLabel,
         packageName: item.packageName,
       });
@@ -51,10 +60,12 @@ export const CommonPlaygroundSidebar = ({
     }, []);
   }, [items]);
 
+  // 모바일에서 페이지 전환 시에는 사이드 메뉴를 항상 닫습니다.
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
+  // 모바일 메뉴가 열리면 body 스크롤을 잠시 고정합니다.
   useEffect(() => {
     if (!isMenuOpen || !window.matchMedia("(max-width: 720px)").matches) {
       return;
@@ -130,7 +141,11 @@ export const CommonPlaygroundSidebar = ({
               key={section.packageName}
               className={commonPlaygroundSidebarCss.section}>
               <div className={commonPlaygroundSidebarCss.sectionHeader}>
-                <p>{section.packageLabel}</p>
+                <NavLink
+                  className={commonPlaygroundSidebarCss.sectionHeaderLink}
+                  to={section.documentationPath}>
+                  {section.packageLabel}
+                </NavLink>
               </div>
 
               <div className={commonPlaygroundSidebarCss.menu}>
