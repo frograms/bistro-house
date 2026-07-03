@@ -1,6 +1,6 @@
 import { globalStyle, style } from "@vanilla-extract/css";
 
-export const commonPlaygroundExampleCss = {
+export const commonExampleCss = {
   apiReference: style({
     background: "#ffffff",
     border: "1px solid #e5e7eb",
@@ -112,23 +112,23 @@ export const commonPlaygroundExampleCss = {
   }),
 };
 
-globalStyle(`${commonPlaygroundExampleCss.apiReference} h2`, {
+globalStyle(`${commonExampleCss.apiReference} h2`, {
   fontSize: 24,
   margin: 0,
 });
 
-globalStyle(`${commonPlaygroundExampleCss.apiReference} h3`, {
+globalStyle(`${commonExampleCss.apiReference} h3`, {
   fontSize: 16,
   margin: 0,
 });
 
-globalStyle(`${commonPlaygroundExampleCss.referenceHeader} p`, {
+globalStyle(`${commonExampleCss.referenceHeader} p`, {
   color: "#4b5563",
   lineHeight: 1.6,
   margin: 0,
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} h1`, {
+globalStyle(`${commonExampleCss.readmeBody} h1`, {
   fontSize: 28,
   lineHeight: 1.2,
   margin: 0,
@@ -137,11 +137,11 @@ globalStyle(`${commonPlaygroundExampleCss.readmeBody} h1`, {
   wordBreak: "keep-all",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} > *`, {
+globalStyle(`${commonExampleCss.readmeBody} > *`, {
   minWidth: 0,
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} h2`, {
+globalStyle(`${commonExampleCss.readmeBody} h2`, {
   borderTop: "1px solid #e5e7eb",
   fontSize: 22,
   lineHeight: 1.3,
@@ -152,7 +152,7 @@ globalStyle(`${commonPlaygroundExampleCss.readmeBody} h2`, {
   wordBreak: "keep-all",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} h3`, {
+globalStyle(`${commonExampleCss.readmeBody} h3`, {
   fontSize: 17,
   lineHeight: 1.4,
   margin: "8px 0 0",
@@ -161,7 +161,7 @@ globalStyle(`${commonPlaygroundExampleCss.readmeBody} h3`, {
   wordBreak: "keep-all",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} p`, {
+globalStyle(`${commonExampleCss.readmeBody} p`, {
   color: "#3f3f46",
   lineHeight: 1.7,
   margin: 0,
@@ -169,19 +169,19 @@ globalStyle(`${commonPlaygroundExampleCss.readmeBody} p`, {
   wordBreak: "keep-all",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} a`, {
+globalStyle(`${commonExampleCss.readmeBody} a`, {
   color: "#c90045",
   fontWeight: 700,
   overflowWrap: "break-word",
   textDecoration: "none",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} a:hover`, {
+globalStyle(`${commonExampleCss.readmeBody} a:hover`, {
   color: "#ff0558",
   textDecoration: "underline",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} ul, ${commonPlaygroundExampleCss.readmeBody} ol`, {
+globalStyle(`${commonExampleCss.readmeBody} ul, ${commonExampleCss.readmeBody} ol`, {
   color: "#3f3f46",
   lineHeight: 1.7,
   margin: 0,
@@ -189,16 +189,16 @@ globalStyle(`${commonPlaygroundExampleCss.readmeBody} ul, ${commonPlaygroundExam
   paddingLeft: 20,
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} li`, {
+globalStyle(`${commonExampleCss.readmeBody} li`, {
   overflowWrap: "break-word",
   wordBreak: "keep-all",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} li + li`, {
+globalStyle(`${commonExampleCss.readmeBody} li + li`, {
   marginTop: 4,
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} pre`, {
+globalStyle(`${commonExampleCss.readmeBody} pre`, {
   background: "transparent",
   boxSizing: "border-box",
   color: "#f9fafb",
@@ -210,7 +210,7 @@ globalStyle(`${commonPlaygroundExampleCss.readmeBody} pre`, {
   WebkitOverflowScrolling: "touch",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeCodeBlock} button`, {
+globalStyle(`${commonExampleCss.readmeCodeBlock} button`, {
   background: "rgb(255 255 255 / 0.08)",
   border: "1px solid rgb(255 255 255 / 0.16)",
   borderRadius: 999,
@@ -225,17 +225,17 @@ globalStyle(`${commonPlaygroundExampleCss.readmeCodeBlock} button`, {
   zIndex: 1,
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeCodeBlock} button:hover`, {
+globalStyle(`${commonExampleCss.readmeCodeBlock} button:hover`, {
   background: "rgb(255 255 255 / 0.14)",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeCodeBlock} button[data-copied='true']`, {
+globalStyle(`${commonExampleCss.readmeCodeBlock} button[data-copied='true']`, {
   background: "rgb(34 197 94 / 0.18)",
   borderColor: "rgb(74 222 128 / 0.5)",
   color: "#bbf7d0",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} code`, {
+globalStyle(`${commonExampleCss.readmeBody} code`, {
   background: "#f4f4f5",
   borderRadius: 6,
   color: "#18181b",
@@ -244,7 +244,7 @@ globalStyle(`${commonPlaygroundExampleCss.readmeBody} code`, {
   padding: "2px 6px",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} pre code`, {
+globalStyle(`${commonExampleCss.readmeBody} pre code`, {
   background: "transparent",
   boxSizing: "border-box",
   color: "inherit",
@@ -257,11 +257,11 @@ globalStyle(`${commonPlaygroundExampleCss.readmeBody} pre code`, {
   whiteSpace: "pre",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.readmeBody} img`, {
+globalStyle(`${commonExampleCss.readmeBody} img`, {
   maxWidth: "100%",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.apiTable} th`, {
+globalStyle(`${commonExampleCss.apiTable} th`, {
   color: "#6b7280",
   fontSize: 13,
   fontWeight: 700,
@@ -269,7 +269,7 @@ globalStyle(`${commonPlaygroundExampleCss.apiTable} th`, {
   textAlign: "left",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.apiTable} td`, {
+globalStyle(`${commonExampleCss.apiTable} td`, {
   borderTop: "1px solid #e5e7eb",
   color: "#3f3f46",
   lineHeight: 1.55,
@@ -277,7 +277,7 @@ globalStyle(`${commonPlaygroundExampleCss.apiTable} td`, {
   verticalAlign: "top",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.apiTable} code`, {
+globalStyle(`${commonExampleCss.apiTable} code`, {
   background: "#f4f4f5",
   borderRadius: 6,
   color: "#18181b",
@@ -286,7 +286,7 @@ globalStyle(`${commonPlaygroundExampleCss.apiTable} code`, {
   whiteSpace: "nowrap",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.controlPanel} label`, {
+globalStyle(`${commonExampleCss.controlPanel} label`, {
   alignItems: "center",
   display: "flex",
   flexWrap: "wrap",
@@ -294,13 +294,13 @@ globalStyle(`${commonPlaygroundExampleCss.controlPanel} label`, {
   lineHeight: 1.5,
 });
 
-globalStyle(`${commonPlaygroundExampleCss.controlPanel} span`, {
+globalStyle(`${commonExampleCss.controlPanel} span`, {
   color: "#6b7280",
   fontSize: 13,
   fontWeight: 600,
 });
 
-globalStyle(`${commonPlaygroundExampleCss.controlPanel} select`, {
+globalStyle(`${commonExampleCss.controlPanel} select`, {
   background: "#ffffff",
   border: "1px solid #d1d5db",
   borderRadius: 10,
@@ -311,7 +311,7 @@ globalStyle(`${commonPlaygroundExampleCss.controlPanel} select`, {
   padding: "6px 28px 6px 10px",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.controlPanel} button`, {
+globalStyle(`${commonExampleCss.controlPanel} button`, {
   background: "#ffffff",
   border: "1px solid #d1d5db",
   borderRadius: 999,
@@ -324,24 +324,24 @@ globalStyle(`${commonPlaygroundExampleCss.controlPanel} button`, {
   padding: "7px 13px",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.controlPanel} button:hover`, {
+globalStyle(`${commonExampleCss.controlPanel} button:hover`, {
   borderColor: "#ff8ab2",
   color: "#ff0558",
 });
 
-globalStyle(`${commonPlaygroundExampleCss.controlPanel} input`, {
+globalStyle(`${commonExampleCss.controlPanel} input`, {
   font: "inherit",
   fontSize: 14,
 });
 
-globalStyle(`${commonPlaygroundExampleCss.controlPanel} ${commonPlaygroundExampleCss.buttonGroup}`, {
+globalStyle(`${commonExampleCss.controlPanel} ${commonExampleCss.buttonGroup}`, {
   borderBottom: "1px solid #e5e7eb",
   gridColumn: "1 / -1",
   paddingBottom: 14,
 });
 
 globalStyle(
-  `${commonPlaygroundExampleCss.statePanel} div:not(${commonPlaygroundExampleCss.statePanelTitle})`,
+  `${commonExampleCss.statePanel} div:not(${commonExampleCss.statePanelTitle})`,
   {
     alignItems: "flex-start",
     background: "#ffffff",
@@ -353,18 +353,18 @@ globalStyle(
   }
 );
 
-globalStyle(`${commonPlaygroundExampleCss.statePanelTitle}`, {
+globalStyle(`${commonExampleCss.statePanelTitle}`, {
   alignItems: "flex-start",
   display: "flex",
   gap: 8,
 });
 
-globalStyle(`${commonPlaygroundExampleCss.statePanel} dt`, {
+globalStyle(`${commonExampleCss.statePanel} dt`, {
   color: "#6b7280",
   fontSize: 13,
 });
 
-globalStyle(`${commonPlaygroundExampleCss.statePanel} dd`, {
+globalStyle(`${commonExampleCss.statePanel} dd`, {
   color: "#111827",
   fontWeight: 700,
   margin: 0,

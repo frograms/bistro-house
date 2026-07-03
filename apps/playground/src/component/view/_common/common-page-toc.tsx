@@ -9,7 +9,7 @@ type PageTocItem = {
   title: string;
 };
 
-type CommonPlaygroundPageTocProps = {
+type CommonPageTocProps = {
   targetElementId: string;
 };
 
@@ -42,9 +42,9 @@ const getPageTocItems = (targetElementId: string): Array<PageTocItem> => {
     .filter((item): item is PageTocItem => item !== null);
 };
 
-export const CommonPlaygroundPageToc = ({
+export const CommonPageToc = ({
   targetElementId,
-}: CommonPlaygroundPageTocProps) => {
+}: CommonPageTocProps) => {
   const location = useLocation();
   const [items, setItems] = useState<Array<PageTocItem>>([]);
 

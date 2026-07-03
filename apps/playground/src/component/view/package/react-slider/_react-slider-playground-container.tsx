@@ -1,6 +1,6 @@
 import "@watcha-authentic/react-slider/resource/css/common/slider.css";
 
-import { commonPlaygroundExampleCss } from "../../_common/common-playground-example.css";
+import { commonExampleCss } from "../../_common/common-example.css";
 import { ReactSliderBasicSection } from "./_shared/react-slider-basic-section";
 
 type ReactSliderPlaygroundContainerProps = {
@@ -11,7 +11,7 @@ export const ReactSliderPlaygroundContainer = ({
   variant,
 }: ReactSliderPlaygroundContainerProps) => {
   return (
-    <section className={commonPlaygroundExampleCss.packagePlayground} id="react-slider">
+    <section className={commonExampleCss.packagePlayground} id="react-slider">
       <ReactSliderBasicSection variant={variant} />
     </section>
   );

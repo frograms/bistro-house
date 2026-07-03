@@ -1,6 +1,6 @@
 import reactMotionReadme from "../../../../../../../packages/react-motion/README.md?raw";
-import { CommonPlaygroundReadme } from "../../_common/common-playground-readme";
+import { CommonReadme } from "../../_common/common-readme";
 
 export const ReactMotionDocumentationContainer = () => {
-  return <CommonPlaygroundReadme markdown={reactMotionReadme} />;
+  return <CommonReadme markdown={reactMotionReadme} />;
 };

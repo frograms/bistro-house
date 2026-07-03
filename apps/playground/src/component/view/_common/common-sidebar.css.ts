@@ -1,6 +1,6 @@
 import { globalStyle, style } from "@vanilla-extract/css";
 
-export const commonPlaygroundSidebarCss = {
+export const commonSidebarCss = {
   backdrop: style({
     "@media": {
       "(max-width: 720px)": {
@@ -160,7 +160,7 @@ export const commonPlaygroundSidebarCss = {
   }),
 };
 
-globalStyle(`${commonPlaygroundSidebarCss.wrap} nav`, {
+globalStyle(`${commonSidebarCss.wrap} nav`, {
   "@media": {
     "(max-width: 720px)": {
       background: "#ffffff",
@@ -179,7 +179,7 @@ globalStyle(`${commonPlaygroundSidebarCss.wrap} nav`, {
   },
 });
 
-globalStyle(`${commonPlaygroundSidebarCss.wrap} nav[data-state='open']`, {
+globalStyle(`${commonSidebarCss.wrap} nav[data-state='open']`, {
   "@media": {
     "(max-width: 720px)": {
       transform: "translateX(0)",
@@ -188,7 +188,7 @@ globalStyle(`${commonPlaygroundSidebarCss.wrap} nav[data-state='open']`, {
   },
 });
 
-globalStyle(`${commonPlaygroundSidebarCss.backdrop}[data-state='open']`, {
+globalStyle(`${commonSidebarCss.backdrop}[data-state='open']`, {
   "@media": {
     "(max-width: 720px)": {
       opacity: 1,
@@ -197,7 +197,7 @@ globalStyle(`${commonPlaygroundSidebarCss.backdrop}[data-state='open']`, {
   },
 });
 
-globalStyle(`${commonPlaygroundSidebarCss.sectionHeader} a`, {
+globalStyle(`${commonSidebarCss.sectionHeader} a`, {
   "@media": {
     "(max-width: 720px)": {
       color: "#111827",
@@ -212,13 +212,13 @@ globalStyle(`${commonPlaygroundSidebarCss.sectionHeader} a`, {
 });
 
 globalStyle(
-  `${commonPlaygroundSidebarCss.sectionHeader} a:hover, ${commonPlaygroundSidebarCss.sectionHeader} a[aria-current='page']`,
+  `${commonSidebarCss.sectionHeader} a:hover, ${commonSidebarCss.sectionHeader} a[aria-current='page']`,
   {
     color: "#ff0558",
   }
 );
 
-globalStyle(`${commonPlaygroundSidebarCss.menu} a`, {
+globalStyle(`${commonSidebarCss.menu} a`, {
   "@media": {
     "(max-width: 720px)": {
       background: "transparent",
@@ -243,13 +243,13 @@ globalStyle(`${commonPlaygroundSidebarCss.menu} a`, {
 });
 
 globalStyle(
-  `${commonPlaygroundSidebarCss.menu} a:hover, ${commonPlaygroundSidebarCss.menu} a[aria-current='page']`,
+  `${commonSidebarCss.menu} a:hover, ${commonSidebarCss.menu} a[aria-current='page']`,
   {
     color: "#18181b",
   }
 );
 
-globalStyle(`${commonPlaygroundSidebarCss.menu} a[aria-current='page']`, {
+globalStyle(`${commonSidebarCss.menu} a[aria-current='page']`, {
   "@media": {
     "(max-width: 720px)": {
       background: "transparent",
@@ -262,16 +262,16 @@ globalStyle(`${commonPlaygroundSidebarCss.menu} a[aria-current='page']`, {
   color: "#ff0558",
 });
 
-globalStyle(`${commonPlaygroundSidebarCss.menu} a > span`, {
+globalStyle(`${commonSidebarCss.menu} a > span`, {
   fontSize: 14,
   fontWeight: 600,
 });
 
-globalStyle(`${commonPlaygroundSidebarCss.menu} a[aria-current='page'] > span`, {
+globalStyle(`${commonSidebarCss.menu} a[aria-current='page'] > span`, {
   fontWeight: 800,
 });
 
-globalStyle(`${commonPlaygroundSidebarCss.menuButton} span`, {
+globalStyle(`${commonSidebarCss.menuButton} span`, {
   background:
     "linear-gradient(#111827, #111827) 0 0 / 14px 2px no-repeat, linear-gradient(#111827, #111827) 0 5px / 14px 2px no-repeat, linear-gradient(#111827, #111827) 0 10px / 14px 2px no-repeat",
   display: "block",

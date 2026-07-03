@@ -1,9 +1,9 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 
-import { commonPlaygroundSidebarCss } from "./common-playground-sidebar.css";
+import { commonSidebarCss } from "./common-sidebar.css";
 
-export type CommonPlaygroundMenuItem = {
+export type CommonMenuItem = {
   description: string;
   exampleId: string;
   exampleLabel: string;
@@ -13,28 +13,28 @@ export type CommonPlaygroundMenuItem = {
   path: string;
 };
 
-type CommonPlaygroundSidebarProps = {
-  items: ReadonlyArray<CommonPlaygroundMenuItem>;
+type CommonSidebarProps = {
+  items: ReadonlyArray<CommonMenuItem>;
 };
 
-type CommonPlaygroundSidebarSection = {
+type CommonSidebarSection = {
   documentationPath: string;
-  items: Array<CommonPlaygroundMenuItem>;
+  items: Array<CommonMenuItem>;
   packageLabel: string;
   packageName: string;
 };
 
 const WATCHA_ICON_SRC = "/images/watcha-icon.png";
 
-export const CommonPlaygroundSidebar = ({
+export const CommonSidebar = ({
   items,
-}: CommonPlaygroundSidebarProps) => {
+}: CommonSidebarProps) => {
   const location = useLocation();
   const navigationId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const sections = useMemo(() => {
-    return items.reduce<Array<CommonPlaygroundSidebarSection>>((acc, item) => {
+    return items.reduce<Array<CommonSidebarSection>>((acc, item) => {
       const section = acc.find(
         ({ packageName }) => packageName === item.packageName
       );
@@ -95,15 +95,15 @@ export const CommonPlaygroundSidebar = ({
   }, [isMenuOpen]);
 
   return (
-    <aside className={commonPlaygroundSidebarCss.wrap}>
-      <div className={commonPlaygroundSidebarCss.header}>
-        <Link className={commonPlaygroundSidebarCss.brandLink} to="/">
+    <aside className={commonSidebarCss.wrap}>
+      <div className={commonSidebarCss.header}>
+        <Link className={commonSidebarCss.brandLink} to="/">
           <img
             alt=""
-            className={commonPlaygroundSidebarCss.brandIcon}
+            className={commonSidebarCss.brandIcon}
             src={WATCHA_ICON_SRC}
           />
-          <span className={commonPlaygroundSidebarCss.brandText}>
+          <span className={commonSidebarCss.brandText}>
             WATCHA Packages
           </span>
         </Link>
@@ -111,7 +111,7 @@ export const CommonPlaygroundSidebar = ({
         <button
           aria-controls={navigationId}
           aria-expanded={isMenuOpen}
-          className={commonPlaygroundSidebarCss.menuButton}
+          className={commonSidebarCss.menuButton}
           type="button"
           onClick={() => {
             setIsMenuOpen((prev) => !prev);
@@ -123,7 +123,7 @@ export const CommonPlaygroundSidebar = ({
 
       <button
         aria-label="메뉴 닫기"
-        className={commonPlaygroundSidebarCss.backdrop}
+        className={commonSidebarCss.backdrop}
         data-state={isMenuOpen ? "open" : "closed"}
         type="button"
         onClick={() => {
@@ -135,20 +135,20 @@ export const CommonPlaygroundSidebar = ({
         aria-label="패키지 예제 메뉴"
         data-state={isMenuOpen ? "open" : "closed"}
         id={navigationId}>
-        <div className={commonPlaygroundSidebarCss.navScrollArea}>
+        <div className={commonSidebarCss.navScrollArea}>
           {sections.map((section) => (
             <section
               key={section.packageName}
-              className={commonPlaygroundSidebarCss.section}>
-              <div className={commonPlaygroundSidebarCss.sectionHeader}>
+              className={commonSidebarCss.section}>
+              <div className={commonSidebarCss.sectionHeader}>
                 <NavLink
-                  className={commonPlaygroundSidebarCss.sectionHeaderLink}
+                  className={commonSidebarCss.sectionHeaderLink}
                   to={section.documentationPath}>
                   {section.packageLabel}
                 </NavLink>
               </div>
 
-              <div className={commonPlaygroundSidebarCss.menu}>
+              <div className={commonSidebarCss.menu}>
                 {section.items.map((item) => (
                   <NavLink key={item.exampleId} to={item.path}>
                     <span>{item.exampleLabel}</span>

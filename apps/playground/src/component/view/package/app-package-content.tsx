@@ -3,7 +3,7 @@ import { Outlet, useLocation } from "react-router";
 
 import { PLAYGROUND_PAGES } from "../../../script/config/playground-page-config";
 import { appContentCss } from "../../app-content.css";
-import { CommonPlaygroundPageToc } from "../_common/common-playground-page-toc";
+import { CommonPageToc } from "../_common/common-page-toc";
 
 const NpmIcon = () => {
   return (
@@ -96,7 +96,7 @@ export const PackageAppContent = () => {
         <Outlet />
       </main>
 
-      {hasTableOfContents && <CommonPlaygroundPageToc targetElementId="top" />}
+      {hasTableOfContents && <CommonPageToc targetElementId="top" />}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import reactSliderReadme from "../../../../../../../packages/react-slider/README.md?raw";
-import { CommonPlaygroundReadme } from "../../_common/common-playground-readme";
+import { CommonReadme } from "../../_common/common-readme";
 
 export const ReactSliderDocumentationContainer = () => {
-  return <CommonPlaygroundReadme markdown={reactSliderReadme} />;
+  return <CommonReadme markdown={reactSliderReadme} />;
 };

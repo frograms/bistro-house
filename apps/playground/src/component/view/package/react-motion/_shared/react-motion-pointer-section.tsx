@@ -3,7 +3,7 @@ import type { Point2D } from "@watcha-authentic/react-motion/script/type/primiti
 import { addPoint } from "@watcha-authentic/react-motion/script/util/point-utils";
 import { useCallback, useRef, useState } from "react";
 
-import { commonPlaygroundExampleCss } from "../../../_common/common-playground-example.css";
+import { commonExampleCss } from "../../../_common/common-example.css";
 import { reactMotionPointerSectionCss } from "./react-motion-pointer-section.css";
 
 const DEFAULT_POINT: Point2D = { x: 0, y: 0 };
@@ -44,18 +44,18 @@ export const ReactMotionPointerSection = () => {
   });
 
   return (
-    <section className={commonPlaygroundExampleCss.exampleSection}>
-      <div className={commonPlaygroundExampleCss.controlPanel}>
-        <p className={commonPlaygroundExampleCss.controlPanelTitle}>
+    <section className={commonExampleCss.exampleSection}>
+      <div className={commonExampleCss.controlPanel}>
+        <p className={commonExampleCss.controlPanelTitle}>
           컨트롤
         </p>
-        <div className={commonPlaygroundExampleCss.buttonGroup}>
+        <div className={commonExampleCss.buttonGroup}>
           <button type="button" onClick={handleResetClick}>
             위치 초기화
           </button>
         </div>
 
-        <label className={commonPlaygroundExampleCss.checkboxField}>
+        <label className={commonExampleCss.checkboxField}>
           <input
             checked={enabled}
             type="checkbox"
@@ -79,8 +79,8 @@ export const ReactMotionPointerSection = () => {
         </div>
       </div>
 
-      <dl className={commonPlaygroundExampleCss.statePanel}>
-        <div className={commonPlaygroundExampleCss.statePanelTitle}>
+      <dl className={commonExampleCss.statePanel}>
+        <div className={commonExampleCss.statePanelTitle}>
           <dt>현재 상태</dt>
         </div>
         <div>

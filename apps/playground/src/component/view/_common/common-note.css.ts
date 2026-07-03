@@ -1,6 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
-export const commonPlaygroundNoteCss = {
+export const commonNoteCss = {
   group: style({
     display: "grid",
     gap: 8,

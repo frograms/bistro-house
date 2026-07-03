@@ -7,9 +7,9 @@ import {
 import ReactMarkdown from "react-markdown";
 import rehypeSlug from "rehype-slug";
 
-import { commonPlaygroundExampleCss } from "./common-playground-example.css";
+import { commonExampleCss } from "./common-example.css";
 
-type CommonPlaygroundReadmeProps = {
+type CommonReadmeProps = {
   markdown: string;
 };
 
@@ -45,7 +45,7 @@ const getTocDataAttributes = (children: ReactNode, depth: TocHeadingDepth) => {
   };
 };
 
-const CommonPlaygroundReadmePre = ({
+const CommonReadmePre = ({
   children,
   node: _node,
   ...props
@@ -62,7 +62,7 @@ const CommonPlaygroundReadmePre = ({
   };
 
   return (
-    <div className={commonPlaygroundExampleCss.readmeCodeBlock}>
+    <div className={commonExampleCss.readmeCodeBlock}>
       <button
         data-copied={isCopied ? "true" : "false"}
         type="button"
@@ -74,12 +74,12 @@ const CommonPlaygroundReadmePre = ({
   );
 };
 
-export const CommonPlaygroundReadme = ({
+export const CommonReadme = ({
   markdown,
-}: CommonPlaygroundReadmeProps) => {
+}: CommonReadmeProps) => {
   return (
-    <section className={commonPlaygroundExampleCss.readmeDocument}>
-      <div className={commonPlaygroundExampleCss.readmeBody}>
+    <section className={commonExampleCss.readmeDocument}>
+      <div className={commonExampleCss.readmeBody}>
         <ReactMarkdown
           components={{
             h1: ({ children, node: _node, ...props }) => (
@@ -102,7 +102,7 @@ export const CommonPlaygroundReadme = ({
                 {children}
               </h4>
             ),
-            pre: CommonPlaygroundReadmePre,
+            pre: CommonReadmePre,
           }}
           rehypePlugins={[rehypeSlug]}>
           {markdown}

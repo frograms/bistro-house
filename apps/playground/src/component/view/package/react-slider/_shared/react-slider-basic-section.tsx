@@ -6,8 +6,8 @@ import type { SlideTriggerEvent } from "@watcha-authentic/react-slider/script/ty
 import type { CSSProperties, ReactNode } from "react";
 import { useCallback, useRef, useState } from "react";
 
-import { commonPlaygroundExampleCss } from "../../../_common/common-playground-example.css";
-import { CommonPlaygroundNote } from "../../../_common/common-playground-note";
+import { commonExampleCss } from "../../../_common/common-example.css";
+import { CommonNote } from "../../../_common/common-note";
 import { reactSliderBasicSectionCss } from "./react-slider-basic-section.css";
 
 type SliderItem = {
@@ -125,11 +125,11 @@ const ReactSliderExample = ({ overflow }: ReactSliderExampleProps) => {
 
   return (
     <section className={reactSliderBasicSectionCss.exampleBlock}>
-      <div className={commonPlaygroundExampleCss.controlPanel}>
-        <p className={commonPlaygroundExampleCss.controlPanelTitle}>
+      <div className={commonExampleCss.controlPanel}>
+        <p className={commonExampleCss.controlPanelTitle}>
           컨트롤
         </p>
-        <div className={commonPlaygroundExampleCss.buttonGroup}>
+        <div className={commonExampleCss.buttonGroup}>
           <button type="button" onClick={handlePrevClick}>
             이전 카드
           </button>
@@ -154,7 +154,7 @@ const ReactSliderExample = ({ overflow }: ReactSliderExampleProps) => {
           </select>
         </label>
 
-        <label className={commonPlaygroundExampleCss.checkboxField}>
+        <label className={commonExampleCss.checkboxField}>
           <input
             checked={enableDrag}
             type="checkbox"
@@ -182,8 +182,8 @@ const ReactSliderExample = ({ overflow }: ReactSliderExampleProps) => {
         />
       </div>
 
-      <dl className={commonPlaygroundExampleCss.statePanel}>
-        <div className={commonPlaygroundExampleCss.statePanelTitle}>
+      <dl className={commonExampleCss.statePanel}>
+        <div className={commonExampleCss.statePanelTitle}>
           <dt>현재 상태</dt>
         </div>
         <div>
@@ -227,8 +227,8 @@ export const ReactSliderBasicSection = ({
   ];
 
   return (
-    <section className={commonPlaygroundExampleCss.exampleSection}>
-      <CommonPlaygroundNote items={notes} />
+    <section className={commonExampleCss.exampleSection}>
+      <CommonNote items={notes} />
 
       <ReactSliderExample overflow={example.overflow} />
     </section>
