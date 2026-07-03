@@ -1,5 +1,5 @@
 import { commonExampleCss } from "../../_common/common-example.css";
-import { ReactMotionGlobalSection } from "./_shared/react-motion-global-section";
+import { ReactMotionGlobalSection } from "./react-motion-global-section";
 
 export const ReactMotionGlobalContainer = () => {
   return (

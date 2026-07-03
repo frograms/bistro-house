@@ -3,8 +3,8 @@ import type { Point2D } from "@watcha-authentic/react-motion/script/type/primiti
 import { addPoint } from "@watcha-authentic/react-motion/script/util/point-utils";
 import { useCallback, useRef, useState } from "react";
 
-import { commonExampleCss } from "../../../_common/common-example.css";
-import { CommonNote } from "../../../_common/common-note";
+import { commonExampleCss } from "../../_common/common-example.css";
+import { CommonNote } from "../../_common/common-note";
 import { reactMotionGlobalSectionCss } from "./react-motion-global-section.css";
 
 const DEFAULT_POINT: Point2D = { x: 0, y: 0 };
