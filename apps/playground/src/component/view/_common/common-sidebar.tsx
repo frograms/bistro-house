@@ -18,7 +18,7 @@ type CommonSidebarProps = {
   sections: ReadonlyArray<CommonSidebarSection>;
 };
 
-const WATCHA_ICON_SRC = "/images/watcha-icon.png";
+const WATCHA_ICON_SRC = `${import.meta.env.BASE_URL}images/watcha-icon.png`;
 
 export const CommonSidebar = ({ sections }: CommonSidebarProps) => {
   const location = useLocation();

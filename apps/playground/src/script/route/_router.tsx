@@ -7,6 +7,8 @@ import { withRouteComponent } from "../util/router-utils";
 import { commonRoutes } from "./common-routes";
 import { playgroundRoutes } from "./playground-routes";
 
+const ROUTER_BASENAME = import.meta.env.BASE_URL;
+
 let routes: Array<RouteObject> = [
   {
     element: <NotFoundContainer />,
@@ -27,4 +29,6 @@ routes = routes.concat(playgroundRoutes);
 
 export const router = createBrowserRouter([
   withRouteComponent({ AppContent, routes }),
-]);
+], {
+  basename: ROUTER_BASENAME,
+});
