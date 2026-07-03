@@ -4,7 +4,7 @@ import { useLocation } from "react-router";
 import { appContentCss } from "../../app-content.css";
 
 type PageTocItem = {
-  depth: 2 | 3 | 4;
+  depth: 1 | 2 | 3 | 4;
   id: string;
   title: string;
 };
@@ -28,7 +28,7 @@ const getPageTocItems = (targetElementId: string): Array<PageTocItem> => {
       if (
         !element.id ||
         !title ||
-        (depth !== 2 && depth !== 3 && depth !== 4)
+        (depth !== 1 && depth !== 2 && depth !== 3 && depth !== 4)
       ) {
         return null;
       }
@@ -82,7 +82,6 @@ export const CommonPlaygroundPageToc = ({
 
   return (
     <nav aria-label="페이지 목차" className={appContentCss.pageToc}>
-      <p>Table of contents</p>
       <ol>
         {items.map((item) => (
           <li key={item.id} data-depth={item.depth}>

@@ -127,15 +127,6 @@ globalStyle(`${appContentCss.pageMetaLink} svg`, {
   flexShrink: 0,
 });
 
-globalStyle(`${appContentCss.pageToc} p`, {
-  color: "#6b7280",
-  fontSize: 12,
-  fontWeight: 800,
-  letterSpacing: "0.08em",
-  margin: "0 0 10px",
-  textTransform: "uppercase",
-});
-
 globalStyle(`${appContentCss.pageToc} ol`, {
   display: "grid",
   gap: 8,
@@ -144,12 +135,16 @@ globalStyle(`${appContentCss.pageToc} ol`, {
   padding: 0,
 });
 
-globalStyle(`${appContentCss.pageToc} li[data-depth='3']`, {
+globalStyle(`${appContentCss.pageToc} li[data-depth='2']`, {
   paddingLeft: 12,
 });
 
-globalStyle(`${appContentCss.pageToc} li[data-depth='4']`, {
+globalStyle(`${appContentCss.pageToc} li[data-depth='3']`, {
   paddingLeft: 24,
+});
+
+globalStyle(`${appContentCss.pageToc} li[data-depth='4']`, {
+  paddingLeft: 36,
 });
 
 globalStyle(`${appContentCss.pageToc} a`, {

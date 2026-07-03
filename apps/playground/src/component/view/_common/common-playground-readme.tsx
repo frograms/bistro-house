@@ -17,7 +17,7 @@ type MarkdownPreProps = ComponentProps<"pre"> & {
   node?: unknown;
 };
 
-const TABLE_OF_CONTENTS_TITLE = "Table of contents";
+type TocHeadingDepth = 1 | 2 | 3 | 4;
 
 const getNodeText = (node: ReactNode): string => {
   if (typeof node === "number" || typeof node === "string") {
@@ -35,12 +35,8 @@ const getNodeText = (node: ReactNode): string => {
   return "";
 };
 
-const getTocDataAttributes = (children: ReactNode, depth: 3 | 4) => {
+const getTocDataAttributes = (children: ReactNode, depth: TocHeadingDepth) => {
   const title = getNodeText(children);
-
-  if (title === TABLE_OF_CONTENTS_TITLE) {
-    return {};
-  }
 
   return {
     "data-playground-toc": "true",
@@ -82,28 +78,29 @@ export const CommonPlaygroundReadme = ({
   markdown,
 }: CommonPlaygroundReadmeProps) => {
   return (
-    <section
-      className={commonPlaygroundExampleCss.readmeDocument}
-      data-playground-toc="true"
-      data-playground-toc-depth="2"
-      data-playground-toc-title="Documentation"
-      id="documentation">
-      <div className={commonPlaygroundExampleCss.readmeHeader}>
-        <p className={commonPlaygroundExampleCss.exampleLabel}>Documentation</p>
-      </div>
-
+    <section className={commonPlaygroundExampleCss.readmeDocument}>
       <div className={commonPlaygroundExampleCss.readmeBody}>
         <ReactMarkdown
           components={{
+            h1: ({ children, node: _node, ...props }) => (
+              <h1 {...props} {...getTocDataAttributes(children, 1)}>
+                {children}
+              </h1>
+            ),
             h2: ({ children, node: _node, ...props }) => (
-              <h2 {...props} {...getTocDataAttributes(children, 3)}>
+              <h2 {...props} {...getTocDataAttributes(children, 2)}>
                 {children}
               </h2>
             ),
             h3: ({ children, node: _node, ...props }) => (
-              <h3 {...props} {...getTocDataAttributes(children, 4)}>
+              <h3 {...props} {...getTocDataAttributes(children, 3)}>
                 {children}
               </h3>
+            ),
+            h4: ({ children, node: _node, ...props }) => (
+              <h4 {...props} {...getTocDataAttributes(children, 4)}>
+                {children}
+              </h4>
             ),
             pre: CommonPlaygroundReadmePre,
           }}

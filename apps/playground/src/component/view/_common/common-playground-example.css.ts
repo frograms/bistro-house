@@ -86,12 +86,6 @@ export const commonPlaygroundExampleCss = {
     minWidth: 0,
     padding: 22,
   }),
-  readmeHeader: style({
-    borderBottom: "1px solid #e5e7eb",
-    display: "grid",
-    gap: 6,
-    paddingBottom: 16,
-  }),
   referenceGroup: style({
     display: "grid",
     gap: 10,
