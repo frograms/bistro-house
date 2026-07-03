@@ -8,7 +8,7 @@ import { useCallback, useRef, useState } from "react";
 
 import { commonExampleCss } from "../../../_common/common-example.css";
 import { CommonNote } from "../../../_common/common-note";
-import { reactSliderBasicSectionCss } from "./react-slider-basic-section.css";
+import { reactSliderSectionCss } from "./react-slider-section.css";
 
 type SliderItem = {
   accentColor: string;
@@ -72,7 +72,7 @@ type ReactSliderExampleConfig = ReactSliderExampleProps & {
   notes?: Array<ReactNode>;
 };
 
-type ReactSliderBasicSectionProps = {
+type ReactSliderSectionProps = {
   variant: "peek" | "single";
 };
 
@@ -105,14 +105,14 @@ const ReactSliderExample = ({ overflow }: ReactSliderExampleProps) => {
   const handleCreateItemView = useCallback((item: SliderItem) => {
     return (
       <article
-        className={reactSliderBasicSectionCss.card}
+        className={reactSliderSectionCss.card}
         style={
           {
             "--slider-card-accent": item.accentColor,
             "--slider-card-gradient": item.gradient,
           } as CSSProperties
         }>
-        <div className={reactSliderBasicSectionCss.cardContent}>
+        <div className={reactSliderSectionCss.cardContent}>
           <span>{item.number}</span>
           <h3>{item.title}</h3>
           <p>{item.description}</p>
@@ -124,7 +124,7 @@ const ReactSliderExample = ({ overflow }: ReactSliderExampleProps) => {
   const handleItemKey = useCallback((item: SliderItem) => item.id, []);
 
   return (
-    <section className={reactSliderBasicSectionCss.exampleBlock}>
+    <section className={reactSliderSectionCss.exampleBlock}>
       <div className={commonExampleCss.controlPanel}>
         <p className={commonExampleCss.controlPanelTitle}>컨트롤</p>
         <div className={commonExampleCss.buttonGroup}>
@@ -164,7 +164,7 @@ const ReactSliderExample = ({ overflow }: ReactSliderExampleProps) => {
         </label>
       </div>
 
-      <div className={reactSliderBasicSectionCss.stage}>
+      <div className={reactSliderSectionCss.stage}>
         <Slider
           ref={slider}
           animationDuration={500}
@@ -202,7 +202,7 @@ const ReactSliderExample = ({ overflow }: ReactSliderExampleProps) => {
 };
 
 const REACT_SLIDER_EXAMPLE_BY_VARIANT: Record<
-  ReactSliderBasicSectionProps["variant"],
+  ReactSliderSectionProps["variant"],
   ReactSliderExampleConfig
 > = {
   peek: {
@@ -215,9 +215,9 @@ const REACT_SLIDER_EXAMPLE_BY_VARIANT: Record<
   },
 };
 
-export const ReactSliderBasicSection = ({
+export const ReactSliderSection = ({
   variant,
-}: ReactSliderBasicSectionProps) => {
+}: ReactSliderSectionProps) => {
   const example = REACT_SLIDER_EXAMPLE_BY_VARIANT[variant];
   const notes = [
     "이 패키지에서 제공하는 Slider 컴포넌트는 한 번에 하나의 아이템을 슬라이드하는 기본 흐름에 맞춰져 있습니다. 아이템 너비를 직접 지정하지 말고, 슬라이더 컨테이너 기준으로 렌더링되도록 두세요.",

@@ -4,7 +4,8 @@ import type { CommonMenuItem } from "../../component/view/_common/common-sidebar
 import { ReactMotionDocumentationContainer } from "../../component/view/package/react-motion/_react-motion-documentation-container";
 import { ReactMotionPlaygroundContainer } from "../../component/view/package/react-motion/_react-motion-playground-container";
 import { ReactSliderDocumentationContainer } from "../../component/view/package/react-slider/_react-slider-documentation-container";
-import { ReactSliderPlaygroundContainer } from "../../component/view/package/react-slider/_react-slider-playground-container";
+import { ReactSliderPeekContainer } from "../../component/view/package/react-slider/_react-slider-peek-container";
+import { ReactSliderSingleContainer } from "../../component/view/package/react-slider/_react-slider-single-container";
 
 export type PlaygroundPage = CommonMenuItem & {
   githubUrl: string;
@@ -43,7 +44,7 @@ export const PLAYGROUND_PAGES: ReadonlyArray<PlaygroundPage> = [
     packageLabel: "React Slider",
     packageName: "@watcha-authentic/react-slider",
     path: "/react-slider/single",
-    renderPage: () => <ReactSliderPlaygroundContainer variant="single" />,
+    renderPage: () => <ReactSliderSingleContainer />,
   },
   {
     description: "현재 아이템 양옆의 이전/다음 아이템을 살짝 노출합니다.",
@@ -57,7 +58,7 @@ export const PLAYGROUND_PAGES: ReadonlyArray<PlaygroundPage> = [
     packageLabel: "React Slider",
     packageName: "@watcha-authentic/react-slider",
     path: "/react-slider/peek",
-    renderPage: () => <ReactSliderPlaygroundContainer variant="peek" />,
+    renderPage: () => <ReactSliderPeekContainer />,
   },
   {
     description: "README에서 설치 방법과 사용법을 확인합니다.",
