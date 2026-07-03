@@ -20,7 +20,9 @@ const getPageTocItems = (targetElementId: string): Array<PageTocItem> => {
     return [];
   }
 
-  return [...targetElement.querySelectorAll<HTMLElement>("[data-playground-toc]")]
+  return [
+    ...targetElement.querySelectorAll<HTMLElement>("[data-playground-toc]"),
+  ]
     .map((element) => {
       const depth = Number(element.dataset.playgroundTocDepth);
       const title = element.dataset.playgroundTocTitle ?? element.textContent;
@@ -42,9 +44,7 @@ const getPageTocItems = (targetElementId: string): Array<PageTocItem> => {
     .filter((item): item is PageTocItem => item !== null);
 };
 
-export const CommonPageToc = ({
-  targetElementId,
-}: CommonPageTocProps) => {
+export const CommonPageToc = ({ targetElementId }: CommonPageTocProps) => {
   const location = useLocation();
   const [items, setItems] = useState<Array<PageTocItem>>([]);
 

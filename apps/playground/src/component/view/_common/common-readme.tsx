@@ -74,9 +74,7 @@ const CommonReadmePre = ({
   );
 };
 
-export const CommonReadme = ({
-  markdown,
-}: CommonReadmeProps) => {
+export const CommonReadme = ({ markdown }: CommonReadmeProps) => {
   return (
     <section className={commonExampleCss.readmeDocument}>
       <div className={commonExampleCss.readmeBody}>

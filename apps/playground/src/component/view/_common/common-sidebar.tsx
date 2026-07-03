@@ -26,9 +26,7 @@ type CommonSidebarSection = {
 
 const WATCHA_ICON_SRC = "/images/watcha-icon.png";
 
-export const CommonSidebar = ({
-  items,
-}: CommonSidebarProps) => {
+export const CommonSidebar = ({ items }: CommonSidebarProps) => {
   const location = useLocation();
   const navigationId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -103,9 +101,7 @@ export const CommonSidebar = ({
             className={commonSidebarCss.brandIcon}
             src={WATCHA_ICON_SRC}
           />
-          <span className={commonSidebarCss.brandText}>
-            WATCHA Packages
-          </span>
+          <span className={commonSidebarCss.brandText}>WATCHA Packages</span>
         </Link>
 
         <button

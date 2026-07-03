@@ -126,9 +126,7 @@ const ReactSliderExample = ({ overflow }: ReactSliderExampleProps) => {
   return (
     <section className={reactSliderBasicSectionCss.exampleBlock}>
       <div className={commonExampleCss.controlPanel}>
-        <p className={commonExampleCss.controlPanelTitle}>
-          컨트롤
-        </p>
+        <p className={commonExampleCss.controlPanelTitle}>컨트롤</p>
         <div className={commonExampleCss.buttonGroup}>
           <button type="button" onClick={handlePrevClick}>
             이전 카드

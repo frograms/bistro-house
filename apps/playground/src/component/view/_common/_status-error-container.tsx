@@ -1,4 +1,4 @@
-import { statusContainerCss } from "./status-container.css";
+import { statusContainerCss } from "./_status-container.css";
 
 export const ErrorContainer = () => {
   return (

@@ -53,9 +53,7 @@ export const ReactMotionGlobalSection = () => {
       />
 
       <div className={commonExampleCss.controlPanel}>
-        <p className={commonExampleCss.controlPanelTitle}>
-          컨트롤
-        </p>
+        <p className={commonExampleCss.controlPanelTitle}>컨트롤</p>
         <div className={commonExampleCss.buttonGroup}>
           <button type="button" onClick={handleResetClick}>
             위치 초기화

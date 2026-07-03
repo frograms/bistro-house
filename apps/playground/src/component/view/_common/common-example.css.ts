@@ -181,13 +181,16 @@ globalStyle(`${commonExampleCss.readmeBody} a:hover`, {
   textDecoration: "underline",
 });
 
-globalStyle(`${commonExampleCss.readmeBody} ul, ${commonExampleCss.readmeBody} ol`, {
-  color: "#3f3f46",
-  lineHeight: 1.7,
-  margin: 0,
-  minWidth: 0,
-  paddingLeft: 20,
-});
+globalStyle(
+  `${commonExampleCss.readmeBody} ul, ${commonExampleCss.readmeBody} ol`,
+  {
+    color: "#3f3f46",
+    lineHeight: 1.7,
+    margin: 0,
+    minWidth: 0,
+    paddingLeft: 20,
+  }
+);
 
 globalStyle(`${commonExampleCss.readmeBody} li`, {
   overflowWrap: "break-word",
@@ -334,11 +337,14 @@ globalStyle(`${commonExampleCss.controlPanel} input`, {
   fontSize: 14,
 });
 
-globalStyle(`${commonExampleCss.controlPanel} ${commonExampleCss.buttonGroup}`, {
-  borderBottom: "1px solid #e5e7eb",
-  gridColumn: "1 / -1",
-  paddingBottom: 14,
-});
+globalStyle(
+  `${commonExampleCss.controlPanel} ${commonExampleCss.buttonGroup}`,
+  {
+    borderBottom: "1px solid #e5e7eb",
+    gridColumn: "1 / -1",
+    paddingBottom: 14,
+  }
+);
 
 globalStyle(
   `${commonExampleCss.statePanel} div:not(${commonExampleCss.statePanelTitle})`,

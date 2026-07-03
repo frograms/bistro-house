@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 import type { RouteObject } from "react-router";
 
-import { ErrorContainer } from "../../component/view/_common/status-error-container";
+import { ErrorContainer } from "../../component/view/_common/_status-error-container";
 
 export const withChildrenRouteErrorElement = (
   routes: Array<RouteObject> | ReadonlyArray<RouteObject>
@@ -26,7 +26,7 @@ export const withRouteComponent = ({
   routes: Array<RouteObject> | ReadonlyArray<RouteObject>;
 }) => {
   return {
-    Component: AppContent,
     children: withChildrenRouteErrorElement(routes),
+    Component: AppContent,
   };
 };

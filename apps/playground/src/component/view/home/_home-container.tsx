@@ -1,10 +1,12 @@
 import { Link } from "react-router";
 
 import { PLAYGROUND_PAGES } from "../../../script/config/playground-page-config";
-import { homeContainerCss } from "./home-container.css";
+import { homeContainerCss } from "./_home-container.css";
 
 const PACKAGE_CARD_PAGES = PLAYGROUND_PAGES.filter((page, index, pages) => {
-  return pages.findIndex((item) => item.packageName === page.packageName) === index;
+  return (
+    pages.findIndex((item) => item.packageName === page.packageName) === index
+  );
 });
 
 const WATCHA_AUTHENTIC_NPM_ORG_URL =
