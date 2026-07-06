@@ -72,7 +72,7 @@ export const ReactMotionGlobalContainer = () => {
               setEnabled(event.target.checked);
             }}
           />
-          <span>전역 포인터 이벤트 연결</span>
+          <span>전역 포인터 이벤트 활성화</span>
         </label>
       </CommonExampleControlPanel>
 

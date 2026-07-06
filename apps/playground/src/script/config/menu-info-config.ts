@@ -51,7 +51,7 @@ export const MENU_INFO: ReadonlyArray<MenuInfo> = [
         path: "/react-motion/pointer",
       },
       {
-        exampleLabel: "예제 - 전역 포인터 드래그",
+        exampleLabel: "예제 - 포인터 드래그 (Global)",
         path: "/react-motion/global",
       },
     ],
