@@ -6,6 +6,7 @@ import type { SlideTriggerEvent } from "@packages/react-slider/src/script/type/s
 import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
 import {
   CommonExampleControlPanel,
+  CommonExampleStagePanel,
   CommonExampleStatePanel,
 } from "@playground/component/view/_common/common-example-panels";
 import { CommonNote } from "@playground/component/view/_common/common-note";
@@ -172,11 +173,7 @@ const ReactSliderExample = ({
         </label>
       </CommonExampleControlPanel>
 
-      <div
-        className={[
-          commonExampleCss.exampleStage,
-          reactSliderSectionCss.stage,
-        ].join(" ")}>
+      <CommonExampleStagePanel className={reactSliderSectionCss.stage}>
         <Slider
           ref={slider}
           animationDuration={500}
@@ -190,7 +187,7 @@ const ReactSliderExample = ({
           onIndexChange={handleIndexChange}
           onItemKey={handleItemKey}
         />
-      </div>
+      </CommonExampleStagePanel>
 
       <CommonExampleStatePanel
         items={[

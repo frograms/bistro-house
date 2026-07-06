@@ -4,6 +4,7 @@ import { addPoint } from "@packages/react-motion/src/script/util/point-utils";
 import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
 import {
   CommonExampleControlPanel,
+  CommonExampleStagePanel,
   CommonExampleStatePanel,
 } from "@playground/component/view/_common/common-example-panels";
 import { reactMotionPointerSectionCss } from "@playground/component/view/package/react-motion/react-motion-pointer-section.css";
@@ -67,11 +68,7 @@ export const ReactMotionPointerSection = () => {
         </label>
       </CommonExampleControlPanel>
 
-      <div
-        className={[
-          commonExampleCss.exampleStage,
-          reactMotionPointerSectionCss.stage,
-        ].join(" ")}>
+      <CommonExampleStagePanel className={reactMotionPointerSectionCss.stage}>
         <div
           {...withPointerMove}
           className={reactMotionPointerSectionCss.dragBox}
@@ -81,7 +78,7 @@ export const ReactMotionPointerSection = () => {
           }}>
           Drag
         </div>
-      </div>
+      </CommonExampleStagePanel>
 
       <CommonExampleStatePanel
         items={[

@@ -4,6 +4,7 @@ import { addPoint } from "@packages/react-motion/src/script/util/point-utils";
 import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
 import {
   CommonExampleControlPanel,
+  CommonExampleStagePanel,
   CommonExampleStatePanel,
 } from "@playground/component/view/_common/common-example-panels";
 import { CommonNote } from "@playground/component/view/_common/common-note";
@@ -74,11 +75,7 @@ export const ReactMotionGlobalSection = () => {
         </label>
       </CommonExampleControlPanel>
 
-      <div
-        className={[
-          commonExampleCss.exampleStage,
-          reactMotionGlobalSectionCss.stage,
-        ].join(" ")}>
+      <CommonExampleStagePanel className={reactMotionGlobalSectionCss.stage}>
         <div className={reactMotionGlobalSectionCss.stageGuide}>
           카드를 잡고 움직인 뒤, 카드 바깥 영역까지 드래그해 보세요.
         </div>
@@ -91,7 +88,7 @@ export const ReactMotionGlobalSection = () => {
           }}>
           Global
         </div>
-      </div>
+      </CommonExampleStagePanel>
 
       <CommonExampleStatePanel
         items={[

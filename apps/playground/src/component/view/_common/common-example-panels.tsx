@@ -5,6 +5,11 @@ type CommonExampleControlPanelProps = {
   children: ReactNode;
 };
 
+type CommonExampleStagePanelProps = {
+  children: ReactNode;
+  className?: string;
+};
+
 type CommonExampleStatePanelItem = {
   label: ReactNode;
   value: ReactNode;
@@ -20,6 +25,20 @@ export const CommonExampleControlPanel = ({
   return (
     <div className={commonExampleCss.controlPanel}>
       <p className={commonExampleCss.controlPanelTitle}>컨트롤</p>
+      {children}
+    </div>
+  );
+};
+
+export const CommonExampleStagePanel = ({
+  children,
+  className,
+}: CommonExampleStagePanelProps) => {
+  return (
+    <div
+      className={[commonExampleCss.exampleStagePanel, className]
+        .filter(Boolean)
+        .join(" ")}>
       {children}
     </div>
   );
