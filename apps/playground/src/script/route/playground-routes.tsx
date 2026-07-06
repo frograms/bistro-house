@@ -9,6 +9,7 @@ import { withRouteComponent } from "@playground/script/util/router-utils";
 import type { RouteObject } from "react-router";
 
 export const playgroundRoutes: ReadonlyArray<RouteObject> = [
+  // react-slider
   withRouteComponent({
     AppContent: PackageAppContent,
     routes: [
@@ -24,6 +25,12 @@ export const playgroundRoutes: ReadonlyArray<RouteObject> = [
         element: <ReactSliderPeekContainer />,
         path: "/react-slider/peek",
       },
+    ],
+  }),
+  // react-motion
+  withRouteComponent({
+    AppContent: PackageAppContent,
+    routes: [
       {
         element: <ReactMotionDocumentationContainer />,
         path: "/react-motion",
