@@ -1,4 +1,4 @@
-import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
+import { commonContainerCss } from "@playground/component/view/_common/common-container.css";
 import type { ReactNode } from "react";
 
 type CommonContainerProps = {
@@ -6,5 +6,5 @@ type CommonContainerProps = {
 };
 
 export const CommonContainer = ({ children }: CommonContainerProps) => {
-  return <main className={commonExampleCss.packagePlayground}>{children}</main>;
+  return <main className={commonContainerCss.container}>{children}</main>;
 };

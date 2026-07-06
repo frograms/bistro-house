@@ -3,7 +3,6 @@ import {
   type SliderRef,
 } from "@packages/react-slider/src/component/view/slider";
 import type { SlideTriggerEvent } from "@packages/react-slider/src/script/type/slider-types";
-import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
 import {
   CommonExampleControlPanel,
   CommonExampleStagePanel,
@@ -11,6 +10,7 @@ import {
 } from "@playground/component/view/_common/common-example-panels";
 import { CommonNote } from "@playground/component/view/_common/common-note";
 import { reactSliderSectionCss } from "@playground/component/view/package/react-slider/_shared/react-slider-section.css";
+import { commonExampleControlsCss } from "@playground/resource/css/common/common-example-controls.css";
 import type { CSSProperties, ReactNode } from "react";
 import { useCallback, useRef, useState } from "react";
 
@@ -136,7 +136,7 @@ const ReactSliderExample = ({
   return (
     <section className={reactSliderSectionCss.exampleBlock}>
       <CommonExampleControlPanel>
-        <div className={commonExampleCss.buttonGroup}>
+        <div className={commonExampleControlsCss.buttonGroup}>
           <button type="button" onClick={handlePrevClick}>
             이전 카드
           </button>
@@ -145,7 +145,7 @@ const ReactSliderExample = ({
           </button>
         </div>
 
-        <label>
+        <label className={commonExampleControlsCss.checkboxField}>
           <span>카드 간격</span>
           <select
             aria-label="카드 간격"
@@ -161,7 +161,7 @@ const ReactSliderExample = ({
           </select>
         </label>
 
-        <label className={commonExampleCss.checkboxField}>
+        <label>
           <input
             checked={enableDrag}
             type="checkbox"
@@ -223,13 +223,13 @@ export const ReactSliderSection = ({ variant }: ReactSliderSectionProps) => {
   ];
 
   return (
-    <section className={commonExampleCss.exampleSection}>
+    <>
       <CommonNote items={notes} />
 
       <ReactSliderExample
         cardClassName={example.cardClassName}
         overflow={example.overflow}
       />
-    </section>
+    </>
   );
 };

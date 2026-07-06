@@ -1,4 +1,4 @@
-import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
+import { commonReadmeCss } from "@playground/component/view/_common/common-readme.css";
 import {
   type ComponentProps,
   isValidElement,
@@ -61,7 +61,7 @@ const CommonReadmePre = ({
   };
 
   return (
-    <div className={commonExampleCss.readmeCodeBlock}>
+    <div className={commonReadmeCss.codeBlock}>
       <button
         data-copied={isCopied ? "true" : "false"}
         type="button"
@@ -75,8 +75,8 @@ const CommonReadmePre = ({
 
 export const CommonReadme = ({ markdown }: CommonReadmeProps) => {
   return (
-    <section className={commonExampleCss.readmeDocument}>
-      <div className={commonExampleCss.readmeBody}>
+    <section className={commonReadmeCss.document}>
+      <div className={commonReadmeCss.body}>
         <ReactMarkdown
           components={{
             h1: ({ children, node: _node, ...props }) => (

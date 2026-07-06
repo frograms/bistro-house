@@ -1,4 +1,5 @@
-import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
+import { commonExamplePanelsCss } from "@playground/component/view/_common/common-example-panels.css";
+import { commonExampleControlsCss } from "@playground/resource/css/common/common-example-controls.css";
 import type { ReactNode } from "react";
 
 type CommonExampleControlPanelProps = {
@@ -23,8 +24,8 @@ export const CommonExampleControlPanel = ({
   children,
 }: CommonExampleControlPanelProps) => {
   return (
-    <div className={commonExampleCss.controlPanel}>
-      <p className={commonExampleCss.controlPanelTitle}>컨트롤</p>
+    <div className={commonExampleControlsCss.controlPanel}>
+      <p className={commonExampleControlsCss.controlPanelTitle}>컨트롤</p>
       {children}
     </div>
   );
@@ -36,7 +37,7 @@ export const CommonExampleStagePanel = ({
 }: CommonExampleStagePanelProps) => {
   return (
     <div
-      className={[commonExampleCss.exampleStagePanel, className]
+      className={[commonExamplePanelsCss.stagePanel, className]
         .filter(Boolean)
         .join(" ")}>
       {children}
@@ -48,8 +49,8 @@ export const CommonExampleStatePanel = ({
   items,
 }: CommonExampleStatePanelProps) => {
   return (
-    <dl className={commonExampleCss.statePanel}>
-      <div className={commonExampleCss.statePanelTitle}>
+    <dl className={commonExamplePanelsCss.statePanel}>
+      <div className={commonExamplePanelsCss.statePanelTitle}>
         <dt>현재 상태</dt>
       </div>
 
