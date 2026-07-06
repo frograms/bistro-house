@@ -1,314 +1,363 @@
-/**
- * ESLint rule to fix workspace package imports to use direct paths
- * Dynamically finds export paths by scanning package source files
- */
-
 import fs from "fs";
 import path from "path";
+import ts from "typescript";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Get workspace root (3 levels up from this file: project-attachment/eslint-rule/ -> apps/playground/ -> apps/ -> root)
 const WORKSPACE_ROOT = path.resolve(__dirname, "../../../..");
 const PACKAGES_DIR = path.resolve(WORKSPACE_ROOT, "packages");
+const PACKAGE_NAME_PREFIX = "@watcha-authentic/";
+const DIRECT_IMPORT_PREFIX = "@packages/";
 
-// Cache for export mappings
 const exportCache = new Map();
 
-/**
- * Check if a package is an internal workspace package (excluding eslint-config, prettier-config)
- */
-function isInternalWorkspacePackage(packageName) {
-  if (!packageName.startsWith("@watcha-authentic/")) {
-    return false;
+/** @watcha-authentic/<package> 형식에서 workspace 디렉터리 이름만 추출한다. */
+const getPackageDirectoryName = (packageName) => {
+  return packageName.replace(PACKAGE_NAME_PREFIX, "");
+};
+
+/** playground에서 직접 접근 대상으로 보는 workspace 패키지명인지 확인한다. */
+const isWorkspacePackageName = (packageName) => {
+  const packageDirectoryName = packageName.slice(PACKAGE_NAME_PREFIX.length);
+
+  return (
+    packageName.startsWith(PACKAGE_NAME_PREFIX) &&
+    packageDirectoryName.length > 0 &&
+    !packageDirectoryName.includes("/")
+  );
+};
+
+/** fixer 대상 import source를 workspace 패키지 디렉터리 정보로 변환한다. */
+const parseImportSource = (source) => {
+  if (isWorkspacePackageName(source)) {
+    return {
+      packageDirectoryName: getPackageDirectoryName(source),
+    };
   }
 
-  // Exclude lint/prettier config packages
-  if (
-    packageName.includes("eslint-config") ||
-    packageName.includes("prettier-config")
-  ) {
-    return false;
+  const directImportMatch = source.match(/^@packages\/([^/]+)(?:\/src)?$/);
+
+  if (directImportMatch?.[1]) {
+    return {
+      packageDirectoryName: directImportMatch[1],
+    };
   }
 
-  return true;
-}
+  return null;
+};
 
-/**
- * Get package directory path from package name
- */
-function getPackagePath(packageName) {
-  const packageDirName = packageName.replace("@watcha-authentic/", "");
-  return path.resolve(PACKAGES_DIR, packageDirName);
-}
+/** 확장자가 생략된 source 경로를 실제 파일 경로로 해석한다. */
+const resolveSourceFilePath = (filePathWithoutExtension) => {
+  const possibleExtensions = ["", ".ts", ".tsx", ".js", ".jsx"];
 
-/**
- * Parse index.ts to find export * from statements
- */
-function parseIndexExports(indexPath) {
-  if (!fs.existsSync(indexPath)) {
-    return null;
-  }
+  for (const extension of possibleExtensions) {
+    const filePath = `${filePathWithoutExtension}${extension}`;
 
-  const content = fs.readFileSync(indexPath, "utf-8");
-  const exports = new Map();
-
-  // Match: export * from "./path/to/file"
-  const exportRegex = /export\s+\*\s+from\s+["']([^"']+)["']/g;
-  let match;
-
-  while ((match = exportRegex.exec(content)) !== null) {
-    const exportPath = match[1];
-    // Resolve relative path from index.ts directory
-    const indexDir = path.dirname(indexPath);
-    const fullPath = path.resolve(indexDir, exportPath);
-
-    // Try to find the actual file
-    const possibleExtensions = ["", ".ts", ".tsx", ".js", ".jsx"];
-    let filePath = null;
-
-    for (const ext of possibleExtensions) {
-      const testPath = fullPath + ext;
-      if (fs.existsSync(testPath) && fs.statSync(testPath).isFile()) {
-        filePath = testPath;
-        break;
-      }
-    }
-
-    if (filePath) {
-      // Get relative path from src directory (indexPath is in src/)
-      const srcDir = path.dirname(indexPath);
-      const relativePath = path.relative(srcDir, filePath);
-      const normalizedPath = relativePath
-        .replace(/\\/g, "/")
-        .replace(/\.(ts|tsx|js|jsx)$/, "");
-
-      // Extract export names from the file
-      const fileExports = extractExportsFromFile(filePath);
-      fileExports.forEach((exportName) => {
-        if (exportName && exportName !== "default") {
-          exports.set(exportName, normalizedPath);
-        }
-      });
-    } else {
-      // If file not found, try to use the export path directly as a directory path
-      // This handles cases where the path points to a directory with an index file
-      const dirPath = fullPath;
-      if (fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory()) {
-        const indexFiles = ["index.ts", "index.tsx", "index.js", "index.jsx"];
-        for (const indexFile of indexFiles) {
-          const indexPath = path.join(dirPath, indexFile);
-          if (fs.existsSync(indexPath)) {
-            const srcDir = path.dirname(indexPath);
-            const relativePath = path.relative(srcDir, indexPath);
-            const normalizedPath = relativePath
-              .replace(/\\/g, "/")
-              .replace(/\.(ts|tsx|js|jsx)$/, "")
-              .replace(/\/index$/, "");
-
-            const fileExports = extractExportsFromFile(indexPath);
-            fileExports.forEach((exportName) => {
-              if (exportName && exportName !== "default") {
-                exports.set(exportName, normalizedPath);
-              }
-            });
-            break;
-          }
-        }
-      }
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      return filePath;
     }
   }
 
-  return exports;
-}
+  return null;
+};
 
-/**
- * Extract export names from a TypeScript/JavaScript file
- */
-function extractExportsFromFile(filePath) {
+/** src 디렉터리 기준 직접 import에 사용할 확장자 없는 경로로 정규화한다. */
+const getNormalizedSourcePath = (sourceDirectory, filePath) => {
+  return path
+    .relative(sourceDirectory, filePath)
+    .replace(/\\/g, "/")
+    .replace(/\.(ts|tsx|js|jsx)$/, "");
+};
+
+/** export * from "./foo"가 가리키는 파일에서 named export 목록을 추출한다. */
+const extractExportsFromFile = (filePath) => {
   if (!fs.existsSync(filePath)) {
     return [];
   }
 
   const content = fs.readFileSync(filePath, "utf-8");
-  const exports = [];
+  const exportNames = [];
+  const exportPatterns = [
+    /export\s+const\s+([A-Za-z_$][\w$]*)\b/g,
+    /export\s+function\s+([A-Za-z_$][\w$]*)\b/g,
+    /export\s+class\s+([A-Za-z_$][\w$]*)\b/g,
+    /export\s+(?:interface|type|enum)\s+([A-Za-z_$][\w$]*)\b/g,
+  ];
 
-  // Match: export const name = ... (including multiline with forwardRef)
-  const constExportRegex = /export\s+const\s+(\w+)\s*=/g;
-  let match;
-  while ((match = constExportRegex.exec(content)) !== null) {
-    exports.push(match[1]);
+  for (const exportPattern of exportPatterns) {
+    let match;
+
+    while ((match = exportPattern.exec(content)) !== null) {
+      exportNames.push(match[1]);
+    }
   }
 
-  // Match: export function name
-  const functionExportRegex = /export\s+function\s+(\w+)/g;
-  while ((match = functionExportRegex.exec(content)) !== null) {
-    exports.push(match[1]);
-  }
+  const namedExportPattern = /export\s*\{([^}]+)\}/g;
+  let namedExportMatch;
 
-  // Match: export class name
-  const classExportRegex = /export\s+class\s+(\w+)/g;
-  while ((match = classExportRegex.exec(content)) !== null) {
-    exports.push(match[1]);
-  }
-
-  // Match: export interface/type/enum name
-  const typeExportRegex = /export\s+(?:interface|type|enum)\s+(\w+)/g;
-  while ((match = typeExportRegex.exec(content)) !== null) {
-    exports.push(match[1]);
-  }
-
-  // Match: export { name1, name2 } or export { name1 as alias }
-  const exportObjectRegex = /export\s*\{([^}]+)\}/g;
-  while ((match = exportObjectRegex.exec(content)) !== null) {
-    const names = match[1]
+  while ((namedExportMatch = namedExportPattern.exec(content)) !== null) {
+    const names = namedExportMatch[1]
       .split(",")
-      .map((n) =>
-        n
+      .map((name) =>
+        name
           .trim()
+          .replace(/^type\s+/, "")
           .split(/\s+as\s+/)[0]
           .trim()
       )
-      .filter((n) => n && !n.startsWith("type "));
-    exports.push(...names);
+      .filter(Boolean);
+
+    exportNames.push(...names);
   }
 
-  // Match: export default
-  if (/export\s+default/.test(content)) {
-    exports.push("default");
+  return exportNames.filter((exportName) => exportName !== "default");
+};
+
+/** src/index.ts의 source 있는 public re-export를 export 이름별 직접 경로 정보로 수집한다. */
+const parseIndexExports = (indexPath) => {
+  if (!fs.existsSync(indexPath)) {
+    return new Map();
+  }
+
+  const indexContent = fs.readFileSync(indexPath, "utf-8");
+  const indexDirectory = path.dirname(indexPath);
+  const sourceFile = ts.createSourceFile(
+    indexPath,
+    indexContent,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS
+  );
+  const exports = new Map();
+
+  for (const statement of sourceFile.statements) {
+    if (
+      !ts.isExportDeclaration(statement) ||
+      statement.moduleSpecifier == null ||
+      !ts.isStringLiteral(statement.moduleSpecifier)
+    ) {
+      continue;
+    }
+
+    const reExportSource = statement.moduleSpecifier.text;
+    const sourceFilePath = resolveSourceFilePath(
+      path.resolve(indexDirectory, reExportSource)
+    );
+
+    if (sourceFilePath == null) {
+      continue;
+    }
+
+    const sourcePath = getNormalizedSourcePath(indexDirectory, sourceFilePath);
+    const { exportClause } = statement;
+
+    if (exportClause == null) {
+      const exportNames = extractExportsFromFile(sourceFilePath);
+
+      for (const exportName of exportNames) {
+        exports.set(exportName, {
+          importedName: exportName,
+          isTypeOnly: false,
+          kind: "named",
+          sourcePath,
+        });
+      }
+
+      continue;
+    }
+
+    if (ts.isNamedExports(exportClause)) {
+      for (const exportSpecifier of exportClause.elements) {
+        const exportedName = exportSpecifier.name.text;
+        const importedName =
+          exportSpecifier.propertyName?.text ?? exportedName;
+
+        exports.set(exportedName, {
+          importedName,
+          isTypeOnly: statement.isTypeOnly || exportSpecifier.isTypeOnly,
+          kind: "named",
+          sourcePath,
+        });
+      }
+
+      continue;
+    }
+
+    if (ts.isNamespaceExport(exportClause)) {
+      const exportedName = exportClause.name.text;
+
+      exports.set(exportedName, {
+        importedName: exportedName,
+        isTypeOnly: statement.isTypeOnly,
+        kind: "namespace",
+        sourcePath,
+      });
+    }
   }
 
   return exports;
-}
+};
 
-/**
- * Find export path for a given package and export name
- */
-function findExportPath(packageName, exportName) {
-  const cacheKey = `${packageName}:${exportName}`;
+/** 패키지의 public export 이름을 직접 import 생성에 필요한 정보로 찾는다. */
+const findExportInfo = (packageDirectoryName, exportName) => {
+  const cacheKey = `${packageDirectoryName}:${exportName}`;
+
   if (exportCache.has(cacheKey)) {
     return exportCache.get(cacheKey);
   }
 
-  const packagePath = getPackagePath(packageName);
-  if (!fs.existsSync(packagePath)) {
-    return null;
-  }
-
+  const packagePath = path.resolve(PACKAGES_DIR, packageDirectoryName);
   const indexPath = path.resolve(packagePath, "src/index.ts");
-  if (!fs.existsSync(indexPath)) {
-    return null;
-  }
-
   const exports = parseIndexExports(indexPath);
+  const exportInfo = exports.get(exportName) ?? null;
 
-  if (exports && exports.has(exportName)) {
-    const exportPath = exports.get(exportName);
-    exportCache.set(cacheKey, exportPath);
-    return exportPath;
+  exportCache.set(cacheKey, exportInfo);
+
+  return exportInfo;
+};
+
+/** ImportSpecifier의 imported 이름을 원본 코드 텍스트 기준으로 읽는다. */
+const getSpecifierImportName = (sourceCode, specifier) => {
+  return sourceCode.getText(specifier.imported);
+};
+
+/** import type 선언 또는 type specifier인지 확인한다. */
+const isTypeSpecifier = (node, specifier) => {
+  return node.importKind === "type" || specifier.importKind === "type";
+};
+
+/** 하나의 named import specifier를 직접 import에서 사용할 텍스트로 만든다. */
+const createImportSpecifierText = (sourceCode, node, specifier, exportInfo) => {
+  const { importedName } = exportInfo;
+  const localName = sourceCode.getText(specifier.local);
+  const typePrefix =
+    isTypeSpecifier(node, specifier) || exportInfo.isTypeOnly ? "type " : "";
+
+  if (importedName === localName) {
+    return `${typePrefix}${importedName}`;
   }
 
-  // Fallback: try to find file by name convention
-  // e.g., Slider -> component/view/slider
-  const srcPath = path.resolve(packagePath, "src");
-  if (fs.existsSync(srcPath)) {
-    const foundPath = findFileByExportName(srcPath, exportName, "");
-    if (foundPath) {
-      exportCache.set(cacheKey, foundPath);
-      return foundPath;
+  return `${typePrefix}${importedName} as ${localName}`;
+};
+
+/** 같은 source로 묶인 specifier 그룹을 import declaration 텍스트로 만든다. */
+const createDirectImportText = (group) => {
+  if (group.kind === "namespace") {
+    const typePrefix = group.isTypeOnly ? "type " : "";
+
+    return `import ${typePrefix}* as ${group.localName} from "${group.source}";`;
+  }
+
+  const hasOnlyTypeSpecifiers = group.specifiers.every((specifier) =>
+    specifier.startsWith("type ")
+  );
+
+  if (hasOnlyTypeSpecifiers) {
+    const specifiers = group.specifiers.map((specifier) =>
+      specifier.replace(/^type\s+/, "")
+    );
+
+    return `import type { ${specifiers.join(", ")} } from "${group.source}";`;
+  }
+
+  return `import { ${group.specifiers.join(", ")} } from "${group.source}";`;
+};
+
+/** 기존 import declaration의 specifier들을 직접 경로 import 그룹으로 재구성한다. */
+const createDirectImportGroups = (sourceCode, node, packageDirectoryName) => {
+  const groups = new Map();
+
+  for (const specifier of node.specifiers) {
+    if (specifier.type !== "ImportSpecifier") {
+      return null;
     }
-  }
 
-  return null;
-}
+    const exportName = getSpecifierImportName(sourceCode, specifier);
+    const exportInfo = findExportInfo(packageDirectoryName, exportName);
 
-/**
- * Recursively find file that might export the given name
- */
-function findFileByExportName(dir, exportName, currentPath) {
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-
-  for (const entry of entries) {
-    if (entry.isDirectory()) {
-      const subPath = currentPath ? `${currentPath}/${entry.name}` : entry.name;
-      const found = findFileByExportName(
-        path.join(dir, entry.name),
-        exportName,
-        subPath
-      );
-      if (found) return found;
-    } else if (entry.isFile() && /\.(ts|tsx|js|jsx)$/.test(entry.name)) {
-      const filePath = path.join(dir, entry.name);
-      const exports = extractExportsFromFile(filePath);
-
-      // Check if file name matches export name (case-insensitive)
-      const fileName = entry.name.replace(/\.(ts|tsx|js|jsx)$/, "");
-      if (
-        exports.includes(exportName) ||
-        fileName.toLowerCase() === exportName.toLowerCase() ||
-        fileName.toLowerCase().replace(/-/g, "") === exportName.toLowerCase()
-      ) {
-        const relativePath = currentPath
-          ? `${currentPath}/${fileName}`
-          : fileName;
-        return relativePath;
-      }
+    if (exportInfo == null) {
+      return null;
     }
+
+    const directSource = `${DIRECT_IMPORT_PREFIX}${packageDirectoryName}/src/${exportInfo.sourcePath}`;
+
+    if (exportInfo.kind === "namespace") {
+      const localName = sourceCode.getText(specifier.local);
+      const isTypeOnly = isTypeSpecifier(node, specifier);
+      const groupKey = `namespace:${directSource}:${localName}:${isTypeOnly}`;
+
+      groups.set(groupKey, {
+        isTypeOnly,
+        kind: "namespace",
+        localName,
+        source: directSource,
+      });
+
+      continue;
+    }
+
+    const groupKey = `named:${directSource}`;
+    const group = groups.get(groupKey) ?? {
+      kind: "named",
+      source: directSource,
+      specifiers: [],
+    };
+
+    group.specifiers.push(
+      createImportSpecifierText(sourceCode, node, specifier, exportInfo)
+    );
+    groups.set(groupKey, group);
   }
 
-  return null;
-}
+  return [...groups.values()];
+};
 
 const rule = {
   create(context) {
+    const sourceCode = context.sourceCode ?? context.getSourceCode();
+
     return {
       ImportDeclaration(node) {
         const source = node.source.value;
 
-        // Check if it's an internal workspace package
-        if (!isInternalWorkspacePackage(source)) {
+        if (typeof source !== "string") {
           return;
         }
 
-        // Skip if already using direct path (contains / after package name)
-        if (source.includes("/") && source !== source.split("/")[0]) {
+        const importSourceInfo = parseImportSource(source);
+
+        if (importSourceInfo == null) {
           return;
         }
 
-        // Find the first named import
-        const firstSpecifier = node.specifiers.find(
-          (s) => s.type === "ImportSpecifier"
+        const directImportGroups = createDirectImportGroups(
+          sourceCode,
+          node,
+          importSourceInfo.packageDirectoryName
         );
 
-        if (firstSpecifier) {
-          const exportName = firstSpecifier.imported.name;
-          const directPath = findExportPath(source, exportName);
+        context.report({
+          data: {
+            source,
+          },
+          fix:
+            directImportGroups == null
+              ? null
+              : (fixer) => {
+                  const directImportText = directImportGroups
+                    .map(createDirectImportText)
+                    .join("\n");
 
-          if (directPath) {
-            const suggestedPath = `${source}/${directPath}`;
-
-            context.report({
-              data: { suggestedPath },
-              fix(fixer) {
-                // Replace the import source
-                return fixer.replaceText(node.source, `"${suggestedPath}"`);
-              },
-              messageId: "useDirectPath",
-              node: node.source,
-            });
-          } else {
-            // If export not found, suggest checking the package structure
-            context.report({
-              data: {
-                suggestedPath: `${source}/... (직접 경로를 지정해주세요)`,
-              },
-              messageId: "useDirectPath",
-              node: node.source,
-            });
-          }
-        }
+                  return fixer.replaceText(node, directImportText);
+                },
+          messageId:
+            directImportGroups == null
+              ? "useDirectPathWithoutFix"
+              : "useDirectPath",
+          node: node.source,
+        });
       },
     };
   },
@@ -316,12 +365,24 @@ const rule = {
     fixable: "code",
     messages: {
       useDirectPath:
-        "workspace 패키지는 직접 경로로 임포트해야 합니다. {{suggestedPath}}",
+        "{{source}} import는 @packages/<package>/src/<file> 직접 경로로 작성해야 합니다.",
+      useDirectPathWithoutFix:
+        "{{source}} import는 직접 경로로 작성해야 합니다. 자동 수정할 export 경로를 찾지 못했습니다.",
     },
     type: "problem",
   },
 };
 
+/**
+ * src/index.ts의 source 있는 public re-export만 직접 경로 변환 대상으로 삼는다.
+ *
+ * 지원:
+ * - export * from "./foo"
+ * - export { Foo } from "./foo"
+ * - export type { Foo } from "./foo"
+ * - export { Foo as Bar } from "./foo"
+ * - export * as Foo from "./foo"
+ */
 export default {
   rules: {
     "use-direct-path": rule,
