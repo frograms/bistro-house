@@ -21,7 +21,7 @@ export const reactMotionGlobalSectionCss = {
   }),
   stage: style({
     background:
-      "radial-gradient(circle at 50% 50%, rgb(255 5 88 / 0.12), transparent 18rem), #fff7fa",
+      "linear-gradient(135deg, rgb(255 5 88 / 0.1), transparent 28rem), #fff1f5",
     border: "1px dashed #ff8ab2",
     borderRadius: 24,
     height: 360,
