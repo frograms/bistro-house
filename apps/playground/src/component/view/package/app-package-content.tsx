@@ -54,7 +54,7 @@ export const PackageAppContent = () => {
           ? `${appContentCss.contentLayout} ${appContentCss.contentLayoutWithToc}`
           : appContentCss.contentLayout
       }>
-      <main className={appContentCss.content} id="top">
+      <div className={appContentCss.content} id="top">
         <header className={appContentCss.header}>
           <p className={appContentCss.eyebrow}>WATCHA Packages</p>
           <h1 id="overview">{activePage?.exampleLabel ?? "Playground"}</h1>
@@ -90,7 +90,7 @@ export const PackageAppContent = () => {
         </header>
 
         <Outlet />
-      </main>
+      </div>
 
       {hasTableOfContents && <CommonPageToc targetElementId="top" />}
     </div>

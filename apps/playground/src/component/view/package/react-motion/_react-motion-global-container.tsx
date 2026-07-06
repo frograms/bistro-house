@@ -1,10 +1,10 @@
-import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
+import { CommonContainer } from "@playground/component/view/_common/common-container";
 import { ReactMotionGlobalSection } from "@playground/component/view/package/react-motion/react-motion-global-section";
 
 export const ReactMotionGlobalContainer = () => {
   return (
-    <section className={commonExampleCss.packagePlayground} id="react-motion">
+    <CommonContainer>
       <ReactMotionGlobalSection />
-    </section>
+    </CommonContainer>
   );
 };

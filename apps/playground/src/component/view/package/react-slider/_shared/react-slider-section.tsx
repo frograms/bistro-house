@@ -4,6 +4,10 @@ import {
 } from "@packages/react-slider/src/component/view/slider";
 import type { SlideTriggerEvent } from "@packages/react-slider/src/script/type/slider-types";
 import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
+import {
+  CommonExampleControlPanel,
+  CommonExampleStatePanel,
+} from "@playground/component/view/_common/common-example-panels";
 import { CommonNote } from "@playground/component/view/_common/common-note";
 import { reactSliderSectionCss } from "@playground/component/view/package/react-slider/_shared/react-slider-section.css";
 import type { CSSProperties, ReactNode } from "react";
@@ -130,8 +134,7 @@ const ReactSliderExample = ({
 
   return (
     <section className={reactSliderSectionCss.exampleBlock}>
-      <div className={commonExampleCss.controlPanel}>
-        <p className={commonExampleCss.controlPanelTitle}>컨트롤</p>
+      <CommonExampleControlPanel>
         <div className={commonExampleCss.buttonGroup}>
           <button type="button" onClick={handlePrevClick}>
             이전 카드
@@ -167,9 +170,13 @@ const ReactSliderExample = ({
           />
           <span>드래그 허용</span>
         </label>
-      </div>
+      </CommonExampleControlPanel>
 
-      <div className={reactSliderSectionCss.stage}>
+      <div
+        className={[
+          commonExampleCss.exampleStage,
+          reactSliderSectionCss.stage,
+        ].join(" ")}>
         <Slider
           ref={slider}
           animationDuration={500}
@@ -185,23 +192,13 @@ const ReactSliderExample = ({
         />
       </div>
 
-      <dl className={commonExampleCss.statePanel}>
-        <div className={commonExampleCss.statePanelTitle}>
-          <dt>현재 상태</dt>
-        </div>
-        <div>
-          <dt>현재 인덱스</dt>
-          <dd>{currentIndex}</dd>
-        </div>
-        <div>
-          <dt>마지막 이동 원인</dt>
-          <dd>{lastTriggerEvent}</dd>
-        </div>
-        <div>
-          <dt>드래그 중</dt>
-          <dd>{isDragging ? "true" : "false"}</dd>
-        </div>
-      </dl>
+      <CommonExampleStatePanel
+        items={[
+          { label: "현재 인덱스", value: currentIndex },
+          { label: "마지막 이동 원인", value: lastTriggerEvent },
+          { label: "드래그 중", value: isDragging ? "true" : "false" },
+        ]}
+      />
     </section>
   );
 };

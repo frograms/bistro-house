@@ -2,6 +2,10 @@ import { usePointerMove } from "@packages/react-motion/src/component/hook/use-po
 import type { Point2D } from "@packages/react-motion/src/script/type/primitives";
 import { addPoint } from "@packages/react-motion/src/script/util/point-utils";
 import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
+import {
+  CommonExampleControlPanel,
+  CommonExampleStatePanel,
+} from "@playground/component/view/_common/common-example-panels";
 import { reactMotionPointerSectionCss } from "@playground/component/view/package/react-motion/react-motion-pointer-section.css";
 import { useCallback, useRef, useState } from "react";
 
@@ -44,8 +48,7 @@ export const ReactMotionPointerSection = () => {
 
   return (
     <section className={commonExampleCss.exampleSection}>
-      <div className={commonExampleCss.controlPanel}>
-        <p className={commonExampleCss.controlPanelTitle}>컨트롤</p>
+      <CommonExampleControlPanel>
         <div className={commonExampleCss.buttonGroup}>
           <button type="button" onClick={handleResetClick}>
             위치 초기화
@@ -62,9 +65,13 @@ export const ReactMotionPointerSection = () => {
           />
           <span>포인터 이벤트 연결</span>
         </label>
-      </div>
+      </CommonExampleControlPanel>
 
-      <div className={reactMotionPointerSectionCss.stage}>
+      <div
+        className={[
+          commonExampleCss.exampleStage,
+          reactMotionPointerSectionCss.stage,
+        ].join(" ")}>
         <div
           {...withPointerMove}
           className={reactMotionPointerSectionCss.dragBox}
@@ -76,27 +83,14 @@ export const ReactMotionPointerSection = () => {
         </div>
       </div>
 
-      <dl className={commonExampleCss.statePanel}>
-        <div className={commonExampleCss.statePanelTitle}>
-          <dt>현재 상태</dt>
-        </div>
-        <div>
-          <dt>x</dt>
-          <dd>{Math.round(currentPoint.x)}</dd>
-        </div>
-        <div>
-          <dt>y</dt>
-          <dd>{Math.round(currentPoint.y)}</dd>
-        </div>
-        <div>
-          <dt>distance</dt>
-          <dd>{distance}</dd>
-        </div>
-        <div>
-          <dt>드래그 중</dt>
-          <dd>{isDragging ? "true" : "false"}</dd>
-        </div>
-      </dl>
+      <CommonExampleStatePanel
+        items={[
+          { label: "x", value: Math.round(currentPoint.x) },
+          { label: "y", value: Math.round(currentPoint.y) },
+          { label: "distance", value: distance },
+          { label: "드래그 중", value: isDragging ? "true" : "false" },
+        ]}
+      />
     </section>
   );
 };

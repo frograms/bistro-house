@@ -54,6 +54,14 @@ export const commonExampleCss = {
     display: "grid",
     gap: 20,
   }),
+  exampleStage: style({
+    background:
+      "linear-gradient(135deg, rgb(255 5 88 / 0.1), transparent 28rem), #fff1f5",
+    border: "1px dashed #ff8ab2",
+    borderRadius: 24,
+    overflow: "hidden",
+    position: "relative",
+  }),
   packagePlayground: style({
     display: "grid",
     gap: 20,

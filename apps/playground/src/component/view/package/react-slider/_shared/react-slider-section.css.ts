@@ -28,12 +28,7 @@ export const reactSliderSectionCss = {
     gap: 16,
   }),
   stage: style({
-    background:
-      "linear-gradient(135deg, rgb(255 5 88 / 0.1), transparent 28rem), #fff1f5",
-    border: "1px dashed #ff8ab2",
-    borderRadius: 24,
     containerType: "inline-size",
-    overflow: "hidden",
     padding: 36,
   }),
 };
