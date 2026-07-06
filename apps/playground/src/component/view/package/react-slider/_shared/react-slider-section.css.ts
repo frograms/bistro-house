@@ -4,9 +4,7 @@ export const reactSliderSectionCss = {
   card: style({
     background:
       "radial-gradient(circle at 18% 18%, rgb(255 255 255 / 0.28), transparent 22%), radial-gradient(circle at 86% 78%, rgb(255 255 255 / 0.18), transparent 26%), var(--slider-card-gradient)",
-    border: "1px solid #e5e7eb",
     borderRadius: 22,
-    boxShadow: "0 22px 55px rgb(15 23 42 / 0.18)",
     color: "#ffffff",
     minHeight: 360,
     overflow: "hidden",
@@ -21,6 +19,9 @@ export const reactSliderSectionCss = {
     padding: 32,
     position: "absolute",
     zIndex: 1,
+  }),
+  cardWithShadow: style({
+    boxShadow: "0 22px 55px rgb(15 23 42 / 0.18)",
   }),
   exampleBlock: style({
     display: "grid",

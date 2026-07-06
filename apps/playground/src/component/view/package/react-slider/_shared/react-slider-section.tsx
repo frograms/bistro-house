@@ -64,6 +64,7 @@ const SLIDER_ITEMS: Array<SliderItem> = [
 const GAP_OPTIONS = [0, 16, 32] as const;
 
 type ReactSliderExampleProps = {
+  cardClassName?: string;
   overflow?: "hidden" | "visible";
 };
 
@@ -75,7 +76,10 @@ type ReactSliderSectionProps = {
   variant: "peek" | "single";
 };
 
-const ReactSliderExample = ({ overflow }: ReactSliderExampleProps) => {
+const ReactSliderExample = ({
+  cardClassName,
+  overflow,
+}: ReactSliderExampleProps) => {
   const slider = useRef<SliderRef>(null);
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -104,7 +108,9 @@ const ReactSliderExample = ({ overflow }: ReactSliderExampleProps) => {
   const handleCreateItemView = useCallback((item: SliderItem) => {
     return (
       <article
-        className={reactSliderSectionCss.card}
+        className={[reactSliderSectionCss.card, cardClassName]
+          .filter(Boolean)
+          .join(" ")}
         style={
           {
             "--slider-card-accent": item.accentColor,
@@ -118,7 +124,7 @@ const ReactSliderExample = ({ overflow }: ReactSliderExampleProps) => {
         </div>
       </article>
     );
-  }, []);
+  }, [cardClassName]);
 
   const handleItemKey = useCallback((item: SliderItem) => item.id, []);
 
@@ -205,6 +211,7 @@ const REACT_SLIDER_EXAMPLE_BY_VARIANT: Record<
   ReactSliderExampleConfig
 > = {
   peek: {
+    cardClassName: reactSliderSectionCss.cardWithShadow,
     notes: [
       "현재 아이템을 중심으로 양옆 아이템이 살짝 보이도록 노출하는 구성입니다.",
     ],
@@ -225,7 +232,10 @@ export const ReactSliderSection = ({ variant }: ReactSliderSectionProps) => {
     <section className={commonExampleCss.exampleSection}>
       <CommonNote items={notes} />
 
-      <ReactSliderExample overflow={example.overflow} />
+      <ReactSliderExample
+        cardClassName={example.cardClassName}
+        overflow={example.overflow}
+      />
     </section>
   );
 };
