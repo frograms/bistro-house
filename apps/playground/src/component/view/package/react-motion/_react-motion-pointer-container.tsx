@@ -67,17 +67,6 @@ export const ReactMotionPointerContainer = () => {
           />
           <span>포인터 이벤트 연결</span>
         </label>
-
-        <label className={commonExampleControlsCss.checkboxField}>
-          <input
-            checked={enabled}
-            type="checkbox"
-            onChange={(event) => {
-              setEnabled(event.target.checked);
-            }}
-          />
-          <span>포인터 이벤트 연결</span>
-        </label>
       </CommonExampleControlPanel>
 
       <CommonExampleStagePanel className={reactMotionPointerContainerCss.stage}>
