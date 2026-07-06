@@ -1,11 +1,11 @@
-import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
-import { CommonNote } from "@playground/component/view/_common/common-note";
-import { reactSliderSectionCss } from "@playground/component/view/package/react-slider/_shared/react-slider-section.css";
 import {
   Slider,
   type SliderRef,
-} from "@watcha-authentic/react-slider/component/view/slider";
-import type { SlideTriggerEvent } from "@watcha-authentic/react-slider/script/type/slider-types";
+} from "@packages/react-slider/src/component/view/slider";
+import type { SlideTriggerEvent } from "@packages/react-slider/src/script/type/slider-types";
+import { commonExampleCss } from "@playground/component/view/_common/common-example.css";
+import { CommonNote } from "@playground/component/view/_common/common-note";
+import { reactSliderSectionCss } from "@playground/component/view/package/react-slider/_shared/react-slider-section.css";
 import type { CSSProperties, ReactNode } from "react";
 import { useCallback, useRef, useState } from "react";
 

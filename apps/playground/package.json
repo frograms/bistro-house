@@ -13,10 +13,6 @@
   },
   "dependencies": {
     "@vanilla-extract/css": "^1.21.1",
-    "@watcha-authentic/react-a11y": "workspace:*",
-    "@watcha-authentic/react-event-callback": "workspace:*",
-    "@watcha-authentic/react-motion": "workspace:*",
-    "@watcha-authentic/react-slider": "workspace:*",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-markdown": "^10.1.0",

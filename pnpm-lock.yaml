@@ -65,18 +65,6 @@ importers:
       '@vanilla-extract/css':
         specifier: ^1.21.1
         version: 1.21.1
-      '@watcha-authentic/react-a11y':
-        specifier: workspace:*
-        version: link:../../packages/react-a11y
-      '@watcha-authentic/react-event-callback':
-        specifier: workspace:*
-        version: link:../../packages/react-event-callback
-      '@watcha-authentic/react-motion':
-        specifier: workspace:*
-        version: link:../../packages/react-motion
-      '@watcha-authentic/react-slider':
-        specifier: workspace:*
-        version: link:../../packages/react-slider
       react:
         specifier: ^19.2.6
         version: 19.2.7
