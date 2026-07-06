@@ -1,6 +1,6 @@
 import { globalStyle, style } from "@vanilla-extract/css";
 
-export const reactSliderSectionCss = {
+export const reactSliderExampleCss = {
   card: style({
     background:
       "radial-gradient(circle at 18% 18%, rgb(255 255 255 / 0.28), transparent 22%), radial-gradient(circle at 86% 78%, rgb(255 255 255 / 0.18), transparent 26%), var(--slider-card-gradient)",
@@ -33,7 +33,7 @@ export const reactSliderSectionCss = {
   }),
 };
 
-globalStyle(`${reactSliderSectionCss.card}::after`, {
+globalStyle(`${reactSliderExampleCss.card}::after`, {
   background:
     "linear-gradient(135deg, transparent 0 42%, rgb(255 255 255 / 0.14) 42% 43%, transparent 43% 100%)",
   content: '""',
@@ -41,7 +41,7 @@ globalStyle(`${reactSliderSectionCss.card}::after`, {
   position: "absolute",
 });
 
-globalStyle(`${reactSliderSectionCss.cardContent} span`, {
+globalStyle(`${reactSliderExampleCss.cardContent} span`, {
   background: "rgb(255 255 255 / 0.16)",
   border: "1px solid rgb(255 255 255 / 0.2)",
   borderRadius: 999,
@@ -53,14 +53,14 @@ globalStyle(`${reactSliderSectionCss.cardContent} span`, {
   textTransform: "uppercase",
 });
 
-globalStyle(`${reactSliderSectionCss.cardContent} h3`, {
+globalStyle(`${reactSliderExampleCss.cardContent} h3`, {
   fontSize: "clamp(44px, 8cqw, 84px)",
   letterSpacing: "-0.06em",
   lineHeight: 0.95,
   margin: 0,
 });
 
-globalStyle(`${reactSliderSectionCss.cardContent} p`, {
+globalStyle(`${reactSliderExampleCss.cardContent} p`, {
   color: "rgb(255 255 255 / 0.78)",
   fontSize: 16,
   lineHeight: 1.6,

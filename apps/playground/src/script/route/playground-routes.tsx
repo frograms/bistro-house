@@ -3,6 +3,7 @@ import { ReactMotionGlobalContainer } from "@playground/component/view/package/r
 import { ReactMotionPointerContainer } from "@playground/component/view/package/react-motion/_react-motion-pointer-container";
 import { ReactSliderPeekContainer } from "@playground/component/view/package/react-slider/_react-slider-peek-container";
 import { ReactSliderSingleContainer } from "@playground/component/view/package/react-slider/_react-slider-single-container";
+import { ReactSliderTransitionContainer } from "@playground/component/view/package/react-slider/_react-slider-transition-container";
 import { withRouteComponent } from "@playground/script/util/router-utils";
 import type { RouteObject } from "react-router";
 
@@ -28,6 +29,10 @@ export const playgroundRoutes: ReadonlyArray<RouteObject> = [
       {
         element: <ReactSliderPeekContainer />,
         path: "/react-slider/peek",
+      },
+      {
+        element: <ReactSliderTransitionContainer />,
+        path: "/react-slider/transition",
       },
     ],
   }),

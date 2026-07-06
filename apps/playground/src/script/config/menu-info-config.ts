@@ -29,6 +29,10 @@ export const MENU_INFO: ReadonlyArray<MenuInfo> = [
         exampleLabel: "예제 - 양옆 아이템 노출 슬라이더",
         path: "/react-slider/peek",
       },
+      {
+        exampleLabel: "예제 - transition 값 응용",
+        path: "/react-slider/transition",
+      },
     ],
     npmUrl: "https://www.npmjs.com/package/@watcha-authentic/react-slider",
     packageDescription:
