@@ -58,9 +58,11 @@ export const ReactMotionGlobalContainer = () => {
       />
 
       <CommonExampleControlPanel>
-        <button type="button" onClick={handleResetClick}>
-          위치 초기화
-        </button>
+        <div className={commonExampleControlsCss.buttonGroup}>
+          <button type="button" onClick={handleResetClick}>
+            위치 초기화
+          </button>
+        </div>
 
         <label className={commonExampleControlsCss.checkboxField}>
           <input

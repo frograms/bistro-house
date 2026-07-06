@@ -51,9 +51,22 @@ export const ReactMotionPointerContainer = () => {
   return (
     <CommonContainer>
       <CommonExampleControlPanel>
-        <button type="button" onClick={handleResetClick}>
-          위치 초기화
-        </button>
+        <div className={commonExampleControlsCss.buttonGroup}>
+          <button type="button" onClick={handleResetClick}>
+            위치 초기화
+          </button>
+        </div>
+
+        <label className={commonExampleControlsCss.checkboxField}>
+          <input
+            checked={enabled}
+            type="checkbox"
+            onChange={(event) => {
+              setEnabled(event.target.checked);
+            }}
+          />
+          <span>포인터 이벤트 연결</span>
+        </label>
 
         <label className={commonExampleControlsCss.checkboxField}>
           <input
