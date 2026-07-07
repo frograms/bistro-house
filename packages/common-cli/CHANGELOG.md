@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.8](https://github.com/frograms/bistro-house/compare/@watcha-authentic/common-cli@1.0.7...@watcha-authentic/common-cli@1.0.8) (2026-07-07)
+
+### Bug Fixes
+
+* common-cli vite dev 의존성 추가 ([#48](https://github.com/frograms/bistro-house/issues/48)) ([f368ef0](https://github.com/frograms/bistro-house/commit/f368ef0e076c43a26ba89eaa9aaabe2715ce97da))
+
 ## [1.0.7](https://github.com/frograms/bistro-house/compare/@watcha-authentic/common-cli@1.0.6...@watcha-authentic/common-cli@1.0.7) (2026-07-01)
 
 ### Bug Fixes
