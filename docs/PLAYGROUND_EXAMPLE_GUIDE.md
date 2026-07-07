@@ -52,7 +52,7 @@
 
 ## 검증
 
-작업 후 저장소 루트에서 playground 배포 워크플로와 같은 검증을 실행합니다.
+작업 후 저장소 루트에서 playground 검증을 실행합니다.
 
 ```bash
 pnpm exec turbo run test lint build typecheck --filter=playground

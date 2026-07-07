@@ -105,7 +105,7 @@ pnpm prepare-package <package-name>
 
 ### `pnpm add-package` (권장)
 
-모노레포 convention에 맞춘 스캐폴딩은 **저장소 루트**에서 실행합니다. 내부적으로 워크스페이스의 [`@watcha-authentic/common-cli`](../packages/common-cli/README.md) `create-package`(dev)를 호출합니다.
+모노레포 규칙에 맞춘 스캐폴딩은 **저장소 루트**에서 실행합니다. 내부적으로 워크스페이스의 [`@watcha-authentic/common-cli`](../packages/common-cli/README.md) `create-package`(dev)를 호출합니다.
 
 ```bash
 pnpm add-package <type> <project-name> <project-description> [options...]
