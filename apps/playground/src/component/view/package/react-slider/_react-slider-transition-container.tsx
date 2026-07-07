@@ -167,7 +167,7 @@ export const ReactSliderTransitionContainer = () => {
 
       <section className={reactSliderExampleCss.exampleBlock}>
         <CommonExampleControlPanel>
-          <div className={commonExampleControlsCss.buttonGroup}>
+          <div className={commonExampleControlsCss.controlGroup}>
             <button type="button" onClick={handlePrevClick}>
               이전 카드
             </button>

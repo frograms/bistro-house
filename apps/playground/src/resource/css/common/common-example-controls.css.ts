@@ -1,16 +1,17 @@
 import { globalStyle, style } from "@vanilla-extract/css";
 
 export const commonExampleControlsCss = {
-  buttonGroup: style({
+  checkboxField: style({
+    cursor: "pointer",
+  }),
+  controlGroup: style({
+    alignItems: "center",
     borderBottom: "1px solid #e5e7eb",
     display: "flex",
     flexWrap: "wrap",
     gap: 8,
     gridColumn: "1 / -1",
     paddingBottom: 14,
-  }),
-  checkboxField: style({
-    cursor: "pointer",
   }),
   controlPanel: style({
     background: "#fafafa",

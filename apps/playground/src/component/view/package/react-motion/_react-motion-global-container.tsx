@@ -58,7 +58,7 @@ export const ReactMotionGlobalContainer = () => {
       />
 
       <CommonExampleControlPanel>
-        <div className={commonExampleControlsCss.buttonGroup}>
+        <div className={commonExampleControlsCss.controlGroup}>
           <button type="button" onClick={handleResetClick}>
             위치 초기화
           </button>
