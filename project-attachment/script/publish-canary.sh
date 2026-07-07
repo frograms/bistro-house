@@ -11,4 +11,5 @@ set -e
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 package_name="${1:-}"
 
-bash "$script_dir/publish-prerelease.sh" canary "$package_name" login true
+NPM_PUBLISH_ACCESS=public \
+  bash "$script_dir/publish-prerelease.sh" canary "$package_name" login true
