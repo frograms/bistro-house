@@ -1,9 +1,11 @@
 name: Deploy Playground
 
 # playground(@watcha-authentic 데모/문서 사이트) 정적 배포.
-# 플랫폼 공통 워크플로(reusable-ci-static) 호출 — S3 sync + CloudFront invalidation + IDP 등록.
+# 플랫폼 공통 워크플로(reusable-ci-static) 호출 — 내부에서 validate(test_command 실행) →
+# deploy(빌드 + S3 sync + CloudFront invalidation + IDP 등록) 2개 잡으로 실행된다.
+# (기존 validate/deploy-playground 잡 분리는 reusable 내부 구조로 흡수 — 빌드는 deploy 잡에서 1회만)
 # 서빙: https://services.watcha.com/web-packages/ (app_name = vite base = /web-packages/)
-# 러너: static-deploy-runner (public repo — 러너 그룹 static-deploy 소속)
+# 러너: static-deploy-runner (public repo — 러너 그룹 selected 소속: Selected repositories + Allow public)
 
 on:
   push:
