@@ -1,19 +1,24 @@
 #!/bin/bash
 
-# @watcha-authentic/* 패키지를 prerelease 배포 채널로 배포합니다.
+# @watcha-authentic/* 패키지를 prerelease 채널로 배포합니다.
 #
-# 실행
+# Usage
 # - bash ./project-attachment/script/publish-prerelease.sh <channel> <package> [auth] <cleanup>
-# - auth: login (기본) | npm-oidc
-# - cleanup: true | false — EXIT 시 이 스크립트에서 수정한 사항에 대해 버전 복원 여부 (publish-canary/patch 에서 전달)
 #
-# 채널
-# - canary {version}-canary.{branch}.{n} dist-tag: canary
-# - patch {version}-patch.{n} dist-tag: patch
+# Arguments
+# - channel: canary | patch
+#   - canary → {version}-canary.{branch}.{n}, dist-tag canary
+#   - patch  → {version}-patch.{n}, dist-tag patch
+# - package: 패키지 짧은 이름 또는 전체 이름
+# - auth: login(기본) | npm-oidc
+#   - login: npm login 세션으로 인증
+#   - npm-oidc: npm Trusted Publishing/OIDC 인증
+# - cleanup: true | false
+#   - true면 EXIT 시 이 스크립트에서 수정한 package.json 버전을 복원합니다.
 #
-# auth (세 번째 인자, 기본 login)
-# - login — npm login 세션으로 인증 (npm whoami)
-# - npm-oidc — npm OIDC(Trusted Publishing) 자동 인증
+# Options
+# - NPM_PUBLISH_USERCONFIG: npm publish 에 사용할 userconfig(.npmrc) 경로
+# - NPM_PUBLISH_ACCESS: npm publish --access 값 (예: public)
 #
 # 성공 시 마지막 줄 publish-prerelease-result-tag=@scope/pkg@version (태그 결과 grep용)
 
@@ -280,7 +285,16 @@ publish_package() {
 
   (
     cd "$root_dir/$package_dir"
-    npm publish --tag "$channel" --access public
+    publish_args=(--tag "$channel")
+    if [ -n "${NPM_PUBLISH_ACCESS:-}" ]; then
+      publish_args+=(--access "$NPM_PUBLISH_ACCESS")
+    fi
+
+    if [ -n "${NPM_PUBLISH_USERCONFIG:-}" ]; then
+      NPM_CONFIG_USERCONFIG="$NPM_PUBLISH_USERCONFIG" npm publish "${publish_args[@]}"
+    else
+      npm publish "${publish_args[@]}"
+    fi
   )
 }
 
