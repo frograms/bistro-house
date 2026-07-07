@@ -54,6 +54,19 @@ export const commonSidebarCss = {
     fontWeight: 800,
     letterSpacing: "-0.04em",
   }),
+  emptyState: style({
+    alignItems: "center",
+    background:
+      "linear-gradient(135deg, rgb(255 5 88 / 0.08), rgb(17 24 39 / 0.04))",
+    border: "1px solid rgb(255 5 88 / 0.16)",
+    borderRadius: 18,
+    color: "#111827",
+    display: "grid",
+    gap: 8,
+    justifyItems: "center",
+    padding: "22px 16px",
+    textAlign: "center",
+  }),
   header: style({
     "@media": {
       "(max-width: 720px)": {
@@ -278,4 +291,31 @@ globalStyle(`${commonSidebarCss.menuButton} span`, {
   display: "block",
   height: 12,
   width: 14,
+});
+
+globalStyle(`${commonSidebarCss.emptyState} > span`, {
+  alignItems: "center",
+  background: "#ffffff",
+  border: "1px solid rgb(255 5 88 / 0.18)",
+  borderRadius: 18,
+  color: "#ff0558",
+  display: "inline-flex",
+  fontSize: 24,
+  fontWeight: 900,
+  height: 52,
+  justifyContent: "center",
+  letterSpacing: "-0.08em",
+  width: 52,
+});
+
+globalStyle(`${commonSidebarCss.emptyState} strong`, {
+  fontSize: 14,
+  lineHeight: 1.4,
+});
+
+globalStyle(`${commonSidebarCss.emptyState} p`, {
+  color: "#6b7280",
+  fontSize: 13,
+  lineHeight: 1.5,
+  margin: 0,
 });

@@ -23,6 +23,7 @@ export const CommonSidebar = ({ sections }: CommonSidebarProps) => {
   const location = useLocation();
   const navigationId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const hasSections = sections.length > 0;
 
   // 모바일에서 페이지 전환 시에는 사이드 메뉴를 항상 닫습니다.
   useEffect(() => {
@@ -98,25 +99,33 @@ export const CommonSidebar = ({ sections }: CommonSidebarProps) => {
         data-state={isMenuOpen ? "open" : "closed"}
         id={navigationId}>
         <div className={commonSidebarCss.navScrollArea}>
-          {sections.map((section) => (
-            <section key={section.to} className={commonSidebarCss.section}>
-              <div className={commonSidebarCss.sectionHeader}>
-                <NavLink
-                  className={commonSidebarCss.sectionHeaderLink}
-                  to={section.to}>
-                  {section.label}
-                </NavLink>
-              </div>
-
-              <div className={commonSidebarCss.menu}>
-                {section.items.map((item) => (
-                  <NavLink key={item.to} to={item.to}>
-                    <span>{item.label}</span>
+          {hasSections ? (
+            sections.map((section) => (
+              <section key={section.to} className={commonSidebarCss.section}>
+                <div className={commonSidebarCss.sectionHeader}>
+                  <NavLink
+                    className={commonSidebarCss.sectionHeaderLink}
+                    to={section.to}>
+                    {section.label}
                   </NavLink>
-                ))}
-              </div>
-            </section>
-          ))}
+                </div>
+
+                <div className={commonSidebarCss.menu}>
+                  {section.items.map((item) => (
+                    <NavLink key={item.to} to={item.to}>
+                      <span>{item.label}</span>
+                    </NavLink>
+                  ))}
+                </div>
+              </section>
+            ))
+          ) : (
+            <div className={commonSidebarCss.emptyState}>
+              <span aria-hidden="true">:3</span>
+              <strong>아직 패키지가 없습니다.</strong>
+              <p>패키지가 추가되면 이곳에 가이드 메뉴가 표시됩니다.</p>
+            </div>
+          )}
         </div>
       </nav>
     </aside>

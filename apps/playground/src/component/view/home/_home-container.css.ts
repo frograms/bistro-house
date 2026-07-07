@@ -1,6 +1,20 @@
 import { globalStyle, style } from "@vanilla-extract/css";
 
 export const homeContainerCss = {
+  emptyPackageCard: style({
+    alignItems: "center",
+    background:
+      "linear-gradient(135deg, rgb(255 5 88 / 0.08), rgb(17 24 39 / 0.04))",
+    border: "1px solid rgb(255 5 88 / 0.16)",
+    borderRadius: 18,
+    color: "#111827",
+    display: "grid",
+    gap: 8,
+    justifyItems: "center",
+    minHeight: 168,
+    padding: 24,
+    textAlign: "center",
+  }),
   exampleGrid: style({
     display: "grid",
     gap: 12,
@@ -101,4 +115,30 @@ globalStyle(`${homeContainerCss.exampleLink} small`, {
 globalStyle(`${homeContainerCss.exampleLink} span`, {
   color: "#6b7280",
   lineHeight: 1.5,
+});
+
+globalStyle(`${homeContainerCss.emptyPackageCard} > div`, {
+  alignItems: "center",
+  background: "#ffffff",
+  border: "1px solid rgb(255 5 88 / 0.18)",
+  borderRadius: 20,
+  color: "#ff0558",
+  display: "inline-flex",
+  fontSize: 28,
+  fontWeight: 900,
+  height: 60,
+  justifyContent: "center",
+  letterSpacing: "-0.08em",
+  width: 60,
+});
+
+globalStyle(`${homeContainerCss.emptyPackageCard} strong`, {
+  fontSize: 18,
+  lineHeight: 1.4,
+});
+
+globalStyle(`${homeContainerCss.emptyPackageCard} p`, {
+  color: "#6b7280",
+  lineHeight: 1.5,
+  margin: 0,
 });
