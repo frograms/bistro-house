@@ -12,7 +12,7 @@
     "validate": "turbo run test lint build typecheck",
     "lint": "turbo run lint",
     "build": "turbo run build",
-    "build:packages": "pnpm build --filter '@watcha-authentic/*'",
+    "build:packages": "bash ./project-attachment/script/build-packages.sh",
     "publish:canary": "bash ./project-attachment/script/publish-canary.sh",
     "prepare-package": "node ./project-attachment/script/prepare-package/prepare-package.js",
     "add-package": "bash ./project-attachment/script/add-package.sh",
