@@ -34,6 +34,12 @@ const DEFAULT_SCROLL_THRESHOLD = 125;
 export type SliderRef = HTMLUListElement & {
   doNext: () => void;
   doPrev: () => void;
+  /**
+   * - 원본 아이템 인덱스로 슬라이드 합니다.
+   * - 현재 위치에서 좌/우 중 가까운 방향(최단 경로)으로 이동합니다.
+   * - 범위 밖 인덱스는 아이템 개수 기준으로 순환 보정됩니다.
+   */
+  doSlideTo: (index: number) => void;
 };
 
 type ExtendedItem<ItemType> = {
@@ -509,6 +515,40 @@ const SliderComponent = <ItemType = unknown,>(
     });
   }, [extendedItems.length]);
 
+  const doSlideTo = useCallback(
+    (index: number) => {
+      const originalLength = items.length;
+      const extendedLength = extendedItems.length;
+      if (originalLength === 0) {
+        return;
+      }
+
+      setSliderInfo((prev) => {
+        // 원본 인덱스 범위로 순환 보정
+        const targetOriginalIndex =
+          ((index % originalLength) + originalLength) % originalLength;
+        const currentOriginalIndex = prev.currentIndex % originalLength;
+
+        // 원본 인덱스 기준 최단 경로(좌/우 중 가까운 방향) 계산
+        let delta = targetOriginalIndex - currentOriginalIndex;
+        if (delta > originalLength / 2) {
+          delta -= originalLength;
+        } else if (delta < -originalLength / 2) {
+          delta += originalLength;
+        }
+
+        if (delta === 0) {
+          return prev;
+        }
+
+        const newIndex =
+          (prev.currentIndex + delta + extendedLength) % extendedLength;
+        return { ...prev, currentIndex: newIndex };
+      });
+    },
+    [extendedItems.length, items.length]
+  );
+
   const handleSwipe = useCallback(async () => {
     lastSlideTriggerEvent.current = "swipe";
     await updateStateByPageIndex({
@@ -676,8 +716,8 @@ const SliderComponent = <ItemType = unknown,>(
   useImperativeHandle(
     ref,
     useCallback((): SliderRef => {
-      return Object.assign(wrapRef.current!, { doNext, doPrev });
-    }, [doNext, doPrev])
+      return Object.assign(wrapRef.current!, { doNext, doPrev, doSlideTo });
+    }, [doNext, doPrev, doSlideTo])
   );
 
   return (

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/frograms/bistro-house/compare/@watcha-authentic/react-slider@1.1.7...@watcha-authentic/react-slider@1.2.0) (2026-07-07)
+
+### Features
+
+* 슬라이더 특정 인덱스 이동 doSlideTo 추가 ([#47](https://github.com/frograms/bistro-house/issues/47)) ([5f24846](https://github.com/frograms/bistro-house/commit/5f248466ddeea047279db3124d6763530e503f76))
+
 ## [1.1.7](https://github.com/frograms/bistro-house/compare/@watcha-authentic/react-slider@1.1.6...@watcha-authentic/react-slider@1.1.7) (2026-06-30)
 
 **Note:** Version bump only for package @watcha-authentic/react-slider
