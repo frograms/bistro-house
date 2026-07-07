@@ -186,10 +186,19 @@ export const scaffoldPackage = async (
   });
 
   // 기본 작업 폴더 생성
+  // 기본 작업 폴더 생성 - script
   createFolder(path.join(outputDir, "src/script"));
+  ["config", "constant", "type", "util"].forEach((subfolder) => {
+    createFolder(path.join(outputDir, "src/script", subfolder));
+  });
+  // 기본 작업 폴더 생성 - resource
   createFolder(path.join(outputDir, "src/resource"));
+  // 기본 작업 폴더 생성 - component (for react)
   if (packageType !== "lib") {
     createFolder(path.join(outputDir, "src/component"));
+    ["context", "hook", "view"].forEach((subfolder) => {
+      createFolder(path.join(outputDir, "src/component", subfolder));
+    });
   }
 };
 
