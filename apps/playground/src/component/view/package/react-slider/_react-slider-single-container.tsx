@@ -41,6 +41,10 @@ export const ReactSliderSingleContainer = () => {
     slider.current?.doNext();
   }, []);
 
+  const handleSlideToClick = useCallback((index: number) => {
+    slider.current?.doSlideTo(index);
+  }, []);
+
   const handleIndexChange = useCallback(
     (newIndex: number, cause: SlideTriggerEvent) => {
       setCurrentIndex(newIndex);
@@ -87,6 +91,21 @@ export const ReactSliderSingleContainer = () => {
             <button type="button" onClick={handleNextClick}>
               다음 카드
             </button>
+          </div>
+
+          <div className={commonExampleControlsCss.controlGroup}>
+            <span>인덱스로 이동</span>
+            {SLIDER_ITEMS.map((item, index) => (
+              <button
+                key={item.id}
+                disabled={currentIndex === index}
+                type="button"
+                onClick={() => {
+                  handleSlideToClick(index);
+                }}>
+                {index}
+              </button>
+            ))}
           </div>
 
           <label className={commonExampleControlsCss.checkboxField}>
