@@ -1,0 +1,171 @@
+name: reusable-static-deploy
+
+# 리포 내 정적 앱(apps/*) 공용 배포 — validate → deploy(빌드 + S3 sync + CDN invalidation + 등록).
+#
+# 사내 공용 정적 배포 파이프라인의 리포 내 대응물. public 리포는 private 리포의
+# reusable workflow/composite action 을 참조할 수 없다는 GitHub 제약 때문에 같은 리포 안에
+# 두었다 (같은 리포 참조는 visibility 무관). 사내 공용 파이프라인이 정본 — 그쪽이 바뀌면
+# 이 파일도 함께 갱신한다.
+# https://docs.github.com/en/actions/reference/workflows-and-actions/reusing-workflow-configurations
+#
+# 새 앱 추가: deploy-{app}.yml caller 를 만들어 이 워크플로를 호출한다 (deploy-playground.yml 참고).
+# 전제:
+#   - 빌드 base path = /{app_name}/ (vite base 등) — 산출물 자산 경로 성립 조건
+#   - production environment(master 브랜치 제한)에 시크릿 5종:
+#     DEPLOY_AWS_ROLE_ARN / DEPLOY_S3_BUCKET / DEPLOY_CF_DISTRIBUTION_ID /
+#     DEPLOY_REGISTRY_ENDPOINT / DEPLOY_REGISTRY_AUTH_HEADER
+#     (리소스 식별자는 전부 시크릿 — public 리포 YAML/로그에 남기지 않기 위함이며, 로그에서도 마스킹된다)
+#   - deploy 잡 러너 = static-deploy-runner(자체 호스팅) — 배포 등록에 필요.
+#     validate 는 ubuntu-latest — PR/검증 잡은 자체 호스팅 러너를 쓰지 않는다는 원칙.
+
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        description: 앱 이름 = 산출물 prefix = 서빙 경로 /{app_name}/
+        required: true
+        type: string
+      test_command:
+        required: true
+        type: string
+      build_command:
+        description: 정적 빌드 커맨드. 모노레포는 필터 포함 (예 pnpm build --filter=playground). 멀티라인 가능.
+        required: true
+        type: string
+      dist_path:
+        description: 빌드 산출물 디렉토리 (예 apps/playground/dist)
+        required: true
+        type: string
+      description:
+        description: 배포 등록 시 앱 설명 (최초 등록 시에만 저장)
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-action
+
+      - name: Test
+        run: ${{ inputs.test_command }}
+
+  deploy:
+    # 빌드와 배포를 한 잡에서 수행 — 아티팩트 전달/재빌드 없이 산출물을 그대로 sync
+    needs: validate
+    runs-on: static-deploy-runner
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    # environment.url 은 공개 run 화면에 그대로 렌더링되므로 서빙 도메인을 넣지 않는다
+    environment: production
+    env:
+      APP_NAME: ${{ inputs.app_name }}
+    steps:
+      - name: Preflight
+        env:
+          ROLE_ARN: ${{ secrets.DEPLOY_AWS_ROLE_ARN }}
+          BUCKET: ${{ secrets.DEPLOY_S3_BUCKET }}
+          DISTRIBUTION_ID: ${{ secrets.DEPLOY_CF_DISTRIBUTION_ID }}
+          REGISTRY_ENDPOINT: ${{ secrets.DEPLOY_REGISTRY_ENDPOINT }}
+          REGISTRY_AUTH_HEADER: ${{ secrets.DEPLOY_REGISTRY_AUTH_HEADER }}
+        run: |
+          set -euo pipefail
+          missing=""
+          [ -z "$ROLE_ARN" ] && missing="$missing DEPLOY_AWS_ROLE_ARN"
+          [ -z "$BUCKET" ] && missing="$missing DEPLOY_S3_BUCKET"
+          [ -z "$DISTRIBUTION_ID" ] && missing="$missing DEPLOY_CF_DISTRIBUTION_ID"
+          [ -z "$REGISTRY_ENDPOINT" ] && missing="$missing DEPLOY_REGISTRY_ENDPOINT"
+          [ -z "$REGISTRY_AUTH_HEADER" ] && missing="$missing DEPLOY_REGISTRY_AUTH_HEADER"
+          if [ -n "$missing" ]; then
+            echo "::error::production environment 시크릿 미설정:$missing"
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-action
+
+      - name: Build
+        run: ${{ inputs.build_command }}
+
+      - name: Ensure aws CLI
+        run: |
+          set -euo pipefail
+          if command -v aws >/dev/null 2>&1; then
+            exit 0
+          fi
+          # aws CLI 미포함 러너 이미지 대응 — rootless 설치 (기본 러너 이미지는 포함이라 보통 스킵)
+          if ! command -v unzip >/dev/null 2>&1; then
+            echo "::error::aws CLI 도 unzip 도 없는 러너 이미지입니다."
+            exit 1
+          fi
+          curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+          unzip -q /tmp/awscliv2.zip -d /tmp
+          /tmp/aws/install -i "$HOME/.aws-cli" -b "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          rm -rf /tmp/awscliv2.zip /tmp/aws
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.DEPLOY_AWS_ROLE_ARN }}
+          role-session-name: github-actions-${{ github.run_id }}
+          aws-region: ap-northeast-2
+
+      - name: Sync dist to S3
+        env:
+          DIST_PATH: ${{ inputs.dist_path }}
+          BUCKET: ${{ secrets.DEPLOY_S3_BUCKET }}
+        run: |
+          set -euo pipefail
+          # 루트 index.html 없으면 SPA 라우팅 자체가 불가 — 배포 전 최소 검증
+          if [ ! -f "$DIST_PATH/index.html" ]; then
+            echo "::error::$DIST_PATH/index.html 없음 — dist_path 또는 빌드 산출물 확인"
+            exit 1
+          fi
+          # --only-show-errors: 공개 로그에 업로드 경로를 나열하지 않는다
+          aws s3 sync "$DIST_PATH" "s3://$BUCKET/$APP_NAME/" --delete --only-show-errors
+
+      - name: CDN invalidation
+        env:
+          DISTRIBUTION_ID: ${{ secrets.DEPLOY_CF_DISTRIBUTION_ID }}
+        run: |
+          set -euo pipefail
+          aws cloudfront create-invalidation \
+            --distribution-id "$DISTRIBUTION_ID" \
+            --paths "/$APP_NAME/*" \
+            --query 'Invalidation.Status' --output text
+
+      - name: Register deployment
+        env:
+          ENDPOINT: ${{ secrets.DEPLOY_REGISTRY_ENDPOINT }}
+          AUTH_HEADER: ${{ secrets.DEPLOY_REGISTRY_AUTH_HEADER }}
+          DEPLOYER: ${{ github.actor }}
+          DESCRIPTION: ${{ inputs.description }}
+        run: |
+          set -euo pipefail
+          # 배포(S3/CDN)는 이미 완료 — 등록은 멱등 upsert 라 실패 시 재실행으로 복구.
+          # 응답 본문은 공개 로그에 남기지 않는다 (상태 코드만 출력).
+          curl -fsS -o /dev/null -w 'registry upsert: HTTP %{http_code}\n' \
+            -X POST "$ENDPOINT" \
+            -H "Content-Type: application/json" \
+            -H "$AUTH_HEADER" \
+            -d "$(jq -nc --arg name "$APP_NAME" --arg deployer "$DEPLOYER" --arg desc "$DESCRIPTION" \
+              '{name:$name, deployer:$deployer, description:$desc}')"
+
+      - name: Summary
+        run: |
+          echo "### 정적 웹앱 배포 완료" >> "$GITHUB_STEP_SUMMARY"
+          echo "- 경로: /${APP_NAME}/" >> "$GITHUB_STEP_SUMMARY"
