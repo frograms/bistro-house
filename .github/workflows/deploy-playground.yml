@@ -1,8 +1,8 @@
 name: Deploy Playground
 
 # playground(@watcha-authentic 데모/문서 사이트) 정적 배포 — 리포 공용 reusable-static-deploy 호출.
-# 내부에서 validate(test_command 실행) → deploy(빌드 + S3 sync + CF invalidation + 등록)로 실행된다.
-# 서빙: https://services.watcha.com/web-packages/ (app_name = vite base = /web-packages/)
+# 내부에서 validate(test_command 실행) → deploy(빌드 + S3 sync + CDN invalidation + 등록)로 실행된다.
+# 서빙 경로: /web-packages/ (app_name = vite base)
 #
 # 새 앱 추가 시 이 파일을 복사해 app_name/커맨드/paths 만 바꾸면 된다.
 
