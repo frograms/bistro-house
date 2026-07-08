@@ -1,0 +1,147 @@
+name: reusable-static-deploy
+
+# 리포 내 정적 앱(apps/*) 공용 배포 — validate → deploy(빌드 + S3 sync + CF invalidation + 등록).
+#
+# 플랫폼 공용 reusable-ci-static(frograms/watcha-github-actions)의 리포 내 대응물.
+# public 리포는 private 리포의 reusable workflow/composite action 을 참조할 수 없다는
+# GitHub 제약 때문에 같은 리포 안에 두었다 (같은 리포 참조는 visibility 무관).
+# 플랫폼 공용 파이프라인이 정본 — 공용 쪽이 바뀌면 이 파일도 함께 갱신한다.
+# https://docs.github.com/en/actions/reference/workflows-and-actions/reusing-workflow-configurations
+#
+# 새 앱 추가: deploy-{app}.yml caller 를 만들어 이 워크플로를 호출한다 (deploy-playground.yml 참고).
+# 전제:
+#   - 빌드 base path = /{app_name}/ (vite base 등) — 산출물 자산 경로 성립 조건
+#   - production environment: master 브랜치 제한 + DEPLOY_REGISTRY_ENDPOINT/AUTH_HEADER 시크릿
+#   - deploy 잡 러너 = static-deploy-runner(자체 호스팅) — 배포 레지스트리 등록에 필요.
+#     validate 는 ubuntu-latest — PR/검증 잡은 자체 호스팅 러너를 쓰지 않는다는 원칙.
+
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        description: 앱 이름 = S3 prefix = services.watcha.com/{app_name} 경로
+        required: true
+        type: string
+      test_command:
+        required: true
+        type: string
+      build_command:
+        description: 정적 빌드 커맨드. 모노레포는 필터 포함 (예 pnpm build --filter=playground). 멀티라인 가능.
+        required: true
+        type: string
+      dist_path:
+        description: 빌드 산출물 디렉토리 (예 apps/playground/dist)
+        required: true
+        type: string
+      description:
+        description: 배포 레지스트리(IDP) 앱 설명 (최초 등록 시에만 저장)
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-action
+
+      - name: Test
+        run: ${{ inputs.test_command }}
+
+  deploy:
+    # 빌드와 배포를 한 잡에서 수행 — 아티팩트 전달/재빌드 없이 산출물을 그대로 sync
+    needs: validate
+    runs-on: static-deploy-runner
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: production
+      url: https://services.watcha.com/${{ inputs.app_name }}/
+    env:
+      APP_NAME: ${{ inputs.app_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-action
+
+      - name: Build
+        run: ${{ inputs.build_command }}
+
+      - name: Ensure aws CLI
+        run: |
+          set -euo pipefail
+          if command -v aws >/dev/null 2>&1; then
+            exit 0
+          fi
+          # aws CLI 미포함 러너 이미지 대응 — rootless 설치 (static-deploy-runner 는 포함이라 보통 스킵)
+          if ! command -v unzip >/dev/null 2>&1; then
+            echo "::error::aws CLI 도 unzip 도 없는 러너 이미지입니다. static-deploy-runner 또는 ubuntu-latest 를 사용하세요."
+            exit 1
+          fi
+          curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+          unzip -q /tmp/awscliv2.zip -d /tmp
+          /tmp/aws/install -i "$HOME/.aws-cli" -b "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          rm -rf /tmp/awscliv2.zip /tmp/aws
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::178360514797:role/assume-role@githubActions-cicd
+          role-session-name: github-actions-${{ github.run_id }}
+          aws-region: ap-northeast-2
+
+      - name: Sync dist to S3
+        env:
+          DIST_PATH: ${{ inputs.dist_path }}
+        run: |
+          set -euo pipefail
+          # 루트 index.html 없으면 SPA 라우팅 자체가 불가 — 배포 전 최소 검증
+          if [ ! -f "$DIST_PATH/index.html" ]; then
+            echo "::error::$DIST_PATH/index.html 없음 — dist_path 또는 빌드 산출물 확인"
+            exit 1
+          fi
+          aws s3 sync "$DIST_PATH" "s3://watcha-static-webapps/$APP_NAME/" --delete --no-progress
+
+      - name: CloudFront invalidation
+        run: |
+          set -euo pipefail
+          aws cloudfront create-invalidation \
+            --distribution-id "E2Y97XJR30CN5I" \
+            --paths "/$APP_NAME/*" \
+            --query 'Invalidation.{Id:Id,Status:Status}' --output text
+
+      - name: Register deployment
+        env:
+          ENDPOINT: ${{ secrets.DEPLOY_REGISTRY_ENDPOINT }}
+          AUTH_HEADER: ${{ secrets.DEPLOY_REGISTRY_AUTH_HEADER }}
+          DEPLOYER: ${{ github.actor }}
+          DESCRIPTION: ${{ inputs.description }}
+        run: |
+          set -euo pipefail
+          if [ -z "$ENDPOINT" ] || [ -z "$AUTH_HEADER" ]; then
+            echo "::error::DEPLOY_REGISTRY_ENDPOINT / DEPLOY_REGISTRY_AUTH_HEADER 시크릿 미설정 (production environment)"
+            exit 1
+          fi
+          # 배포(S3/CF)는 이미 완료 — 등록은 멱등 upsert 라 실패 시 재실행으로 복구
+          curl -fsS -X POST "$ENDPOINT" \
+            -H "Content-Type: application/json" \
+            -H "$AUTH_HEADER" \
+            -d "$(jq -nc --arg name "$APP_NAME" --arg deployer "$DEPLOYER" --arg desc "$DESCRIPTION" \
+              '{name:$name, deployer:$deployer, description:$desc}')"
+
+      - name: Summary
+        run: |
+          echo "### 정적 웹앱 배포 완료" >> "$GITHUB_STEP_SUMMARY"
+          echo "- URL: https://services.watcha.com/${APP_NAME}/" >> "$GITHUB_STEP_SUMMARY"

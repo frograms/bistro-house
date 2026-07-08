@@ -1,11 +1,10 @@
 name: Deploy Playground
 
-# playground(@watcha-authentic 데모/문서 사이트) 정적 배포.
-# 플랫폼 공통 워크플로(reusable-ci-static) 호출 — 내부에서 validate(test_command 실행) →
-# deploy(빌드 + S3 sync + CloudFront invalidation + IDP 등록) 2개 잡으로 실행된다.
-# (기존 validate/deploy-playground 잡 분리는 reusable 내부 구조로 흡수 — 빌드는 deploy 잡에서 1회만)
+# playground(@watcha-authentic 데모/문서 사이트) 정적 배포 — 리포 공용 reusable-static-deploy 호출.
+# 내부에서 validate(test_command 실행) → deploy(빌드 + S3 sync + CF invalidation + 등록)로 실행된다.
 # 서빙: https://services.watcha.com/web-packages/ (app_name = vite base = /web-packages/)
-# 러너: static-deploy-runner (public repo — 러너 그룹 selected 소속: Selected repositories + Allow public)
+#
+# 새 앱 추가 시 이 파일을 복사해 app_name/커맨드/paths 만 바꾸면 된다.
 
 on:
   push:
@@ -14,6 +13,8 @@ on:
     paths:
       - "packages/**"
       - "apps/playground/**"
+      - ".github/workflows/deploy-playground.yml"
+      - ".github/workflows/reusable-static-deploy.yml"
   workflow_dispatch:
 
 concurrency:
@@ -26,15 +27,13 @@ permissions:
 
 jobs:
   deploy-playground:
-    uses: frograms/watcha-github-actions/.github/workflows/reusable-ci-static.yml@main
+    uses: ./.github/workflows/reusable-static-deploy.yml
     with:
       app_name: web-packages
-      node_version: "24"
       test_command: pnpm exec turbo run test lint typecheck --filter=playground
       build_command: |
         pnpm build:packages
         pnpm build --filter=playground
       dist_path: apps/playground/dist
-      runner_label: static-deploy-runner
       description: "@watcha-authentic 패키지 데모/문서 (playground)"
     secrets: inherit
