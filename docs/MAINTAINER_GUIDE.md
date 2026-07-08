@@ -1,16 +1,17 @@
-# 모노레po 유지보수 가이드 (Maintainer)
+# 모노레포 유지보수 가이드 (Maintainer)
 
-`@watcha-authentic/*` 패키지 **등록·개발·배포·문서화**를 담당하는 maintainer용 인덱스입니다.  
-npm에서 패키지를 **소비**하는 방법은 [루트 README](../README.md)와 `packages/<name>/README.md`를 참고하세요.
+`@watcha-authentic/*` 패키지의 **등록·개발·배포·문서화**를 맡은 maintainer용 운영 인덱스입니다.  
+패키지 사용법은 [루트 README](../README.md)와 각 `packages/<name>/README.md`를 기준으로 안내합니다.
 
-## 문서 목록
+## 운영 작업별 시작점
 
-| 문서                                                                                                                          | 용도                                                     |
-| ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| [ADDING_PACKAGE.md](./ADDING_PACKAGE.md)                                                                                      | npm 선등록 → OIDC → 스캐폴딩 → 구현 → CI 배포까지 절차 |
-| [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md)                                                                          | npm에 노출되는 `packages/<name>/README.md` 작성 규칙     |
-| [PACKAGE_DEPS_AND_BUILD.md](./PACKAGE_DEPS_AND_BUILD.md)                                                                      | `dependencies` / `peerDependencies` · tsdown 빌드 정합성 |
-| [bistro-house npm registry (Notion)](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d) | OIDC(Trusted Publishing), org 권한                       |
+| 작업 | 먼저 볼 문서·명령 | 완료 기준 |
+| ---- | ----------------- | --------- |
+| 새 패키지 추가 | [ADDING_PACKAGE.md](./ADDING_PACKAGE.md) | 레지스트리 선등록, OIDC 등록, 스캐폴딩, PR 검증 완료 |
+| README 작성·수정 | [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md) | 외부 사용자 기준 Usage·Dependencies 정합성 유지 |
+| 종속성·빌드 확인 | [PACKAGE_DEPS_AND_BUILD.md](./PACKAGE_DEPS_AND_BUILD.md) | `dependencies` / `peerDependencies` 분류와 dist external import 일치 |
+| playground 예제 추가 | [PLAYGROUND_EXAMPLE_GUIDE.md](./PLAYGROUND_EXAMPLE_GUIDE.md) | 기능 단위 예제 route와 메뉴 정보 일치 |
+| 배포·권한 확인 | [bistro-house npm registry (Notion)](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d) | 로컬 `npm login`과 CI OIDC 경로 구분 |
 
 ## 전제
 
@@ -32,34 +33,35 @@ bistro-house/
 
 | 명령                            | 설명                                   |
 | ------------------------------- | -------------------------------------- |
-| `pnpm dev`                      | `build:packages` 후 playground dev     |
+| `pnpm dev`                      | 패키지 빌드 후 playground dev 실행     |
 | `pnpm build`                    | 전체 turbo build                       |
-| `pnpm build:packages`           | `@watcha-authentic/*`만 build          |
+| `pnpm build:packages`           | `@watcha-authentic/*` 패키지만 build   |
 | `pnpm validate`                 | test · lint · build · typecheck        |
 | `pnpm publish:canary <package>` | 카나리 npm 배포 (로컬, `npm login`)    |
 | `pnpm prepare-package <name>`   | npm 레지스트리 빈 패키지 선등록 (로컬) |
-| `pnpm add-package`              | 모노repo preset으로 패키지 스캐폴딩    |
+| `pnpm add-package`              | 모노레포 프리셋으로 패키지 스캐폴딩    |
 | `pnpm format`                   | Prettier                               |
 
 ## CI
 
 | 워크플로                                                | 트리거          | 역할                                       |
 | ------------------------------------------------------- | --------------- | ------------------------------------------ |
-| [validate-pr.yml](../.github/workflows/validate-pr.yml) | PR              | `pnpm validate`                            |
-| [publish.yml](../.github/workflows/publish.yml)         | `master` push   | validate(changed) → Lerna-Lite latest 배포 |
-| [publish.yml](../.github/workflows/publish.yml)         | `patch/**` push | validate(changed) → patch dist-tag 배포    |
+| [validate-pr.yml](../.github/workflows/validate-pr.yml) | PR              | 전체 워크스페이스 `pnpm validate`          |
+| [publish.yml](../.github/workflows/publish.yml)         | `master` push   | 변경 패키지 validate → latest 배포         |
+| [publish.yml](../.github/workflows/publish.yml)         | `patch/**` push | 변경 패키지 validate → patch dist-tag 배포 |
 
 ## 배포
 
 ### 정식 (latest)
 
-`master` merge 시 [publish.yml](../.github/workflows/publish.yml):
+`master` merge 시 [publish.yml](../.github/workflows/publish.yml)이 아래 순서로 실행됩니다.
 
 1. 변경 패키지 validate · build
 2. `pnpm lerna publish --yes --conventional-commits --no-push`
-3. 필요 시 lockfile amend · tag · GitHub Release
+3. lockfile 보정이 있으면 release commit amend
+4. tag push · GitHub Release 생성
 
-버전: 패키지별 independent (`lerna.json`). CLI: [Lerna-Lite](https://github.com/lerna-lite/lerna-lite) (`pnpm lerna`).
+버전은 패키지별 independent (`lerna.json`)입니다. CLI는 [Lerna-Lite](https://github.com/lerna-lite/lerna-lite) (`pnpm lerna`)를 사용합니다.
 
 로컬 dry-run:
 
@@ -78,25 +80,24 @@ pnpm publish:canary react-slider
 
 ### patch (CI, `patch/**`)
 
-`publish-patch.sh` — `{version}-patch.{n}`, dist-tag `patch`, OIDC. CHANGELOG는 Lerna(latest)만 갱신.
+`publish-patch.sh`가 `{version}-patch.{n}` 버전을 만들고 dist-tag `patch`로 배포합니다. CHANGELOG는 Lerna(latest) 배포에서만 갱신됩니다.
 
-### npm / CI 인증 (OIDC)
+### 인증 경로
 
 - 절차: [Notion — bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d)
-- Trusted Publisher: `frograms` / `bistro-house` / **`publish.yml`** (패키지당 1개)
-- [setup-action](../.github/actions/setup-action/action.yml) `registry-url` + workflow `id-token: write`
 
-| auth        | 용도                               |
-| ----------- | ---------------------------------- |
-| `npm-oidc`  | GitHub Actions (Trusted Publisher) |
-| `npm login` | 로컬 canary · `prepare-package`    |
+| 경로 | 용도 | 필요한 설정 |
+| ---- | ---- | ----------- |
+| `npm login` | 로컬 `prepare-package`, 로컬 canary | `@watcha-authentic` org publish 권한 계정 |
+| OIDC Trusted Publishing | GitHub Actions latest/patch 배포 | 패키지별 Trusted Publisher, workflow `id-token: write` |
 
 ## 패키지 추가·개발 체크
 
 1. [ADDING_PACKAGE.md](./ADDING_PACKAGE.md) — `prepare-package` → OIDC → `add-package` → 구현 → PR
 2. [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md) — 외부 README
 3. [PACKAGE_DEPS_AND_BUILD.md](./PACKAGE_DEPS_AND_BUILD.md) — deps / peer / tsdown
-4. `pnpm validate --filter=@watcha-authentic/<name>`
+4. [PLAYGROUND_EXAMPLE_GUIDE.md](./PLAYGROUND_EXAMPLE_GUIDE.md) — playground 예제 추가
+5. `pnpm validate --filter=@watcha-authentic/<name>`
 
 ## dist · Turbo cache
 
