@@ -2,6 +2,9 @@
 
 Watcha 웹 개발에서 사용하는 `@watcha-authentic/*` npm 패키지 모노레포입니다. ESLint·Prettier 설정과 React UI·유틸 라이브러리를 `packages/`에서 관리하고 [npm @watcha-authentic org](https://www.npmjs.com/org/watcha-authentic)으로 배포합니다.
 
+> [!TIP]
+> [WATCHA Packages](https://services.watcha.com/web-packages)에서 패키지의 실제 동작 예시를 확인할 수 있습니다.
+
 ## Packages
 
 | Package                                                                 | Description                    |
