@@ -1,4 +1,3 @@
-import { mediaQuery } from "@playground/resource/css/common/media-query";
 import { globalStyle, style } from "@vanilla-extract/css";
 
 export const commonReadmeCss = {
@@ -17,7 +16,7 @@ export const commonReadmeCss = {
   }),
   document: style({
     "@media": {
-      [mediaQuery.mobile]: {
+      "(max-width: 720px)": {
         borderRadius: 14,
         padding: 18,
       },

@@ -1,4 +1,3 @@
-import { mediaQuery } from "@playground/resource/css/common/media-query";
 import { globalStyle, style } from "@vanilla-extract/css";
 
 export const appContentCss = {
@@ -7,7 +6,7 @@ export const appContentCss = {
   }),
   contentLayout: style({
     "@media": {
-      [mediaQuery.mobile]: {
+      "(max-width: 720px)": {
         paddingTop: 28,
         width: "min(100% - 32px, 1120px)",
       },
@@ -18,7 +17,7 @@ export const appContentCss = {
   }),
   contentLayoutWithToc: style({
     "@media": {
-      [mediaQuery.tablet]: {
+      "(max-width: 980px)": {
         gridTemplateColumns: "1fr",
       },
     },
@@ -35,7 +34,7 @@ export const appContentCss = {
   }),
   eyebrow: style({
     "@media": {
-      [mediaQuery.mobile]: {
+      "(max-width: 720px)": {
         display: "none",
       },
     },
@@ -75,7 +74,7 @@ export const appContentCss = {
   }),
   pageToc: style({
     "@media": {
-      [mediaQuery.tablet]: {
+      "(max-width: 980px)": {
         display: "none",
       },
     },
@@ -86,7 +85,7 @@ export const appContentCss = {
   }),
   shell: style({
     "@media": {
-      [mediaQuery.mobile]: {
+      "(max-width: 720px)": {
         gridTemplateColumns: "1fr",
       },
     },
