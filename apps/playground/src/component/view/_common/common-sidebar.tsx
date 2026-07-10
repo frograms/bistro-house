@@ -1,4 +1,5 @@
 import { commonSidebarCss } from "@playground/component/view/_common/common-sidebar.css";
+import { BREAKPOINTS } from "@playground/resource/css/common/media-query";
 import { useEffect, useId, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 
@@ -32,7 +33,7 @@ export const CommonSidebar = ({ sections }: CommonSidebarProps) => {
 
   // 모바일 메뉴가 열리면 body 스크롤을 잠시 고정합니다.
   useEffect(() => {
-    if (!isMenuOpen || !window.matchMedia("(max-width: 720px)").matches) {
+    if (!isMenuOpen || !window.matchMedia(BREAKPOINTS.mobile).matches) {
       return;
     }
 

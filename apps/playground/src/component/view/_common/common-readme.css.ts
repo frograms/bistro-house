@@ -16,12 +16,10 @@ export const commonReadmeCss = {
     position: "relative",
   }),
   document: style({
-    "@media": {
-      [mediaQuery.mobile]: {
-        borderRadius: 14,
-        padding: 18,
-      },
-    },
+    ...mediaQuery.mobile({
+      borderRadius: 14,
+      padding: 18,
+    }),
     background: "#ffffff",
     border: "1px solid #e5e7eb",
     borderRadius: 16,
