@@ -1,9 +1,10 @@
+import { mediaQuery } from "@playground/resource/css/common/media-query";
 import { globalStyle, style } from "@vanilla-extract/css";
 
 export const commonSidebarCss = {
   backdrop: style({
     "@media": {
-      "(max-width: 720px)": {
+      [mediaQuery.mobile]: {
         appearance: "none",
         background: "rgb(15 23 42 / 0.22)",
         border: 0,
@@ -26,7 +27,7 @@ export const commonSidebarCss = {
   }),
   brandIcon: style({
     "@media": {
-      "(max-width: 720px)": {
+      [mediaQuery.mobile]: {
         borderRadius: 8,
         height: 28,
         width: 28,
@@ -46,7 +47,7 @@ export const commonSidebarCss = {
   }),
   brandText: style({
     "@media": {
-      "(max-width: 720px)": {
+      [mediaQuery.mobile]: {
         fontSize: 16,
       },
     },
@@ -69,7 +70,7 @@ export const commonSidebarCss = {
   }),
   header: style({
     "@media": {
-      "(max-width: 720px)": {
+      [mediaQuery.mobile]: {
         alignItems: "center",
         display: "flex",
         justifyContent: "space-between",
@@ -80,7 +81,7 @@ export const commonSidebarCss = {
   }),
   menu: style({
     "@media": {
-      "(max-width: 720px)": {
+      [mediaQuery.mobile]: {
         borderLeft: "1px solid #e5e7eb",
         display: "grid",
         gap: 1,
@@ -95,7 +96,7 @@ export const commonSidebarCss = {
   }),
   menuButton: style({
     "@media": {
-      "(max-width: 720px)": {
+      [mediaQuery.mobile]: {
         alignItems: "center",
         background: "#ffffff",
         border: "1px solid #e5e7eb",
@@ -113,7 +114,7 @@ export const commonSidebarCss = {
   }),
   navScrollArea: style({
     "@media": {
-      "(max-width: 720px)": {
+      [mediaQuery.mobile]: {
         alignContent: "start",
         display: "grid",
         gap: 24,
@@ -129,7 +130,7 @@ export const commonSidebarCss = {
   }),
   section: style({
     "@media": {
-      "(max-width: 720px)": {
+      [mediaQuery.mobile]: {
         gap: 8,
       },
     },
@@ -147,7 +148,7 @@ export const commonSidebarCss = {
   }),
   wrap: style({
     "@media": {
-      "(max-width: 720px)": {
+      [mediaQuery.mobile]: {
         borderBottom: "1px solid #e5e7eb",
         borderRight: 0,
         boxShadow: "0 8px 24px rgb(15 23 42 / 0.06)",
@@ -176,7 +177,7 @@ export const commonSidebarCss = {
 
 globalStyle(`${commonSidebarCss.wrap} nav`, {
   "@media": {
-    "(max-width: 720px)": {
+    [mediaQuery.mobile]: {
       background: "#ffffff",
       borderRight: "1px solid #e5e7eb",
       bottom: 0,
@@ -195,7 +196,7 @@ globalStyle(`${commonSidebarCss.wrap} nav`, {
 
 globalStyle(`${commonSidebarCss.wrap} nav[data-state='open']`, {
   "@media": {
-    "(max-width: 720px)": {
+    [mediaQuery.mobile]: {
       transform: "translateX(0)",
       transition: "transform 180ms ease",
     },
@@ -204,7 +205,7 @@ globalStyle(`${commonSidebarCss.wrap} nav[data-state='open']`, {
 
 globalStyle(`${commonSidebarCss.backdrop}[data-state='open']`, {
   "@media": {
-    "(max-width: 720px)": {
+    [mediaQuery.mobile]: {
       opacity: 1,
       pointerEvents: "auto",
     },
@@ -213,7 +214,7 @@ globalStyle(`${commonSidebarCss.backdrop}[data-state='open']`, {
 
 globalStyle(`${commonSidebarCss.sectionHeader} a`, {
   "@media": {
-    "(max-width: 720px)": {
+    [mediaQuery.mobile]: {
       color: "#111827",
       fontSize: 14,
       letterSpacing: 0,
@@ -234,7 +235,7 @@ globalStyle(
 
 globalStyle(`${commonSidebarCss.menu} a`, {
   "@media": {
-    "(max-width: 720px)": {
+    [mediaQuery.mobile]: {
       background: "transparent",
       border: 0,
       borderLeft: "1px solid transparent",
@@ -265,7 +266,7 @@ globalStyle(
 
 globalStyle(`${commonSidebarCss.menu} a[aria-current='page']`, {
   "@media": {
-    "(max-width: 720px)": {
+    [mediaQuery.mobile]: {
       background: "transparent",
       borderLeftColor: "#ff0558",
       boxShadow: "none",
