@@ -49,7 +49,13 @@ React용 슬라이더 컴포넌트입니다. 드래그·스와이프, 키보드 
 ### Usage 섹션
 
 - `src/index.ts` 경로나 export 메커니즘은 적지 않습니다.
-- 시나리오 제목(`### Basic usage` 등) 아래 **바로 코드**로 시작해도 됩니다.
+- Usage는 **동작 예시**만 담습니다. 타입·기본값·허용값 설명은 `API`에 둡니다.
+
+### API 섹션
+
+- `API`는 **API 레퍼런스**입니다. Usage에 나온 항목을 포함해 공개 API 전부를 문서화합니다.
+- 스펙 필드는 **테이블 우선**입니다. union·리터럴 허용값이 길면 해당 필드 아래 **불릿**으로 보조합니다.
+- `## Options` 단독 섹션은 쓰지 않습니다. `options`가 **export된 타입**이면 `### {TypeName}`에 필드 테이블을 둡니다. 미export 인라인 객체만 훅 아래 `#### Options`를 씁니다.
 
 ## 권장 섹션 순서
 
@@ -61,8 +67,8 @@ React용 슬라이더 컴포넌트입니다. 드래그·스와이프, 키보드 
 | 2    | `Table of contents`   | `#table-of-contents` — 아래 주요 `##`로 점프           |
 | 3    | `Dependencies`        | `#dependencies` — Runtime / Peer 하위 구분             |
 | 4    | `Installation`        | `#installation` — `pnpm` 기준                          |
-| 5    | `Usage`               | `#usage` — 하위에 시나리오별 `###` (영어)              |
-| 선택 | `Main props` 등       | 컴포넌트·API 문서가 필요할 때                          |
+| 5    | `Usage`               | `#usage` — 시나리오별 동작 예시                          |
+| 6    | `API`                 | `#api` — API 레퍼런스 (컴포넌트·훅·함수)                 |
 | 선택 | `Exported symbols` 등 | 설정 패키지처럼 export 목록이 중요할 때                |
 
 ## 1. 제목 · 뱃지 · 설명
@@ -98,9 +104,10 @@ React용 슬라이더 컴포넌트입니다. 드래그·스와이프, 키보드 
 - [Dependencies](#dependencies)
 - [Installation](#installation)
 - [Usage](#usage)
+- [API](#api)
 ```
 
-- `Main props`, `Exported symbols` 등을 쓴 경우 목차에도 같은 영문 앵커로 추가합니다.
+- `Exported symbols` 등을 쓴 경우 목차에도 같은 영문 앵커로 추가합니다.
 
 ## 3. 종속성 (Dependencies)
 
@@ -108,29 +115,56 @@ React용 슬라이더 컴포넌트입니다. 드래그·스와이프, 키보드 
 
 ### Runtime dependencies (`dependencies`)
 
-- `package.json`의 **`dependencies`**가 있으면: 패키지 이름과 역할을 짧게 설명합니다.
-- **없으면**: “런타임 `dependencies`가 없다”고 명시합니다.
+- `package.json`의 **`dependencies`**가 있으면: **패키지명 + 버전 range**와 역할을 짧게 적습니다.
+- **없으면**: “런타임 dependencies가 없다”고 명시합니다.
+
+```markdown
+### Runtime dependencies
+
+이 패키지와 함께 설치됩니다.
+
+- `@watcha-authentic/react-event-callback` `^1.1.7` — 키보드 핸들러 참조를 안정적으로 유지합니다.
+```
 
 ### Peer dependencies (`peerDependencies`)
 
-- **호스트 프로젝트에 반드시 설치해야 함**을 굵게 또는 문장으로 강조합니다.
-- 버전은 `package.json`의 `peerDependencies`와 맞춥니다.
+- **프로젝트에 반드시 설치해야 함**을 굵게 또는 문장으로 강조합니다.
+- **패키지명 + peer version range**를 `package.json`과 동일하게 적습니다.
+
+```markdown
+### Peer dependencies
+
+**React와 React DOM은 프로젝트에 함께 설치해야 합니다.**
+
+- `react` `>=18.0.0`
+- `react-dom` `>=18.0.0`
+```
 
 설정 패키지(ESLint/Prettier 등)는 피어가 많을 수 있으므로 **표 + 설치 예시 블록**으로 정리해도 됩니다.
 
 ## 4. 설치 (Installation)
 
-라이브러리·설정 패키지:
+패키지 설치와 peer 설치를 **분리**합니다. 한 블록에 섞지 않습니다.
 
 ````markdown
 ## Installation
 
+### Install this package
+
 ```bash
-pnpm add @watcha-authentic/{package-name} {필요 시 peer 패키지}
+pnpm add @watcha-authentic/{package-name}
+```
+
+### Install peer dependencies
+
+```bash
+pnpm add react@>=18.0.0 react-dom@>=18.0.0
 ```
 ````
 
+- peer가 없으면 `### Install peer dependencies` 섹션은 생략합니다.
 - dev 전용이면 `pnpm add -D ...` 로 맞춥니다.
+- Installation 명령의 버전은 `package.json` `peerDependencies` range와 일치해야 합니다.
 
 **bin CLI 패키지**는 호스트에 dependency로 넣기보다 `npx` / `pnpm dlx` / 전역 설치(`npm install -g`) 예시를 우선합니다. 모노레포에서의 `dev`·`exec` 실행법은 README에 넣지 않습니다.
 
@@ -146,24 +180,161 @@ pnpm dlx @watcha-authentic/{package-name} --help
 
 ## 5. 사용 예 (Usage)
 
+Usage는 **시나리오별 동작 예시**입니다. API 스펙 설명은 `API`에 둡니다.
+
+### 역할
+
+| Usage | API |
+| ----- | --- |
+| import + 실제 사용 코드 | 파라미터·반환값·타입·기본값 |
+| “이렇게 쓴다” | “이 값은 무엇인가” |
+| 시나리오 1개 = 기능/상황 1개 | 공개 API 항목 전부 |
+
+### 시나리오 선정
+
+1. `### Basic usage`는 **항상** 포함합니다.
+2. 공개 API 중 **별도 설명 가치가 있는 옵션·반환값·패턴**마다 시나리오를 추가합니다.
+3. 한 시나리오에 서로 다른 기능을 섞지 않습니다.
+
+### 블록 형식 (고정)
+
+각 시나리오는 아래 순서를 따릅니다.
+
 ````markdown
 ## Usage
 
 ### Basic usage
 
+{1~2문장: 이 예제가 보여 주는 동작}
+
 ```tsx
-// 실제 export 이름 사용
+{실제 export 이름을 사용한 코드}
 ```
 ````
 
-- 하위 시나리오 제목도 **영어 `###`** (예: `Navigation with ref`, `Extending a preset`).
-- 코드 블록 언어는 실제와 맞게 `tsx` / `js` / `json` 등 선택합니다.
+- 시나리오 제목은 **영어 `###`** (예: `With auto focus`, `Toggling keyboard handling`).
+- 코드 블록 언어는 `tsx` / `js` / `json` 등 실제에 맞게 선택합니다.
 
-## 6. 선택 섹션
+## 6. API · Exported symbols
 
-- **React 컴포넌트 패키지**: 주요 props가 많으면 `## Main props` 아래에 `### propName` 형태(영문 앵커)로 정리.
-- **eslint-config 타입**: `## Exported symbols` 아래에 `### Rule blocks`, `### Preset exports` 등으로 export 이름을 나열.
-- **서브패스 export** (`exports`에 `./style.css` 등): Dependencies 또는 Usage에서 한 줄로 안내.
+### 패키지 유형별 적용
+
+| 유형 | API | Exported symbols |
+| ---- | --- | ---------------- |
+| React 컴포넌트 | **필수** — `#### Props`, 필요 시 `#### Ref methods` | — |
+| React 훅 | **필수** — `#### Parameters`, `#### Returns`. options가 export 타입이면 `### {TypeName}` 추가 | export 타입 필드 테이블 |
+| 설정(ESLint/Prettier) | — | **권장** — export 이름 |
+| CLI(bin) | — | — |
+| 유틸(함수만) | `#### Parameters`, `#### Returns` | — |
+
+### API
+
+`src/index.ts`와 타입 정의를 읽고 **공개 API 전부**를 문서화합니다.
+
+### 작성 순서 (내부)
+
+README 파일 섹션 순서와 별개로, 작성 시 아래 순서를 따릅니다.
+
+1. `package.json` + `src/index.ts` + 타입에서 **API 목록** 추출
+2. **`API` 초안** 작성 (테이블 + 필요 시 불릿 보조)
+3. **`Usage` 시나리오** 작성 (`Basic usage` + 필요 시 추가)
+4. Usage에 등장한 항목이 API에도 있는지 **대조**
+
+### 반드시 포함
+
+- 훅/함수 **인자** (`target`, `handler`, `options` …)
+- **반환값** (`enableAccessibility`, ref 메서드 …)
+- `options` **하위 필드** — export 타입이면 `### {TypeName}` 테이블. 미export 인라인 객체만 훅 아래 `#### Options` 테이블
+- **기본값** (테이블 `Default` 열)
+- union·리터럴 **허용 값** (테이블 Description에 짧게 + 필요 시 아래 불릿)
+
+### 블록 형식 (고정)
+
+- 섹션 제목: `## API`
+- 공개 심볼: `### {exportName}` (훅·컴포넌트·함수·export 타입 이름)
+- 훅/함수 하위: `#### Parameters` / `#### Returns`
+- 컴포넌트 하위: `#### Props` / `#### Ref methods`
+- export options·config 타입: `### {TypeName}` + 필드 테이블 (`Name | Type | Default | Description`)
+- options가 **미export** 인라인 객체일 때만 훅/함수 아래 `#### Options` 사용
+- 필드 나열: **테이블** (`Name | Type | Default | Description`)
+- `Returns` 테이블은 `Default` 열 생략 (`Name | Type | Description`)
+- `### Other props`처럼 여러 항목을 한 데 묶지 않습니다.
+- flat `### {propName}` 나열은 쓰지 않습니다.
+
+- `options` 하위 필드를 훅 `#### Options`와 export 타입 `###`에 **중복**하지 않습니다.
+
+#### 훅 예시 (export options 타입)
+
+````markdown
+## API
+
+### useAccessibilityHandler
+
+#### Parameters
+
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `target` | `RefObject<HTMLElement \| null>` | — | 키보드 이벤트를 바인딩할 요소 ref |
+| `handler` | `(event: KeyboardEvent) => void` | — | `keydown` 시 호출되는 콜백 |
+| `options` | `AccessibilityOptions` | — | 아래 `AccessibilityOptions` 참고 |
+
+#### Returns
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `enableAccessibility` | `(enable: boolean) => void` | 리스너 바인딩을 켜고 끔. `true`이고 `withAutoFocus`가 `true`이면 `target`에 포커스 |
+
+### AccessibilityOptions
+
+`useAccessibilityHandler`의 `options` 타입입니다.
+
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `withAutoFocus` | `boolean` | `false` | 바인딩 시 `target`에 자동 포커스 |
+| `returnTarget` | 아래 참고 | — | 언마운트 후 포커스 복귀 대상 |
+
+`returnTarget` 허용 값:
+
+- `RefObject<HTMLElement | null>` — 지정 ref의 현재 요소
+- `"last-active-element"` — 훅 마운트 직전 포커스 요소
+- `Document` — 문서 루트
+````
+
+#### 컴포넌트 예시
+
+````markdown
+## API
+
+### Slider
+
+#### Props
+
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `defaultIndex` | `number` | `0` | 처음 보여 줄 슬라이드 인덱스 |
+| `items` | `T[]` | — | 슬라이드 아이템 배열 |
+| `onIndexChange` | `(index: number, cause: Cause) => void` | — | 슬라이드 변경 시 호출 |
+
+#### Ref methods
+
+| Name | Description |
+| ---- | ----------- |
+| `doNext()` | 다음 슬라이드 |
+| `doPrev()` | 이전 슬라이드 |
+````
+
+- 목차에 `API`를 추가합니다.
+
+### 품질 기준
+
+- Usage 예제에 등장한 prop/옵션/반환값이 API에 없으면 **미완료**입니다.
+- API에 있는 공개 API가 Usage에서 한 번도 안 쓰이면, `Basic usage`에 최소 포함하거나 Usage를 추가합니다.
+- `options` 하위 필드를 top-level `Parameters`와 형제 `###`로 flat 나열하지 않습니다.
+
+### Exported symbols
+
+- **eslint-config 타입**: `## Exported symbols` 아래에 `### Rule blocks`, `### Preset exports` 등으로 export 이름을 나열합니다.
+- **서브패스 export** (`exports`에 `./style.css` 등): Dependencies 또는 Usage에서 한 줄로 안내합니다.
 
 ## 복붙용 스켈레톤
 
@@ -183,34 +354,73 @@ pnpm dlx @watcha-authentic/{package-name} --help
 - [Dependencies](#dependencies)
 - [Installation](#installation)
 - [Usage](#usage)
+- [API](#api)
 
 ## Dependencies
 
 ### Runtime dependencies
 
-{있으면 목록 / 없으면 없음을 명시}
+{있으면 `패키지명` `version-range` — 역할 / 없으면 없음을 명시}
 
 ### Peer dependencies
 
-**React와 React DOM은 프로젝트에 함께 설치해야 합니다.**
+**{무엇}은 프로젝트에 함께 설치해야 합니다.**
 
 - `{peer}` `{version-range}`
 
 ## Installation
 
+### Install this package
+
 ```bash
 pnpm add @watcha-authentic/{package-name}
+```
+
+### Install peer dependencies
+
+```bash
+pnpm add {peer}@{range} ...
 ```
 
 ## Usage
 
 ### Basic usage
 
-```{lang}
+{1~2문장: 이 예제가 보여 주는 동작}
+
+```tsx
 {code}
 ```
+
+### {Another scenario}
+
+{1~2문장}
+
+```tsx
+{code}
+```
+
+## API
+
+### {exportName}
+
+#### Parameters
+
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `{name}` | `{type}` | `{default}` | {설명} |
+
+#### Returns
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `{name}` | `{type}` | {설명} |
+
+### {OptionsTypeName}
+
+{한 줄: 어떤 파라미터의 타입인지}
+
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `{name}` | `{type}` | `{default}` | {설명} |
 ````
-
-## 참고
-
-- 동일 규칙이 적용된 예시: `packages/react-slider/README.md`, `packages/eslint-config/README.md` 등.
