@@ -1,37 +1,34 @@
+import { mediaQuery } from "@playground/resource/css/common/media-query";
 import { globalStyle, style } from "@vanilla-extract/css";
 
 export const commonSidebarCss = {
   backdrop: style({
-    "@media": {
-      "(max-width: 720px)": {
-        appearance: "none",
-        background: "rgb(15 23 42 / 0.22)",
-        border: 0,
-        borderRadius: 0,
-        bottom: 0,
-        cursor: "pointer",
-        display: "block",
-        left: 0,
-        opacity: 0,
-        padding: 0,
-        pointerEvents: "none",
-        position: "fixed",
-        right: 0,
-        top: 0,
-        transition: "opacity 160ms ease",
-        zIndex: 35,
-      },
-    },
+    ...mediaQuery.mobile({
+      appearance: "none",
+      background: "rgb(15 23 42 / 0.22)",
+      border: 0,
+      borderRadius: 0,
+      bottom: 0,
+      cursor: "pointer",
+      display: "block",
+      left: 0,
+      opacity: 0,
+      padding: 0,
+      pointerEvents: "none",
+      position: "fixed",
+      right: 0,
+      top: 0,
+      transition: "opacity 160ms ease",
+      zIndex: 35,
+    }),
     display: "none",
   }),
   brandIcon: style({
-    "@media": {
-      "(max-width: 720px)": {
-        borderRadius: 8,
-        height: 28,
-        width: 28,
-      },
-    },
+    ...mediaQuery.mobile({
+      borderRadius: 8,
+      height: 28,
+      width: 28,
+    }),
     borderRadius: 10,
     display: "block",
     height: 32,
@@ -45,11 +42,9 @@ export const commonSidebarCss = {
     textDecoration: "none",
   }),
   brandText: style({
-    "@media": {
-      "(max-width: 720px)": {
-        fontSize: 16,
-      },
-    },
+    ...mediaQuery.mobile({
+      fontSize: 16,
+    }),
     fontSize: 18,
     fontWeight: 800,
     letterSpacing: "-0.04em",
@@ -68,25 +63,21 @@ export const commonSidebarCss = {
     textAlign: "center",
   }),
   header: style({
-    "@media": {
-      "(max-width: 720px)": {
-        alignItems: "center",
-        display: "flex",
-        justifyContent: "space-between",
-      },
-    },
+    ...mediaQuery.mobile({
+      alignItems: "center",
+      display: "flex",
+      justifyContent: "space-between",
+    }),
     display: "grid",
     gap: 8,
   }),
   menu: style({
-    "@media": {
-      "(max-width: 720px)": {
-        borderLeft: "1px solid #e5e7eb",
-        display: "grid",
-        gap: 1,
-        paddingLeft: 12,
-      },
-    },
+    ...mediaQuery.mobile({
+      borderLeft: "1px solid #e5e7eb",
+      display: "grid",
+      gap: 1,
+      paddingLeft: 12,
+    }),
     borderLeft: "1px solid #e5e7eb",
     display: "grid",
     gap: 1,
@@ -94,45 +85,39 @@ export const commonSidebarCss = {
     paddingLeft: 12,
   }),
   menuButton: style({
-    "@media": {
-      "(max-width: 720px)": {
-        alignItems: "center",
-        background: "#ffffff",
-        border: "1px solid #e5e7eb",
-        borderRadius: 999,
-        color: "#111827",
-        cursor: "pointer",
-        display: "inline-flex",
-        fontSize: 13,
-        fontWeight: 800,
-        gap: 8,
-        padding: "8px 12px",
-      },
-    },
+    ...mediaQuery.mobile({
+      alignItems: "center",
+      background: "#ffffff",
+      border: "1px solid #e5e7eb",
+      borderRadius: 999,
+      color: "#111827",
+      cursor: "pointer",
+      display: "inline-flex",
+      fontSize: 13,
+      fontWeight: 800,
+      gap: 8,
+      padding: "8px 12px",
+    }),
     display: "none",
   }),
   navScrollArea: style({
-    "@media": {
-      "(max-width: 720px)": {
-        alignContent: "start",
-        display: "grid",
-        gap: 24,
-        height: "100%",
-        overflowY: "auto",
-        overscrollBehavior: "contain",
-        padding: "84px 24px 28px",
-        WebkitOverflowScrolling: "touch",
-      },
-    },
+    ...mediaQuery.mobile({
+      alignContent: "start",
+      display: "grid",
+      gap: 24,
+      height: "100%",
+      overflowY: "auto",
+      overscrollBehavior: "contain",
+      padding: "84px 24px 28px",
+      WebkitOverflowScrolling: "touch",
+    }),
     display: "grid",
     gap: 28,
   }),
   section: style({
-    "@media": {
-      "(max-width: 720px)": {
-        gap: 8,
-      },
-    },
+    ...mediaQuery.mobile({
+      gap: 8,
+    }),
     display: "grid",
     gap: 8,
   }),
@@ -146,20 +131,18 @@ export const commonSidebarCss = {
     transition: "color 160ms ease",
   }),
   wrap: style({
-    "@media": {
-      "(max-width: 720px)": {
-        borderBottom: "1px solid #e5e7eb",
-        borderRight: 0,
-        boxShadow: "0 8px 24px rgb(15 23 42 / 0.06)",
-        gap: 0,
-        height: "auto",
-        maxWidth: "100vw",
-        overflow: "visible",
-        padding: "14px 16px",
-        position: "sticky",
-        zIndex: 30,
-      },
-    },
+    ...mediaQuery.mobile({
+      borderBottom: "1px solid #e5e7eb",
+      borderRight: 0,
+      boxShadow: "0 8px 24px rgb(15 23 42 / 0.06)",
+      gap: 0,
+      height: "auto",
+      maxWidth: "100vw",
+      overflow: "visible",
+      padding: "14px 16px",
+      position: "sticky",
+      zIndex: 30,
+    }),
     alignSelf: "start",
     background: "#ffffff",
     borderRight: "1px solid #e5e7eb",
@@ -175,50 +158,42 @@ export const commonSidebarCss = {
 };
 
 globalStyle(`${commonSidebarCss.wrap} nav`, {
-  "@media": {
-    "(max-width: 720px)": {
-      background: "#ffffff",
-      borderRight: "1px solid #e5e7eb",
-      bottom: 0,
-      left: 0,
-      maxWidth: "min(84vw, 340px)",
-      minHeight: "100dvh",
-      overflow: "hidden",
-      position: "fixed",
-      top: 0,
-      transform: "translateX(-100%)",
-      width: "100%",
-      zIndex: 40,
-    },
-  },
+  ...mediaQuery.mobile({
+    background: "#ffffff",
+    borderRight: "1px solid #e5e7eb",
+    bottom: 0,
+    left: 0,
+    maxWidth: "min(84vw, 340px)",
+    minHeight: "100dvh",
+    overflow: "hidden",
+    position: "fixed",
+    top: 0,
+    transform: "translateX(-100%)",
+    width: "100%",
+    zIndex: 40,
+  }),
 });
 
 globalStyle(`${commonSidebarCss.wrap} nav[data-state='open']`, {
-  "@media": {
-    "(max-width: 720px)": {
-      transform: "translateX(0)",
-      transition: "transform 180ms ease",
-    },
-  },
+  ...mediaQuery.mobile({
+    transform: "translateX(0)",
+    transition: "transform 180ms ease",
+  }),
 });
 
 globalStyle(`${commonSidebarCss.backdrop}[data-state='open']`, {
-  "@media": {
-    "(max-width: 720px)": {
-      opacity: 1,
-      pointerEvents: "auto",
-    },
-  },
+  ...mediaQuery.mobile({
+    opacity: 1,
+    pointerEvents: "auto",
+  }),
 });
 
 globalStyle(`${commonSidebarCss.sectionHeader} a`, {
-  "@media": {
-    "(max-width: 720px)": {
-      color: "#111827",
-      fontSize: 14,
-      letterSpacing: 0,
-    },
-  },
+  ...mediaQuery.mobile({
+    color: "#111827",
+    fontSize: 14,
+    letterSpacing: 0,
+  }),
   color: "#111827",
   fontSize: 14,
   fontWeight: 800,
@@ -233,17 +208,15 @@ globalStyle(
 );
 
 globalStyle(`${commonSidebarCss.menu} a`, {
-  "@media": {
-    "(max-width: 720px)": {
-      background: "transparent",
-      border: 0,
-      borderLeft: "1px solid transparent",
-      borderRadius: 0,
-      marginLeft: 0,
-      padding: "8px 10px 8px 13px",
-      whiteSpace: "normal",
-    },
-  },
+  ...mediaQuery.mobile({
+    background: "transparent",
+    border: 0,
+    borderLeft: "1px solid transparent",
+    borderRadius: 0,
+    marginLeft: 0,
+    padding: "8px 10px 8px 13px",
+    whiteSpace: "normal",
+  }),
   borderLeft: "1px solid transparent",
   borderRadius: 0,
   color: "#52525b",
@@ -264,13 +237,11 @@ globalStyle(
 );
 
 globalStyle(`${commonSidebarCss.menu} a[aria-current='page']`, {
-  "@media": {
-    "(max-width: 720px)": {
-      background: "transparent",
-      borderLeftColor: "#ff0558",
-      boxShadow: "none",
-    },
-  },
+  ...mediaQuery.mobile({
+    background: "transparent",
+    borderLeftColor: "#ff0558",
+    boxShadow: "none",
+  }),
   background: "transparent",
   borderLeftColor: "#ff0558",
   color: "#ff0558",

@@ -25,8 +25,8 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
-    "@vanilla-extract/vite-plugin": "^5.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
+    "@vanilla-extract/vite-plugin": "^5.2.4",
+    "@vitejs/plugin-react": "^6.0.3",
     "@watcha-authentic/eslint-config": "^2.0.1",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^3.6.0",
@@ -38,7 +38,7 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "globals": "^17.6.0",
     "typescript": "~5.9.3",
-    "vite": "^8.0.12",
+    "vite": "^8.1.4",
     "vitest": "^4.1.8"
   }
 }

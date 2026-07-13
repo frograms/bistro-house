@@ -139,9 +139,9 @@ const buildDependencyInfo: Record<"tsdown" | "vite", Dependency[]> = {
     {
       name: "@vitejs/plugin-react",
       targets: ["--save-dev"],
-      version: "^6.0.1",
+      version: "^6.0.3",
     },
-    { name: "vite", targets: ["--save-dev"], version: "^8.0.12" },
+    { name: "vite", targets: ["--save-dev"], version: "^8.1.4" },
     {
       name: "vite-plugin-dts",
       targets: ["--save-dev"],

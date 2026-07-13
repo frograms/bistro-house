@@ -1,3 +1,4 @@
+import { mediaQuery } from "@playground/resource/css/common/media-query";
 import { globalStyle, style } from "@vanilla-extract/css";
 
 export const appContentCss = {
@@ -5,22 +6,18 @@ export const appContentCss = {
     minWidth: 0,
   }),
   contentLayout: style({
-    "@media": {
-      "(max-width: 720px)": {
-        paddingTop: 28,
-        width: "min(100% - 32px, 1120px)",
-      },
-    },
+    ...mediaQuery.mobile({
+      paddingTop: 28,
+      width: "min(100% - 32px, 1120px)",
+    }),
     margin: "0 auto",
     padding: "64px 0 80px",
     width: "min(1120px, calc(100% - 48px))",
   }),
   contentLayoutWithToc: style({
-    "@media": {
-      "(max-width: 980px)": {
-        gridTemplateColumns: "1fr",
-      },
-    },
+    ...mediaQuery.tablet({
+      gridTemplateColumns: "1fr",
+    }),
     alignItems: "start",
     display: "grid",
     gap: 32,
@@ -33,11 +30,9 @@ export const appContentCss = {
     maxWidth: 720,
   }),
   eyebrow: style({
-    "@media": {
-      "(max-width: 720px)": {
-        display: "none",
-      },
-    },
+    ...mediaQuery.mobile({
+      display: "none",
+    }),
     color: "#ff0558",
     fontSize: 13,
     fontWeight: 700,
@@ -73,22 +68,18 @@ export const appContentCss = {
       "background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease, color 120ms ease, transform 120ms ease",
   }),
   pageToc: style({
-    "@media": {
-      "(max-width: 980px)": {
-        display: "none",
-      },
-    },
+    ...mediaQuery.tablet({
+      display: "none",
+    }),
     borderLeft: "1px solid #e5e7eb",
     paddingLeft: 16,
     position: "sticky",
     top: 24,
   }),
   shell: style({
-    "@media": {
-      "(max-width: 720px)": {
-        gridTemplateColumns: "1fr",
-      },
-    },
+    ...mediaQuery.mobile({
+      gridTemplateColumns: "1fr",
+    }),
     display: "grid",
     gridTemplateColumns: "296px minmax(0, 1fr)",
     minHeight: "100vh",
