@@ -13,4 +13,4 @@ package_name="${1:-}"
 npm_auth="${2:-login}"
 
 NPM_PUBLISH_ACCESS=public \
-  bash "$script_dir/publish-prerelease.sh" patch "$package_name" "$npm_auth" false
+  bash "$script_dir/publish-prerelease.sh" patch "$package_name" "$npm_auth" true
