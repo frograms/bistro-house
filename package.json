@@ -14,8 +14,9 @@
     "build": "turbo run build",
     "build:packages": "bash ./project-attachment/script/build-packages.sh",
     "publish:canary": "bash ./project-attachment/script/publish-canary.sh",
-    "prepare-package": "node ./project-attachment/script/prepare-package/prepare-package.js",
+    "prepare-package": "node ./project-attachment/script/prepare-package/prepare-package.mjs",
     "add-package": "bash ./project-attachment/script/add-package.sh",
+    "set-workspace-deps": "bash ./project-attachment/script/set-workspace-deps.sh",
     "format": "prettier --write \"**/*.{js,ts,mts,mjs,cjs,jsx,tsx,css,scss,html,json,md}\" && prettier --write \"{*.js,*.ts,*.mts,*.mjs,*.cjs,*.jsx,*.tsx,*.css,*.scss,*.html,*.json,*.md}\""
   },
   "devDependencies": {

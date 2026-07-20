@@ -57,7 +57,7 @@ pnpm prepare-package <package-name>
 #     → @watcha-authentic/react-foo@0.0.1
 ```
 
-- 스크립트: [prepare-package.js](../project-attachment/script/prepare-package/prepare-package.js)
+- 스크립트: [prepare-package.mjs](../project-attachment/script/prepare-package/prepare-package.mjs)
 - `npm whoami` 실패 시 즉시 종료 (login 필요)
 - 첫 publish 버전은 항상 **`0.0.1`** (템플릿 고정)
 

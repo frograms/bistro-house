@@ -14,7 +14,7 @@
 #   - login: npm login 세션으로 인증
 #   - npm-oidc: npm Trusted Publishing/OIDC 인증
 # - cleanup: true | false
-#   - true면 EXIT 시 이 스크립트에서 수정한 package.json 버전을 복원합니다.
+#   - true면 EXIT 시 이 스크립트에서 수정한 내용을 복원합니다.
 #
 # Options
 # - NPM_PUBLISH_USERCONFIG: npm publish 에 사용할 userconfig(.npmrc) 경로
@@ -39,6 +39,10 @@ current_version=""
 publish_version=""
 cleanup_pending=0
 
+# 백업 목록: 원본 경로 / 임시 파일 (같은 인덱스로 짝)
+backup_paths=()
+backup_files=()
+
 # --- usage ---
 
 usage() {
@@ -50,7 +54,7 @@ usage() {
   echo "    npm-oidc npm OIDC(Trusted Publishing) 자동 인증"
   echo ""
   echo "  <cleanup>  true | false (필수 — 래퍼 publish-canary/patch 가 전달)"
-  echo "    true     EXIT 시 이 스크립트에서 수정한 사항에 대해(package.json 등) 버전 복원"
+  echo "    true     EXIT 시 이 스크립트에서 수정한 내용을 복원"
   echo "    false    EXIT 복원 없음"
   echo ""
   echo "  <channel>  canary | patch"
@@ -274,14 +278,55 @@ build_package() {
   pnpm build --filter="$full_package_name"
 }
 
+backup_file() {
+  local path="$1"
+  local backup
+
+  backup="$(mktemp)"
+  cp "$path" "$backup"
+  backup_paths+=("$path")
+  backup_files+=("$backup")
+}
+
+find_backup_file() {
+  local path="$1"
+  local i
+
+  for i in "${!backup_paths[@]}"; do
+    if [ "${backup_paths[$i]}" = "$path" ]; then
+      echo "${backup_files[$i]}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+clear_file_backups() {
+  local backup
+  for backup in "${backup_files[@]}"; do
+    rm -f "$backup"
+  done
+  backup_paths=()
+  backup_files=()
+}
+
+rewrite_workspace_deps() {
+  echo "🔗 workspace: 의존성 치환 중..."
+  node "$script_dir/rewrite-workspace-deps-for-publish.mjs" "$short_name"
+}
+
 publish_package() {
   echo "📦 npm publish (dist-tag: ${channel})..."
+
+  backup_file "$root_dir/$package_json"
+  cleanup_pending=1
+
+  rewrite_workspace_deps
 
   (
     cd "$root_dir/$package_dir"
     npm version "$publish_version" --no-git-tag-version
   )
-  cleanup_pending=1
 
   (
     cd "$root_dir/$package_dir"
@@ -298,32 +343,28 @@ publish_package() {
   )
 }
 
-restore_package_version() {
+restore_package_json() {
+  local path="$root_dir/$package_json"
+  local backup
+
   echo ""
-  echo "↩️  package.json 버전을 ${current_version}(으)로 복원합니다..."
-  if (
-    cd "$root_dir/$package_dir"
-    npm version "$current_version" --no-git-tag-version
-  ) >/dev/null 2>&1; then
-    echo "✅ 버전 복원 완료"
-  elif git -C "$root_dir" checkout HEAD -- "$package_json" 2>/dev/null; then
-    echo "✅ 버전 복원 완료 (git checkout)"
+  echo "↩️  package.json 을 복원합니다..."
+  if backup="$(find_backup_file "$path")" && [ -f "$backup" ]; then
+    cp "$backup" "$path"
+    echo "✅ package.json 복원 완료"
   else
-    echo "❌ 버전 복원에 실패했습니다. ${package_json} 을 수동으로 확인해 주세요."
+    echo "❌ package.json 복원에 실패했습니다. ${package_json} 을 수동으로 확인해 주세요."
   fi
 }
 
 # --- cleanup (EXIT trap) ---
 
 cleanup() {
-  if [ "$cleanup_on" != "true" ]; then
-    return 0
-  fi
-  if [ "$cleanup_pending" != "1" ]; then
-    return 0
+  if [ "$cleanup_on" = "true" ] && [ "$cleanup_pending" = "1" ]; then
+    restore_package_json
   fi
 
-  restore_package_version
+  clear_file_backups
   cleanup_pending=0
 }
 
