@@ -28,7 +28,7 @@
 flowchart LR
   A[1. prepare-package] --> B[2. OIDC 등록]
   B --> C[3. add-package]
-  C --> D[4. 구현·README·validate]
+  C --> D[4. 구현·README·루트목록·validate]
   D --> E[5. PR / master 배포]
 ```
 
@@ -37,7 +37,7 @@ flowchart LR
 | 1    | `pnpm prepare-package <name>`            | npm에 `@watcha-authentic/<name>@0.0.1` 존재            |
 | 2    | Notion에 따라 **Trusted Publisher** 등록 | `publish.yml`로 CI publish 가능                        |
 | 3    | `pnpm add-package ...`                   | `packages/<name>/` 스캐폴드 생성                       |
-| 4    | 구현 · README · 로컬 검증                | `pnpm validate --filter=@watcha-authentic/<name>` 성공 |
+| 4    | 구현 · README · 루트 목록 · 로컬 검증    | `pnpm validate --filter=@watcha-authentic/<name>` 성공 · 루트 Packages 반영 |
 | 5    | PR → `master`                            | `validate-pr` 통과 후 Lerna-Lite 정식 배포             |
 
 카나리로 tarball·설치를 먼저 검증할 때는 **1번 이후·5번 이전**에 `pnpm publish:canary <name>`(로컬 `npm login`)을 쓸 수 있습니다.
@@ -160,7 +160,7 @@ pnpm install
 
 ---
 
-## 4. 구현 · README · 로컬 검증
+## 4. 구현 · README · 루트 목록 · 로컬 검증
 
 스캐폴드 후 실제 코드·문서를 채우고 검증합니다.
 
@@ -195,6 +195,14 @@ packages/<name>/
 - 섹션 제목(앵커)은 **영어**
 - `package.json`의 `description`, `peerDependencies`와 내용 일치
 - Usage 예제는 **실제 export** 기준
+
+### 루트 README Packages 목록
+
+저장소 루트 [README.md](../README.md)의 **Packages** 테이블에 새 패키지 행을 추가합니다.
+
+- 링크: `packages/<name>`
+- Description: `package.json` `description`과 맞추되, 표에 맞게 짧게
+- 기존 행과 같은 마크다운 표 형식 유지
 
 ### 로컬 확인
 
@@ -235,6 +243,7 @@ pnpm publish:canary <name>
 - [ ] `pnpm add-package ...` — `<project-name>`이 1번과 동일
 - [ ] 구현 완료, `pnpm validate --filter=@watcha-authentic/<name>` 통과
 - [ ] `packages/<name>/README.md` ([가이드](./PACKAGE_README_GUIDE.md) 준수)
+- [ ] 루트 [README.md](../README.md) Packages 테이블에 패키지 행 추가
 - [ ] PR CI green → `master` merge
 - [ ] npm에 정식 버전·`latest` 태그 반영 확인
 

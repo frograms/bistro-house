@@ -45,3 +45,6 @@ pnpm --filter=@watcha-authentic/common-cli dev create-package \
   --type="$package_type" \
   --yes \
   "$@"
+
+# 각 패키지에 추가되는 gitignore 는 제거 합니다. (루트에서 관리)
+rm -f "./packages/${project_name}/.gitignore"

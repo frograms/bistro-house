@@ -11,10 +11,11 @@ Watcha 웹 개발에서 사용하는 `@watcha-authentic/*` npm 패키지 모노�
 | ----------------------------------------------------------------------- | ------------------------------ |
 | [@watcha-authentic/eslint-config](packages/eslint-config)               | 공통 ESLint flat config        |
 | [@watcha-authentic/prettier-config](packages/prettier-config)           | 공통 Prettier 설정             |
-| [@watcha-authentic/react-event-callback](packages/react-event-callback) | 이벤트 콜백 디펜던시 유지 hook |
-| [@watcha-authentic/react-a11y](packages/react-a11y)                     | 접근성 유틸                    |
-| [@watcha-authentic/react-motion](packages/react-motion)                 | 포인터·제스처 모션             |
-| [@watcha-authentic/react-slider](packages/react-slider)                 | 슬라이더 컴포넌트              |
+| [@watcha-authentic/react-event-callback](packages/react-event-callback)     | 이벤트 콜백 디펜던시 유지 hook |
+| [@watcha-authentic/react-a11y](packages/react-a11y)                         | 접근성 유틸                    |
+| [@watcha-authentic/react-context-factory](packages/react-context-factory)   | React context 팩토리           |
+| [@watcha-authentic/react-motion](packages/react-motion)                     | 포인터·제스처 모션             |
+| [@watcha-authentic/react-slider](packages/react-slider)                     | 슬라이더 컴포넌트              |
 
 설치·사용법·API는 **각 패키지 README**를 참고하세요.
 
