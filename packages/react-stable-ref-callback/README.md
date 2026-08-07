@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@watcha-authentic/react-stable-ref-callback)](https://www.npmjs.com/package/@watcha-authentic/react-stable-ref-callback)
 
-callback ref 참조를 고정해, 리렌더마다 `null` → element 재호출로 observe·타이머 등이 리셋되지 않게 해 주는 React 훅입니다.
+callback ref 참조를 고정해, 리렌더마다 `null` → element 재호출로 observe·타이머 등이 리셋되지 않게 해 주는 React 훅입니다. React 19의 ref cleanup 반환도 그대로 전달합니다.
 
 인라인 `ref={(node) => ...}`는 렌더마다 함수가 새로 만들어집니다. React는 이전 콜백에 `null`을 넣고 새 콜백에 element를 다시 넘기므로, ResizeObserver·IntersectionObserver·`setTimeout` 같은 구독이 detach/attach 때마다 끊겼다가 다시 붙습니다. 이 패키지는 ref 참조만 고정하고 콜백 본문만 최신으로 유지해, **노드는 그대로인데 리렌더만 난 경우**에는 콜백을 다시 부르지 않습니다.
 
@@ -23,10 +23,10 @@ callback ref 참조를 고정해, 리렌더마다 `null` → element 재호출�
 
 ### Peer dependencies
 
-**React와 React DOM은 프로젝트에 함께 설치해야 합니다.**
+**React 19 이상과 React DOM은 프로젝트에 함께 설치해야 합니다.**
 
-- `react` `>=18.0.0`
-- `react-dom` `>=18.0.0`
+- `react` `>=19.0.0`
+- `react-dom` `>=19.0.0`
 
 ## Installation
 
@@ -39,7 +39,7 @@ pnpm add @watcha-authentic/react-stable-ref-callback
 ### Install peer dependencies
 
 ```bash
-pnpm add react@>=18.0.0 react-dom@>=18.0.0
+pnpm add react@>=19.0.0 react-dom@>=19.0.0
 ```
 
 ## Usage
@@ -56,7 +56,10 @@ function MeasureBox() {
   const [width, setWidth] = useState(0);
 
   const boxRef = useStableRefCallback<HTMLDivElement>((node) => {
-    setWidth(node?.getBoundingClientRect().width ?? 0);
+    if (!node) {
+      return;
+    }
+    setWidth(node.getBoundingClientRect().width);
   });
 
   return (
@@ -64,6 +67,41 @@ function MeasureBox() {
       <div ref={boxRef}>측정 대상</div>
       <p>width: {width}</p>
       <p>current: {boxRef.current?.tagName ?? "null"}</p>
+    </div>
+  );
+}
+```
+
+### With cleanup (React 19)
+
+callback에서 cleanup을 반환하면, unmount 시 React가 `null` 대신 그 cleanup을 호출합니다. `useStableRefCallback`은 이 반환값을 React에 그대로 넘깁니다.
+
+```tsx
+import { useState } from "react";
+import { useStableRefCallback } from "@watcha-authentic/react-stable-ref-callback";
+
+function ObserveBox() {
+  const [height, setHeight] = useState(0);
+
+  const boxRef = useStableRefCallback<HTMLDivElement>((node) => {
+    if (!node) {
+      return;
+    }
+
+    const observer = new ResizeObserver(([entry]) => {
+      setHeight(entry.contentRect.height);
+    });
+    observer.observe(node);
+
+    return () => {
+      observer.disconnect();
+    };
+  });
+
+  return (
+    <div>
+      <div ref={boxRef}>관찰 대상</div>
+      <p>height: {Math.round(height)}</p>
     </div>
   );
 }
@@ -106,13 +144,13 @@ function CompareRefs() {
 
 ### useStableRefCallback
 
-callback ref 참조를 고정하고, 콜백 본문만 최신으로 유지합니다. attach/detach 시에만 호출하며, 노드가 그대로인데 콜백만 바뀌면 다시 호출하지 않습니다.
+callback ref 참조를 고정하고, 콜백 본문만 최신으로 유지합니다. attach/detach 시에만 호출하며, 노드가 그대로인데 콜백만 바뀌면 다시 호출하지 않습니다. callback이 cleanup을 반환하면 React 19 unmount 경로로 그 cleanup이 실행됩니다.
 
 #### Parameters
 
-| Name       | Type                                           | Default | Description                                   |
-| ---------- | ---------------------------------------------- | ------- | --------------------------------------------- |
-| `callback` | `((instance: T \| null) => void) \| undefined` | —       | ref가 attach/detach될 때 호출. 생략하면 no-op |
+| Name       | Type                                  | Default | Description                                                           |
+| ---------- | ------------------------------------- | ------- | --------------------------------------------------------------------- |
+| `callback` | `StableRefCallbackFn<T> \| undefined` | —       | attach 시 호출. `() => void` cleanup을 반환할 수 있음. 생략하면 no-op |
 
 #### Returns
 
@@ -120,11 +158,25 @@ callback ref 참조를 고정하고, 콜백 본문만 최신으로 유지합니�
 | ---- | ---------------------- | -------------------------------------------------------------------------- |
 | —    | `StableRefCallback<T>` | `ref={...}`에 넘길 수 있는 안정적인 callback. `.current`로 노드를 읽습니다 |
 
+### StableRefCallbackFn
+
+`useStableRefCallback`에 넘기는 callback 타입입니다.
+
+| Name     | Type                                                | Default | Description                                     |
+| -------- | --------------------------------------------------- | ------- | ----------------------------------------------- |
+| `(call)` | `(instance: T \| null) => void \| StableRefCleanup` | —       | attach 시 노드를 받음. cleanup을 반환할 수 있음 |
+
+### StableRefCleanup
+
+| Name     | Type         | Default | Description                 |
+| -------- | ------------ | ------- | --------------------------- |
+| `(call)` | `() => void` | —       | unmount 시 실행되는 cleanup |
+
 ### StableRefCallback
 
 `useStableRefCallback`의 반환 타입입니다.
 
-| Name      | Type                            | Default | Description                   |
-| --------- | ------------------------------- | ------- | ----------------------------- |
-| `(call)`  | `(instance: T \| null) => void` | —       | React가 호출하는 callback ref |
-| `current` | `T \| null`                     | `null`  | 마지막으로 attach된 인스턴스  |
+| Name      | Type                                                | Default | Description                   |
+| --------- | --------------------------------------------------- | ------- | ----------------------------- |
+| `(call)`  | `(instance: T \| null) => void \| StableRefCleanup` | —       | React가 호출하는 callback ref |
+| `current` | `T \| null`                                         | `null`  | 마지막으로 attach된 인스턴스  |
