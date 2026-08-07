@@ -4,6 +4,7 @@ import { ReactMotionPointerContainer } from "@playground/component/view/package/
 import { ReactSliderPeekContainer } from "@playground/component/view/package/react-slider/_react-slider-peek-container";
 import { ReactSliderSingleContainer } from "@playground/component/view/package/react-slider/_react-slider-single-container";
 import { ReactSliderTransitionContainer } from "@playground/component/view/package/react-slider/_react-slider-transition-container";
+import { ReactStableRefCallbackAvoidNullOnRerenderContainer } from "@playground/component/view/package/react-stable-ref-callback/_react-stable-ref-callback-avoid-null-on-rerender-container";
 import { withRouteComponent } from "@playground/script/util/router-utils";
 import type { RouteObject } from "react-router";
 
@@ -57,6 +58,26 @@ export const playgroundRoutes: ReadonlyArray<RouteObject> = [
       {
         element: <ReactMotionGlobalContainer />,
         path: "/react-motion/global",
+      },
+    ],
+  }),
+  // react-stable-ref-callback
+  withRouteComponent({
+    AppContent: PackageAppContent,
+    routes: [
+      {
+        lazy: async () => {
+          return {
+            Component: (
+              await import("@playground/component/view/package/react-stable-ref-callback/_react-stable-ref-callback-documentation-container")
+            ).ReactStableRefCallbackDocumentationContainer,
+          };
+        },
+        path: "/react-stable-ref-callback",
+      },
+      {
+        element: <ReactStableRefCallbackAvoidNullOnRerenderContainer />,
+        path: "/react-stable-ref-callback/avoid-null-on-rerender",
       },
     ],
   }),
