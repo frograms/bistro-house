@@ -63,6 +63,24 @@ export const MENU_INFO: ReadonlyArray<MenuInfo> = [
     path: "/react-motion",
     showTableOfContents: true,
   },
+  {
+    githubUrl:
+      "https://github.com/frograms/bistro-house/tree/master/packages/react-stable-ref-callback#readme",
+    items: [
+      {
+        exampleLabel: "예제 - 렌더 시 ref null 방지",
+        path: "/react-stable-ref-callback/avoid-null-on-rerender",
+      },
+    ],
+    npmUrl:
+      "https://www.npmjs.com/package/@watcha-authentic/react-stable-ref-callback",
+    packageDescription:
+      "callback ref 참조를 고정해 리렌더 시 null 재호출·구독 리셋을 막는 React 훅",
+    packageLabel: "React Stable Ref Callback",
+    packageName: "@watcha-authentic/react-stable-ref-callback",
+    path: "/react-stable-ref-callback",
+    showTableOfContents: true,
+  },
 ];
 
 export const PAGE_INFOS = MENU_INFO.flatMap((menuInfo) => {
