@@ -1,7 +1,7 @@
 import { defineConfig, type UserConfig } from "tsdown";
 
 const sharedConfig: UserConfig = {
-  entry: ["src/index.ts"],
+  entry: { core: "src/core/index.ts", index: "src/index.ts" },
   fixedExtension: true,
   outDir: "dist",
   outExtensions: () => ({ dts: ".d.ts" }),
