@@ -6,6 +6,6 @@
     "declaration": true,
     "declarationMap": false,
 
-    "moduleResolution": "node"
+    "moduleResolution": "bundler"
   }
 }
