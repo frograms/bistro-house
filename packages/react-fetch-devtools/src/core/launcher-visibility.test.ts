@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createLauncherVisibility, RESTORE_HINT } from "./launcher-visibility";
+import {
+  createLauncherVisibility,
+  HIDDEN_ON_LOAD_HINT,
+  RESTORE_HINT,
+} from "./launcher-visibility";
 import { createMemoryStorage } from "./safe-storage";
 
 describe("createLauncherVisibility", () => {
@@ -8,10 +12,22 @@ describe("createLauncherVisibility", () => {
     vi.restoreAllMocks();
   });
 
-  it("기본은 표시 상태다", () => {
+  it("기본은 표시 상태고, 시작 힌트를 출력하지 않는다", () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
     expect(createLauncherVisibility(createMemoryStorage()).getSnapshot()).toBe(
       true
     );
+    expect(info).not.toHaveBeenCalled();
+  });
+
+  it("숨김 상태로 시작하면 복구 힌트를 한 번 출력한다", () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
+    const storage = createMemoryStorage();
+    createLauncherVisibility(storage).hide();
+    info.mockClear();
+    const visibility = createLauncherVisibility(storage);
+    expect(visibility.getSnapshot()).toBe(false);
+    expect(info).toHaveBeenCalledExactlyOnceWith(HIDDEN_ON_LOAD_HINT);
   });
 
   it("hide는 상태를 영속하고 복구 힌트를 출력한다", () => {
