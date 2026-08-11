@@ -3,7 +3,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FetchDevtoolsApi } from "../core";
 import { useRecords } from "./hooks";
 import { JsonViewer } from "./json-viewer";
+import type { RequestGroup } from "./request-table";
 import { RequestTable } from "./request-table";
+import { RowActions } from "./row-actions";
 import {
   activeTabStyle,
   detailStyle,
@@ -35,14 +37,21 @@ const CLOSE_EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
 export type PanelProps = {
   api: FetchDevtoolsApi;
   onClose: () => void;
+  onRevalidate?: (key: string) => void;
   /** false→true 전환으로 오픈 애니메이션 재생 */
   shown: boolean;
   zIndex: number;
 };
 
-export const Panel = ({ api, onClose, shown, zIndex }: PanelProps) => {
+export const Panel = ({
+  api,
+  onClose,
+  onRevalidate,
+  shown,
+  zIndex,
+}: PanelProps) => {
   const records = useRecords(api);
-  const [selectedSeq, setSelectedSeq] = useState<number | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [reducedMotion] = useState(
     () =>
       typeof window.matchMedia === "function" &&
@@ -64,15 +73,30 @@ export const Panel = ({ api, onClose, shown, zIndex }: PanelProps) => {
     };
   }, [onClose]);
 
-  const handleSelectRecord = useCallback((seq: number) => {
-    setSelectedSeq((current) => (current === seq ? null : seq));
+  const handleSelectGroup = useCallback((key: string) => {
+    setSelectedKey((current) => (current === key ? null : key));
   }, []);
 
-  const orderedRecords = useMemo(() => [...records].reverse(), [records]);
+  // 같은 method+URL은 한 행으로 묶고 최신 기록을 대표로 (RQ devtools 방식)
+  const groups = useMemo(() => {
+    const map = new Map<string, RequestGroup>();
+    for (const record of records) {
+      const key = `${record.method} ${record.url}`;
+      const existing = map.get(key);
+      if (existing === undefined) {
+        map.set(key, { count: 1, key, latest: record });
+      } else {
+        existing.count += 1;
+        existing.latest = record;
+      }
+    }
+    return [...map.values()].sort((a, b) => b.latest.seq - a.latest.seq);
+  }, [records]);
+
   const selected =
-    selectedSeq === null
+    selectedKey === null
       ? null
-      : (records.find((record) => record.seq === selectedSeq) ?? null);
+      : (groups.find((group) => group.key === selectedKey)?.latest ?? null);
 
   const expanded = selected !== null;
   const targetWidth = expanded ? PANEL_EXPANDED_WIDTH : PANEL_WIDTH;
@@ -152,14 +176,20 @@ export const Panel = ({ api, onClose, shown, zIndex }: PanelProps) => {
         <div style={panelBodyStyle}>
           <div style={tableWrapStyle}>
             <RequestTable
-              records={orderedRecords}
-              selectedSeq={selectedSeq}
-              onSelectRecord={handleSelectRecord}
+              groups={groups}
+              selectedKey={selectedKey}
+              onSelectGroup={handleSelectGroup}
             />
           </div>
           {selected !== null && (
             <aside style={detailStyle}>
               <JsonViewer record={selected} />
+              <RowActions
+                key={selectedKey}
+                api={api}
+                record={selected}
+                onRevalidate={onRevalidate}
+              />
             </aside>
           )}
         </div>
