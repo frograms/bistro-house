@@ -89,12 +89,23 @@ describe("createDevtoolsFetch", () => {
   });
 
   it("body를 가질 수 없는 status 목도 만들 수 있다", async () => {
-    const { devtoolsFetch } = setup([
+    const { buffer, devtoolsFetch } = setup([
       { body: "ignored", id: "r1", pattern: "users", status: 204 },
     ]);
     const response = await devtoolsFetch("https://api.test/users");
     expect(response.status).toBe(204);
     await expect(response.text()).resolves.toBe("");
+    expect(buffer.getSnapshot()[0]?.responseBody).toBe("");
+  });
+
+  it("목 body도 maxBodyBytes로 잘라 기록한다", async () => {
+    const { buffer, devtoolsFetch } = setup(
+      [{ body: "0123456789", id: "r1", pattern: "users", status: 500 }],
+      { maxBodyBytes: 4 }
+    );
+    const response = await devtoolsFetch("https://api.test/users");
+    await expect(response.text()).resolves.toBe("0123456789");
+    expect(buffer.getSnapshot()[0]?.responseBody).toBe("0123…(truncated)");
   });
 
   it("Response가 허용하지 않는 status 룰은 실제 요청으로 통과한다", async () => {

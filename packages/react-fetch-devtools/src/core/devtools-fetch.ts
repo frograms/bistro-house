@@ -45,16 +45,26 @@ const matchRule = (
     }
   });
 
-const createMockResponse = (rule: FetchDevtoolsRule): Response | null => {
+const truncateBody = (text: string, maxBodyBytes: number): string =>
+  text.length > maxBodyBytes
+    ? `${text.slice(0, maxBodyBytes)}…(truncated)`
+    : text;
+
+const createMockResponse = (
+  rule: FetchDevtoolsRule
+): { body: string | null; response: Response } | null => {
   const body =
     rule.status !== undefined && NULL_BODY_STATUSES.has(rule.status)
       ? null
       : (rule.body ?? "");
   try {
-    return new Response(body, {
-      headers: { "Content-Type": "application/json" },
-      status: rule.status,
-    });
+    return {
+      body,
+      response: new Response(body, {
+        headers: { "Content-Type": "application/json" },
+        status: rule.status,
+      }),
+    };
   } catch {
     // status 범위 밖(<200, >599) 등 — 목 실패 시 실제 요청으로 통과
     return null;
@@ -77,12 +87,7 @@ export const createDevtoolsFetch = (
         .clone()
         .text()
         .then((text) => {
-          buffer.patch(seq, {
-            responseBody:
-              text.length > maxBodyBytes
-                ? `${text.slice(0, maxBodyBytes)}…(truncated)`
-                : text,
-          });
+          buffer.patch(seq, { responseBody: truncateBody(text, maxBodyBytes) });
         })
         .catch(() => {
           // body 캡처 실패는 기록만 비워둔다
@@ -109,14 +114,14 @@ export const createDevtoolsFetch = (
           durationMs: Date.now() - startedAt,
           method,
           mocked: true,
-          ok: mock.ok,
-          responseBody: rule.body ?? "",
+          ok: mock.response.ok,
+          responseBody: truncateBody(mock.body ?? "", maxBodyBytes),
           ruleId: rule.id,
           startedAt,
-          status: mock.status,
+          status: mock.response.status,
           url,
         });
-        return mock;
+        return mock.response;
       }
     }
 
