@@ -6,6 +6,8 @@ import {
   panelClassNames,
   rowButtonSelectedStyle,
   rowButtonStyle,
+  rowCountErrorStyle,
+  rowCountOkStyle,
   rowListStyle,
   rowMethodStyle,
   rowTimeStyle,
@@ -13,10 +15,17 @@ import {
   tableEmptyStyle,
 } from "./styles";
 
+/** 같은 method+URL의 기록 묶음 — 행 하나로 표시하고 최신 기록을 대표로 쓴다 */
+export type RequestGroup = {
+  count: number;
+  key: string;
+  latest: FetchDevtoolsRecord;
+};
+
 export type RequestTableProps = {
-  onSelectRecord: (seq: number) => void;
-  records: FetchDevtoolsRecord[];
-  selectedSeq: number | null;
+  groups: RequestGroup[];
+  onSelectGroup: (key: string) => void;
+  selectedKey: string | null;
 };
 
 const pad2 = (value: number): string => String(value).padStart(2, "0");
@@ -25,6 +34,9 @@ const formatTime = (epochMs: number): string => {
   const date = new Date(epochMs);
   return `${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
 };
+
+const isErrorStatus = (record: FetchDevtoolsRecord): boolean =>
+  record.status === 0 || record.status >= 400;
 
 const StatusChip = ({ record }: { record: FetchDevtoolsRecord }) => {
   if (record.status === 0) {
@@ -38,31 +50,38 @@ const StatusChip = ({ record }: { record: FetchDevtoolsRecord }) => {
 };
 
 export const RequestTable = ({
-  onSelectRecord,
-  records,
-  selectedSeq,
+  groups,
+  onSelectGroup,
+  selectedKey,
 }: RequestTableProps) => {
-  if (records.length === 0) {
+  if (groups.length === 0) {
     return <p style={tableEmptyStyle}>아직 기록된 요청이 없습니다</p>;
   }
 
   return (
     <ul style={rowListStyle}>
-      {records.map((record) => (
-        <li key={record.seq}>
+      {groups.map((group) => (
+        <li key={group.key}>
           <button
             className={panelClassNames.row}
             style={
-              record.seq === selectedSeq ? rowButtonSelectedStyle : rowButtonStyle
+              group.key === selectedKey ? rowButtonSelectedStyle : rowButtonStyle
             }
             type="button"
-            onClick={() => onSelectRecord(record.seq)}
+            onClick={() => onSelectGroup(group.key)}
           >
-            <span style={rowTimeStyle}>{formatTime(record.startedAt)}</span>
-            <span style={rowMethodStyle}>{record.method}</span>
-            <span style={rowUrlStyle}>{record.url}</span>
-            <StatusChip record={record} />
-            {record.mocked && <span style={mockBadgeStyle}>MOCK</span>}
+            <span
+              style={
+                isErrorStatus(group.latest) ? rowCountErrorStyle : rowCountOkStyle
+              }
+            >
+              {group.count}
+            </span>
+            <span style={rowTimeStyle}>{formatTime(group.latest.startedAt)}</span>
+            <span style={rowMethodStyle}>{group.latest.method}</span>
+            <span style={rowUrlStyle}>{group.latest.url}</span>
+            <StatusChip record={group.latest} />
+            {group.latest.mocked && <span style={mockBadgeStyle}>MOCK</span>}
           </button>
         </li>
       ))}
