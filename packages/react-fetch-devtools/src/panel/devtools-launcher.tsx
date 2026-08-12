@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+import type { FetchDevtoolsCacheAdapter } from "../cache-adapter";
 import type { FetchDevtoolsApi } from "../core";
 import { useLauncherVisible, useRules } from "./hooks";
 import { Panel, PANEL_CLOSE_DURATION_MS } from "./panel";
@@ -13,6 +14,8 @@ import {
 } from "./styles";
 
 export type DevtoolsLauncherProps = {
+  /** SWR이면 createSwrAdapter로 생성 — 미주입 시 Cache 탭 숨김 */
+  cacheAdapter?: FetchDevtoolsCacheAdapter;
   enabled: boolean;
   /** 재요청 콜백 — 미주입 시 재요청 버튼 숨김 */
   onRevalidate?: (key: string) => void;
@@ -21,10 +24,12 @@ export type DevtoolsLauncherProps = {
 
 const LauncherContent = ({
   api,
+  cacheAdapter,
   onRevalidate,
   zIndex,
 }: {
   api: FetchDevtoolsApi;
+  cacheAdapter?: FetchDevtoolsCacheAdapter;
   onRevalidate?: (key: string) => void;
   zIndex: number;
 }) => {
@@ -100,6 +105,7 @@ const LauncherContent = ({
       {open && (
         <Panel
           api={api}
+          cacheAdapter={cacheAdapter}
           shown={shown}
           zIndex={zIndex}
           onClose={close}
@@ -112,6 +118,7 @@ const LauncherContent = ({
 };
 
 export const DevtoolsLauncher = ({
+  cacheAdapter,
   enabled,
   onRevalidate,
   zIndex = 999999,
@@ -120,6 +127,11 @@ export const DevtoolsLauncher = ({
   const api = window.__API_DEVTOOLS__;
   if (api === undefined) return null;
   return (
-    <LauncherContent api={api} zIndex={zIndex} onRevalidate={onRevalidate} />
+    <LauncherContent
+      api={api}
+      cacheAdapter={cacheAdapter}
+      zIndex={zIndex}
+      onRevalidate={onRevalidate}
+    />
   );
 };

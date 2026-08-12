@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import type { FetchDevtoolsCacheAdapter } from "../cache-adapter";
 import type { FetchDevtoolsApi } from "../core";
+import { CacheTab } from "./cache-tab";
 import { useRecords, useRules } from "./hooks";
 import { JsonViewer } from "./json-viewer";
 import type { RequestGroup } from "./request-table";
@@ -18,6 +20,7 @@ import {
   headerCountStyle,
   headerRuleCountStyle,
   headerStyle,
+  inactiveTabStyle,
   LAUNCHER_SIZE,
   palette,
   PANEL_EXPANDED_HEIGHT,
@@ -41,6 +44,7 @@ const CLOSE_EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
 
 export type PanelProps = {
   api: FetchDevtoolsApi;
+  cacheAdapter?: FetchDevtoolsCacheAdapter;
   onClose: () => void;
   onRevalidate?: (key: string) => void;
   /** false→true 전환으로 오픈 애니메이션 재생 */
@@ -50,6 +54,7 @@ export type PanelProps = {
 
 export const Panel = ({
   api,
+  cacheAdapter,
   onClose,
   onRevalidate,
   shown,
@@ -62,6 +67,7 @@ export const Panel = ({
   >("all");
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"api" | "cache">("api");
   const [reducedMotion] = useState(
     () =>
       typeof window.matchMedia === "function" &&
@@ -208,7 +214,22 @@ export const Panel = ({
     <section aria-label="API devtools 패널" role="dialog" style={animatedPanelStyle}>
       <div style={contentStyle}>
         <header style={headerStyle}>
-          <span style={activeTabStyle}>API</span>
+          <button
+            style={activeTab === "api" ? activeTabStyle : inactiveTabStyle}
+            type="button"
+            onClick={() => setActiveTab("api")}
+          >
+            API
+          </button>
+          {cacheAdapter !== undefined && (
+            <button
+              style={activeTab === "cache" ? activeTabStyle : inactiveTabStyle}
+              type="button"
+              onClick={() => setActiveTab("cache")}
+            >
+              Cache
+            </button>
+          )}
           <span style={headerCountStyle}>{records.length}건</span>
           {rules.length > 0 && (
             <span style={headerRuleCountStyle}>룰 {rules.length}</span>
@@ -233,6 +254,10 @@ export const Panel = ({
             </button>
           </div>
         </header>
+        {activeTab === "cache" && cacheAdapter !== undefined ? (
+          <CacheTab cacheAdapter={cacheAdapter} />
+        ) : (
+          <>
         <div style={filterBarStyle}>
           {searchOpen ? (
             <>
@@ -325,6 +350,8 @@ export const Panel = ({
             </aside>
           )}
         </div>
+          </>
+        )}
       </div>
       <span aria-hidden="true" style={ghostLabelStyle}>
         API

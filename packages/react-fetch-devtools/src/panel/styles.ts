@@ -120,12 +120,23 @@ export const headerStyle: CSSProperties = {
 };
 
 export const activeTabStyle: CSSProperties = {
+  appearance: "none",
   background: palette.tealSoft,
   border: `1px solid ${palette.teal}`,
   borderRadius: 6,
   color: palette.teal,
+  cursor: "pointer",
+  fontFamily,
   fontSize: 12,
   padding: "3px 10px",
+  WebkitAppearance: "none",
+};
+
+export const inactiveTabStyle: CSSProperties = {
+  ...activeTabStyle,
+  background: "transparent",
+  border: `1px solid ${palette.line}`,
+  color: palette.muted,
 };
 
 export const headerCountStyle: CSSProperties = {

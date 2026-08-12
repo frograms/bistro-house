@@ -219,6 +219,28 @@ describe("DevtoolsLauncher", () => {
     await expect(mocked.text()).resolves.toBe('{"message":"없어요"}');
   });
 
+  it("cacheAdapter가 있으면 Cache 탭이 생기고 엔트리를 보여준다", () => {
+    install();
+    const cacheAdapter = {
+      getEntries: () => [
+        { data: { ok: true }, key: "/settings" },
+        { error: "boom", key: "/fail" },
+      ],
+    };
+    render(<DevtoolsLauncher cacheAdapter={cacheAdapter} enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cache" }));
+    expect(screen.getByText("/settings")).toBeTruthy();
+    expect(screen.getByText("error")).toBeTruthy();
+  });
+
+  it("cacheAdapter 미주입이면 Cache 탭이 없다", () => {
+    install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    expect(screen.queryByRole("button", { name: "Cache" })).toBeNull();
+  });
+
   it("상태 칩 필터·URL 검색·Clear가 동작한다", async () => {
     const api = install();
     api.rules.add({ pattern: "fail", status: 500 });
