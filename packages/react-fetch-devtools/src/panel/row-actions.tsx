@@ -42,6 +42,27 @@ const bodyKindOf = (input: string): BodyKind => {
   }
 };
 
+const bodyToInput = (body: string | undefined): string => {
+  if (body === undefined || body === "") return "";
+  try {
+    const parsed: unknown = JSON.parse(body);
+    if (
+      parsed !== null &&
+      typeof parsed === "object" &&
+      !Array.isArray(parsed)
+    ) {
+      const record = parsed as Record<string, unknown>;
+      const keys = Object.keys(record);
+      if (keys.length === 1 && typeof record.message === "string") {
+        return record.message;
+      }
+    }
+  } catch {
+    // JSON 아니면 원문 표시
+  }
+  return body;
+};
+
 const buildErrorBody = (input: string): string => {
   if (input.trim() === "") return "";
   return bodyKindOf(input) === "json"
@@ -51,10 +72,6 @@ const buildErrorBody = (input: string): string => {
 
 export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
   const rules = useRules(api);
-  const [status, setStatus] = useState("500");
-  const [message, setMessage] = useState("");
-  const bodyKind = message.trim() === "" ? "text" : bodyKindOf(message);
-
   const matchedRules = useMemo(
     () =>
       rules.filter((rule) => {
@@ -66,6 +83,13 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
       }),
     [record.url, rules]
   );
+
+  const firstMatched = matchedRules[0];
+  const [status, setStatus] = useState(() =>
+    firstMatched?.status !== undefined ? String(firstMatched.status) : "500"
+  );
+  const [message, setMessage] = useState(() => bodyToInput(firstMatched?.body));
+  const bodyKind = message.trim() === "" ? "text" : bodyKindOf(message);
 
   const replaceMatchedRules = useCallback(
     (input: { body?: string; delayMs?: number; status?: number }) => {
@@ -142,16 +166,14 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
           className={panelClassNames.warmButton}
           style={actionWarmButtonStyle}
           type="button"
-          onClick={handleApplyError}
-        >
+          onClick={handleApplyError}>
           적용 → 룰 생성
         </button>
         <button
           className={panelClassNames.actionButton}
           style={actionNeutralButtonStyle}
           type="button"
-          onClick={handleDelay}
-        >
+          onClick={handleDelay}>
           지연 {DELAY_MS / 1000}초
         </button>
         {onRevalidate !== undefined && (
@@ -159,8 +181,7 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
             className={panelClassNames.actionButton}
             style={actionPrimaryButtonStyle}
             type="button"
-            onClick={handleRevalidate}
-          >
+            onClick={handleRevalidate}>
             재요청
           </button>
         )}
@@ -169,8 +190,7 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
             className={panelClassNames.actionButton}
             style={actionNeutralButtonStyle}
             type="button"
-            onClick={handleRemoveRules}
-          >
+            onClick={handleRemoveRules}>
             룰 해제 ({matchedRules.length})
           </button>
         )}

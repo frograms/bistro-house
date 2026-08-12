@@ -219,6 +219,32 @@ describe("DevtoolsLauncher", () => {
     await expect(mocked.text()).resolves.toBe('{"message":"없어요"}');
   });
 
+  it("매칭 룰이 있으면 입력칸이 룰 값으로 채워진다", async () => {
+    const api = install();
+    api.rules.add({
+      body: '{"message":"없음"}',
+      pattern: "settings",
+      status: 404,
+    });
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+    expect(
+      (screen.getByRole("textbox", { name: "status" }) as HTMLInputElement)
+        .value
+    ).toBe("404");
+    expect(
+      (
+        screen.getByRole("textbox", {
+          name: "에러 메시지",
+        }) as HTMLTextAreaElement
+      ).value
+    ).toBe("없음");
+  });
+
   it("메시지에 JSON 객체를 넣으면 그대로 body로 쓴다", async () => {
     const api = install();
     render(<DevtoolsLauncher enabled />);
