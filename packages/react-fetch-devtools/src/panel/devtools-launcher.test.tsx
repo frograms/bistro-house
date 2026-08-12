@@ -144,12 +144,12 @@ describe("DevtoolsLauncher", () => {
     fireEvent.click(
       screen.getByRole("button", { name: /friend_ratings/ })
     );
-    expect(screen.getByText(/"message": "boom"/)).toBeTruthy();
+    expect(screen.getByText('"boom"')).toBeTruthy();
 
     fireEvent.click(
       screen.getByRole("button", { name: /friend_ratings/ })
     );
-    expect(screen.queryByText(/"message": "boom"/)).toBeNull();
+    expect(screen.queryByText('"boom"')).toBeNull();
   });
 
   it("같은 method+URL은 한 행으로 묶이고 왼쪽 카운트가 올라간다", async () => {

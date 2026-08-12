@@ -334,6 +334,89 @@ export const detailEmptyBodyStyle: CSSProperties = {
   margin: 0,
 };
 
+export const treeContainerStyle: CSSProperties = {
+  background: palette.raised,
+  borderRadius: 8,
+  fontFamily: monoFontFamily,
+  fontSize: 11,
+  lineHeight: 1.7,
+  listStyle: "none",
+  margin: 0,
+  overflowX: "auto",
+  padding: 8,
+};
+
+export const treeChildListStyle: CSSProperties = {
+  listStyle: "none",
+  margin: 0,
+  padding: 0,
+  paddingLeft: 14,
+};
+
+export const treeRowStyle: CSSProperties = {
+  alignItems: "center",
+  display: "flex",
+  gap: 4,
+  minWidth: 0,
+};
+
+export const treeToggleButtonStyle: CSSProperties = {
+  alignItems: "center",
+  appearance: "none",
+  background: "transparent",
+  border: "none",
+  color: palette.text,
+  cursor: "pointer",
+  display: "flex",
+  font: "inherit",
+  gap: 4,
+  padding: "1px 2px",
+  WebkitAppearance: "none",
+};
+
+export const treeToggleArrowStyle: CSSProperties = {
+  color: palette.muted,
+  fontSize: 8,
+  width: 10,
+};
+
+export const treeKeyStyle: CSSProperties = {
+  color: palette.text,
+};
+
+export const treeCountStyle: CSSProperties = {
+  color: palette.muted,
+  fontSize: 10,
+};
+
+export const treeCopyButtonStyle: CSSProperties = {
+  appearance: "none",
+  background: "transparent",
+  border: "none",
+  color: palette.muted,
+  cursor: "pointer",
+  font: "inherit",
+  fontSize: 10,
+  padding: "0 4px",
+};
+
+export const treeValueStringStyle: CSSProperties = {
+  color: palette.teal,
+  wordBreak: "break-all",
+};
+
+export const treeValueNumberStyle: CSSProperties = {
+  color: palette.orange,
+};
+
+export const treeValueNullStyle: CSSProperties = {
+  color: palette.muted,
+};
+
+export const treeTruncatedStyle: CSSProperties = {
+  color: palette.muted,
+};
+
 export const actionSectionStyle: CSSProperties = {
   borderTop: `1px solid ${palette.line}`,
   display: "flex",
