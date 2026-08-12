@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import type { FetchDevtoolsCacheAdapter } from "../cache-adapter";
 import type { FetchDevtoolsApi } from "../core";
 import { useLauncherVisible, useRules } from "./hooks";
+import type { DevtoolsTab } from "./panel";
 import { Panel, PANEL_CLOSE_DURATION_MS } from "./panel";
 import {
   launcherButtonActiveStyle,
@@ -17,6 +18,8 @@ export type DevtoolsLauncherProps = {
   /** SWR이면 createSwrAdapter로 생성 — 미주입 시 Cache 탭 숨김 */
   cacheAdapter?: FetchDevtoolsCacheAdapter;
   enabled: boolean;
+  /** 확장 탭 — RQ devtools 패널 임베드 지점 */
+  extraTabs?: DevtoolsTab[];
   /** 재요청 콜백 — 미주입 시 재요청 버튼 숨김 */
   onRevalidate?: (key: string) => void;
   zIndex?: number;
@@ -25,11 +28,13 @@ export type DevtoolsLauncherProps = {
 const LauncherContent = ({
   api,
   cacheAdapter,
+  extraTabs,
   onRevalidate,
   zIndex,
 }: {
   api: FetchDevtoolsApi;
   cacheAdapter?: FetchDevtoolsCacheAdapter;
+  extraTabs?: DevtoolsTab[];
   onRevalidate?: (key: string) => void;
   zIndex: number;
 }) => {
@@ -106,6 +111,7 @@ const LauncherContent = ({
         <Panel
           api={api}
           cacheAdapter={cacheAdapter}
+          extraTabs={extraTabs}
           shown={shown}
           zIndex={zIndex}
           onClose={close}
@@ -120,6 +126,7 @@ const LauncherContent = ({
 export const DevtoolsLauncher = ({
   cacheAdapter,
   enabled,
+  extraTabs,
   onRevalidate,
   zIndex = 999999,
 }: DevtoolsLauncherProps) => {
@@ -130,6 +137,7 @@ export const DevtoolsLauncher = ({
     <LauncherContent
       api={api}
       cacheAdapter={cacheAdapter}
+      extraTabs={extraTabs}
       zIndex={zIndex}
       onRevalidate={onRevalidate}
     />

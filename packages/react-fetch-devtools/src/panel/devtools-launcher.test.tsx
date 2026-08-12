@@ -234,6 +234,24 @@ describe("DevtoolsLauncher", () => {
     expect(screen.getByText("error")).toBeTruthy();
   });
 
+  it("extraTabs가 탭으로 꽂히고 render 결과를 마운트한다", () => {
+    install();
+    const extraTabs = [
+      {
+        key: "rq",
+        label: "React Query",
+        render: () => <div>RQ 패널 자리</div>,
+      },
+    ];
+    render(<DevtoolsLauncher extraTabs={extraTabs} enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    expect(screen.queryByText("RQ 패널 자리")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "React Query" }));
+    expect(screen.getByText("RQ 패널 자리")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "API" }));
+    expect(screen.queryByText("RQ 패널 자리")).toBeNull();
+  });
+
   it("cacheAdapter 미주입이면 Cache 탭이 없다", () => {
     install();
     render(<DevtoolsLauncher enabled />);

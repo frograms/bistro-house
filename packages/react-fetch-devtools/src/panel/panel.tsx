@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { FetchDevtoolsCacheAdapter } from "../cache-adapter";
@@ -11,6 +12,7 @@ import { RowActions } from "./row-actions";
 import {
   activeTabStyle,
   detailStyle,
+  extraTabContentStyle,
   filterBarStyle,
   filterChipActiveStyle,
   filterChipStyle,
@@ -42,9 +44,17 @@ const PANEL_OPEN_DURATION_MS = 300;
 const OPEN_EASE = "cubic-bezier(0.22, 1.2, 0.36, 1)";
 const CLOSE_EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
 
+/** 임베드 탭 계약 — RQ devtools 패널 등 무엇이든 render()로 주입 (lazy 청크 안에서) */
+export type DevtoolsTab = {
+  key: string;
+  label: string;
+  render: () => ReactNode;
+};
+
 export type PanelProps = {
   api: FetchDevtoolsApi;
   cacheAdapter?: FetchDevtoolsCacheAdapter;
+  extraTabs?: DevtoolsTab[];
   onClose: () => void;
   onRevalidate?: (key: string) => void;
   /** false→true 전환으로 오픈 애니메이션 재생 */
@@ -55,6 +65,7 @@ export type PanelProps = {
 export const Panel = ({
   api,
   cacheAdapter,
+  extraTabs,
   onClose,
   onRevalidate,
   shown,
@@ -67,7 +78,8 @@ export const Panel = ({
   >("all");
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"api" | "cache">("api");
+  const [activeTab, setActiveTab] = useState("api");
+  const activeExtraTab = extraTabs?.find((tab) => tab.key === activeTab);
   const [reducedMotion] = useState(
     () =>
       typeof window.matchMedia === "function" &&
@@ -230,6 +242,16 @@ export const Panel = ({
               Cache
             </button>
           )}
+          {extraTabs?.map((tab) => (
+            <button
+              key={tab.key}
+              style={activeTab === tab.key ? activeTabStyle : inactiveTabStyle}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+            >
+              {tab.label}
+            </button>
+          ))}
           <span style={headerCountStyle}>{records.length}건</span>
           {rules.length > 0 && (
             <span style={headerRuleCountStyle}>룰 {rules.length}</span>
@@ -254,7 +276,11 @@ export const Panel = ({
             </button>
           </div>
         </header>
-        {activeTab === "cache" && cacheAdapter !== undefined ? (
+        {activeExtraTab !== undefined && (
+          <div style={extraTabContentStyle}>{activeExtraTab.render()}</div>
+        )}
+        {activeExtraTab === undefined &&
+          (activeTab === "cache" && cacheAdapter !== undefined ? (
           <CacheTab cacheAdapter={cacheAdapter} />
         ) : (
           <>
@@ -351,7 +377,7 @@ export const Panel = ({
           )}
         </div>
           </>
-        )}
+          ))}
       </div>
       <span aria-hidden="true" style={ghostLabelStyle}>
         API

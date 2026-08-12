@@ -212,6 +212,14 @@ export const filterSearchStyle: CSSProperties = {
   padding: "2px 8px",
 };
 
+export const extraTabContentStyle: CSSProperties = {
+  display: "flex",
+  flex: 1,
+  flexDirection: "column",
+  minHeight: 0,
+  overflow: "auto",
+};
+
 export const panelBodyStyle: CSSProperties = {
   display: "flex",
   flex: 1,
