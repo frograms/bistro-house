@@ -3,14 +3,17 @@ import { useCallback, useMemo, useState } from "react";
 import type { FetchDevtoolsApi, FetchDevtoolsRecord } from "../core";
 import { useRules } from "./hooks";
 import {
+  actionBodyHintBrokenStyle,
+  actionBodyHintJsonStyle,
+  actionBodyInputStyle,
   actionLabelStyle,
-  actionMessageInputStyle,
   actionNeutralButtonStyle,
   actionPrimaryButtonStyle,
   actionRowStyle,
   actionSectionStyle,
   actionStatusInputStyle,
   actionWarmButtonStyle,
+  palette,
   panelClassNames,
 } from "./styles";
 
@@ -26,10 +29,31 @@ const escapeRegExp = (value: string): string =>
 
 const DELAY_MS = 3000;
 
+type BodyKind = "broken" | "json" | "text";
+
+const bodyKindOf = (input: string): BodyKind => {
+  const trimmed = input.trim();
+  if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) return "text";
+  try {
+    JSON.parse(trimmed);
+    return "json";
+  } catch {
+    return "broken";
+  }
+};
+
+const buildErrorBody = (input: string): string => {
+  if (input.trim() === "") return "";
+  return bodyKindOf(input) === "json"
+    ? input.trim()
+    : JSON.stringify({ message: input });
+};
+
 export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
   const rules = useRules(api);
   const [status, setStatus] = useState("500");
   const [message, setMessage] = useState("");
+  const bodyKind = message.trim() === "" ? "text" : bodyKindOf(message);
 
   const matchedRules = useMemo(
     () =>
@@ -57,7 +81,7 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
     const parsed = Number(status);
     if (!Number.isInteger(parsed)) return;
     replaceMatchedRules({
-      body: message === "" ? "" : JSON.stringify({ message }),
+      body: buildErrorBody(message),
       status: parsed,
     });
   }, [message, replaceMatchedRules, status]);
@@ -69,6 +93,15 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
   const handleRevalidate = useCallback(() => {
     onRevalidate?.(record.url);
   }, [onRevalidate, record.url]);
+
+  const bodyInputStyle = useMemo(
+    () => ({
+      ...actionBodyInputStyle,
+      ...(bodyKind === "json" ? { borderColor: palette.teal } : null),
+      ...(bodyKind === "broken" ? { borderColor: palette.orange } : null),
+    }),
+    [bodyKind]
+  );
 
   const handleRemoveRules = useCallback(() => {
     matchedRules.forEach((rule) => {
@@ -87,14 +120,23 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
           value={status}
           onChange={(event) => setStatus(event.target.value)}
         />
-        <input
-          aria-label="에러 메시지"
-          placeholder="메시지 (선택)"
-          style={actionMessageInputStyle}
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-        />
+        {bodyKind === "json" && (
+          <span style={actionBodyHintJsonStyle}>JSON body로 전송</span>
+        )}
+        {bodyKind === "broken" && (
+          <span style={actionBodyHintBrokenStyle}>
+            JSON 문법 오류 — 평문으로 전송
+          </span>
+        )}
       </div>
+      <textarea
+        aria-label="에러 메시지"
+        placeholder="메시지 또는 JSON body"
+        rows={2}
+        style={bodyInputStyle}
+        value={message}
+        onChange={(event) => setMessage(event.target.value)}
+      />
       <div style={actionRowStyle}>
         <button
           className={panelClassNames.warmButton}

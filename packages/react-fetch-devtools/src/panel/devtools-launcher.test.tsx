@@ -219,6 +219,23 @@ describe("DevtoolsLauncher", () => {
     await expect(mocked.text()).resolves.toBe('{"message":"없어요"}');
   });
 
+  it("메시지에 JSON 객체를 넣으면 그대로 body로 쓴다", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+    fireEvent.change(screen.getByRole("textbox", { name: "에러 메시지" }), {
+      target: { value: '{"code":"E401","detail":null}' },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "적용 → 룰 생성" }));
+    expect(api.rules.getSnapshot()[0]?.body).toBe(
+      '{"code":"E401","detail":null}'
+    );
+  });
+
   it("적용·지연을 다시 누르면 같은 URL 룰이 교체된다 (쌓이지 않음)", async () => {
     const api = install();
     render(<DevtoolsLauncher enabled />);

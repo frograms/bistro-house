@@ -431,6 +431,7 @@ export const actionLabelStyle: CSSProperties = {
 };
 
 export const actionRowStyle: CSSProperties = {
+  alignItems: "center",
   display: "flex",
   flexWrap: "wrap",
   gap: 6,
@@ -481,10 +482,24 @@ export const actionStatusInputStyle: CSSProperties = {
   width: 56,
 };
 
-export const actionMessageInputStyle: CSSProperties = {
+export const actionBodyInputStyle: CSSProperties = {
   ...actionInputBaseStyle,
-  flex: 1,
-  minWidth: 0,
+  boxSizing: "border-box",
+  fontFamily: monoFontFamily,
+  lineHeight: 1.5,
+  minHeight: 40,
+  resize: "vertical",
+  width: "100%",
+};
+
+export const actionBodyHintJsonStyle: CSSProperties = {
+  color: palette.teal,
+  fontSize: 10,
+};
+
+export const actionBodyHintBrokenStyle: CSSProperties = {
+  color: palette.orange,
+  fontSize: 10,
 };
 
 export const panelClassNames = {
