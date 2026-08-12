@@ -134,6 +134,13 @@ export const headerCountStyle: CSSProperties = {
   fontVariantNumeric: "tabular-nums",
 };
 
+export const headerRuleCountStyle: CSSProperties = {
+  color: palette.orange,
+  fontSize: 11,
+  fontVariantNumeric: "tabular-nums",
+  fontWeight: 700,
+};
+
 export const headerActionsStyle: CSSProperties = {
   display: "flex",
   gap: 8,
@@ -182,6 +189,7 @@ export const rowButtonStyle: CSSProperties = {
   background: "transparent",
   border: "none",
   borderBottom: `1px solid ${palette.line}`,
+  borderLeft: "3px solid transparent",
   borderRadius: 0,
   color: palette.text,
   cursor: "pointer",
@@ -199,6 +207,10 @@ export const rowButtonStyle: CSSProperties = {
 export const rowButtonSelectedStyle: CSSProperties = {
   ...rowButtonStyle,
   background: palette.raised,
+};
+
+export const rowRuledStripeStyle: CSSProperties = {
+  borderLeft: `3px solid ${palette.orange}`,
 };
 
 const rowCountBadgeBaseStyle: CSSProperties = {
@@ -266,6 +278,15 @@ export const chipErrorStyle: CSSProperties = {
   background: palette.orangeSoft,
   border: `1px solid ${palette.orange}`,
   color: palette.orange,
+};
+
+export const rowRuleChipStyle: CSSProperties = {
+  ...chipBaseStyle,
+  background: palette.orange,
+  border: "1px solid transparent",
+  color: palette.bg,
+  fontSize: 10,
+  fontWeight: 700,
 };
 
 export const mockBadgeStyle: CSSProperties = {

@@ -10,12 +10,14 @@ import {
   rowCountOkStyle,
   rowListStyle,
   rowMethodStyle,
+  rowRuleChipStyle,
+  rowRuledStripeStyle,
   rowTimeStyle,
   rowUrlStyle,
   tableEmptyStyle,
 } from "./styles";
 
-/** 같은 method+URL의 기록 묶음 — 행 하나로 표시하고 최신 기록을 대표로 쓴다 */
+/** 같은 method+URL의 기록 묶음 — 행 하나로 표시하고 최신 기록을 대표로 씀 */
 export type RequestGroup = {
   count: number;
   key: string;
@@ -25,6 +27,8 @@ export type RequestGroup = {
 export type RequestTableProps = {
   groups: RequestGroup[];
   onSelectGroup: (key: string) => void;
+
+  ruledKeys: ReadonlySet<string>;
   selectedKey: string | null;
 };
 
@@ -52,6 +56,7 @@ const StatusChip = ({ record }: { record: FetchDevtoolsRecord }) => {
 export const RequestTable = ({
   groups,
   onSelectGroup,
+  ruledKeys,
   selectedKey,
 }: RequestTableProps) => {
   if (groups.length === 0) {
@@ -64,22 +69,31 @@ export const RequestTable = ({
         <li key={group.key}>
           <button
             className={panelClassNames.row}
-            style={
-              group.key === selectedKey ? rowButtonSelectedStyle : rowButtonStyle
-            }
+            style={{
+              ...(group.key === selectedKey
+                ? rowButtonSelectedStyle
+                : rowButtonStyle),
+              ...(ruledKeys.has(group.key) ? rowRuledStripeStyle : null),
+            }}
+            title={ruledKeys.has(group.key) ? "활성 룰 적용 중" : undefined}
             type="button"
-            onClick={() => onSelectGroup(group.key)}
-          >
+            onClick={() => onSelectGroup(group.key)}>
             <span
               style={
-                isErrorStatus(group.latest) ? rowCountErrorStyle : rowCountOkStyle
-              }
-            >
+                isErrorStatus(group.latest)
+                  ? rowCountErrorStyle
+                  : rowCountOkStyle
+              }>
               {group.count}
             </span>
-            <span style={rowTimeStyle}>{formatTime(group.latest.startedAt)}</span>
+            <span style={rowTimeStyle}>
+              {formatTime(group.latest.startedAt)}
+            </span>
             <span style={rowMethodStyle}>{group.latest.method}</span>
             <span style={rowUrlStyle}>{group.latest.url}</span>
+            {ruledKeys.has(group.key) && (
+              <span style={rowRuleChipStyle}>룰</span>
+            )}
             <StatusChip record={group.latest} />
             {group.latest.mocked && <span style={mockBadgeStyle}>MOCK</span>}
           </button>

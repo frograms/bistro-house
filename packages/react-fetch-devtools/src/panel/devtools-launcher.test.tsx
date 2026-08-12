@@ -76,6 +76,25 @@ describe("DevtoolsLauncher", () => {
     expect(button.textContent).not.toContain("1");
   });
 
+  it("활성 룰이 매칭되는 행은 좌측 스트라이프가 켜진다", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    const row = screen.getByRole("button", { name: /settings/ });
+    expect(row.getAttribute("style") ?? "").toMatch(/transparent/);
+    act(() => {
+      api.rules.add({ pattern: "settings", status: 500 });
+    });
+    expect(row.getAttribute("style") ?? "").toMatch(
+      /#e8935c|rgb\(232, 147, 92\)/
+    );
+    expect(row.textContent).toContain("룰");
+    expect(screen.getByText("룰 1")).toBeTruthy();
+  });
+
   it("버튼 클릭으로 패널이 열리고, Esc로 닫힌다", async () => {
     install();
     render(<DevtoolsLauncher enabled />);

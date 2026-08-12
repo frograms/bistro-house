@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { FetchDevtoolsApi } from "../core";
-import { useRecords } from "./hooks";
+import { useRecords, useRules } from "./hooks";
 import { JsonViewer } from "./json-viewer";
 import type { RequestGroup } from "./request-table";
 import { RequestTable } from "./request-table";
@@ -12,6 +12,7 @@ import {
   ghostButtonStyle,
   headerActionsStyle,
   headerCountStyle,
+  headerRuleCountStyle,
   headerStyle,
   LAUNCHER_SIZE,
   palette,
@@ -98,6 +99,22 @@ export const Panel = ({
       ? null
       : (groups.find((group) => group.key === selectedKey)?.latest ?? null);
 
+  const rules = useRules(api);
+  const ruledKeys = useMemo(() => {
+    const keys = new Set<string>();
+    for (const group of groups) {
+      const matched = rules.some((rule) => {
+        try {
+          return new RegExp(rule.pattern).test(group.latest.url);
+        } catch {
+          return false;
+        }
+      });
+      if (matched) keys.add(group.key);
+    }
+    return keys;
+  }, [groups, rules]);
+
   const expanded = selected !== null;
   const targetWidth = expanded ? PANEL_EXPANDED_WIDTH : PANEL_WIDTH;
   const targetHeight = expanded ? PANEL_EXPANDED_HEIGHT : PANEL_HEIGHT;
@@ -153,6 +170,9 @@ export const Panel = ({
         <header style={headerStyle}>
           <span style={activeTabStyle}>API</span>
           <span style={headerCountStyle}>{records.length}건</span>
+          {rules.length > 0 && (
+            <span style={headerRuleCountStyle}>룰 {rules.length}</span>
+          )}
           <div style={headerActionsStyle}>
             <button
               className={panelClassNames.actionButton}
@@ -177,6 +197,7 @@ export const Panel = ({
           <div style={tableWrapStyle}>
             <RequestTable
               groups={groups}
+              ruledKeys={ruledKeys}
               selectedKey={selectedKey}
               onSelectGroup={handleSelectGroup}
             />
