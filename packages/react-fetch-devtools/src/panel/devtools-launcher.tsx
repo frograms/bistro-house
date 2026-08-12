@@ -2,27 +2,34 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import type { FetchDevtoolsApi } from "../core";
-import { useLauncherVisible } from "./hooks";
+import { useLauncherVisible, useRules } from "./hooks";
 import { Panel, PANEL_CLOSE_DURATION_MS } from "./panel";
 import {
+  launcherButtonActiveStyle,
   launcherButtonStyle,
+  launcherRuleBadgeStyle,
   panelClassNames,
   panelInteractionCss,
 } from "./styles";
 
 export type DevtoolsLauncherProps = {
   enabled: boolean;
+  /** 재요청 콜백 — 미주입 시 재요청 버튼 숨김 */
+  onRevalidate?: (key: string) => void;
   zIndex?: number;
 };
 
 const LauncherContent = ({
   api,
+  onRevalidate,
   zIndex,
 }: {
   api: FetchDevtoolsApi;
+  onRevalidate?: (key: string) => void;
   zIndex: number;
 }) => {
   const visible = useLauncherVisible(api);
+  const ruleCount = useRules(api).length;
   const [open, setOpen] = useState(false);
   const [shown, setShown] = useState(false);
   const closeTimerRef = useRef<number | null>(null);
@@ -65,8 +72,11 @@ const LauncherContent = ({
   }, [close, open]);
 
   const launcherStyle = useMemo(
-    () => ({ ...launcherButtonStyle, zIndex }),
-    [zIndex]
+    () => ({
+      ...(ruleCount > 0 ? launcherButtonActiveStyle : launcherButtonStyle),
+      zIndex,
+    }),
+    [ruleCount, zIndex]
   );
 
   return createPortal(
@@ -78,12 +88,24 @@ const LauncherContent = ({
           className={panelClassNames.launcher}
           style={launcherStyle}
           type="button"
-          onClick={toggleOpen}
-        >
+          onClick={toggleOpen}>
           API
+          {ruleCount > 0 && (
+            <span aria-hidden="true" style={launcherRuleBadgeStyle}>
+              {ruleCount}
+            </span>
+          )}
         </button>
       )}
-      {open && <Panel api={api} shown={shown} zIndex={zIndex} onClose={close} />}
+      {open && (
+        <Panel
+          api={api}
+          shown={shown}
+          zIndex={zIndex}
+          onClose={close}
+          onRevalidate={onRevalidate}
+        />
+      )}
     </div>,
     document.body
   );
@@ -91,10 +113,13 @@ const LauncherContent = ({
 
 export const DevtoolsLauncher = ({
   enabled,
+  onRevalidate,
   zIndex = 999999,
 }: DevtoolsLauncherProps) => {
   if (!enabled || typeof window === "undefined") return null;
   const api = window.__API_DEVTOOLS__;
   if (api === undefined) return null;
-  return <LauncherContent api={api} zIndex={zIndex} />;
+  return (
+    <LauncherContent api={api} zIndex={zIndex} onRevalidate={onRevalidate} />
+  );
 };

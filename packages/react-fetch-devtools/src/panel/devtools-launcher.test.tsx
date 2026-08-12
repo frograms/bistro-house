@@ -64,6 +64,18 @@ describe("DevtoolsLauncher", () => {
     expect(screen.getByRole("button", { name: "API devtools" })).toBeTruthy();
   });
 
+  it("활성 룰이 있으면 런처 버튼에 개수 뱃지가 보인다", () => {
+    const api = install();
+    api.rules.add({ pattern: "settings", status: 500 });
+    render(<DevtoolsLauncher enabled />);
+    const button = screen.getByRole("button", { name: "API devtools" });
+    expect(button.textContent).toContain("1");
+    act(() => {
+      api.rules.clear();
+    });
+    expect(button.textContent).not.toContain("1");
+  });
+
   it("버튼 클릭으로 패널이 열리고, Esc로 닫힌다", async () => {
     install();
     render(<DevtoolsLauncher enabled />);
@@ -119,6 +131,89 @@ describe("DevtoolsLauncher", () => {
       screen.getByRole("button", { name: /friend_ratings/ })
     );
     expect(screen.queryByText(/"message": "boom"/)).toBeNull();
+  });
+
+  it("같은 method+URL은 한 행으로 묶이고 왼쪽 카운트가 올라간다", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+      await api.fetch("https://api.test/settings");
+      await api.fetch("https://api.test/others");
+    });
+    const rows = screen.getAllByRole("button", { name: /api\.test/ });
+    expect(rows).toHaveLength(2);
+    expect(
+      screen.getByRole("button", { name: /settings/ }).textContent
+    ).toContain("2");
+  });
+
+  it("재요청 버튼은 onRevalidate가 있을 때만 보이고, 행의 URL로 호출한다", async () => {
+    const api = install();
+    const onRevalidate = vi.fn();
+    render(<DevtoolsLauncher enabled onRevalidate={onRevalidate} />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+    fireEvent.click(screen.getByRole("button", { name: "재요청" }));
+    expect(onRevalidate).toHaveBeenCalledExactlyOnceWith(
+      "https://api.test/settings"
+    );
+  });
+
+  it("onRevalidate 미주입이면 재요청 버튼이 없다", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+    expect(screen.queryByRole("button", { name: "재요청" })).toBeNull();
+  });
+
+  it("에러 적용은 URL을 이스케이프한 룰을 만들어 다음 요청부터 목킹한다", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/posts?userId=1");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /posts/ }));
+
+    fireEvent.change(screen.getByRole("textbox", { name: "status" }), {
+      target: { value: "404" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "에러 메시지" }), {
+      target: { value: "없어요" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "적용 → 룰 생성" }));
+
+    expect(api.rules.getSnapshot()).toHaveLength(1);
+    const mocked = await act(async () =>
+      api.fetch("https://api.test/posts?userId=1")
+    );
+    expect(mocked.status).toBe(404);
+    await expect(mocked.text()).resolves.toBe('{"message":"없어요"}');
+  });
+
+  it("지연 버튼은 delayMs 룰을 만들고, 룰 해제는 매칭 룰을 지운다", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+
+    fireEvent.click(screen.getByRole("button", { name: /지연/ }));
+    expect(api.rules.getSnapshot()[0]?.delayMs).toBe(3000);
+
+    fireEvent.click(screen.getByRole("button", { name: /룰 해제/ }));
+    expect(api.rules.getSnapshot()).toHaveLength(0);
   });
 
   it("패널의 버튼 숨기기는 런처 스토어를 갱신하고 패널도 닫는다", async () => {

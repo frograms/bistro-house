@@ -5,6 +5,7 @@ export const palette = {
   line: "#2c393b",
   muted: "#8fa1a3",
   orange: "#e8935c",
+  orangeBright: "#f2b088",
   orangeSoft: "rgba(232, 147, 92, 0.14)",
   raised: "#232e30",
   teal: "#52c5cf",
@@ -52,6 +53,33 @@ export const launcherButtonStyle: CSSProperties = {
   padding: 0,
   position: "fixed",
   right: PANEL_OFFSET,
+};
+
+export const launcherButtonActiveStyle: CSSProperties = {
+  ...launcherButtonStyle,
+  border: `1px solid ${palette.orange}`,
+};
+
+/** 활성 룰 개수 뱃지 */
+export const launcherRuleBadgeStyle: CSSProperties = {
+  alignItems: "center",
+  background: palette.orange,
+  border: `2px solid ${palette.bg}`,
+  borderRadius: 999,
+  boxSizing: "border-box",
+  color: palette.bg,
+  display: "flex",
+  fontSize: 9.5,
+  fontVariantNumeric: "tabular-nums",
+  fontWeight: 700,
+  height: 18,
+  justifyContent: "center",
+  minWidth: 18,
+  padding: "0 4px",
+  pointerEvents: "none",
+  position: "absolute",
+  right: -5,
+  top: -5,
 };
 
 export const panelGhostLabelStyle: CSSProperties = {
@@ -173,6 +201,29 @@ export const rowButtonSelectedStyle: CSSProperties = {
   background: palette.raised,
 };
 
+const rowCountBadgeBaseStyle: CSSProperties = {
+  borderRadius: 5,
+  flex: "none",
+  fontSize: 10.5,
+  fontVariantNumeric: "tabular-nums",
+  fontWeight: 700,
+  minWidth: 22,
+  padding: "1px 5px",
+  textAlign: "center",
+};
+
+export const rowCountOkStyle: CSSProperties = {
+  ...rowCountBadgeBaseStyle,
+  background: palette.tealSoft,
+  color: palette.teal,
+};
+
+export const rowCountErrorStyle: CSSProperties = {
+  ...rowCountBadgeBaseStyle,
+  background: palette.orangeSoft,
+  color: palette.orange,
+};
+
 export const rowTimeStyle: CSSProperties = {
   color: palette.muted,
   flex: "none",
@@ -262,10 +313,81 @@ export const detailEmptyBodyStyle: CSSProperties = {
   margin: 0,
 };
 
+export const actionSectionStyle: CSSProperties = {
+  borderTop: `1px solid ${palette.line}`,
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+  paddingTop: 10,
+};
+
+export const actionLabelStyle: CSSProperties = {
+  color: palette.muted,
+  fontSize: 10.5,
+};
+
+export const actionRowStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 6,
+};
+
+const actionButtonBaseStyle: CSSProperties = {
+  background: "transparent",
+  borderRadius: 6,
+  cursor: "pointer",
+  fontFamily,
+  fontSize: 11,
+  padding: "3px 10px",
+};
+
+export const actionPrimaryButtonStyle: CSSProperties = {
+  ...actionButtonBaseStyle,
+  background: palette.tealSoft,
+  border: `1px solid ${palette.teal}`,
+  color: palette.teal,
+};
+
+export const actionWarmButtonStyle: CSSProperties = {
+  ...actionButtonBaseStyle,
+  background: palette.orangeSoft,
+  border: `1px solid ${palette.orange}`,
+  color: palette.orange,
+};
+
+export const actionNeutralButtonStyle: CSSProperties = {
+  ...actionButtonBaseStyle,
+  border: `1px solid ${palette.line}`,
+  color: palette.muted,
+};
+
+const actionInputBaseStyle: CSSProperties = {
+  background: palette.raised,
+  border: `1px solid ${palette.line}`,
+  borderRadius: 6,
+  color: palette.text,
+  fontFamily,
+  fontSize: 11,
+  padding: "3px 8px",
+};
+
+export const actionStatusInputStyle: CSSProperties = {
+  ...actionInputBaseStyle,
+  fontVariantNumeric: "tabular-nums",
+  width: 56,
+};
+
+export const actionMessageInputStyle: CSSProperties = {
+  ...actionInputBaseStyle,
+  flex: 1,
+  minWidth: 0,
+};
+
 export const panelClassNames = {
   actionButton: "rfd-btn",
   launcher: "rfd-launcher",
   row: "rfd-row",
+  warmButton: "rfd-btn-warm",
 } as const;
 
 /** :hover·:focus-visible은 인라인 스타일로 표현 불가 — 패널이 직접 렌더하는 <style>용.
@@ -274,8 +396,10 @@ export const panelInteractionCss = `
 .${panelClassNames.launcher}:hover { border-color: ${palette.tealBright} !important; color: ${palette.tealBright} !important; }
 .${panelClassNames.actionButton}:hover { border-color: ${palette.teal} !important; color: ${palette.text} !important; }
 .${panelClassNames.row}:hover { background: ${palette.raised} !important; }
+.${panelClassNames.warmButton}:hover { border-color: ${palette.orangeBright} !important; color: ${palette.orangeBright} !important; }
 .${panelClassNames.row}:focus { outline: none; }
 .${panelClassNames.row}:focus-visible,
 .${panelClassNames.actionButton}:focus-visible,
+.${panelClassNames.warmButton}:focus-visible,
 .${panelClassNames.launcher}:focus-visible { outline: 2px solid ${palette.teal}; outline-offset: -2px; }
 `;
