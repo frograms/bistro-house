@@ -9,6 +9,10 @@ import { RowActions } from "./row-actions";
 import {
   activeTabStyle,
   detailStyle,
+  filterBarStyle,
+  filterChipActiveStyle,
+  filterChipStyle,
+  filterSearchStyle,
   ghostButtonStyle,
   headerActionsStyle,
   headerCountStyle,
@@ -53,6 +57,11 @@ export const Panel = ({
 }: PanelProps) => {
   const records = useRecords(api);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [filterKind, setFilterKind] = useState<
+    "all" | "error" | "mock" | "ok"
+  >("all");
+  const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [reducedMotion] = useState(
     () =>
       typeof window.matchMedia === "function" &&
@@ -114,6 +123,37 @@ export const Panel = ({
     }
     return keys;
   }, [groups, rules]);
+
+  const counts = useMemo(() => {
+    const isError = (group: RequestGroup) =>
+      group.latest.status === 0 || group.latest.status >= 400;
+    return {
+      all: groups.length,
+      error: groups.filter(isError).length,
+      mock: groups.filter((group) => group.latest.mocked).length,
+      ok: groups.filter((group) => !isError(group)).length,
+    };
+  }, [groups]);
+
+  const filteredGroups = useMemo(() => {
+    const keyword = query.trim().toLowerCase();
+    return groups.filter((group) => {
+      if (keyword !== "" && !group.latest.url.toLowerCase().includes(keyword)) {
+        return false;
+      }
+      const isError =
+        group.latest.status === 0 || group.latest.status >= 400;
+      if (filterKind === "error") return isError;
+      if (filterKind === "ok") return !isError;
+      if (filterKind === "mock") return group.latest.mocked;
+      return true;
+    });
+  }, [filterKind, groups, query]);
+
+  const handleClear = useCallback(() => {
+    api.records.clear();
+    setSelectedKey(null);
+  }, [api]);
 
   const expanded = selected !== null;
   const targetWidth = expanded ? PANEL_EXPANDED_WIDTH : PANEL_WIDTH;
@@ -193,10 +233,81 @@ export const Panel = ({
             </button>
           </div>
         </header>
+        <div style={filterBarStyle}>
+          {searchOpen ? (
+            <>
+              <input
+                aria-label="URL 검색"
+                placeholder="URL 검색"
+                style={filterSearchStyle}
+                value={query}
+                autoFocus
+                onChange={(event) => setQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") {
+                    event.stopPropagation();
+                    setSearchOpen(false);
+                  }
+                }}
+              />
+              <button
+                aria-label="검색 닫기"
+                className={panelClassNames.actionButton}
+                style={filterChipStyle}
+                type="button"
+                onClick={() => setSearchOpen(false)}
+              >
+                ✕
+              </button>
+            </>
+          ) : (
+            <>
+              {(
+                [
+                  ["all", `전체 ${counts.all}`],
+                  ["ok", `정상 ${counts.ok}`],
+                  ["error", `에러 ${counts.error}`],
+                  ["mock", `MOCK ${counts.mock}`],
+                ] as const
+              ).map(([kind, label]) => (
+                <button
+                  key={kind}
+                  className={panelClassNames.actionButton}
+                  style={
+                    filterKind === kind
+                      ? filterChipActiveStyle
+                      : filterChipStyle
+                  }
+                  type="button"
+                  onClick={() => setFilterKind(kind)}
+                >
+                  {label}
+                </button>
+              ))}
+              <button
+                aria-label="URL 검색 열기"
+                className={panelClassNames.actionButton}
+                style={query !== "" ? filterChipActiveStyle : filterChipStyle}
+                type="button"
+                onClick={() => setSearchOpen(true)}
+              >
+                🔍{query !== "" && " •"}
+              </button>
+              <button
+                className={panelClassNames.actionButton}
+                style={ghostButtonStyle}
+                type="button"
+                onClick={handleClear}
+              >
+                Clear
+              </button>
+            </>
+          )}
+        </div>
         <div style={panelBodyStyle}>
           <div style={tableWrapStyle}>
             <RequestTable
-              groups={groups}
+              groups={filteredGroups}
               ruledKeys={ruledKeys}
               selectedKey={selectedKey}
               onSelectGroup={handleSelectGroup}

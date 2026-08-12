@@ -158,6 +158,49 @@ export const ghostButtonStyle: CSSProperties = {
   padding: "3px 10px",
 };
 
+export const filterBarStyle: CSSProperties = {
+  alignItems: "center",
+  borderBottom: `1px solid ${palette.line}`,
+  display: "flex",
+  flex: "none",
+  flexWrap: "wrap",
+  gap: 6,
+  padding: "8px 12px",
+};
+
+export const filterChipStyle: CSSProperties = {
+  appearance: "none",
+  background: "transparent",
+  border: `1px solid ${palette.line}`,
+  borderRadius: 999,
+  color: palette.muted,
+  cursor: "pointer",
+  fontFamily,
+  fontSize: 10.5,
+  fontVariantNumeric: "tabular-nums",
+  padding: "1px 8px",
+  WebkitAppearance: "none",
+};
+
+export const filterChipActiveStyle: CSSProperties = {
+  ...filterChipStyle,
+  background: palette.tealSoft,
+  borderColor: palette.teal,
+  color: palette.teal,
+};
+
+export const filterSearchStyle: CSSProperties = {
+  background: palette.raised,
+  border: `1px solid ${palette.line}`,
+  borderRadius: 6,
+  color: palette.text,
+  flex: 1,
+  fontFamily,
+  fontSize: 11,
+  minWidth: 80,
+  padding: "2px 8px",
+};
+
 export const panelBodyStyle: CSSProperties = {
   display: "flex",
   flex: 1,

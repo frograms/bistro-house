@@ -219,6 +219,33 @@ describe("DevtoolsLauncher", () => {
     await expect(mocked.text()).resolves.toBe('{"message":"없어요"}');
   });
 
+  it("상태 칩 필터·URL 검색·Clear가 동작한다", async () => {
+    const api = install();
+    api.rules.add({ pattern: "fail", status: 500 });
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+      await api.fetch("https://api.test/fail");
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /^에러 1$/ }));
+    expect(screen.queryByRole("button", { name: /settings/ })).toBeNull();
+    expect(screen.getByRole("button", { name: /fail/ })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /^전체 2$/ }));
+    fireEvent.click(screen.getByRole("button", { name: "URL 검색 열기" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "URL 검색" }), {
+      target: { value: "settings" },
+    });
+    expect(screen.queryByRole("button", { name: /fail/ })).toBeNull();
+    expect(screen.getByRole("button", { name: /settings/ })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "검색 닫기" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    expect(screen.getByText("아직 기록된 요청이 없습니다")).toBeTruthy();
+  });
+
   it("매칭 룰이 있으면 입력칸이 룰 값으로 채워진다", async () => {
     const api = install();
     api.rules.add({
