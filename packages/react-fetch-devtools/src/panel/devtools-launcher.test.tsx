@@ -219,6 +219,26 @@ describe("DevtoolsLauncher", () => {
     await expect(mocked.text()).resolves.toBe('{"message":"없어요"}');
   });
 
+  it("적용·지연을 다시 누르면 같은 URL 룰이 교체된다 (쌓이지 않음)", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+
+    fireEvent.click(screen.getByRole("button", { name: "적용 → 룰 생성" }));
+    fireEvent.click(screen.getByRole("button", { name: "적용 → 룰 생성" }));
+    expect(api.rules.getSnapshot()).toHaveLength(1);
+    expect(api.rules.getSnapshot()[0]?.status).toBe(500);
+
+    fireEvent.click(screen.getByRole("button", { name: /지연/ }));
+    expect(api.rules.getSnapshot()).toHaveLength(1);
+    expect(api.rules.getSnapshot()[0]?.status).toBeUndefined();
+    expect(api.rules.getSnapshot()[0]?.delayMs).toBe(3000);
+  });
+
   it("지연 버튼은 delayMs 룰을 만들고, 룰 해제는 매칭 룰을 지운다", async () => {
     const api = install();
     render(<DevtoolsLauncher enabled />);

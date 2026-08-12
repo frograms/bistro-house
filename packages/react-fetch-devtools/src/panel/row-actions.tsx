@@ -43,19 +43,28 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
     [record.url, rules]
   );
 
+  const replaceMatchedRules = useCallback(
+    (input: { body?: string; delayMs?: number; status?: number }) => {
+      matchedRules.forEach((rule) => {
+        api.rules.remove(rule.id);
+      });
+      api.rules.add({ pattern: escapeRegExp(record.url), ...input });
+    },
+    [api, matchedRules, record.url]
+  );
+
   const handleApplyError = useCallback(() => {
     const parsed = Number(status);
     if (!Number.isInteger(parsed)) return;
-    api.rules.add({
+    replaceMatchedRules({
       body: message === "" ? "" : JSON.stringify({ message }),
-      pattern: escapeRegExp(record.url),
       status: parsed,
     });
-  }, [api, message, record.url, status]);
+  }, [message, replaceMatchedRules, status]);
 
   const handleDelay = useCallback(() => {
-    api.rules.add({ delayMs: DELAY_MS, pattern: escapeRegExp(record.url) });
-  }, [api, record.url]);
+    replaceMatchedRules({ delayMs: DELAY_MS });
+  }, [replaceMatchedRules]);
 
   const handleRevalidate = useCallback(() => {
     onRevalidate?.(record.url);
