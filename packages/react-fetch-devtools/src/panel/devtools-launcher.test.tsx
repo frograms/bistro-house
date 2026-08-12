@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createMemoryStorage, installFetchDevtools } from "../core";
 import { DevtoolsLauncher } from "./devtools-launcher";
+import { DevtoolsPanel } from "./devtools-panel";
 
 const install = (baseFetch?: typeof fetch) => {
   const api = installFetchDevtools({
@@ -37,6 +38,23 @@ describe("DevtoolsLauncher", () => {
     } catch {
       // Node 22 내장 localStorage는 플래그 없이 throw — safe-storage가 폴백하므로 비울 것도 없다
     }
+  });
+
+  it("DevtoolsPanel(임베드)은 버튼·닫기 없이 부모 안에 렌더된다", async () => {
+    const api = install();
+    render(<DevtoolsPanel />);
+    expect(screen.queryByRole("button", { name: "API devtools" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "패널 닫기" })).toBeNull();
+    expect(screen.getByText("아직 기록된 요청이 없습니다")).toBeTruthy();
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    expect(screen.getByRole("button", { name: /settings/ })).toBeTruthy();
+  });
+
+  it("DevtoolsPanel은 전역 미설치면 null", () => {
+    const { container } = render(<DevtoolsPanel />);
+    expect(container.innerHTML).toBe("");
   });
 
   it("enabled=false면 아무것도 그리지 않는다", () => {

@@ -102,6 +102,26 @@ export const panelStyle: CSSProperties = {
   right: PANEL_OFFSET,
 };
 
+export const embeddedPanelStyle: CSSProperties = {
+  background: palette.bg,
+  color: palette.text,
+  display: "flex",
+  flexDirection: "column",
+  fontFamily,
+  fontSize: 12,
+  height: "100%",
+  minHeight: 240,
+  overflow: "hidden",
+  width: "100%",
+};
+
+export const embeddedContentStyle: CSSProperties = {
+  display: "flex",
+  flex: 1,
+  flexDirection: "column",
+  minHeight: 0,
+};
+
 export const panelContentStyle: CSSProperties = {
   bottom: 0,
   display: "flex",

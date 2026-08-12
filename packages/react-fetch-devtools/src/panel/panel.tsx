@@ -12,6 +12,8 @@ import { RowActions } from "./row-actions";
 import {
   activeTabStyle,
   detailStyle,
+  embeddedContentStyle,
+  embeddedPanelStyle,
   extraTabContentStyle,
   filterBarStyle,
   filterChipActiveStyle,
@@ -54,6 +56,7 @@ export type DevtoolsTab = {
 export type PanelProps = {
   api: FetchDevtoolsApi;
   cacheAdapter?: FetchDevtoolsCacheAdapter;
+  embedded?: boolean;
   extraTabs?: DevtoolsTab[];
   onClose: () => void;
   onRevalidate?: (key: string) => void;
@@ -65,6 +68,7 @@ export type PanelProps = {
 export const Panel = ({
   api,
   cacheAdapter,
+  embedded,
   extraTabs,
   onClose,
   onRevalidate,
@@ -73,9 +77,9 @@ export const Panel = ({
 }: PanelProps) => {
   const records = useRecords(api);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [filterKind, setFilterKind] = useState<
-    "all" | "error" | "mock" | "ok"
-  >("all");
+  const [filterKind, setFilterKind] = useState<"all" | "error" | "mock" | "ok">(
+    "all"
+  );
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("api");
@@ -92,6 +96,7 @@ export const Panel = ({
   }, [api, onClose]);
 
   useEffect(() => {
+    if (embedded === true) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
@@ -99,7 +104,7 @@ export const Panel = ({
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [onClose]);
+  }, [embedded, onClose]);
 
   const handleSelectGroup = useCallback((key: string) => {
     setSelectedKey((current) => (current === key ? null : key));
@@ -159,8 +164,7 @@ export const Panel = ({
       if (keyword !== "" && !group.latest.url.toLowerCase().includes(keyword)) {
         return false;
       }
-      const isError =
-        group.latest.status === 0 || group.latest.status >= 400;
+      const isError = group.latest.status === 0 || group.latest.status >= 400;
       if (filterKind === "error") return isError;
       if (filterKind === "ok") return !isError;
       if (filterKind === "mock") return group.latest.mocked;
@@ -177,10 +181,8 @@ export const Panel = ({
   const targetWidth = expanded ? PANEL_EXPANDED_WIDTH : PANEL_WIDTH;
   const targetHeight = expanded ? PANEL_EXPANDED_HEIGHT : PANEL_HEIGHT;
 
-  // scale 대신 width/height 모프 — 내용이 찌그러지지 않고, 버튼(44px 원)과 패널 사이를
-  // 같은 박스가 오간다. 열릴 땐 오버슈트 이징으로 살짝 튀며 정착.
-  // 상세보기 확장·축소도 같은 width/height 전환을 재사용한다
   const animatedPanelStyle = useMemo(() => {
+    if (embedded === true) return { ...embeddedPanelStyle, zIndex };
     const duration = shown ? PANEL_OPEN_DURATION_MS : PANEL_CLOSE_DURATION_MS;
     const ease = shown ? OPEN_EASE : CLOSE_EASE;
     return {
@@ -194,9 +196,10 @@ export const Panel = ({
       width: shown ? targetWidth : LAUNCHER_SIZE,
       zIndex,
     };
-  }, [reducedMotion, shown, targetHeight, targetWidth, zIndex]);
+  }, [embedded, reducedMotion, shown, targetHeight, targetWidth, zIndex]);
 
   const contentStyle = useMemo(() => {
+    if (embedded === true) return embeddedContentStyle;
     const opacityTransition = shown
       ? "opacity 160ms ease-out 90ms"
       : "opacity 100ms ease-out";
@@ -209,7 +212,7 @@ export const Panel = ({
         : `width ${PANEL_OPEN_DURATION_MS}ms ${OPEN_EASE}, height ${PANEL_OPEN_DURATION_MS}ms ${OPEN_EASE}, ${opacityTransition}`,
       width: targetWidth,
     };
-  }, [reducedMotion, shown, targetHeight, targetWidth]);
+  }, [embedded, reducedMotion, shown, targetHeight, targetWidth]);
 
   const ghostLabelStyle = useMemo(() => {
     const transition = shown
@@ -223,22 +226,23 @@ export const Panel = ({
   }, [reducedMotion, shown]);
 
   return (
-    <section aria-label="API devtools 패널" role="dialog" style={animatedPanelStyle}>
+    <section
+      aria-label="API devtools 패널"
+      role="dialog"
+      style={animatedPanelStyle}>
       <div style={contentStyle}>
         <header style={headerStyle}>
           <button
             style={activeTab === "api" ? activeTabStyle : inactiveTabStyle}
             type="button"
-            onClick={() => setActiveTab("api")}
-          >
+            onClick={() => setActiveTab("api")}>
             API
           </button>
           {cacheAdapter !== undefined && (
             <button
               style={activeTab === "cache" ? activeTabStyle : inactiveTabStyle}
               type="button"
-              onClick={() => setActiveTab("cache")}
-            >
+              onClick={() => setActiveTab("cache")}>
               Cache
             </button>
           )}
@@ -247,8 +251,7 @@ export const Panel = ({
               key={tab.key}
               style={activeTab === tab.key ? activeTabStyle : inactiveTabStyle}
               type="button"
-              onClick={() => setActiveTab(tab.key)}
-            >
+              onClick={() => setActiveTab(tab.key)}>
               {tab.label}
             </button>
           ))}
@@ -256,132 +259,132 @@ export const Panel = ({
           {rules.length > 0 && (
             <span style={headerRuleCountStyle}>룰 {rules.length}</span>
           )}
-          <div style={headerActionsStyle}>
-            <button
-              className={panelClassNames.actionButton}
-              style={ghostButtonStyle}
-              type="button"
-              onClick={handleHideClick}
-            >
-              버튼 숨기기
-            </button>
-            <button
-              aria-label="패널 닫기"
-              className={panelClassNames.actionButton}
-              style={ghostButtonStyle}
-              type="button"
-              onClick={onClose}
-            >
-              ✕
-            </button>
-          </div>
+          {embedded !== true && (
+            <div style={headerActionsStyle}>
+              <button
+                className={panelClassNames.actionButton}
+                style={ghostButtonStyle}
+                type="button"
+                onClick={handleHideClick}>
+                버튼 숨기기
+              </button>
+              <button
+                aria-label="패널 닫기"
+                className={panelClassNames.actionButton}
+                style={ghostButtonStyle}
+                type="button"
+                onClick={onClose}>
+                ✕
+              </button>
+            </div>
+          )}
         </header>
         {activeExtraTab !== undefined && (
           <div style={extraTabContentStyle}>{activeExtraTab.render()}</div>
         )}
         {activeExtraTab === undefined &&
           (activeTab === "cache" && cacheAdapter !== undefined ? (
-          <CacheTab cacheAdapter={cacheAdapter} />
-        ) : (
-          <>
-        <div style={filterBarStyle}>
-          {searchOpen ? (
-            <>
-              <input
-                aria-label="URL 검색"
-                placeholder="URL 검색"
-                style={filterSearchStyle}
-                value={query}
-                autoFocus
-                onChange={(event) => setQuery(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") {
-                    event.stopPropagation();
-                    setSearchOpen(false);
-                  }
-                }}
-              />
-              <button
-                aria-label="검색 닫기"
-                className={panelClassNames.actionButton}
-                style={filterChipStyle}
-                type="button"
-                onClick={() => setSearchOpen(false)}
-              >
-                ✕
-              </button>
-            </>
+            <CacheTab cacheAdapter={cacheAdapter} />
           ) : (
             <>
-              {(
-                [
-                  ["all", `전체 ${counts.all}`],
-                  ["ok", `정상 ${counts.ok}`],
-                  ["error", `에러 ${counts.error}`],
-                  ["mock", `MOCK ${counts.mock}`],
-                ] as const
-              ).map(([kind, label]) => (
-                <button
-                  key={kind}
-                  className={panelClassNames.actionButton}
-                  style={
-                    filterKind === kind
-                      ? filterChipActiveStyle
-                      : filterChipStyle
-                  }
-                  type="button"
-                  onClick={() => setFilterKind(kind)}
-                >
-                  {label}
-                </button>
-              ))}
-              <button
-                aria-label="URL 검색 열기"
-                className={panelClassNames.actionButton}
-                style={query !== "" ? filterChipActiveStyle : filterChipStyle}
-                type="button"
-                onClick={() => setSearchOpen(true)}
-              >
-                🔍{query !== "" && " •"}
-              </button>
-              <button
-                className={panelClassNames.actionButton}
-                style={ghostButtonStyle}
-                type="button"
-                onClick={handleClear}
-              >
-                Clear
-              </button>
+              <div style={filterBarStyle}>
+                {searchOpen ? (
+                  <>
+                    <input
+                      aria-label="URL 검색"
+                      placeholder="URL 검색"
+                      style={filterSearchStyle}
+                      value={query}
+                      autoFocus
+                      onChange={(event) => setQuery(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Escape") {
+                          event.stopPropagation();
+                          setSearchOpen(false);
+                        }
+                      }}
+                    />
+                    <button
+                      aria-label="검색 닫기"
+                      className={panelClassNames.actionButton}
+                      style={filterChipStyle}
+                      type="button"
+                      onClick={() => setSearchOpen(false)}>
+                      ✕
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {(
+                      [
+                        ["all", `전체 ${counts.all}`],
+                        ["ok", `정상 ${counts.ok}`],
+                        ["error", `에러 ${counts.error}`],
+                        ["mock", `MOCK ${counts.mock}`],
+                      ] as const
+                    ).map(([kind, label]) => (
+                      <button
+                        key={kind}
+                        className={panelClassNames.actionButton}
+                        style={
+                          filterKind === kind
+                            ? filterChipActiveStyle
+                            : filterChipStyle
+                        }
+                        type="button"
+                        onClick={() => setFilterKind(kind)}>
+                        {label}
+                      </button>
+                    ))}
+                    <button
+                      aria-label="URL 검색 열기"
+                      className={panelClassNames.actionButton}
+                      style={
+                        query !== "" ? filterChipActiveStyle : filterChipStyle
+                      }
+                      type="button"
+                      onClick={() => setSearchOpen(true)}>
+                      🔍{query !== "" && " •"}
+                    </button>
+                    <button
+                      className={panelClassNames.actionButton}
+                      style={ghostButtonStyle}
+                      type="button"
+                      onClick={handleClear}>
+                      Clear
+                    </button>
+                  </>
+                )}
+              </div>
+              <div style={panelBodyStyle}>
+                <div style={tableWrapStyle}>
+                  <RequestTable
+                    groups={filteredGroups}
+                    ruledKeys={ruledKeys}
+                    selectedKey={selectedKey}
+                    onSelectGroup={handleSelectGroup}
+                  />
+                </div>
+                {selected !== null && (
+                  <aside style={detailStyle}>
+                    <JsonViewer record={selected} />
+                    <RowActions
+                      key={selectedKey}
+                      api={api}
+                      record={selected}
+                      onRevalidate={onRevalidate}
+                    />
+                  </aside>
+                )}
+              </div>
             </>
-          )}
-        </div>
-        <div style={panelBodyStyle}>
-          <div style={tableWrapStyle}>
-            <RequestTable
-              groups={filteredGroups}
-              ruledKeys={ruledKeys}
-              selectedKey={selectedKey}
-              onSelectGroup={handleSelectGroup}
-            />
-          </div>
-          {selected !== null && (
-            <aside style={detailStyle}>
-              <JsonViewer record={selected} />
-              <RowActions
-                key={selectedKey}
-                api={api}
-                record={selected}
-                onRevalidate={onRevalidate}
-              />
-            </aside>
-          )}
-        </div>
-          </>
           ))}
       </div>
-      <span aria-hidden="true" style={ghostLabelStyle}>
-        API
-      </span>
+      {embedded !== true && (
+        <span aria-hidden="true" style={ghostLabelStyle}>
+          API
+        </span>
+      )}
     </section>
   );
 };
