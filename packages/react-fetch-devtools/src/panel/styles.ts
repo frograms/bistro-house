@@ -379,6 +379,41 @@ export const mockBadgeStyle: CSSProperties = {
   fontSize: 10,
 };
 
+export const ruleBarStyle: CSSProperties = {
+  borderTop: `1px solid ${palette.line}`,
+  display: "flex",
+  flex: "none",
+  flexDirection: "column",
+  gap: 4,
+  maxHeight: 120,
+  overflowY: "auto",
+  padding: "6px 12px",
+};
+
+export const ruleBarHeaderStyle: CSSProperties = {
+  alignItems: "center",
+  display: "flex",
+  gap: 8,
+  justifyContent: "space-between",
+};
+
+export const ruleRowStyle: CSSProperties = {
+  alignItems: "center",
+  display: "flex",
+  gap: 8,
+};
+
+export const rulePatternStyle: CSSProperties = {
+  color: palette.muted,
+  flex: 1,
+  fontFamily: monoFontFamily,
+  fontSize: 10.5,
+  minWidth: 0,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
 export const detailStyle: CSSProperties = {
   borderLeft: `1px solid ${palette.line}`,
   display: "flex",

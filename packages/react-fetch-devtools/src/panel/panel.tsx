@@ -9,6 +9,7 @@ import { JsonViewer } from "./json-viewer";
 import type { RequestGroup } from "./request-table";
 import { RequestTable } from "./request-table";
 import { RowActions } from "./row-actions";
+import { RuleBar } from "./rule-bar";
 import {
   activeTabStyle,
   detailStyle,
@@ -377,7 +378,8 @@ export const Panel = ({
                   </aside>
                 )}
               </div>
-            </>
+          <RuleBar api={api} />
+          </>
           ))}
       </div>
       {embedded !== true && (

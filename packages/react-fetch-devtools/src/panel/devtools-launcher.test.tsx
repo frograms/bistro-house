@@ -237,6 +237,25 @@ describe("DevtoolsLauncher", () => {
     await expect(mocked.text()).resolves.toBe('{"message":"없어요"}');
   });
 
+  it("룰 바에서 목록 펼치기·개별/전체 해제가 동작한다", () => {
+    const api = install();
+    api.rules.add({ pattern: "settings", status: 500 });
+    api.rules.add({ delayMs: 3000, pattern: "posts" });
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+
+    fireEvent.click(screen.getByRole("button", { name: /룰 2개/ }));
+    expect(screen.getByText("settings")).toBeTruthy();
+    expect(screen.getByText("지연 3s")).toBeTruthy();
+
+    fireEvent.click(screen.getAllByRole("button", { name: "해제" })[0]!);
+    expect(api.rules.getSnapshot()).toHaveLength(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "전체 해제" }));
+    expect(api.rules.getSnapshot()).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: /룰 \d+개/ })).toBeNull();
+  });
+
   it("cacheAdapter가 있으면 Cache 탭이 생기고 엔트리를 보여준다", () => {
     install();
     const cacheAdapter = {
