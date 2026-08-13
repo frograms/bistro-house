@@ -237,6 +237,59 @@ describe("DevtoolsLauncher", () => {
     await expect(mocked.text()).resolves.toBe('{"message":"없어요"}');
   });
 
+  it("트리 비우기 버튼이 패치 룰을 만들고 재요청부터 적용된다", async () => {
+    const api = install(
+      async () => new Response('{"items":[1,2],"total":2}', { status: 200 })
+    );
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/list");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /list/ }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "items 비우기" })).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "items 비우기" }));
+    expect(api.rules.getSnapshot()[0]?.patch).toEqual([
+      { path: "items", value: [] },
+    ]);
+
+    const patched = await act(async () => api.fetch("https://api.test/list"));
+    await expect(patched.json()).resolves.toEqual({ items: [], total: 2 });
+  });
+
+  it("트리 편집으로 임의 값 패치 룰을 만들고 바로 재요청한다", async () => {
+    const api = install(
+      async () => new Response('{"items":[1,2],"total":2}', { status: 200 })
+    );
+    const onRevalidate = vi.fn();
+    render(<DevtoolsLauncher enabled onRevalidate={onRevalidate} />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/list");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /list/ }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "total 편집" })).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "total 편집" }));
+    const input = screen.getByRole("textbox", {
+      name: "패치 값",
+    }) as HTMLTextAreaElement;
+    expect(input.value).toBe("2");
+    fireEvent.change(input, { target: { value: "undefined" } });
+    expect(screen.getByText(/필드 자체를 제거/)).toBeTruthy();
+    fireEvent.change(input, { target: { value: "긴 텍스트 테스트" } });
+    fireEvent.click(screen.getByRole("button", { name: "바꾸고 재요청" }));
+    expect(api.rules.getSnapshot()[0]?.patch).toEqual([
+      { path: "total", value: "긴 텍스트 테스트" },
+    ]);
+    expect(onRevalidate).toHaveBeenCalledExactlyOnceWith(
+      "https://api.test/list"
+    );
+  });
+
   it("룰 바에서 목록 펼치기·개별/전체 해제가 동작한다", () => {
     const api = install();
     api.rules.add({ pattern: "settings", status: 500 });

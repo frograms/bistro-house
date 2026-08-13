@@ -15,6 +15,7 @@ import {
 
 const summarize = (rule: FetchDevtoolsRule): string => {
   if (rule.status !== undefined) return String(rule.status);
+  if (rule.patch !== undefined) return `패치 ${rule.patch.length}`;
   if (rule.delayMs !== undefined) return `지연 ${rule.delayMs / 1000}s`;
   return "-";
 };

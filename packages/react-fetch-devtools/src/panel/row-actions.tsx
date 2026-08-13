@@ -24,7 +24,7 @@ export type RowActionsProps = {
 };
 
 /** URL을 리터럴 매칭 정규식으로 — 메타문자(? . + 등)가 있는 URL도 그대로 매칭되게 */
-const escapeRegExp = (value: string): string =>
+export const escapeRegExp = (value: string): string =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const DELAY_MS = 3000;

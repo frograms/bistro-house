@@ -96,6 +96,9 @@ export const RequestTable = ({
             )}
             <StatusChip record={group.latest} />
             {group.latest.mocked && <span style={mockBadgeStyle}>MOCK</span>}
+            {group.latest.patched === true && (
+              <span style={mockBadgeStyle}>PATCH</span>
+            )}
           </button>
         </li>
       ))}

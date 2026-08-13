@@ -2,6 +2,7 @@ export type FetchDevtoolsRule = {
   body?: string;
   delayMs?: number;
   id: string;
+  patch?: { path: string; remove?: boolean; value?: unknown }[];
   pattern: string;
   status?: number;
 };
@@ -16,6 +17,8 @@ export type FetchDevtoolsRecord = {
   method: string;
   mocked: boolean;
   ok: boolean;
+  /** patch 룰이 적용된 응답 */
+  patched?: boolean;
   /** clone 후 비동기로 채워지므로 채워지기 전엔 null */
   responseBody: string | null;
   ruleId?: string;

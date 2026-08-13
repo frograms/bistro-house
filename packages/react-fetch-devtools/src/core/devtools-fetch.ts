@@ -71,6 +71,49 @@ const createMockResponse = (
   }
 };
 
+const applyAtPath = (
+  root: unknown,
+  patch: { path: string; remove?: boolean; value?: unknown }
+): void => {
+  const segments = patch.path.split(".");
+  let current = root;
+  for (const segment of segments.slice(0, -1)) {
+    if (current === null || typeof current !== "object") return;
+    current = (current as Record<string, unknown>)[segment];
+  }
+  const last = segments[segments.length - 1];
+  if (current === null || typeof current !== "object" || last === undefined) {
+    return;
+  }
+
+  if (!(last in (current as Record<string, unknown>))) return;
+  if (patch.remove === true) {
+    if (Array.isArray(current)) {
+      current.splice(Number(last), 1);
+      return;
+    }
+    delete (current as Record<string, unknown>)[last];
+    return;
+  }
+  (current as Record<string, unknown>)[last] = patch.value;
+};
+
+const applyPatches = (
+  text: string,
+  patches: { path: string; remove?: boolean; value?: unknown }[]
+): string => {
+  try {
+    const parsed: unknown = JSON.parse(text);
+    for (const patch of patches) {
+      applyAtPath(parsed, patch);
+    }
+    return JSON.stringify(parsed);
+  } catch {
+    // JSON 아니면 원문 유지
+    return text;
+  }
+};
+
 export const createDevtoolsFetch = (
   options: CreateDevtoolsFetchOptions
 ): typeof fetch => {
@@ -127,6 +170,30 @@ export const createDevtoolsFetch = (
 
     try {
       const response = await baseFetch(input, init);
+      if (rule?.patch !== undefined && rule.status === undefined) {
+        const text = await response.text();
+        const patchedText = applyPatches(text, rule.patch);
+        buffer.push({
+          durationMs: Date.now() - startedAt,
+          method,
+          mocked: false,
+          ok: response.ok,
+          patched: true,
+          responseBody: truncateBody(patchedText, maxBodyBytes),
+          ruleId: rule.id,
+          startedAt,
+          status: response.status,
+          url,
+        });
+        return new Response(
+          NULL_BODY_STATUSES.has(response.status) ? null : patchedText,
+          {
+            headers: response.headers,
+            status: response.status,
+            statusText: response.statusText,
+          }
+        );
+      }
       const record = buffer.push({
         durationMs: Date.now() - startedAt,
         method,

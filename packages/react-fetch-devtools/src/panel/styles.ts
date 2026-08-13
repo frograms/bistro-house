@@ -672,6 +672,8 @@ export const panelClassNames = {
   actionButton: "rfd-btn",
   launcher: "rfd-launcher",
   row: "rfd-row",
+  treeActions: "rfd-tree-actions",
+  treeRow: "rfd-tree-row",
   warmButton: "rfd-btn-warm",
 } as const;
 
@@ -682,6 +684,9 @@ export const panelInteractionCss = `
 .${panelClassNames.actionButton}:hover { border-color: ${palette.teal} !important; color: ${palette.text} !important; }
 .${panelClassNames.row}:hover { background: ${palette.raised} !important; }
 .${panelClassNames.warmButton}:hover { border-color: ${palette.orangeBright} !important; color: ${palette.orangeBright} !important; }
+.${panelClassNames.treeActions} { display: inline-flex; gap: 2px; opacity: 0; transition: opacity 80ms; }
+.${panelClassNames.treeRow}:hover .${panelClassNames.treeActions},
+.${panelClassNames.treeActions}:focus-within { opacity: 1; }
 .${panelClassNames.row}:focus { outline: none; }
 .${panelClassNames.row}:focus-visible,
 .${panelClassNames.actionButton}:focus-visible,

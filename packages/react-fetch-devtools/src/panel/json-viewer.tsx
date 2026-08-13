@@ -14,7 +14,15 @@ const parseBody = (body: string): ParsedBody => {
   }
 };
 
-export const JsonViewer = ({ record }: { record: FetchDevtoolsRecord }) => {
+export const JsonViewer = ({
+  onEditPath,
+  onEmptyPath,
+  record,
+}: {
+  onEditPath?: (path: string, current: unknown) => void;
+  onEmptyPath?: (path: string, suggested: unknown) => void;
+  record: FetchDevtoolsRecord;
+}) => {
   const parsed = useMemo(
     () =>
       record.responseBody === null
@@ -29,7 +37,14 @@ export const JsonViewer = ({ record }: { record: FetchDevtoolsRecord }) => {
     );
   }
   if (parsed.ok) {
-    return <JsonTree key={record.responseBody} value={parsed.value} />;
+    return (
+      <JsonTree
+        key={record.responseBody}
+        value={parsed.value}
+        onEditPath={onEditPath}
+        onEmptyPath={onEmptyPath}
+      />
+    );
   }
   return <pre style={detailBodyStyle}>{record.responseBody}</pre>;
 };

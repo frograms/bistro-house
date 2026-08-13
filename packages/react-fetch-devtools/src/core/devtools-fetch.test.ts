@@ -144,6 +144,57 @@ describe("createDevtoolsFetch", () => {
     });
   });
 
+  it("patch 룰은 실제 응답의 path만 덮어써 반환한다", async () => {
+    const { buffer, devtoolsFetch } = setup(
+      [
+        {
+          id: "r1",
+          patch: [
+            { path: "a.b", value: [] },
+            { path: "없는.경로", value: 1 },
+          ],
+          pattern: "users",
+        },
+      ],
+      {
+        baseFetch: async () =>
+          new Response('{"a":{"b":[1,2]},"keep":true}', { status: 200 }),
+      }
+    );
+    const response = await devtoolsFetch("https://api.test/users");
+    await expect(response.json()).resolves.toEqual({
+      a: { b: [] },
+      keep: true,
+    });
+    expect(buffer.getSnapshot()[0]).toMatchObject({
+      mocked: false,
+      patched: true,
+      ruleId: "r1",
+      status: 200,
+    });
+  });
+
+  it("patch remove는 객체 키를 삭제하고 배열은 splice한다", async () => {
+    const { devtoolsFetch } = setup(
+      [
+        {
+          id: "r1",
+          patch: [
+            { path: "gone", remove: true },
+            { path: "list.0", remove: true },
+          ],
+          pattern: "users",
+        },
+      ],
+      {
+        baseFetch: async () =>
+          new Response('{"gone":1,"keep":2,"list":[10,20]}', { status: 200 }),
+      }
+    );
+    const response = await devtoolsFetch("https://api.test/users");
+    await expect(response.json()).resolves.toEqual({ keep: 2, list: [20] });
+  });
+
   it("Request 객체 입력에서도 url과 method를 읽는다", async () => {
     const { buffer, devtoolsFetch } = setup([]);
     await devtoolsFetch(
