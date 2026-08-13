@@ -1,4 +1,5 @@
 import { PackageAppContent } from "@playground/component/view/package/app-package-content";
+import { ReactFetchDevtoolsObserveAndMockContainer } from "@playground/component/view/package/react-fetch-devtools/_react-fetch-devtools-observe-and-mock-container";
 import { ReactMotionGlobalContainer } from "@playground/component/view/package/react-motion/_react-motion-global-container";
 import { ReactMotionPointerContainer } from "@playground/component/view/package/react-motion/_react-motion-pointer-container";
 import { ReactSliderPeekContainer } from "@playground/component/view/package/react-slider/_react-slider-peek-container";
@@ -78,6 +79,26 @@ export const playgroundRoutes: ReadonlyArray<RouteObject> = [
       {
         element: <ReactStableRefCallbackAvoidNullOnRerenderContainer />,
         path: "/react-stable-ref-callback/avoid-null-on-rerender",
+      },
+    ],
+  }),
+  // react-fetch-devtools
+  withRouteComponent({
+    AppContent: PackageAppContent,
+    routes: [
+      {
+        lazy: async () => {
+          return {
+            Component: (
+              await import("@playground/component/view/package/react-fetch-devtools/_react-fetch-devtools-documentation-container")
+            ).ReactFetchDevtoolsDocumentationContainer,
+          };
+        },
+        path: "/react-fetch-devtools",
+      },
+      {
+        element: <ReactFetchDevtoolsObserveAndMockContainer />,
+        path: "/react-fetch-devtools/observe-and-mock",
       },
     ],
   }),

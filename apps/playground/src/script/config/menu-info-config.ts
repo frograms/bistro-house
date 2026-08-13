@@ -81,6 +81,23 @@ export const MENU_INFO: ReadonlyArray<MenuInfo> = [
     path: "/react-stable-ref-callback",
     showTableOfContents: true,
   },
+  {
+    githubUrl:
+      "https://github.com/frograms/bistro-house/tree/master/packages/react-fetch-devtools#readme",
+    items: [
+      {
+        exampleLabel: "예제 - 요청 관찰과 목 응답 주입",
+        path: "/react-fetch-devtools/observe-and-mock",
+      },
+    ],
+    npmUrl:
+      "https://www.npmjs.com/package/@watcha-authentic/react-fetch-devtools",
+    packageDescription: "Fetch observation and error simulation devtools panel",
+    packageLabel: "React Fetch Devtools",
+    packageName: "@watcha-authentic/react-fetch-devtools",
+    path: "/react-fetch-devtools",
+    showTableOfContents: true,
+  },
 ];
 
 export const PAGE_INFOS = MENU_INFO.flatMap((menuInfo) => {
