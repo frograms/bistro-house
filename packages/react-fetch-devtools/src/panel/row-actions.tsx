@@ -106,6 +106,7 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
   const replaceMatchedRules = useCallback(
     (input: { body?: string; delayMs?: number; status?: number }) => {
       matchedRules.forEach((rule) => {
+        if (rule.patch !== undefined) return;
         api.rules.remove(rule.id);
       });
       api.rules.add({ pattern: escapeRegExp(record.url), ...input });

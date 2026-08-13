@@ -443,6 +443,28 @@ describe("DevtoolsLauncher", () => {
     expect(api.rules.getSnapshot()[0]?.delayMs).toBe(3000);
   });
 
+  it("트리거 교체는 패치 룰을 지우지 않는다", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    api.rules.add({
+      patch: [{ path: "title", value: "편집값" }],
+      pattern: "settings",
+    });
+    fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+
+    fireEvent.click(screen.getByRole("button", { name: /Loading 트리거/ }));
+    fireEvent.click(screen.getByRole("button", { name: "지연 적용" }));
+
+    const rules = api.rules.getSnapshot();
+    expect(rules).toHaveLength(2);
+    expect(rules.some((rule) => rule.patch !== undefined)).toBe(true);
+    expect(rules.some((rule) => rule.delayMs === 3000)).toBe(true);
+  });
+
   it("지연 버튼은 delayMs 룰을 만들고, 룰 해제는 매칭 룰을 지운다", async () => {
     const api = install();
     render(<DevtoolsLauncher enabled />);
