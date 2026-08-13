@@ -299,7 +299,7 @@ describe("DevtoolsLauncher", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /룰 2개/ }));
     expect(screen.getByText("settings")).toBeTruthy();
-    expect(screen.getByText("지연 3s")).toBeTruthy();
+    expect(screen.getByText("지연 3000ms")).toBeTruthy();
 
     fireEvent.click(screen.getAllByRole("button", { name: "해제" })[0]!);
     expect(api.rules.getSnapshot()).toHaveLength(1);
@@ -448,8 +448,11 @@ describe("DevtoolsLauncher", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
 
+    fireEvent.change(screen.getByRole("textbox", { name: "지연 ms" }), {
+      target: { value: "1500" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /지연/ }));
-    expect(api.rules.getSnapshot()[0]?.delayMs).toBe(3000);
+    expect(api.rules.getSnapshot()[0]?.delayMs).toBe(1500);
 
     fireEvent.click(screen.getByRole("button", { name: /룰 해제/ }));
     expect(api.rules.getSnapshot()).toHaveLength(0);

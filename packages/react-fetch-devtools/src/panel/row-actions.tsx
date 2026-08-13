@@ -27,8 +27,6 @@ export type RowActionsProps = {
 export const escapeRegExp = (value: string): string =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const DELAY_MS = 3000;
-
 type BodyKind = "broken" | "json" | "text";
 
 const bodyKindOf = (input: string): BodyKind => {
@@ -89,6 +87,9 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
     firstMatched?.status !== undefined ? String(firstMatched.status) : "500"
   );
   const [message, setMessage] = useState(() => bodyToInput(firstMatched?.body));
+  const [delayMs, setDelayMs] = useState(() =>
+    firstMatched?.delayMs !== undefined ? String(firstMatched.delayMs) : "3000"
+  );
   const bodyKind = message.trim() === "" ? "text" : bodyKindOf(message);
 
   const replaceMatchedRules = useCallback(
@@ -111,8 +112,10 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
   }, [message, replaceMatchedRules, status]);
 
   const handleDelay = useCallback(() => {
-    replaceMatchedRules({ delayMs: DELAY_MS });
-  }, [replaceMatchedRules]);
+    const parsed = Number(delayMs);
+    if (!(parsed > 0)) return;
+    replaceMatchedRules({ delayMs: Math.round(parsed) });
+  }, [delayMs, replaceMatchedRules]);
 
   const handleRevalidate = useCallback(() => {
     onRevalidate?.(record.url);
@@ -169,12 +172,19 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
           onClick={handleApplyError}>
           적용 → 룰 생성
         </button>
+        <input
+          aria-label="지연 ms"
+          inputMode="numeric"
+          style={actionStatusInputStyle}
+          value={delayMs}
+          onChange={(event) => setDelayMs(event.target.value)}
+        />
         <button
           className={panelClassNames.actionButton}
           style={actionNeutralButtonStyle}
           type="button"
           onClick={handleDelay}>
-          지연 {DELAY_MS / 1000}초
+          지연 적용
         </button>
         {onRevalidate !== undefined && (
           <button
