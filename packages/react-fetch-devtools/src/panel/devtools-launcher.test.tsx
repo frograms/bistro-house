@@ -403,6 +403,38 @@ describe("DevtoolsLauncher", () => {
     ).toBe("없음");
   });
 
+  it("지연 룰이 앞에 있어도 뒤의 에러 룰을 찾아 표시·프리필한다", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    api.rules.add({ delayMs: 1500, pattern: "settings" });
+    api.rules.add({
+      body: '{"message":"점검 중"}',
+      pattern: "api\\.test",
+      status: 503,
+    });
+    fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+
+    expect(
+      screen.getByRole("button", { name: "Error 트리거 중" })
+    ).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: "Loading 트리거 중" })
+    ).toBeDefined();
+    expect(
+      (screen.getByRole("textbox", { name: "status" }) as HTMLInputElement)
+        .value
+    ).toBe("503");
+    fireEvent.click(screen.getByRole("button", { name: "Loading 트리거 중" }));
+    expect(
+      (screen.getByRole("textbox", { name: "지연 ms" }) as HTMLInputElement)
+        .value
+    ).toBe("1500");
+  });
+
   it("메시지에 JSON 객체를 넣으면 그대로 body로 쓴다", async () => {
     const api = install();
     render(<DevtoolsLauncher enabled />);
@@ -421,7 +453,7 @@ describe("DevtoolsLauncher", () => {
     );
   });
 
-  it("적용·지연을 다시 누르면 같은 URL 룰이 교체된다 (쌓이지 않음)", async () => {
+  it("같은 종류 트리거는 교체되고, 지연·에러 룰은 공존한다", async () => {
     const api = install();
     render(<DevtoolsLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
@@ -438,9 +470,12 @@ describe("DevtoolsLauncher", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Loading 트리거/ }));
     fireEvent.click(screen.getByRole("button", { name: "지연 적용" }));
-    expect(api.rules.getSnapshot()).toHaveLength(1);
-    expect(api.rules.getSnapshot()[0]?.status).toBeUndefined();
-    expect(api.rules.getSnapshot()[0]?.delayMs).toBe(3000);
+    fireEvent.click(screen.getByRole("button", { name: "지연 적용" }));
+
+    const rules = api.rules.getSnapshot();
+    expect(rules).toHaveLength(2);
+    expect(rules.some((rule) => rule.status === 500)).toBe(true);
+    expect(rules.some((rule) => rule.delayMs === 3000)).toBe(true);
   });
 
   it("트리거 교체는 패치 룰을 지우지 않는다", async () => {

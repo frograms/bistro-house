@@ -84,10 +84,12 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
     [record.url, rules]
   );
 
-  const firstMatched = matchedRules[0];
-  const isErrorActive = firstMatched?.status !== undefined;
-  const isLoadingActive =
-    firstMatched?.status === undefined && firstMatched?.delayMs !== undefined;
+  const statusRule = matchedRules.find((rule) => rule.status !== undefined);
+  const delayRule = matchedRules.find(
+    (rule) => rule.delayMs !== undefined && rule.delayMs > 0
+  );
+  const isErrorActive = statusRule !== undefined;
+  const isLoadingActive = delayRule !== undefined;
 
   const [mode, setMode] = useState<TriggerMode>(() => {
     if (isErrorActive) return "error";
@@ -95,18 +97,22 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
     return null;
   });
   const [status, setStatus] = useState(() =>
-    firstMatched?.status !== undefined ? String(firstMatched.status) : "500"
+    statusRule?.status !== undefined ? String(statusRule.status) : "500"
   );
-  const [message, setMessage] = useState(() => bodyToInput(firstMatched?.body));
+  const [message, setMessage] = useState(() => bodyToInput(statusRule?.body));
   const [delayMs, setDelayMs] = useState(() =>
-    firstMatched?.delayMs !== undefined ? String(firstMatched.delayMs) : "3000"
+    delayRule?.delayMs !== undefined ? String(delayRule.delayMs) : "3000"
   );
   const bodyKind = message.trim() === "" ? "text" : bodyKindOf(message);
 
-  const replaceMatchedRules = useCallback(
+  const replaceTriggerRule = useCallback(
     (input: { body?: string; delayMs?: number; status?: number }) => {
+      const replacesDelay = input.delayMs !== undefined;
       matchedRules.forEach((rule) => {
         if (rule.patch !== undefined) return;
+        const ruleIsDelay =
+          rule.status === undefined && rule.delayMs !== undefined;
+        if (ruleIsDelay !== replacesDelay) return;
         api.rules.remove(rule.id);
       });
       api.rules.add({ pattern: escapeRegExp(record.url), ...input });
@@ -117,17 +123,17 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
   const handleApplyError = useCallback(() => {
     const parsed = Number(status);
     if (!Number.isInteger(parsed)) return;
-    replaceMatchedRules({
+    replaceTriggerRule({
       body: buildErrorBody(message),
       status: parsed,
     });
-  }, [message, replaceMatchedRules, status]);
+  }, [message, replaceTriggerRule, status]);
 
   const handleDelay = useCallback(() => {
     const parsed = Number(delayMs);
     if (!(parsed > 0)) return;
-    replaceMatchedRules({ delayMs: Math.round(parsed) });
-  }, [delayMs, replaceMatchedRules]);
+    replaceTriggerRule({ delayMs: Math.round(parsed) });
+  }, [delayMs, replaceTriggerRule]);
 
   const handleRevalidate = useCallback(() => {
     onRevalidate?.(record.url);
