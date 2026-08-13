@@ -59,14 +59,30 @@ export const DEMO_API_FIXTURES: Record<string, unknown> = {
         },
       },
       {
-        rating: 3,
+        rating: 4,
         user: {
           code: "u2EfGh",
-          name: "수",
+          name: "메타",
           photo: { small: "https://example.invalid/photo/u2EfGh/small.jpg" },
         },
       },
+      {
+        rating: 3.5,
+        user: {
+          code: "u3IjKl",
+          name: "애런",
+          photo: { small: "https://example.invalid/photo/u3IjKl/small.jpg" },
+        },
+      },
+      {
+        rating: 5,
+        user: {
+          code: "u4MnOp",
+          name: "가루",
+          photo: { small: "https://example.invalid/photo/u4MnOp/small.jpg" },
+        },
+      },
     ],
-    total_count: 2,
+    total_count: 4,
   },
 };
