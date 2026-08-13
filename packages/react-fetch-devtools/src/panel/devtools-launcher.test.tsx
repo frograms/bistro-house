@@ -478,6 +478,32 @@ describe("DevtoolsLauncher", () => {
     expect(rules.some((rule) => rule.delayMs === 3000)).toBe(true);
   });
 
+  it("행에서 만든 룰은 정확히 그 URL만 매칭한다", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Error 트리거/ }));
+    fireEvent.click(screen.getByRole("button", { name: "적용 → 룰 생성" }));
+
+    await act(async () => {
+      await api.fetch("https://api.test/settings/theme");
+      await api.fetch("https://api.test/settings");
+    });
+    const records = api.records.getSnapshot();
+    const child = records.find(
+      (item) => item.url === "https://api.test/settings/theme"
+    );
+    const exact = records.filter(
+      (item) => item.url === "https://api.test/settings"
+    );
+    expect(child?.mocked).toBe(false);
+    expect(exact[exact.length - 1]?.mocked).toBe(true);
+  });
+
   it("트리거 교체는 패치 룰을 지우지 않는다", async () => {
     const api = install();
     render(<DevtoolsLauncher enabled />);

@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 
 import type { FetchDevtoolsApi, FetchDevtoolsRecord } from "../core";
 import { JsonViewer } from "./json-viewer";
-import { escapeRegExp, RowActions } from "./row-actions";
+import { exactUrlPattern, RowActions } from "./row-actions";
 import {
   actionBodyHintBrokenStyle,
   actionBodyHintJsonStyle,
@@ -68,7 +68,7 @@ export const RequestDetail = ({
   // 같은 URL의 patch 전용 룰에 누적 (없으면 생성)
   const addPatch = useCallback(
     (path: string, entry: Omit<PatchEntry, "path">) => {
-      const pattern = escapeRegExp(record.url);
+      const pattern = exactUrlPattern(record.url);
       const existing = api.rules
         .getSnapshot()
         .find(

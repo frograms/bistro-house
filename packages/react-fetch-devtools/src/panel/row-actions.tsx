@@ -22,9 +22,11 @@ export type RowActionsProps = {
   record: FetchDevtoolsRecord;
 };
 
-/** URL을 리터럴 매칭 정규식으로 — 메타문자(? . + 등)가 있는 URL도 그대로 매칭되게 */
-export const escapeRegExp = (value: string): string =>
+const escapeRegExp = (value: string): string =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+export const exactUrlPattern = (url: string): string =>
+  `^${escapeRegExp(url)}$`;
 
 type BodyKind = "broken" | "json" | "text";
 
@@ -115,7 +117,7 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
         if (ruleIsDelay !== replacesDelay) return;
         api.rules.remove(rule.id);
       });
-      api.rules.add({ pattern: escapeRegExp(record.url), ...input });
+      api.rules.add({ pattern: exactUrlPattern(record.url), ...input });
     },
     [api, matchedRules, record.url]
   );
