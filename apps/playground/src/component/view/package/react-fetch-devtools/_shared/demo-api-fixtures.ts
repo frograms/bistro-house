@@ -69,17 +69,4 @@ export const DEMO_API_FIXTURES: Record<string, unknown> = {
     ],
     total_count: 2,
   },
-  "/api/settings": {
-    settings: {
-      adult_filter: false,
-      auto_play: true,
-      notifications: {
-        marketing: false,
-        party_invite: true,
-        price_drop: true,
-      },
-      subtitle_lang: "ko",
-      video_quality: "auto",
-    },
-  },
 };

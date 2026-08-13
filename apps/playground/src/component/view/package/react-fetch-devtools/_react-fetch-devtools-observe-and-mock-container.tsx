@@ -12,6 +12,7 @@ import {
 import { CommonNote } from "@playground/component/view/_common/common-note";
 import { reactFetchDevtoolsObserveAndMockContainerCss as css } from "@playground/component/view/package/react-fetch-devtools/_react-fetch-devtools-observe-and-mock-container.css";
 import { commonExampleControlsCss } from "@playground/resource/css/common/common-example-controls.css";
+import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 
 const DEMO_API_BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/api`;
@@ -37,45 +38,92 @@ const response = await (window.__API_DEVTOOLS__?.fetch ?? fetch)(url, init);
 // ③ 앱 루트 (React.lazy 권장)
 <DevtoolsLauncher enabled={isStaging} />;`;
 
-type CallResult = {
-  body: string;
-  durationMs: number;
-  status: number;
-  url: string;
+type DemoEndpoint = "contents" | "friend-ratings";
+
+type DemoContent = {
+  code: string;
+  genres: string[];
+  nation: string;
+  rating_avg: number;
+  title: string;
+  year: number;
 };
+
+type DemoFriendRating = {
+  rating: number;
+  user: { code: string; name: string };
+};
+
+type View =
+  | { items: DemoContent[]; kind: "contents" }
+  | { items: DemoFriendRating[]; kind: "friends"; total: number }
+  | { kind: "error"; message: string; status: number }
+  | { kind: "loading" };
 
 const ObserveAndMockExample = ({ api }: { api: FetchDevtoolsApi }) => {
   const rules = useRules(api);
   const records = useRecords(api);
-  const [pending, setPending] = useState(false);
-  const [lastResult, setLastResult] = useState<CallResult | null>(null);
+  const [view, setView] = useState<View | null>(null);
+  const [lastMeta, setLastMeta] = useState<{
+    durationMs: number;
+    status: number;
+  } | null>(null);
 
-  const callApi = useCallback(async (url: string) => {
-    setPending(true);
+  const callApi = useCallback(async (endpoint: DemoEndpoint) => {
+    setView({ kind: "loading" });
     const startedAt = Date.now();
     try {
-      const response = await (window.__API_DEVTOOLS__?.fetch ?? fetch)(url);
-      const body = await response.text();
-      setLastResult({
-        body,
+      const response = await (window.__API_DEVTOOLS__?.fetch ?? fetch)(
+        `${DEMO_API_BASE}/${endpoint}`
+      );
+      const text = await response.text();
+      setLastMeta({
         durationMs: Date.now() - startedAt,
         status: response.status,
-        url,
+      });
+      if (!response.ok) {
+        let message = `HTTP ${response.status}`;
+        try {
+          const parsed = JSON.parse(text) as { message?: string };
+          if (parsed.message !== undefined) message = parsed.message;
+        } catch {
+          // body가 JSON이 아니면 기본 메시지
+        }
+        setView({ kind: "error", message, status: response.status });
+        return;
+      }
+      const parsed = JSON.parse(text) as {
+        contents?: DemoContent[];
+        friend_ratings?: DemoFriendRating[];
+        total_count?: number;
+      };
+      if (endpoint === "contents") {
+        setView({ items: parsed.contents ?? [], kind: "contents" });
+        return;
+      }
+      setView({
+        items: parsed.friend_ratings ?? [],
+        kind: "friends",
+        total: parsed.total_count ?? 0,
       });
     } catch (error) {
-      setLastResult({
-        body: String(error),
-        durationMs: Date.now() - startedAt,
-        status: 0,
-        url,
-      });
-    } finally {
-      setPending(false);
+      setLastMeta({ durationMs: Date.now() - startedAt, status: 0 });
+      setView({ kind: "error", message: String(error), status: 0 });
     }
   }, []);
 
+  const handleRevalidate = useCallback(
+    (key: string) => {
+      void callApi(key.includes("friend-ratings") ? "friend-ratings" : "contents");
+    },
+    [callApi]
+  );
+
   const toggleRule = useCallback(
-    (pattern: string, ruleBody: { body?: string; delayMs?: number; status?: number }) => {
+    (
+      pattern: string,
+      ruleBody: { body?: string; delayMs?: number; status?: number }
+    ) => {
       const existing = api.rules
         .getSnapshot()
         .find((rule) => rule.pattern === pattern);
@@ -88,31 +136,71 @@ const ObserveAndMockExample = ({ api }: { api: FetchDevtoolsApi }) => {
     [api]
   );
 
-  const handleRevalidate = useCallback(
-    (key: string) => {
-      void callApi(key);
-    },
-    [callApi]
-  );
-
   const mock500On = rules.some((rule) => rule.pattern === MOCK_500_PATTERN);
   const delayOn = rules.some((rule) => rule.pattern === DELAY_PATTERN);
+  const loading = view?.kind === "loading";
 
   const stateItems = useMemo(
     () => [
       {
         label: "마지막 status",
-        value: lastResult === null ? "-" : lastResult.status,
+        value: lastMeta === null ? "-" : lastMeta.status,
       },
       {
         label: "durationMs",
-        value: lastResult === null ? "-" : lastResult.durationMs,
+        value: lastMeta === null ? "-" : lastMeta.durationMs,
       },
       { label: "활성 룰 수", value: rules.length },
       { label: "기록된 요청 수", value: records.length },
     ],
-    [lastResult, records.length, rules.length]
+    [lastMeta, records.length, rules.length]
   );
+
+  let viewContent: ReactNode;
+  if (view === null) {
+    viewContent = <p className={css.emptyText}>아직 호출한 요청이 없습니다</p>;
+  } else if (view.kind === "loading") {
+    viewContent = <p className={css.loadingText}>불러오는 중…</p>;
+  } else if (view.kind === "error") {
+    viewContent = (
+      <>
+        <p className={css.errorTitle}>요청 실패 ({view.status})</p>
+        <p className={css.errorMessage}>{view.message}</p>
+      </>
+    );
+  } else if (view.kind === "contents") {
+    viewContent =
+      view.items.length === 0 ? (
+        <p className={css.emptyText}>볼 수 있는 콘텐츠가 없어요</p>
+      ) : (
+        <div className={css.contentGrid}>
+          {view.items.map((content) => (
+            <div key={content.code} className={css.contentCard}>
+              <div className={css.posterBox}>{content.title.slice(0, 1)}</div>
+              <p className={css.contentTitle}>{content.title}</p>
+              <p className={css.contentMeta}>
+                {content.year} · {content.nation} · ★{content.rating_avg}
+              </p>
+            </div>
+          ))}
+        </div>
+      );
+  } else {
+    viewContent =
+      view.items.length === 0 ? (
+        <p className={css.emptyText}>친구 별점이 아직 없어요</p>
+      ) : (
+        <>
+          {view.items.map((entry) => (
+            <div key={entry.user.code} className={css.friendRow}>
+              <span className={css.friendName}>{entry.user.name}</span>
+              <span className={css.friendRating}>★ {entry.rating}</span>
+            </div>
+          ))}
+          <p className={css.totalText}>총 {view.total}명</p>
+        </>
+      );
+  }
 
   return (
     <CommonContainer>
@@ -148,48 +236,27 @@ const ObserveAndMockExample = ({ api }: { api: FetchDevtoolsApi }) => {
 
       <CommonExampleStagePanel className={css.stage}>
         <p className={css.stageGuide}>
-          호출 후 우하단 API 버튼으로 패널을 열어 기록·목 응답을 확인하세요.
+          호출 후 우하단 API 버튼으로 패널을 열어 룰을 걸어보세요 — 아래 화면이
+          목·지연·빈 상태에 그대로 반응합니다.
         </p>
 
         <div className={css.callRow}>
-          {["contents", "friend-ratings", "settings"].map((endpoint) => (
+          {(["contents", "friend-ratings"] as const).map((endpoint) => (
             <button
               key={endpoint}
               className={css.callButton}
-              disabled={pending}
+              disabled={loading}
               type="button"
               onClick={() => {
-                void callApi(`${DEMO_API_BASE}/${endpoint}`);
-              }}>
+                void callApi(endpoint);
+              }}
+            >
               GET /api/{endpoint}
             </button>
           ))}
         </div>
 
-        <div className={css.resultCard}>
-          {lastResult === null ? (
-            <p className={css.resultMeta}>
-              {pending ? "요청 중…" : "아직 호출한 요청이 없습니다"}
-            </p>
-          ) : (
-            <>
-              <p className={css.resultMeta}>
-                {pending
-                  ? "요청 중…"
-                  : `${lastResult.url} → ${lastResult.status === 0 ? "네트워크 오류" : lastResult.status} (${lastResult.durationMs}ms)`}
-              </p>
-              <pre
-                className={
-                  lastResult.status >= 400 || lastResult.status === 0
-                    ? `${css.resultBody} ${css.resultError}`
-                    : css.resultBody
-                }
-              >
-                {lastResult.body}
-              </pre>
-            </>
-          )}
-        </div>
+        <div className={css.viewCard}>{viewContent}</div>
       </CommonExampleStagePanel>
 
       <CommonExampleStatePanel items={stateItems} />
