@@ -6,7 +6,6 @@ import {
   actionBodyHintBrokenStyle,
   actionBodyHintJsonStyle,
   actionBodyInputStyle,
-  actionLabelStyle,
   actionNeutralButtonStyle,
   actionPrimaryButtonStyle,
   actionRowStyle,
@@ -68,8 +67,11 @@ const buildErrorBody = (input: string): string => {
     : JSON.stringify({ message: input });
 };
 
+type TriggerMode = "error" | "loading" | null;
+
 export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
   const rules = useRules(api);
+
   const matchedRules = useMemo(
     () =>
       rules.filter((rule) => {
@@ -83,6 +85,15 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
   );
 
   const firstMatched = matchedRules[0];
+  const isErrorActive = firstMatched?.status !== undefined;
+  const isLoadingActive =
+    firstMatched?.status === undefined && firstMatched?.delayMs !== undefined;
+
+  const [mode, setMode] = useState<TriggerMode>(() => {
+    if (isErrorActive) return "error";
+    if (isLoadingActive) return "loading";
+    return null;
+  });
   const [status, setStatus] = useState(() =>
     firstMatched?.status !== undefined ? String(firstMatched.status) : "500"
   );
@@ -121,6 +132,12 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
     onRevalidate?.(record.url);
   }, [onRevalidate, record.url]);
 
+  const handleRemoveRules = useCallback(() => {
+    matchedRules.forEach((rule) => {
+      api.rules.remove(rule.id);
+    });
+  }, [api, matchedRules]);
+
   const bodyInputStyle = useMemo(
     () => ({
       ...actionBodyInputStyle,
@@ -130,62 +147,9 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
     [bodyKind]
   );
 
-  const handleRemoveRules = useCallback(() => {
-    matchedRules.forEach((rule) => {
-      api.rules.remove(rule.id);
-    });
-  }, [api, matchedRules]);
-
   return (
     <div style={actionSectionStyle}>
-      <span style={actionLabelStyle}>에러 트리거 — status · 메시지</span>
       <div style={actionRowStyle}>
-        <input
-          aria-label="status"
-          inputMode="numeric"
-          style={actionStatusInputStyle}
-          value={status}
-          onChange={(event) => setStatus(event.target.value)}
-        />
-        {bodyKind === "json" && (
-          <span style={actionBodyHintJsonStyle}>JSON body로 전송</span>
-        )}
-        {bodyKind === "broken" && (
-          <span style={actionBodyHintBrokenStyle}>
-            JSON 문법 오류 — 평문으로 전송
-          </span>
-        )}
-      </div>
-      <textarea
-        aria-label="에러 메시지"
-        placeholder="메시지 또는 JSON body"
-        rows={2}
-        style={bodyInputStyle}
-        value={message}
-        onChange={(event) => setMessage(event.target.value)}
-      />
-      <div style={actionRowStyle}>
-        <button
-          className={panelClassNames.warmButton}
-          style={actionWarmButtonStyle}
-          type="button"
-          onClick={handleApplyError}>
-          적용 → 룰 생성
-        </button>
-        <input
-          aria-label="지연 ms"
-          inputMode="numeric"
-          style={actionStatusInputStyle}
-          value={delayMs}
-          onChange={(event) => setDelayMs(event.target.value)}
-        />
-        <button
-          className={panelClassNames.actionButton}
-          style={actionNeutralButtonStyle}
-          type="button"
-          onClick={handleDelay}>
-          지연 적용
-        </button>
         {onRevalidate !== undefined && (
           <button
             className={panelClassNames.actionButton}
@@ -195,6 +159,28 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
             재요청
           </button>
         )}
+        <button
+          className={panelClassNames.warmButton}
+          style={
+            mode === "error" ? actionWarmButtonStyle : actionNeutralButtonStyle
+          }
+          type="button"
+          onClick={() => setMode((cur) => (cur === "error" ? null : "error"))}>
+          Error 트리거{isErrorActive && " 중"}
+        </button>
+        <button
+          className={panelClassNames.actionButton}
+          style={
+            mode === "loading"
+              ? actionWarmButtonStyle
+              : actionNeutralButtonStyle
+          }
+          type="button"
+          onClick={() =>
+            setMode((cur) => (cur === "loading" ? null : "loading"))
+          }>
+          Loading 트리거{isLoadingActive && " 중"}
+        </button>
         {matchedRules.length > 0 && (
           <button
             className={panelClassNames.actionButton}
@@ -205,6 +191,62 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
           </button>
         )}
       </div>
+      {mode === "error" && (
+        <>
+          <div style={actionRowStyle}>
+            <input
+              aria-label="status"
+              inputMode="numeric"
+              style={actionStatusInputStyle}
+              value={status}
+              onChange={(event) => setStatus(event.target.value)}
+            />
+            {bodyKind === "json" && (
+              <span style={actionBodyHintJsonStyle}>JSON body로 전송</span>
+            )}
+            {bodyKind === "broken" && (
+              <span style={actionBodyHintBrokenStyle}>
+                JSON 문법 오류 — 평문으로 전송
+              </span>
+            )}
+          </div>
+          <textarea
+            aria-label="에러 메시지"
+            placeholder="메시지 또는 JSON body"
+            rows={2}
+            style={bodyInputStyle}
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+          />
+          <div style={actionRowStyle}>
+            <button
+              className={panelClassNames.warmButton}
+              style={actionWarmButtonStyle}
+              type="button"
+              onClick={handleApplyError}>
+              적용 → 룰 생성
+            </button>
+          </div>
+        </>
+      )}
+      {mode === "loading" && (
+        <div style={actionRowStyle}>
+          <input
+            aria-label="지연 ms"
+            inputMode="numeric"
+            style={actionStatusInputStyle}
+            value={delayMs}
+            onChange={(event) => setDelayMs(event.target.value)}
+          />
+          <button
+            className={panelClassNames.actionButton}
+            style={actionNeutralButtonStyle}
+            type="button"
+            onClick={handleDelay}>
+            지연 적용
+          </button>
+        </div>
+      )}
     </div>
   );
 };

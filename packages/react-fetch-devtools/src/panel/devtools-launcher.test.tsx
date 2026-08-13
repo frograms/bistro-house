@@ -221,6 +221,7 @@ describe("DevtoolsLauncher", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /posts/ }));
 
+    fireEvent.click(screen.getByRole("button", { name: /Error 트리거/ }));
     fireEvent.change(screen.getByRole("textbox", { name: "status" }), {
       target: { value: "404" },
     });
@@ -410,6 +411,7 @@ describe("DevtoolsLauncher", () => {
       await api.fetch("https://api.test/settings");
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Error 트리거/ }));
     fireEvent.change(screen.getByRole("textbox", { name: "에러 메시지" }), {
       target: { value: '{"code":"E401","detail":null}' },
     });
@@ -428,12 +430,14 @@ describe("DevtoolsLauncher", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
 
+    fireEvent.click(screen.getByRole("button", { name: /Error 트리거/ }));
     fireEvent.click(screen.getByRole("button", { name: "적용 → 룰 생성" }));
     fireEvent.click(screen.getByRole("button", { name: "적용 → 룰 생성" }));
     expect(api.rules.getSnapshot()).toHaveLength(1);
     expect(api.rules.getSnapshot()[0]?.status).toBe(500);
 
-    fireEvent.click(screen.getByRole("button", { name: /지연/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Loading 트리거/ }));
+    fireEvent.click(screen.getByRole("button", { name: "지연 적용" }));
     expect(api.rules.getSnapshot()).toHaveLength(1);
     expect(api.rules.getSnapshot()[0]?.status).toBeUndefined();
     expect(api.rules.getSnapshot()[0]?.delayMs).toBe(3000);
@@ -448,10 +452,11 @@ describe("DevtoolsLauncher", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
 
+    fireEvent.click(screen.getByRole("button", { name: /Loading 트리거/ }));
     fireEvent.change(screen.getByRole("textbox", { name: "지연 ms" }), {
       target: { value: "1500" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /지연/ }));
+    fireEvent.click(screen.getByRole("button", { name: "지연 적용" }));
     expect(api.rules.getSnapshot()[0]?.delayMs).toBe(1500);
 
     fireEvent.click(screen.getByRole("button", { name: /룰 해제/ }));
