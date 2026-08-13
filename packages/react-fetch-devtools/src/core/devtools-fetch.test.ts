@@ -195,6 +195,24 @@ describe("createDevtoolsFetch", () => {
     await expect(response.json()).resolves.toEqual({ keep: 2, list: [20] });
   });
 
+  it("지연 룰과 패치 룰이 동시에 매칭되면 둘 다 적용된다", async () => {
+    vi.useFakeTimers();
+    const { devtoolsFetch } = setup(
+      [
+        { delayMs: 1000, id: "r-delay", pattern: "contents" },
+        { id: "r-patch", patch: [{ path: "title", value: "바뀜" }], pattern: "api/contents" },
+      ],
+      {
+        baseFetch: async () =>
+          new Response('{"title":"원본"}', { status: 200 }),
+      }
+    );
+    const promise = devtoolsFetch("https://api.test/api/contents");
+    await vi.advanceTimersByTimeAsync(1000);
+    const response = await promise;
+    await expect(response.json()).resolves.toEqual({ title: "바뀜" });
+  });
+
   it("Request 객체 입력에서도 url과 method를 읽는다", async () => {
     const { buffer, devtoolsFetch } = setup([]);
     await devtoolsFetch(

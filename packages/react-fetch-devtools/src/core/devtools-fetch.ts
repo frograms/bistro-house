@@ -33,11 +33,11 @@ const resolveMethod = (
   return method.toUpperCase();
 };
 
-const matchRule = (
+const matchRules = (
   rules: FetchDevtoolsRule[],
   url: string
-): FetchDevtoolsRule | undefined =>
-  rules.find((rule) => {
+): FetchDevtoolsRule[] =>
+  rules.filter((rule) => {
     try {
       return new RegExp(rule.pattern).test(url);
     } catch {
@@ -144,14 +144,28 @@ export const createDevtoolsFetch = (
     const url = resolveUrl(input);
     const method = resolveMethod(input, init);
     const startedAt = Date.now();
-    const rule = matchRule(getRules(), url);
+    const matched = matchRules(getRules(), url);
+    const delayRule = matched.find(
+      (rule) => rule.delayMs !== undefined && rule.delayMs > 0
+    );
+    const statusRule = matched.find((rule) => rule.status !== undefined);
+    const patchRule = matched.find(
+      (rule) => rule.status === undefined && rule.patch !== undefined
+    );
+    const patches =
+      statusRule === undefined
+        ? matched.flatMap((rule) =>
+            rule.status === undefined ? (rule.patch ?? []) : []
+          )
+        : [];
+    const primaryRule = statusRule ?? patchRule ?? matched[0];
 
-    if (rule?.delayMs !== undefined && rule.delayMs > 0) {
-      await sleep(rule.delayMs);
+    if (delayRule?.delayMs !== undefined) {
+      await sleep(delayRule.delayMs);
     }
 
-    if (rule?.status !== undefined) {
-      const mock = createMockResponse(rule);
+    if (statusRule !== undefined) {
+      const mock = createMockResponse(statusRule);
       if (mock !== null) {
         buffer.push({
           durationMs: Date.now() - startedAt,
@@ -159,7 +173,7 @@ export const createDevtoolsFetch = (
           mocked: true,
           ok: mock.response.ok,
           responseBody: truncateBody(mock.body ?? "", maxBodyBytes),
-          ruleId: rule.id,
+          ruleId: statusRule.id,
           startedAt,
           status: mock.response.status,
           url,
@@ -170,9 +184,9 @@ export const createDevtoolsFetch = (
 
     try {
       const response = await baseFetch(input, init);
-      if (rule?.patch !== undefined && rule.status === undefined) {
+      if (patches.length > 0) {
         const text = await response.text();
-        const patchedText = applyPatches(text, rule.patch);
+        const patchedText = applyPatches(text, patches);
         buffer.push({
           durationMs: Date.now() - startedAt,
           method,
@@ -180,7 +194,7 @@ export const createDevtoolsFetch = (
           ok: response.ok,
           patched: true,
           responseBody: truncateBody(patchedText, maxBodyBytes),
-          ruleId: rule.id,
+          ruleId: patchRule?.id,
           startedAt,
           status: response.status,
           url,
@@ -200,7 +214,7 @@ export const createDevtoolsFetch = (
         mocked: false,
         ok: response.ok,
         responseBody: null,
-        ruleId: rule?.id,
+        ruleId: primaryRule?.id,
         startedAt,
         status: response.status,
         url,
@@ -215,7 +229,7 @@ export const createDevtoolsFetch = (
         mocked: false,
         ok: false,
         responseBody: null,
-        ruleId: rule?.id,
+        ruleId: primaryRule?.id,
         startedAt,
         status: 0,
         url,
