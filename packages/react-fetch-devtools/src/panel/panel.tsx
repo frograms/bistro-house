@@ -5,10 +5,9 @@ import type { FetchDevtoolsCacheAdapter } from "../cache-adapter";
 import type { FetchDevtoolsApi } from "../core";
 import { CacheTab } from "./cache-tab";
 import { useRecords, useRules } from "./hooks";
-import { JsonViewer } from "./json-viewer";
+import { RequestDetail } from "./request-detail";
 import type { RequestGroup } from "./request-table";
 import { RequestTable } from "./request-table";
-import { RowActions } from "./row-actions";
 import { RuleBar } from "./rule-bar";
 import {
   activeTabStyle,
@@ -368,8 +367,7 @@ export const Panel = ({
                 </div>
                 {selected !== null && (
                   <aside style={detailStyle}>
-                    <JsonViewer record={selected} />
-                    <RowActions
+                    <RequestDetail
                       key={selectedKey}
                       api={api}
                       record={selected}
@@ -378,8 +376,8 @@ export const Panel = ({
                   </aside>
                 )}
               </div>
-          <RuleBar api={api} />
-          </>
+              <RuleBar api={api} />
+            </>
           ))}
       </div>
       {embedded !== true && (

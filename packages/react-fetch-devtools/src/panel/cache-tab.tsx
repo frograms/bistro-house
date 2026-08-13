@@ -5,6 +5,7 @@ import { JsonTree } from "./json-tree";
 import {
   chipErrorStyle,
   chipOkStyle,
+  detailSectionBodyStyle,
   detailStyle,
   panelBodyStyle,
   panelClassNames,
@@ -79,10 +80,12 @@ export const CacheTab = ({
       </div>
       {selected !== null && (
         <aside style={detailStyle}>
-          <JsonTree
+          <div style={detailSectionBodyStyle}>
+            <JsonTree
             key={selected.key}
-            value={{ data: selected.data, error: selected.error }}
-          />
+              value={{ data: selected.data, error: selected.error }}
+            />
+          </div>
         </aside>
       )}
     </div>

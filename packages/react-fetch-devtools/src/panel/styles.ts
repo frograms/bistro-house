@@ -26,8 +26,8 @@ export const PANEL_RADIUS = 12;
 
 export const PANEL_WIDTH = "min(360px, calc(100vw - 32px))";
 export const PANEL_HEIGHT = "min(240px, calc(100vh - 32px))";
-export const PANEL_EXPANDED_WIDTH = "min(560px, calc(100vw - 32px))";
-export const PANEL_EXPANDED_HEIGHT = "min(340px, calc(100vh - 32px))";
+export const PANEL_EXPANDED_WIDTH = "min(760px, calc(100vw - 32px))";
+export const PANEL_EXPANDED_HEIGHT = "min(480px, calc(100vh - 32px))";
 
 const launcherFaceStyle: CSSProperties = {
   alignItems: "center",
@@ -419,10 +419,59 @@ export const detailStyle: CSSProperties = {
   display: "flex",
   flex: "none",
   flexDirection: "column",
-  gap: 8,
   overflowY: "auto",
-  padding: 12,
-  width: "min(220px, 50%)",
+  width: "min(300px, 55%)",
+};
+
+/** RQ devtools식 섹션 헤더 바 */
+export const detailSectionHeaderStyle: CSSProperties = {
+  background: palette.raised,
+  borderBottom: `1px solid ${palette.line}`,
+  borderTop: `1px solid ${palette.line}`,
+  color: palette.text,
+  flex: "none",
+  fontSize: 11.5,
+  fontWeight: 700,
+  padding: "5px 12px",
+};
+
+export const detailSectionBodyStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+  padding: "8px 12px",
+};
+
+export const detailTopStyle: CSSProperties = {
+  alignItems: "flex-start",
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 6,
+  justifyContent: "space-between",
+};
+
+export const detailUrlStyle: CSSProperties = {
+  color: palette.text,
+  flex: 1,
+  fontFamily: monoFontFamily,
+  fontSize: 11,
+  minWidth: 0,
+  wordBreak: "break-all",
+};
+
+export const detailInfoRowStyle: CSSProperties = {
+  color: palette.muted,
+  display: "flex",
+  fontSize: 11,
+  gap: 8,
+  justifyContent: "space-between",
+};
+
+export const detailInfoValueStyle: CSSProperties = {
+  color: palette.text,
+  fontVariantNumeric: "tabular-nums",
+  textAlign: "right",
+  wordBreak: "break-all",
 };
 
 export const detailMetaStyle: CSSProperties = {
