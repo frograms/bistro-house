@@ -7,6 +7,8 @@ export const DEFAULT_MAX_BODY_BYTES = 64 * 1024;
 /** 스펙상 body를 가질 수 없는 status — body를 주면 Response 생성이 throw */
 const NULL_BODY_STATUSES = new Set([204, 205, 304]);
 
+const TEXTUAL_CONTENT_TYPE = /json|text|xml|javascript|urlencoded/i;
+
 export type CreateDevtoolsFetchOptions = {
   baseFetch: typeof fetch;
   buffer: RecordBuffer;
@@ -129,6 +131,9 @@ export const createDevtoolsFetch = (
   } = options;
 
   const captureBody = (response: Response, seq: number) => {
+
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType !== "" && !TEXTUAL_CONTENT_TYPE.test(contentType)) return;
     try {
       void response
         .clone()

@@ -144,6 +144,19 @@ describe("createDevtoolsFetch", () => {
     });
   });
 
+  it("바이너리 content-type 응답은 body를 캡처하지 않는다", async () => {
+    const { buffer, devtoolsFetch } = setup([], {
+      baseFetch: async () =>
+        new Response("binarydata", {
+          headers: { "content-type": "image/png" },
+          status: 200,
+        }),
+    });
+    await devtoolsFetch("https://api.test/poster.png");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(buffer.getSnapshot()[0]?.responseBody).toBeNull();
+  });
+
   it("patch 룰은 실제 응답의 path만 덮어써 반환한다", async () => {
     const { buffer, devtoolsFetch } = setup(
       [
