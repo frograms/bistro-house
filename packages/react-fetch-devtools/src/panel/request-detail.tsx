@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 
 import type { FetchDevtoolsApi, FetchDevtoolsRecord } from "../core";
+import { useRules } from "./hooks";
 import { JsonViewer } from "./json-viewer";
 import { exactUrlPattern, RowActions } from "./row-actions";
 import {
@@ -64,6 +65,16 @@ export const RequestDetail = ({
 }: RequestDetailProps) => {
   const [editingPath, setEditingPath] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  const rules = useRules(api);
+
+  const mockActive = rules.some((rule) => {
+    if (rule.status === undefined) return false;
+    try {
+      return new RegExp(rule.pattern).test(record.url);
+    } catch {
+      return false;
+    }
+  });
 
   // 같은 URL의 patch 전용 룰에 누적 (없으면 생성)
   const addPatch = useCallback(
@@ -146,6 +157,13 @@ export const RequestDetail = ({
 
       <div style={detailSectionHeaderStyle}>Data Explorer</div>
       <div style={detailSectionBodyStyle}>
+        {mockActive && (
+          <div style={actionRowStyle}>
+            <span style={actionBodyHintBrokenStyle}>
+              Error 목 응답 중 — 패치는 Error 룰 해제 후 적용돼요
+            </span>
+          </div>
+        )}
         {editingPath !== null && (
           <>
             <div style={actionRowStyle}>
