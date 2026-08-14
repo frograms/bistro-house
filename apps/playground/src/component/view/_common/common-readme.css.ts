@@ -28,6 +28,22 @@ export const commonReadmeCss = {
     minWidth: 0,
     padding: 22,
   }),
+  table: style({
+    borderCollapse: "separate",
+    borderSpacing: 0,
+    minWidth: "100%",
+    width: "max-content",
+  }),
+  tableWrap: style({
+    background: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: 12,
+    boxShadow: "0 1px 2px rgb(15 23 42 / 0.04)",
+    maxWidth: "100%",
+    minWidth: 0,
+    overflowX: "auto",
+    overscrollBehaviorX: "contain",
+  }),
 };
 
 globalStyle(`${commonReadmeCss.body} h1`, {
@@ -161,4 +177,68 @@ globalStyle(`${commonReadmeCss.body} pre code`, {
 
 globalStyle(`${commonReadmeCss.body} img`, {
   maxWidth: "100%",
+});
+
+globalStyle(`${commonReadmeCss.table} th, ${commonReadmeCss.table} td`, {
+  borderBottom: "1px solid #e5e7eb",
+  color: "#3f3f46",
+  fontSize: 14,
+  lineHeight: 1.55,
+  padding: "12px 14px",
+  textAlign: "left",
+  verticalAlign: "top",
+});
+
+globalStyle(`${commonReadmeCss.table} th`, {
+  background: "#fafafa",
+  borderBottomColor: "#e5e7eb",
+  color: "#18181b",
+  fontSize: 12,
+  fontWeight: 800,
+  letterSpacing: "0.02em",
+  whiteSpace: "nowrap",
+});
+
+globalStyle(`${commonReadmeCss.table} tbody tr:last-child td`, {
+  borderBottom: "none",
+});
+
+globalStyle(`${commonReadmeCss.table} tbody tr:nth-child(even) td`, {
+  background: "#fcfcfd",
+});
+
+globalStyle(`${commonReadmeCss.table} tbody tr:hover td`, {
+  background: "#fff1f5",
+});
+
+// Name / short cells — avoid mid-word breaks like "callbac" + "k"
+globalStyle(
+  `${commonReadmeCss.table} th:first-child, ${commonReadmeCss.table} td:first-child`,
+  {
+    whiteSpace: "nowrap",
+  }
+);
+
+globalStyle(`${commonReadmeCss.table} td`, {
+  overflowWrap: "break-word",
+  wordBreak: "normal",
+});
+
+globalStyle(`${commonReadmeCss.table} code`, {
+  background: "#f4f4f5",
+  borderRadius: 6,
+  color: "#18181b",
+  display: "inline-block",
+  fontSize: 12.5,
+  lineHeight: 1.45,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  padding: "2px 6px",
+  whiteSpace: "normal",
+  wordBreak: "normal",
+});
+
+globalStyle(`${commonReadmeCss.table} td:first-child code`, {
+  overflowWrap: "normal",
+  whiteSpace: "nowrap",
 });

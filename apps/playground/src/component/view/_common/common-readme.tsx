@@ -7,6 +7,7 @@ import {
 } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
 
 type CommonReadmeProps = {
   markdown: string;
@@ -100,8 +101,20 @@ export const CommonReadme = ({ markdown }: CommonReadmeProps) => {
               </h4>
             ),
             pre: CommonReadmePre,
+            table: ({ children, className, node: _node, ...props }) => (
+              <div className={commonReadmeCss.tableWrap}>
+                <table
+                  {...props}
+                  className={[commonReadmeCss.table, className]
+                    .filter(Boolean)
+                    .join(" ")}>
+                  {children}
+                </table>
+              </div>
+            ),
           }}
-          rehypePlugins={[rehypeSlug]}>
+          rehypePlugins={[rehypeSlug]}
+          remarkPlugins={[remarkGfm]}>
           {markdown}
         </ReactMarkdown>
       </div>
