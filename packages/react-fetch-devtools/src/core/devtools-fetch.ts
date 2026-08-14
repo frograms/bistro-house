@@ -89,7 +89,11 @@ const applyAtPath = (
   if (!(last in (current as Record<string, unknown>))) return;
   if (patch.remove === true) {
     if (Array.isArray(current)) {
-      current.splice(Number(last), 1);
+
+      const index = Number(last);
+      if (Number.isInteger(index)) {
+        current.splice(index, 1);
+      }
       return;
     }
     delete (current as Record<string, unknown>)[last];
