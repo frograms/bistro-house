@@ -199,10 +199,14 @@ export const createDevtoolsFetch = (
           status: response.status,
           url,
         });
+
+        const headers = new Headers(response.headers);
+        headers.delete("content-length");
+        headers.delete("content-encoding");
         return new Response(
           NULL_BODY_STATUSES.has(response.status) ? null : patchedText,
           {
-            headers: response.headers,
+            headers,
             status: response.status,
             statusText: response.statusText,
           }

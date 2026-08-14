@@ -195,6 +195,26 @@ describe("createDevtoolsFetch", () => {
     await expect(response.json()).resolves.toEqual({ keep: 2, list: [20] });
   });
 
+  it("패치 응답은 원본 content-length 헤더를 지우고 나머지는 유지한다", async () => {
+    const { devtoolsFetch } = setup(
+      [{ id: "r1", patch: [{ path: "title", value: "바뀜" }], pattern: "users" }],
+      {
+        baseFetch: async () =>
+          new Response('{"title":"원본"}', {
+            headers: {
+              "content-length": "16",
+              "content-type": "application/json",
+              "x-request-id": "abc",
+            },
+            status: 200,
+          }),
+      }
+    );
+    const response = await devtoolsFetch("https://api.test/users");
+    expect(response.headers.get("content-length")).toBeNull();
+    expect(response.headers.get("x-request-id")).toBe("abc");
+  });
+
   it("지연 룰과 패치 룰이 동시에 매칭되면 둘 다 적용된다", async () => {
     vi.useFakeTimers();
     const { devtoolsFetch } = setup(
