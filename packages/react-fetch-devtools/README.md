@@ -165,7 +165,7 @@ const MyDevtoolsShell = () => (
 
 ### Controlling rules programmatically
 
-패널 UI 없이도 `window.__API_DEVTOOLS__`의 `rules`로 룰을 제어할 수 있습니다. `status`는 실제 요청 없이 목 응답을 반환하고, `delayMs`만 있으면 실제 응답을 지연 후 그대로 통과시키며, `patch`는 실제 응답 JSON에서 지정한 path의 값만 수정합니다.
+패널 UI 없이도 `window.__API_DEVTOOLS__`의 `rules`로 룰을 제어할 수 있습니다. `status`는 실제 요청 없이 목 응답을 반환하고, `delayMs`만 있으면 실제 응답을 지연 후 그대로 통과시키며, `patch`는 실제 응답 JSON에서 지정한 path의 값만 수정합니다. 같은 URL에 여러 룰이 매칭되면 서로 합성됩니다 — 자세한 규칙은 [FetchDevtoolsRule](#fetchdevtoolsrule)을 참고하세요.
 
 ```ts
 const api = window.__API_DEVTOOLS__;
@@ -379,7 +379,7 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 | `records.subscribe` | `FetchDevtoolsSubscribe` | 기록 변경 구독 |
 | `records.clear` | `() => void` | 기록 비우기 |
 | `rules.getSnapshot` | `() => FetchDevtoolsRule[]` | 현재 룰 목록 |
-| `rules.add` | `(input: FetchDevtoolsRuleInput) => FetchDevtoolsRule` | 룰 추가. `id`를 생략하면 자동 생성됩니다 |
+| `rules.add` | `(input: FetchDevtoolsRuleInput) => FetchDevtoolsRule` | 룰 추가. `id`를 생략하면 자동 생성되고, 같은 `id`가 이미 있으면 그 룰을 교체합니다. 같은 `pattern`의 룰은 여러 개 공존하며 합성됩니다 |
 | `rules.update` | `(id: string, patch: Partial<Omit<FetchDevtoolsRule, "id">>) => void` | 룰 수정 |
 | `rules.remove` | `(id: string) => void` | 룰 삭제 |
 | `rules.clear` | `() => void` | 룰 전체 삭제 |
@@ -392,7 +392,15 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 
 ### FetchDevtoolsRule
 
-요청을 가로채는 룰입니다. `status`가 있으면 실제 요청 없이 목 응답을 반환하고, `patch`가 있으면(그리고 `status`가 없으면) 실제 응답 JSON을 수정하며, `delayMs`만 있으면 실제 응답을 지연 후 그대로 통과시킵니다.
+요청을 가로채는 룰입니다. `status`는 실제 요청 없이 목 응답을 반환하고, `patch`는 실제 응답 JSON을 수정하며, `delayMs`는 응답을 지연시킵니다.
+
+같은 URL에 여러 룰이 매칭되면 다음 규칙으로 합성됩니다.
+
+- **지연**: `delayMs > 0`인 첫 룰의 값만 적용됩니다 (여러 지연 룰이 있어도 중첩되지 않습니다)
+- **목**: `status`가 있는 첫 룰이 목 응답을 반환합니다. 목은 실제 요청을 보내지 않으므로, 이때 매칭된 모든 룰의 `patch`는 적용되지 않습니다
+- **패치**: 목 룰이 없으면, `status` 없는 매칭 룰들의 `patch`가 룰 순서대로 전부 적용됩니다
+
+그래서 "1.5초 지연 + 500 목", "지연 + 특정 필드 패치"처럼 룰을 나눠 걸어 조합할 수 있습니다.
 
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
@@ -400,7 +408,7 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 | `pattern` | `string` | — | URL에 매칭할 정규식 문자열 |
 | `status` | `number` | — | 지정 시 실제 요청 없이 이 상태 코드로 목 응답을 반환합니다 |
 | `body` | `string` | — | 목 응답 body. `status`와 함께 씁니다 |
-| `delayMs` | `number` | — | 응답 지연(ms). 목·패치·통과 어느 경우에도 먼저 적용됩니다 |
+| `delayMs` | `number` | — | 응답 지연(ms). 목·패치·통과 어느 경우에도 먼저 적용되며, 여러 룰이 매칭되면 `delayMs > 0`인 첫 룰만 적용됩니다 |
 | `patch` | `{ path: string; value?: unknown; remove?: boolean }[]` | — | 실제 응답 JSON에서 `path`(점 표기)의 값만 `value`로 바꿉니다. `remove: true`면 해당 키를 삭제합니다 |
 
 ### FetchDevtoolsRuleInput
@@ -420,7 +428,7 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 | `ok` | `boolean` | `Response.ok` 여부 |
 | `mocked` | `boolean` | 목 응답 여부 |
 | `patched` | `boolean \| undefined` | `patch` 룰이 적용된 응답이면 `true` |
-| `ruleId` | `string \| undefined` | 매칭된 룰의 `id` |
+| `ruleId` | `string \| undefined` | 적용된 룰 중 대표 1개의 `id` (목 룰 → 첫 패치 룰 → 첫 매칭 룰 순) |
 | `startedAt` | `number` | 요청 시작 시각 (epoch ms) |
 | `durationMs` | `number` | 소요 시간(ms) |
 | `responseBody` | `string \| null` | 응답 body. clone 후 비동기로 채워지므로 채워지기 전엔 `null` |
