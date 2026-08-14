@@ -105,6 +105,23 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
   const [delayMs, setDelayMs] = useState(() =>
     delayRule?.delayMs !== undefined ? String(delayRule.delayMs) : "3000"
   );
+
+  const [lastStatusRule, setLastStatusRule] = useState(statusRule);
+  if (statusRule !== lastStatusRule) {
+    setLastStatusRule(statusRule);
+    if (statusRule?.status !== undefined) {
+      setStatus(String(statusRule.status));
+      setMessage(bodyToInput(statusRule.body));
+    }
+  }
+  const [lastDelayRule, setLastDelayRule] = useState(delayRule);
+  if (delayRule !== lastDelayRule) {
+    setLastDelayRule(delayRule);
+    if (delayRule?.delayMs !== undefined) {
+      setDelayMs(String(delayRule.delayMs));
+    }
+  }
+
   const bodyKind = message.trim() === "" ? "text" : bodyKindOf(message);
 
   const applyTriggerRule = useCallback(
