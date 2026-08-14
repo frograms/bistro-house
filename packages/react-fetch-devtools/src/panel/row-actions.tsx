@@ -107,17 +107,17 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
   );
   const bodyKind = message.trim() === "" ? "text" : bodyKindOf(message);
 
-  const replaceTriggerRule = useCallback(
+  const applyTriggerRule = useCallback(
     (input: { body?: string; delayMs?: number; status?: number }) => {
-      const replacesDelay = input.delayMs !== undefined;
-      matchedRules.forEach((rule) => {
-        if (rule.patch !== undefined) return;
-        const ruleIsDelay =
-          rule.status === undefined && rule.delayMs !== undefined;
-        if (ruleIsDelay !== replacesDelay) return;
-        api.rules.remove(rule.id);
-      });
+      const field = input.delayMs !== undefined ? "delayMs" : "status";
+      const targets = matchedRules.filter((rule) => rule[field] !== undefined);
+      if (targets.length === 0) {
       api.rules.add({ pattern: exactUrlPattern(record.url), ...input });
+        return;
+      }
+      targets.forEach((rule) => {
+        api.rules.update(rule.id, input);
+      });
     },
     [api, matchedRules, record.url]
   );
