@@ -14,10 +14,11 @@ import {
 } from "./styles";
 
 const summarize = (rule: FetchDevtoolsRule): string => {
-  if (rule.status !== undefined) return String(rule.status);
-  if (rule.patch !== undefined) return `패치 ${rule.patch.length}`;
-  if (rule.delayMs !== undefined) return `지연 ${rule.delayMs}ms`;
-  return "-";
+  const facets: string[] = [];
+  if (rule.status !== undefined) facets.push(String(rule.status));
+  if (rule.patch !== undefined) facets.push(`패치 ${rule.patch.length}`);
+  if (rule.delayMs !== undefined) facets.push(`지연 ${rule.delayMs}ms`);
+  return facets.length > 0 ? facets.join(" · ") : "-";
 };
 
 export const RuleBar = ({ api }: { api: FetchDevtoolsApi }) => {

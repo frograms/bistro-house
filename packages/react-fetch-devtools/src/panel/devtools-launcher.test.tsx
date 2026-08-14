@@ -526,6 +526,85 @@ describe("DevtoolsLauncher", () => {
     expect(rules.some((rule) => rule.delayMs === 3000)).toBe(true);
   });
 
+  it("행이 열려 있는 동안 생긴 룰 값으로 입력칸이 동기화된다", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Error 트리거/ }));
+
+    act(() => {
+      api.rules.add({
+        body: '{"message":"점검 중"}',
+        pattern: "settings",
+        status: 503,
+      });
+    });
+    expect(
+      (screen.getByRole("textbox", { name: "status" }) as HTMLInputElement)
+        .value
+    ).toBe("503");
+    expect(
+      (
+        screen.getByRole("textbox", {
+          name: "에러 메시지",
+        }) as HTMLTextAreaElement
+      ).value
+    ).toBe("점검 중");
+  });
+
+  it("status 목 룰이 켜져 있으면 Data Explorer에 패치 대기 힌트를 띄운다", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+    expect(
+      screen.queryByText(/패치는 Error 룰 해제 후 적용/)
+    ).toBeNull();
+
+    act(() => {
+      api.rules.add({ id: "mock", pattern: "settings", status: 500 });
+    });
+    expect(
+      screen.getByText(/패치는 Error 룰 해제 후 적용/)
+    ).toBeTruthy();
+
+    act(() => {
+      api.rules.remove("mock");
+    });
+    expect(
+      screen.queryByText(/패치는 Error 룰 해제 후 적용/)
+    ).toBeNull();
+  });
+
+  it("복합 룰에 지연을 적용하면 delayMs만 갱신되고 status는 보존된다", async () => {
+    const api = install();
+    render(<DevtoolsLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await api.fetch("https://api.test/settings");
+    });
+    api.rules.add({ delayMs: 2000, pattern: "settings", status: 500 });
+    fireEvent.click(screen.getByRole("button", { name: /settings/ }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Loading 트리거 중" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "지연 ms" }), {
+      target: { value: "5000" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "지연 적용" }));
+
+    const rules = api.rules.getSnapshot();
+    expect(rules).toHaveLength(1);
+    expect(rules[0]?.delayMs).toBe(5000);
+    expect(rules[0]?.status).toBe(500);
+  });
+
   it("지연 버튼은 delayMs 룰을 만들고, 룰 해제는 매칭 룰을 지운다", async () => {
     const api = install();
     render(<DevtoolsLauncher enabled />);

@@ -129,7 +129,7 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
       const field = input.delayMs !== undefined ? "delayMs" : "status";
       const targets = matchedRules.filter((rule) => rule[field] !== undefined);
       if (targets.length === 0) {
-      api.rules.add({ pattern: exactUrlPattern(record.url), ...input });
+        api.rules.add({ pattern: exactUrlPattern(record.url), ...input });
         return;
       }
       targets.forEach((rule) => {
@@ -142,17 +142,17 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
   const handleApplyError = useCallback(() => {
     const parsed = Number(status);
     if (!Number.isInteger(parsed)) return;
-    replaceTriggerRule({
+    applyTriggerRule({
       body: buildErrorBody(message),
       status: parsed,
     });
-  }, [message, replaceTriggerRule, status]);
+  }, [applyTriggerRule, message, status]);
 
   const handleDelay = useCallback(() => {
     const parsed = Number(delayMs);
     if (!(parsed > 0)) return;
-    replaceTriggerRule({ delayMs: Math.round(parsed) });
-  }, [delayMs, replaceTriggerRule]);
+    applyTriggerRule({ delayMs: Math.round(parsed) });
+  }, [applyTriggerRule, delayMs]);
 
   const handleRevalidate = useCallback(() => {
     onRevalidate?.(record.url);
