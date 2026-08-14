@@ -61,17 +61,19 @@ const CopyButton = ({ name, value }: { name: string; value: unknown }) => {
         ?.writeText(
           typeof value === "string" ? value : JSON.stringify(value, null, 2)
         )
+        .then(() => {
+          setCopied(true);
+          if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+          timerRef.current = window.setTimeout(() => {
+            setCopied(false);
+          }, COPY_FEEDBACK_MS);
+        })
         .catch(() => {
-          // 클립보드 쓰기 실패 무시
+          // 클립보드 쓰기 실패 — 성공 피드백을 띄우지 않는다
         });
     } catch {
       // 클립보드 미지원 환경 무시
     }
-    setCopied(true);
-    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(() => {
-      setCopied(false);
-    }, COPY_FEEDBACK_MS);
   }, [value]);
 
   return (

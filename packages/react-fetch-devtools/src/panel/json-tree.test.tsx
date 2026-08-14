@@ -1,5 +1,11 @@
 // @vitest-environment happy-dom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { JsonTree } from "./json-tree";
@@ -38,16 +44,35 @@ describe("JsonTree", () => {
     expect(screen.getByText("…나머지 20개")).toBeTruthy();
   });
 
-  it("복사 버튼이 그 노드의 JSON을 클립보드에 쓴다", () => {
+  it("복사 버튼이 그 노드의 JSON을 클립보드에 쓰고 성공 시 ✓를 띄운다", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
       value: { writeText },
     });
     render(<JsonTree value={{ a: 1 }} />);
-    fireEvent.click(screen.getByRole("button", { name: "body 복사" }));
+    const button = screen.getByRole("button", { name: "body 복사" });
+    fireEvent.click(button);
     expect(writeText).toHaveBeenCalledExactlyOnceWith(
       JSON.stringify({ a: 1 }, null, 2)
     );
+    await waitFor(() => {
+      expect(button.textContent).toBe("✓");
+    });
+  });
+
+  it("복사가 실패하면 ✓ 피드백을 띄우지 않는다", async () => {
+    const writeText = vi.fn().mockRejectedValue(new Error("denied"));
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+    render(<JsonTree value={{ a: 1 }} />);
+    const button = screen.getByRole("button", { name: "body 복사" });
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalled();
+    });
+    expect(button.textContent).toBe("⧉");
   });
 });
