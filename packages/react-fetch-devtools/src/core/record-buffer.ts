@@ -37,7 +37,8 @@ export const createRecordBuffer = (
     push: (input) => {
       seq += 1;
       const record: FetchDevtoolsRecord = { ...input, seq };
-      store.setSnapshot([...store.getSnapshot(), record].slice(-maxRecords));
+      const next = [...store.getSnapshot(), record];
+      store.setSnapshot(next.slice(Math.max(0, next.length - maxRecords)));
       return record;
     },
     subscribe: store.subscribe,

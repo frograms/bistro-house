@@ -35,6 +35,13 @@ describe("createRecordBuffer", () => {
     ]);
   });
 
+  it("maxRecords가 0이면 아무 기록도 남기지 않는다", () => {
+    const buffer = createRecordBuffer({ maxRecords: 0 });
+    buffer.push(input({ url: "a" }));
+    buffer.push(input({ url: "b" }));
+    expect(buffer.getSnapshot()).toEqual([]);
+  });
+
   it("patch는 해당 seq 기록만 갱신하고, 밀려난 seq는 무시한다", () => {
     const buffer = createRecordBuffer({ maxRecords: 1 });
     const first = buffer.push(input({ url: "a" }));
