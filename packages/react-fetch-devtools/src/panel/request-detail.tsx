@@ -1,8 +1,13 @@
 import { useCallback, useState } from "react";
 
-import type { FetchDevtoolsApi, FetchDevtoolsRecord } from "../core";
+import type {
+  FetchDevtoolsApi,
+  FetchDevtoolsPreset,
+  FetchDevtoolsRecord,
+} from "../core";
 import { useRules } from "./hooks";
 import { JsonViewer } from "./json-viewer";
+import { PresetSection } from "./preset-section";
 import { exactUrlPattern, RowActions } from "./row-actions";
 import {
   actionBodyHintBrokenStyle,
@@ -27,6 +32,7 @@ import {
 export type RequestDetailProps = {
   api: FetchDevtoolsApi;
   onRevalidate?: (key: string) => void;
+  presets?: FetchDevtoolsPreset[];
   record: FetchDevtoolsRecord;
 };
 
@@ -61,6 +67,7 @@ const InfoRow = ({ label, value }: { label: string; value: string }) => (
 export const RequestDetail = ({
   api,
   onRevalidate,
+  presets,
   record,
 }: RequestDetailProps) => {
   const [editingPath, setEditingPath] = useState<string | null>(null);
@@ -154,6 +161,15 @@ export const RequestDetail = ({
       <div style={detailSectionBodyStyle}>
         <RowActions api={api} record={record} onRevalidate={onRevalidate} />
       </div>
+
+      {presets !== undefined && (
+        <PresetSection
+          api={api}
+          presets={presets}
+          record={record}
+          onRevalidate={onRevalidate}
+        />
+      )}
 
       <div style={detailSectionHeaderStyle}>Data Explorer</div>
       <div style={detailSectionBodyStyle}>

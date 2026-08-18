@@ -1,5 +1,6 @@
 import { createDevtoolsFetch } from "./devtools-fetch";
 import { createLauncherVisibility } from "./launcher-visibility";
+import { createPresetNameStore } from "./preset-names";
 import { createRecordBuffer } from "./record-buffer";
 import { createRuleStore } from "./rule-store";
 import { createSafeStorage } from "./safe-storage";
@@ -23,9 +24,10 @@ export const installFetchDevtools = (
   if (typeof window === "undefined") return null;
   if (window.__API_DEVTOOLS__ !== undefined) return window.__API_DEVTOOLS__;
 
-  const ruleStore = createRuleStore(
-    storage ?? createSafeStorage(() => window.sessionStorage)
-  );
+  const sessionStore =
+    storage ?? createSafeStorage(() => window.sessionStorage);
+  const ruleStore = createRuleStore(sessionStore);
+  const presetNames = createPresetNameStore(sessionStore);
   const buffer = createRecordBuffer({ maxRecords });
   const launcher = createLauncherVisibility(
     createSafeStorage(() => window.localStorage)
@@ -45,6 +47,12 @@ export const installFetchDevtools = (
     launcher: {
       getSnapshot: launcher.getSnapshot,
       subscribe: launcher.subscribe,
+    },
+    presetNames: {
+      getSnapshot: presetNames.getSnapshot,
+      reset: presetNames.reset,
+      set: presetNames.set,
+      subscribe: presetNames.subscribe,
     },
     records: {
       clear: buffer.clear,

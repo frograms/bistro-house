@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import type { FetchDevtoolsCacheAdapter } from "../cache-adapter";
-import type { FetchDevtoolsApi } from "../core";
+import type { FetchDevtoolsApi, FetchDevtoolsPreset } from "../core";
 import { useLauncherVisible, useRules } from "./hooks";
 import type { DevtoolsTab } from "./panel";
 import { Panel, PANEL_CLOSE_DURATION_MS } from "./panel";
@@ -22,6 +22,8 @@ export type DevtoolsLauncherProps = {
   extraTabs?: DevtoolsTab[];
   /** 재요청 콜백 — 미주입 시 재요청 버튼 숨김 */
   onRevalidate?: (key: string) => void;
+  /** 앱이 정의한 룰 묶음 */
+  presets?: FetchDevtoolsPreset[];
   zIndex?: number;
 };
 
@@ -30,12 +32,14 @@ const LauncherContent = ({
   cacheAdapter,
   extraTabs,
   onRevalidate,
+  presets,
   zIndex,
 }: {
   api: FetchDevtoolsApi;
   cacheAdapter?: FetchDevtoolsCacheAdapter;
   extraTabs?: DevtoolsTab[];
   onRevalidate?: (key: string) => void;
+  presets?: FetchDevtoolsPreset[];
   zIndex: number;
 }) => {
   const visible = useLauncherVisible(api);
@@ -112,6 +116,7 @@ const LauncherContent = ({
           api={api}
           cacheAdapter={cacheAdapter}
           extraTabs={extraTabs}
+          presets={presets}
           shown={shown}
           zIndex={zIndex}
           onClose={close}
@@ -128,6 +133,7 @@ export const DevtoolsLauncher = ({
   enabled,
   extraTabs,
   onRevalidate,
+  presets,
   zIndex = 999999,
 }: DevtoolsLauncherProps) => {
   if (!enabled || typeof window === "undefined") return null;
@@ -138,6 +144,7 @@ export const DevtoolsLauncher = ({
       api={api}
       cacheAdapter={cacheAdapter}
       extraTabs={extraTabs}
+      presets={presets}
       zIndex={zIndex}
       onRevalidate={onRevalidate}
     />

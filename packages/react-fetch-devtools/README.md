@@ -190,6 +190,38 @@ api?.rules.add({
 });
 ```
 
+### Presets
+
+복잡한 목 데이터를 앱 코드에 정의해 두고 패널에서 골라 쓰는 방식입니다. `presets`를 넘기면 **요청 행을 펼쳤을 때 그 URL에 매칭되는 프리셋만** 상세의 프리셋 섹션에 나타나고, **하나를 고를 때만 적용**됩니다 (자동 적용은 없습니다). 고른 프리셋을 다시 누르면 해제되고, 다른 프리셋을 고르면 이전 프리셋의 룰을 대체합니다.
+
+```tsx
+// presets.ts — 목 데이터가 무거우므로 패널과 같은 lazy 청크에 둡니다
+import type { FetchDevtoolsPreset } from "@watcha-authentic/react-fetch-devtools/core";
+
+export const PRESETS: FetchDevtoolsPreset[] = [
+  {
+    description: "결제 수단이 등록된 상태",
+    id: "pay-ready",
+    name: "결제 정상",
+    rules: [{ body: JSON.stringify(PAID_USER), pattern: "/api/me", status: 200 }],
+  },
+  {
+    id: "pay-expired",
+    name: "카드 만료",
+    rules: [
+      { patch: [{ path: "card.expired", value: true }], pattern: "/api/me" },
+      { delayMs: 1500, pattern: "/api/orders" },
+    ],
+  },
+];
+
+<DevtoolsLauncher enabled={isStaging} presets={PRESETS} />;
+```
+
+프리셋 하나가 룰 여러 개를 가질 수 있어서, "카드 만료 + 주문 API 지연" 같은 상태를 한 번에 세울 수 있습니다. 프리셋이 만든 룰과 패널에서 손으로 만든 룰은 함께 적용되므로, 프리셋을 켠 위에 지연을 추가로 거는 것도 됩니다.
+
+패널에서 프리셋 이름을 바꿀 수 있고(✎), 바꾼 이름은 sessionStorage에 저장됩니다. 빈 값으로 저장하면 앱이 준 원래 이름으로 돌아갑니다.
+
 ### Building custom UI with hooks
 
 `useRecords` · `useRules` · `useLauncherVisible` 훅으로 요청 기록·룰·런처 표시 여부를 구독해 자체 UI를 만들 수 있습니다.
@@ -288,6 +320,7 @@ devtools 코어를 설치하고 `window.__API_DEVTOOLS__`에 할당합니다. `e
 | `cacheAdapter` | `FetchDevtoolsCacheAdapter` | — | Cache 탭 데이터 소스. SWR이면 `createSwrAdapter`로 생성합니다. 없으면 Cache 탭을 숨깁니다 |
 | `onRevalidate` | `(key: string) => void` | — | Cache 탭의 재요청 콜백. 없으면 재요청 버튼을 숨깁니다 |
 | `extraTabs` | `DevtoolsTab[]` | — | 패널에 추가할 확장 탭 |
+| `presets` | `FetchDevtoolsPreset[]` | — | 앱이 정의한 룰 묶음. 요청 행 상세에서 URL이 매칭되는 프리셋을 골라 적용합니다 |
 | `zIndex` | `number` | `999999` | 런처 버튼·패널의 z-index |
 
 ### DevtoolsPanel
@@ -301,6 +334,7 @@ devtools 코어를 설치하고 `window.__API_DEVTOOLS__`에 할당합니다. `e
 | `cacheAdapter` | `FetchDevtoolsCacheAdapter` | — | Cache 탭 데이터 소스. 없으면 Cache 탭을 숨깁니다 |
 | `onRevalidate` | `(key: string) => void` | — | Cache 탭의 재요청 콜백. 없으면 재요청 버튼을 숨깁니다 |
 | `extraTabs` | `DevtoolsTab[]` | — | 패널에 추가할 확장 탭 |
+| `presets` | `FetchDevtoolsPreset[]` | — | 앱이 정의한 룰 묶음. 요청 행 상세에서 URL이 매칭되는 프리셋을 골라 적용합니다 |
 
 ### createSwrAdapter
 
@@ -378,6 +412,10 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 | `records.getSnapshot` | `() => FetchDevtoolsRecord[]` | 현재 요청 기록 |
 | `records.subscribe` | `FetchDevtoolsSubscribe` | 기록 변경 구독 |
 | `records.clear` | `() => void` | 기록 비우기 |
+| `presetNames.getSnapshot` | `() => Record<string, string>` | 프리셋 id → 패널에서 바꾼 이름 |
+| `presetNames.set` | `(id: string, name: string) => void` | 프리셋 이름 덮어쓰기 |
+| `presetNames.reset` | `(id: string) => void` | 앱이 준 원래 이름으로 되돌리기 |
+| `presetNames.subscribe` | `FetchDevtoolsSubscribe` | 이름 변경 구독 |
 | `rules.getSnapshot` | `() => FetchDevtoolsRule[]` | 현재 룰 목록 |
 | `rules.add` | `(input: FetchDevtoolsRuleInput) => FetchDevtoolsRule` | 룰 추가. `id`를 생략하면 자동 생성되고, 같은 `id`가 이미 있으면 그 룰을 교체합니다. 같은 `pattern`의 룰은 여러 개 공존하며 합성됩니다 |
 | `rules.update` | `(id: string, patch: Partial<Omit<FetchDevtoolsRule, "id">>) => void` | 룰 수정 |
@@ -405,6 +443,7 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `id` | `string` | — | 룰 식별자 |
+| `label` | `string` | — | 룰 바에 패턴 대신 표시할 이름. 프리셋이 만든 룰에 프리셋 이름이 들어갑니다 |
 | `pattern` | `string` | — | URL에 매칭할 정규식 문자열 |
 | `status` | `number` | — | 지정 시 실제 요청 없이 이 상태 코드로 목 응답을 반환합니다 |
 | `body` | `string` | — | 목 응답 body. `status`와 함께 씁니다 |
@@ -414,6 +453,17 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 ### FetchDevtoolsRuleInput
 
 `rules.add`의 입력 타입입니다. `FetchDevtoolsRule`에서 `id`만 선택 사항으로 바뀐 형태이며, 생략하면 자동 생성됩니다.
+
+### FetchDevtoolsPreset
+
+앱이 정의해 `presets`로 넘기는 룰 묶음입니다. 패널에서 고를 때만 적용됩니다.
+
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `id` | `string` | — | 프리셋 식별자. 룰 `id`에 그대로 쓰이므로 콜론은 피하세요 |
+| `name` | `string` | — | 프리셋 칸에 표시할 이름 |
+| `description` | `string` | — | 이름 아래 설명 |
+| `rules` | `FetchDevtoolsRuleInput[]` | — | 이 프리셋이 적용할 룰. 여러 개면 함께 적용됩니다 |
 
 ### FetchDevtoolsRecord
 

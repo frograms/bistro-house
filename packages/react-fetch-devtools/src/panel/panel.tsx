@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { FetchDevtoolsCacheAdapter } from "../cache-adapter";
-import type { FetchDevtoolsApi } from "../core";
+import type { FetchDevtoolsApi, FetchDevtoolsPreset } from "../core";
 import { CacheTab } from "./cache-tab";
 import { useRecords, useRules } from "./hooks";
 import { RequestDetail } from "./request-detail";
@@ -60,7 +60,7 @@ export type PanelProps = {
   extraTabs?: DevtoolsTab[];
   onClose: () => void;
   onRevalidate?: (key: string) => void;
-  /** false→true 전환으로 오픈 애니메이션 재생 */
+  presets?: FetchDevtoolsPreset[];
   shown: boolean;
   zIndex: number;
 };
@@ -72,6 +72,7 @@ export const Panel = ({
   extraTabs,
   onClose,
   onRevalidate,
+  presets,
   shown,
   zIndex,
 }: PanelProps) => {
@@ -370,6 +371,7 @@ export const Panel = ({
                     <RequestDetail
                       key={selectedKey}
                       api={api}
+                      presets={presets}
                       record={selected}
                       onRevalidate={onRevalidate}
                     />

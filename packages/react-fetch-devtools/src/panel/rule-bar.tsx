@@ -50,7 +50,9 @@ export const RuleBar = ({ api }: { api: FetchDevtoolsApi }) => {
       {expanded &&
         rules.map((rule) => (
           <div key={rule.id} style={ruleRowStyle}>
-            <span style={rulePatternStyle}>{rule.pattern}</span>
+            <span style={rulePatternStyle} title={rule.pattern}>
+              {rule.label ?? rule.pattern}
+            </span>
             <span
               style={rule.status !== undefined ? chipErrorStyle : chipOkStyle}
             >

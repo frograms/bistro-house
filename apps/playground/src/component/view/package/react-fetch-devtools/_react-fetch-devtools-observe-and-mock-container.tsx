@@ -11,6 +11,7 @@ import {
 } from "@playground/component/view/_common/common-example-panels";
 import { CommonNote } from "@playground/component/view/_common/common-note";
 import { reactFetchDevtoolsObserveAndMockContainerCss as css } from "@playground/component/view/package/react-fetch-devtools/_react-fetch-devtools-observe-and-mock-container.css";
+import { DEMO_PRESETS } from "@playground/component/view/package/react-fetch-devtools/_shared/demo-presets";
 import { commonExampleControlsCss } from "@playground/resource/css/common/common-example-controls.css";
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
@@ -27,6 +28,7 @@ const NOTE_ITEMS = [
   "window.fetch를 덮어쓰지 않고, 앱 API 관문이 위임하는 구조입니다: (window.__API_DEVTOOLS__?.fetch ?? fetch)",
   "룰은 sessionStorage에 저장되어 새로고침 후에도 유지됩니다 (탭 격리).",
   "실서비스 응답 모양을 본뜬 로컬 데모 API를 호출합니다 (실제 서버 아님).",
+  "앱이 정의한 프리셋은 요청 행을 펼치면 그 API에 맞는 것만 나타납니다 (이름도 바꿀 수 있어요).",
 ];
 
 const CODE_EXAMPLE = `// ① 부팅 최상단 (하이드레이션 전)
@@ -261,7 +263,11 @@ const ObserveAndMockExample = ({ api }: { api: FetchDevtoolsApi }) => {
 
       <CommonExampleStatePanel items={stateItems} />
 
-      <DevtoolsLauncher enabled onRevalidate={handleRevalidate} />
+      <DevtoolsLauncher
+        presets={DEMO_PRESETS}
+        enabled
+        onRevalidate={handleRevalidate}
+      />
 
       <CommonCodeBlock code={CODE_EXAMPLE} />
     </CommonContainer>

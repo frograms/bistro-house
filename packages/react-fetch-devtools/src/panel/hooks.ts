@@ -14,3 +14,11 @@ export const useRules = (api: FetchDevtoolsApi): FetchDevtoolsRule[] =>
 
 export const useLauncherVisible = (api: FetchDevtoolsApi): boolean =>
   useSyncExternalStore(api.launcher.subscribe, api.launcher.getSnapshot);
+
+export const usePresetNames = (
+  api: FetchDevtoolsApi
+): Record<string, string> =>
+  useSyncExternalStore(
+    api.presetNames.subscribe,
+    api.presetNames.getSnapshot
+  );

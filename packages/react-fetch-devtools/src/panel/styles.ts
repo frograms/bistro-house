@@ -414,6 +414,65 @@ export const rulePatternStyle: CSSProperties = {
   whiteSpace: "nowrap",
 };
 
+export const presetGroupStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 6,
+};
+
+export const presetItemStyle: CSSProperties = {
+  alignItems: "center",
+  display: "inline-flex",
+  gap: 2,
+  maxWidth: "100%",
+};
+
+const presetChipBase: CSSProperties = {
+  appearance: "none",
+  background: "transparent",
+  border: `1px solid ${palette.line}`,
+  borderRadius: 999,
+  color: palette.muted,
+  cursor: "pointer",
+  fontFamily,
+  fontSize: 11,
+  maxWidth: 150,
+  overflow: "hidden",
+  padding: "3px 9px",
+  textOverflow: "ellipsis",
+  WebkitAppearance: "none",
+  whiteSpace: "nowrap",
+};
+
+export const presetChipStyle: CSSProperties = presetChipBase;
+
+export const presetChipActiveStyle: CSSProperties = {
+  ...presetChipBase,
+  background: palette.tealSoft,
+  borderColor: palette.teal,
+  color: palette.teal,
+  fontWeight: 700,
+};
+
+export const presetEditRowStyle: CSSProperties = {
+  alignItems: "center",
+  display: "flex",
+  gap: 4,
+};
+
+export const presetNameInputStyle: CSSProperties = {
+  appearance: "none",
+  background: palette.bg,
+  border: `1px solid ${palette.teal}`,
+  borderRadius: 6,
+  color: palette.text,
+  flex: 1,
+  fontFamily,
+  fontSize: 11.5,
+  minWidth: 0,
+  padding: "5px 8px",
+};
+
 export const detailStyle: CSSProperties = {
   borderLeft: `1px solid ${palette.line}`,
   display: "flex",

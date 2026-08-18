@@ -1,4 +1,5 @@
 import type { FetchDevtoolsCacheAdapter } from "../cache-adapter";
+import type { FetchDevtoolsPreset } from "../core";
 import type { DevtoolsTab } from "./panel";
 import { Panel } from "./panel";
 import { panelInteractionCss } from "./styles";
@@ -7,6 +8,7 @@ export type DevtoolsPanelProps = {
   cacheAdapter?: FetchDevtoolsCacheAdapter;
   extraTabs?: DevtoolsTab[];
   onRevalidate?: (key: string) => void;
+  presets?: FetchDevtoolsPreset[];
 };
 
 const noop = () => {
@@ -18,6 +20,7 @@ export const DevtoolsPanel = ({
   cacheAdapter,
   extraTabs,
   onRevalidate,
+  presets,
 }: DevtoolsPanelProps) => {
   if (typeof window === "undefined") return null;
   const api = window.__API_DEVTOOLS__;
@@ -29,6 +32,7 @@ export const DevtoolsPanel = ({
         api={api}
         cacheAdapter={cacheAdapter}
         extraTabs={extraTabs}
+        presets={presets}
         zIndex={0}
         embedded
         shown

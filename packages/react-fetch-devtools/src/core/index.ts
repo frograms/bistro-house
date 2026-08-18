@@ -3,6 +3,7 @@ export { installFetchDevtools } from "./install";
 export { createMemoryStorage } from "./safe-storage";
 export type {
   FetchDevtoolsApi,
+  FetchDevtoolsPreset,
   FetchDevtoolsRecord,
   FetchDevtoolsRule,
   FetchDevtoolsRuleInput,
