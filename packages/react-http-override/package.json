@@ -2,6 +2,7 @@
   "name": "@watcha-authentic/react-http-override",
   "description": "Fetch observation and error simulation devtools panel",
   "version": "1.0.0",
+  "sideEffects": false,
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/react-http-override#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
@@ -10,7 +11,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/frograms/bistro-house.git"
+    "url": "git+https://github.com/frograms/bistro-house.git",
+    "directory": "packages/react-http-override"
   },
   "bugs": {
     "url": "https://github.com/frograms/bistro-house/issues",
@@ -56,16 +58,42 @@
     "react": ">=17.0.0",
     "react-dom": ">=17.0.0"
   },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./core": {
-      "types": "./dist/core.d.ts",
-      "import": "./dist/core.mjs",
-      "require": "./dist/core.cjs"
+      "import": {
+        "types": "./dist/core.d.mts",
+        "default": "./dist/core.mjs"
+      },
+      "require": {
+        "types": "./dist/core.d.ts",
+        "default": "./dist/core.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "core": [
+        "./dist/core.d.ts"
+      ]
     }
   },
   "main": "./dist/index.cjs",

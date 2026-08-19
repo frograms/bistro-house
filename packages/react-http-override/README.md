@@ -11,7 +11,7 @@ staging 환경에서 fetch 요청을 관찰하고 에러·지연·빈 상태를 
 - `@watcha-authentic/react-http-override/core` — React 없이 동작하는 코어. 부팅 최상단에서 `installHttpOverride`로 설치합니다.
 - `@watcha-authentic/react-http-override` — 런처 버튼·패널 등 React UI. 코어의 export도 함께 제공합니다.
 
-릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=react-http-override)
+릴리즈: [CHANGELOG](https://github.com/frograms/bistro-house/blob/master/packages/react-http-override/CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=react-http-override)
 
 ## Table of contents
 
@@ -30,7 +30,7 @@ staging 환경에서 fetch 요청을 관찰하고 에러·지연·빈 상태를 
 
 ### Peer dependencies
 
-**React와 React DOM은 프로젝트에 함께 설치해야 합니다.** `/core` 엔트리만 쓴다면 React 없이도 동작합니다.
+**패널 UI를 쓴다면 React와 React DOM을 프로젝트에 함께 설치해야 합니다.** `/core` 엔트리만 쓴다면 React 없이도 동작하며, peer 의존성이 optional로 선언돼 있어 React 없는 프로젝트에서도 설치 경고가 나지 않습니다.
 
 - `react` `>=17.0.0`
 - `react-dom` `>=17.0.0`
@@ -224,7 +224,7 @@ export const PRESETS: HttpOverridePreset[] = [
 
 ### Building custom UI with hooks
 
-`useRecords` · `useRules` · `useLauncherVisible` 훅으로 요청 기록·룰·런처 표시 여부를 구독해 자체 UI를 만들 수 있습니다.
+`useRecords` , `useRules` , `useLauncherVisible` , `usePresetNames` 훅으로 요청 기록·룰·런처 표시 여부·프리셋 이름을 구독해 자체 UI를 만들 수 있습니다.
 
 ```tsx
 import {
@@ -401,6 +401,22 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `visible` | `boolean` | 런처 버튼 표시 여부 |
+
+### usePresetNames
+
+패널에서 바꾼 프리셋 이름 맵을 구독하는 훅입니다.
+
+#### Parameters
+
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `api` | `HttpOverrideApi` | — | `installHttpOverride`가 반환한 API |
+
+#### Returns
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `names` | `Record<string, string>` | 프리셋 id -> 패널에서 바꾼 이름. 안 바꾼 프리셋은 키가 없습니다 |
 
 ### HttpOverrideApi
 
