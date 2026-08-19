@@ -39,6 +39,15 @@ describe("createRuleStore", () => {
     expect(createRuleStore(storage).getSnapshot()).toEqual([rule]);
   });
 
+  it("같은 id로 add하면 쌓이지 않고 교체된다 (upsert)", () => {
+    const store = createRuleStore(createMemoryStorage());
+    store.add({ id: "fixed", pattern: "users", status: 500 });
+    store.add({ delayMs: 1000, id: "fixed", pattern: "users" });
+    expect(store.getSnapshot()).toEqual([
+      { delayMs: 1000, id: "fixed", pattern: "users" },
+    ]);
+  });
+
   it("update / remove / clear", () => {
     const store = createRuleStore(createMemoryStorage());
     const rule = store.add({ pattern: "users", status: 500 });

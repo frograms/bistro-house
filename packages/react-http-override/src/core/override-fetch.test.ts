@@ -248,7 +248,7 @@ describe("createOverrideFetch", () => {
 
   it("지연 룰과 패치 룰이 동시에 매칭되면 둘 다 적용된다", async () => {
     vi.useFakeTimers();
-    const { overrideFetch } = setup(
+    const { baseFetch, overrideFetch } = setup(
       [
         { delayMs: 1000, id: "r-delay", pattern: "contents" },
         { id: "r-patch", patch: [{ path: "title", value: "바뀜" }], pattern: "api/contents" },
@@ -259,9 +259,61 @@ describe("createOverrideFetch", () => {
       }
     );
     const promise = overrideFetch("https://api.test/api/contents");
+    expect(baseFetch).not.toHaveBeenCalled();
     await vi.advanceTimersByTimeAsync(1000);
     const response = await promise;
     await expect(response.json()).resolves.toEqual({ title: "바뀜" });
+  });
+
+  it("status 룰이 있으면 매칭된 모든 패치를 억제한다", async () => {
+    const { baseFetch, buffer, overrideFetch } = setup([
+      { id: "r-patch", patch: [{ path: "title", value: "바뀜" }], pattern: "users" },
+      { body: '{"title":"목"}', id: "r-status", pattern: "users", status: 200 },
+    ]);
+    const response = await overrideFetch("https://api.test/users");
+    expect(baseFetch).not.toHaveBeenCalled();
+    await expect(response.json()).resolves.toEqual({ title: "목" });
+    expect(buffer.getSnapshot()[0]).toMatchObject({
+      mocked: true,
+      ruleId: "r-status",
+    });
+  });
+
+  it("여러 룰의 패치가 룰 순서대로 전부 병합된다", async () => {
+    const { overrideFetch } = setup(
+      [
+        { id: "r1", patch: [{ path: "a", value: 1 }], pattern: "users" },
+        {
+          id: "r2",
+          patch: [
+            { path: "a", value: 2 },
+            { path: "b", value: 2 },
+          ],
+          pattern: "api",
+        },
+      ],
+      {
+        baseFetch: async () =>
+          new Response('{"a":0,"b":0,"keep":true}', { status: 200 }),
+      }
+    );
+    const response = await overrideFetch("https://api.test/users");
+    await expect(response.json()).resolves.toEqual({
+      a: 2,
+      b: 2,
+      keep: true,
+    });
+  });
+
+  it("여러 status 룰이 매칭되면 첫 룰이 이긴다", async () => {
+    const { buffer, overrideFetch } = setup([
+      { body: '{"from":"first"}', id: "s1", pattern: "users", status: 500 },
+      { body: '{"from":"second"}', id: "s2", pattern: "api", status: 404 },
+    ]);
+    const response = await overrideFetch("https://api.test/users");
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toEqual({ from: "first" });
+    expect(buffer.getSnapshot()[0]?.ruleId).toBe("s1");
   });
 
   it("Request 객체 입력에서도 url과 method를 읽는다", async () => {
