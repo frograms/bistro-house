@@ -1,12 +1,12 @@
-export type FetchDevtoolsCacheEntry = {
+export type HttpOverrideCacheEntry = {
   data?: unknown;
   error?: unknown;
   isValidating?: boolean;
   key: string;
 };
 
-export type FetchDevtoolsCacheAdapter = {
-  getEntries(): FetchDevtoolsCacheEntry[];
+export type HttpOverrideCacheAdapter = {
+  getEntries(): HttpOverrideCacheEntry[];
 };
 
 export type SwrLikeCache = {
@@ -29,7 +29,7 @@ export const createSwrAdapter = ({
   cache: SwrLikeCache;
   mutate: SwrLikeMutate;
 }): {
-  cacheAdapter: FetchDevtoolsCacheAdapter;
+  cacheAdapter: HttpOverrideCacheAdapter;
   onRevalidate: (key: string) => void;
 } => ({
   cacheAdapter: {

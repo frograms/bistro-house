@@ -1,22 +1,22 @@
 import { useSyncExternalStore } from "use-sync-external-store/shim";
 
 import type {
-  FetchDevtoolsApi,
-  FetchDevtoolsRecord,
-  FetchDevtoolsRule,
+  HttpOverrideApi,
+  HttpOverrideRecord,
+  HttpOverrideRule,
 } from "../core";
 
-export const useRecords = (api: FetchDevtoolsApi): FetchDevtoolsRecord[] =>
+export const useRecords = (api: HttpOverrideApi): HttpOverrideRecord[] =>
   useSyncExternalStore(api.records.subscribe, api.records.getSnapshot);
 
-export const useRules = (api: FetchDevtoolsApi): FetchDevtoolsRule[] =>
+export const useRules = (api: HttpOverrideApi): HttpOverrideRule[] =>
   useSyncExternalStore(api.rules.subscribe, api.rules.getSnapshot);
 
-export const useLauncherVisible = (api: FetchDevtoolsApi): boolean =>
+export const useLauncherVisible = (api: HttpOverrideApi): boolean =>
   useSyncExternalStore(api.launcher.subscribe, api.launcher.getSnapshot);
 
 export const usePresetNames = (
-  api: FetchDevtoolsApi
+  api: HttpOverrideApi
 ): Record<string, string> =>
   useSyncExternalStore(
     api.presetNames.subscribe,

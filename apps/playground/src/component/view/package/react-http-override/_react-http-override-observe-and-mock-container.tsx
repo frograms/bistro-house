@@ -1,6 +1,6 @@
-import type { FetchDevtoolsApi } from "@packages/react-http-override/src/core";
-import { installFetchDevtools } from "@packages/react-http-override/src/core";
-import { DevtoolsLauncher } from "@packages/react-http-override/src/panel/devtools-launcher";
+import type { HttpOverrideApi } from "@packages/react-http-override/src/core";
+import { installHttpOverride } from "@packages/react-http-override/src/core";
+import { HttpOverrideLauncher } from "@packages/react-http-override/src/panel/http-override-launcher";
 import { useRecords, useRules } from "@packages/react-http-override/src/panel/hooks";
 import { CommonCodeBlock } from "@playground/component/view/_common/common-code-block";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
@@ -25,20 +25,20 @@ const MOCK_500_BODY = JSON.stringify({
 });
 
 const NOTE_ITEMS = [
-  "window.fetch를 덮어쓰지 않고, 앱 API 관문이 위임하는 구조입니다: (window.__API_DEVTOOLS__?.fetch ?? fetch)",
+  "window.fetch를 덮어쓰지 않고, 앱 API 관문이 위임하는 구조입니다: (window.__HTTP_OVERRIDE__?.fetch ?? fetch)",
   "룰은 sessionStorage에 저장되어 새로고침 후에도 유지됩니다 (탭 격리).",
   "실서비스 응답 모양을 본뜬 로컬 데모 API를 호출합니다 (실제 서버 아님).",
   "앱이 정의한 프리셋은 요청 행을 펼치면 그 API에 맞는 것만 나타납니다 (이름도 바꿀 수 있어요).",
 ];
 
 const CODE_EXAMPLE = `// ① 부팅 최상단 (하이드레이션 전)
-installFetchDevtools({ enabled: isStaging });
+installHttpOverride({ enabled: isStaging });
 
 // ② 앱 API 관문 — 자발적 위임 한 줄
-const response = await (window.__API_DEVTOOLS__?.fetch ?? fetch)(url, init);
+const response = await (window.__HTTP_OVERRIDE__?.fetch ?? fetch)(url, init);
 
 // ③ 앱 루트 (React.lazy 권장)
-<DevtoolsLauncher enabled={isStaging} />;`;
+<HttpOverrideLauncher enabled={isStaging} />;`;
 
 type DemoEndpoint = "contents" | "friend-ratings";
 
@@ -62,7 +62,7 @@ type View =
   | { kind: "error"; message: string; status: number }
   | { kind: "loading" };
 
-const ObserveAndMockExample = ({ api }: { api: FetchDevtoolsApi }) => {
+const ObserveAndMockExample = ({ api }: { api: HttpOverrideApi }) => {
   const rules = useRules(api);
   const records = useRecords(api);
   const [view, setView] = useState<View | null>(null);
@@ -75,7 +75,7 @@ const ObserveAndMockExample = ({ api }: { api: FetchDevtoolsApi }) => {
     setView({ kind: "loading" });
     const startedAt = Date.now();
     try {
-      const response = await (window.__API_DEVTOOLS__?.fetch ?? fetch)(
+      const response = await (window.__HTTP_OVERRIDE__?.fetch ?? fetch)(
         `${DEMO_API_BASE}/${endpoint}`
       );
       const text = await response.text();
@@ -263,7 +263,7 @@ const ObserveAndMockExample = ({ api }: { api: FetchDevtoolsApi }) => {
 
       <CommonExampleStatePanel items={stateItems} />
 
-      <DevtoolsLauncher
+      <HttpOverrideLauncher
         presets={DEMO_PRESETS}
         enabled
         onRevalidate={handleRevalidate}
@@ -275,7 +275,7 @@ const ObserveAndMockExample = ({ api }: { api: FetchDevtoolsApi }) => {
 };
 
 export const ReactHttpOverrideObserveAndMockContainer = () => {
-  const [api] = useState(() => installFetchDevtools({ enabled: true }));
+  const [api] = useState(() => installHttpOverride({ enabled: true }));
   if (api === null) return null;
   return <ObserveAndMockExample api={api} />;
 };

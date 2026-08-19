@@ -1,28 +1,28 @@
-import { createDevtoolsFetch } from "./devtools-fetch";
 import { createLauncherVisibility } from "./launcher-visibility";
+import { createOverrideFetch } from "./override-fetch";
 import { createPresetNameStore } from "./preset-names";
 import { createRecordBuffer } from "./record-buffer";
 import { createRuleStore } from "./rule-store";
 import { createSafeStorage } from "./safe-storage";
-import type { FetchDevtoolsApi, FetchDevtoolsStorage } from "./types";
+import type { HttpOverrideApi, HttpOverrideStorage } from "./types";
 
-export type InstallFetchDevtoolsOptions = {
+export type InstallHttpOverrideOptions = {
   baseFetch?: typeof fetch;
   enabled: boolean;
   maxBodyBytes?: number;
   maxRecords?: number;
-  storage?: FetchDevtoolsStorage;
+  storage?: HttpOverrideStorage;
 };
 
 /** enabled=false 또는 SSR이면 no-op. 중복 호출 시 기존 설치 반환 */
-export const installFetchDevtools = (
-  options: InstallFetchDevtoolsOptions
-): FetchDevtoolsApi | null => {
+export const installHttpOverride = (
+  options: InstallHttpOverrideOptions
+): HttpOverrideApi | null => {
   const { baseFetch, enabled, maxBodyBytes, maxRecords, storage } = options;
 
   if (!enabled) return null;
   if (typeof window === "undefined") return null;
-  if (window.__API_DEVTOOLS__ !== undefined) return window.__API_DEVTOOLS__;
+  if (window.__HTTP_OVERRIDE__ !== undefined) return window.__HTTP_OVERRIDE__;
 
   const sessionStore =
     storage ?? createSafeStorage(() => window.sessionStorage);
@@ -36,8 +36,8 @@ export const installFetchDevtools = (
   const defaultBaseFetch: typeof fetch = (input, init) =>
     window.fetch(input, init);
 
-  const api: FetchDevtoolsApi = {
-    fetch: createDevtoolsFetch({
+  const api: HttpOverrideApi = {
+    fetch: createOverrideFetch({
       baseFetch: baseFetch ?? defaultBaseFetch,
       buffer,
       getRules: ruleStore.getSnapshot,
@@ -71,6 +71,6 @@ export const installFetchDevtools = (
     toggle: launcher.toggle,
   };
 
-  window.__API_DEVTOOLS__ = api;
+  window.__HTTP_OVERRIDE__ = api;
   return api;
 };

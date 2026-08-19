@@ -1,6 +1,6 @@
-import type { FetchDevtoolsStorage } from "./types";
+import type { HttpOverrideStorage } from "./types";
 
-export const createMemoryStorage = (): FetchDevtoolsStorage => {
+export const createMemoryStorage = (): HttpOverrideStorage => {
   const map = new Map<string, string>();
 
   return {
@@ -16,10 +16,10 @@ export const createMemoryStorage = (): FetchDevtoolsStorage => {
 
 /** Web Storage가 없거나 throw하는 환경(일부 웹뷰나 시크릿 모드)에서는 인메모리로 폴백 */
 export const createSafeStorage = (
-  getBackingStore: () => FetchDevtoolsStorage | undefined
-): FetchDevtoolsStorage => {
+  getBackingStore: () => HttpOverrideStorage | undefined
+): HttpOverrideStorage => {
   const memory = createMemoryStorage();
-  const backing = (): FetchDevtoolsStorage | undefined => {
+  const backing = (): HttpOverrideStorage | undefined => {
     try {
       return getBackingStore();
     } catch {

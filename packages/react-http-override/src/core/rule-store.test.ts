@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createRuleStore } from "./rule-store";
 import { createMemoryStorage } from "./safe-storage";
 
-const STORAGE_KEY = "__API_DEVTOOLS_RULES__";
+const STORAGE_KEY = "__HTTP_OVERRIDE_RULES__";
 
 describe("createRuleStore", () => {
   it("add는 id를 생성하고 storage에 영속한다", () => {

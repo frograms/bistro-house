@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { createRecordBuffer } from "./record-buffer";
-import type { FetchDevtoolsRecord } from "./types";
+import type { HttpOverrideRecord } from "./types";
 
 const input = (
-  overrides: Partial<Omit<FetchDevtoolsRecord, "seq">> = {}
-): Omit<FetchDevtoolsRecord, "seq"> => ({
+  overrides: Partial<Omit<HttpOverrideRecord, "seq">> = {}
+): Omit<HttpOverrideRecord, "seq"> => ({
   durationMs: 10,
   method: "GET",
   mocked: false,

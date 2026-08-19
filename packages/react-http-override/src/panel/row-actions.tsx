@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
-import type { FetchDevtoolsApi, FetchDevtoolsRecord } from "../core";
+import type { HttpOverrideApi, HttpOverrideRecord } from "../core";
 import { useRules } from "./hooks";
 import {
   actionBodyHintBrokenStyle,
@@ -17,9 +17,9 @@ import {
 } from "./styles";
 
 export type RowActionsProps = {
-  api: FetchDevtoolsApi;
+  api: HttpOverrideApi;
   onRevalidate?: (key: string) => void;
-  record: FetchDevtoolsRecord;
+  record: HttpOverrideRecord;
 };
 
 const escapeRegExp = (value: string): string =>

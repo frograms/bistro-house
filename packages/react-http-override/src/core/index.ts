@@ -1,12 +1,12 @@
-export type { InstallFetchDevtoolsOptions } from "./install";
-export { installFetchDevtools } from "./install";
+export type { InstallHttpOverrideOptions } from "./install";
+export { installHttpOverride } from "./install";
 export { createMemoryStorage } from "./safe-storage";
 export type {
-  FetchDevtoolsApi,
-  FetchDevtoolsPreset,
-  FetchDevtoolsRecord,
-  FetchDevtoolsRule,
-  FetchDevtoolsRuleInput,
-  FetchDevtoolsStorage,
-  FetchDevtoolsSubscribe,
+  HttpOverrideApi,
+  HttpOverridePreset,
+  HttpOverrideRecord,
+  HttpOverrideRule,
+  HttpOverrideRuleInput,
+  HttpOverrideStorage,
+  HttpOverrideSubscribe,
 } from "./types";

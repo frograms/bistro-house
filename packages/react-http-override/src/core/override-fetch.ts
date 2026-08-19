@@ -1,5 +1,5 @@
 import type { RecordBuffer } from "./record-buffer";
-import type { FetchDevtoolsRule } from "./types";
+import type { HttpOverrideRule } from "./types";
 
 /** 저사양 기기 메모리 보호용 */
 export const DEFAULT_MAX_BODY_BYTES = 64 * 1024;
@@ -9,10 +9,10 @@ const NULL_BODY_STATUSES = new Set([204, 205, 304]);
 
 const TEXTUAL_CONTENT_TYPE = /json|text|xml|javascript|urlencoded/i;
 
-export type CreateDevtoolsFetchOptions = {
+export type CreateOverrideFetchOptions = {
   baseFetch: typeof fetch;
   buffer: RecordBuffer;
-  getRules(): FetchDevtoolsRule[];
+  getRules(): HttpOverrideRule[];
   maxBodyBytes?: number;
 };
 
@@ -36,9 +36,9 @@ const resolveMethod = (
 };
 
 const matchRules = (
-  rules: FetchDevtoolsRule[],
+  rules: HttpOverrideRule[],
   url: string
-): FetchDevtoolsRule[] =>
+): HttpOverrideRule[] =>
   rules.filter((rule) => {
     try {
       return new RegExp(rule.pattern).test(url);
@@ -53,7 +53,7 @@ const truncateBody = (text: string, maxBodyBytes: number): string =>
     : text;
 
 const createMockResponse = (
-  rule: FetchDevtoolsRule
+  rule: HttpOverrideRule
 ): { body: string | null; response: Response } | null => {
   const body =
     rule.status !== undefined && NULL_BODY_STATUSES.has(rule.status)
@@ -120,8 +120,8 @@ const applyPatches = (
   }
 };
 
-export const createDevtoolsFetch = (
-  options: CreateDevtoolsFetchOptions
+export const createOverrideFetch = (
+  options: CreateOverrideFetchOptions
 ): typeof fetch => {
   const {
     baseFetch,

@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { FetchDevtoolsCacheAdapter } from "../cache-adapter";
-import type { FetchDevtoolsApi, FetchDevtoolsPreset } from "../core";
+import type { HttpOverrideCacheAdapter } from "../cache-adapter";
+import type { HttpOverrideApi, HttpOverridePreset } from "../core";
 import { CacheTab } from "./cache-tab";
 import { useRecords, useRules } from "./hooks";
 import { RequestDetail } from "./request-detail";
@@ -47,20 +47,20 @@ const OPEN_EASE = "cubic-bezier(0.22, 1.2, 0.36, 1)";
 const CLOSE_EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
 
 /** 임베드 탭 계약 — RQ devtools 패널 등 무엇이든 render()로 주입 (lazy 청크 안에서) */
-export type DevtoolsTab = {
+export type HttpOverrideTab = {
   key: string;
   label: string;
   render: () => ReactNode;
 };
 
 export type PanelProps = {
-  api: FetchDevtoolsApi;
-  cacheAdapter?: FetchDevtoolsCacheAdapter;
+  api: HttpOverrideApi;
+  cacheAdapter?: HttpOverrideCacheAdapter;
   embedded?: boolean;
-  extraTabs?: DevtoolsTab[];
+  extraTabs?: HttpOverrideTab[];
   onClose: () => void;
   onRevalidate?: (key: string) => void;
-  presets?: FetchDevtoolsPreset[];
+  presets?: HttpOverridePreset[];
   shown: boolean;
   zIndex: number;
 };

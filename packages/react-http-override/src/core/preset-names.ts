@@ -1,7 +1,7 @@
 import { createStore } from "./create-store";
-import type { FetchDevtoolsStorage } from "./types";
+import type { HttpOverrideStorage } from "./types";
 
-const STORAGE_KEY = "__API_DEVTOOLS_PRESET_NAMES__";
+const STORAGE_KEY = "__HTTP_OVERRIDE_PRESET_NAMES__";
 
 export type PresetNameStore = {
   getSnapshot(): Record<string, string>;
@@ -11,7 +11,7 @@ export type PresetNameStore = {
 };
 
 const loadNames = (
-  storage: FetchDevtoolsStorage
+  storage: HttpOverrideStorage
 ): Record<string, string> => {
   try {
     const raw = storage.getItem(STORAGE_KEY);
@@ -30,7 +30,7 @@ const loadNames = (
 };
 
 export const createPresetNameStore = (
-  storage: FetchDevtoolsStorage
+  storage: HttpOverrideStorage
 ): PresetNameStore => {
   const store = createStore<Record<string, string>>(loadNames(storage));
 

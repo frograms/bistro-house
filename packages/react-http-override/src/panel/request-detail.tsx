@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
 
 import type {
-  FetchDevtoolsApi,
-  FetchDevtoolsPreset,
-  FetchDevtoolsRecord,
+  HttpOverrideApi,
+  HttpOverridePreset,
+  HttpOverrideRecord,
 } from "../core";
 import { useRules } from "./hooks";
 import { JsonViewer } from "./json-viewer";
@@ -30,10 +30,10 @@ import {
 } from "./styles";
 
 export type RequestDetailProps = {
-  api: FetchDevtoolsApi;
+  api: HttpOverrideApi;
   onRevalidate?: (key: string) => void;
-  presets?: FetchDevtoolsPreset[];
-  record: FetchDevtoolsRecord;
+  presets?: HttpOverridePreset[];
+  record: HttpOverrideRecord;
 };
 
 const pad2 = (value: number): string => String(value).padStart(2, "0");

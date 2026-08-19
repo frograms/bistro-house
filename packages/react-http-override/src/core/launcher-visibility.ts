@@ -1,13 +1,13 @@
 import { createStore } from "./create-store";
-import type { FetchDevtoolsStorage } from "./types";
+import type { HttpOverrideStorage } from "./types";
 
-const STORAGE_KEY = "__API_DEVTOOLS_LAUNCHER_HIDDEN__";
+const STORAGE_KEY = "__HTTP_OVERRIDE_LAUNCHER_HIDDEN__";
 
 export const RESTORE_HINT =
-  "[react-http-override] devtool 버튼을 숨겼습니다. 콘솔에서 __API_DEVTOOLS__.show() 로 다시 표시할 수 있습니다.";
+  "[react-http-override] devtool 버튼을 숨겼습니다. 콘솔에서 __HTTP_OVERRIDE__.show() 로 다시 표시할 수 있습니다.";
 
 export const HIDDEN_ON_LOAD_HINT =
-  "[react-http-override] devtool 버튼이 숨김 상태입니다. 콘솔에서 __API_DEVTOOLS__.show() 로 표시할 수 있습니다.";
+  "[react-http-override] devtool 버튼이 숨김 상태입니다. 콘솔에서 __HTTP_OVERRIDE__.show() 로 표시할 수 있습니다.";
 
 export type LauncherVisibility = {
   getSnapshot(): boolean;
@@ -18,7 +18,7 @@ export type LauncherVisibility = {
 };
 
 export const createLauncherVisibility = (
-  storage: FetchDevtoolsStorage
+  storage: HttpOverrideStorage
 ): LauncherVisibility => {
   const store = createStore<boolean>(storage.getItem(STORAGE_KEY) === null);
 

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import type { FetchDevtoolsRecord } from "../core";
+import type { HttpOverrideRecord } from "../core";
 import { JsonTree } from "./json-tree";
 import { detailBodyStyle, detailEmptyBodyStyle } from "./styles";
 
@@ -21,7 +21,7 @@ export const JsonViewer = ({
 }: {
   onEditPath?: (path: string, current: unknown) => void;
   onEmptyPath?: (path: string, suggested: unknown) => void;
-  record: FetchDevtoolsRecord;
+  record: HttpOverrideRecord;
 }) => {
   const parsed = useMemo(
     () =>

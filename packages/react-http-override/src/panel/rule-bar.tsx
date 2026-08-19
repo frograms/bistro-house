@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import type { FetchDevtoolsApi, FetchDevtoolsRule } from "../core";
+import type { HttpOverrideApi, HttpOverrideRule } from "../core";
 import { useRules } from "./hooks";
 import {
   chipErrorStyle,
@@ -13,7 +13,7 @@ import {
   ruleRowStyle,
 } from "./styles";
 
-const summarize = (rule: FetchDevtoolsRule): string => {
+const summarize = (rule: HttpOverrideRule): string => {
   const facets: string[] = [];
   if (rule.status !== undefined) facets.push(String(rule.status));
   if (rule.patch !== undefined) facets.push(`패치 ${rule.patch.length}`);
@@ -21,7 +21,7 @@ const summarize = (rule: FetchDevtoolsRule): string => {
   return facets.length > 0 ? facets.join(" · ") : "-";
 };
 
-export const RuleBar = ({ api }: { api: FetchDevtoolsApi }) => {
+export const RuleBar = ({ api }: { api: HttpOverrideApi }) => {
   const rules = useRules(api);
   const [expanded, setExpanded] = useState(false);
 

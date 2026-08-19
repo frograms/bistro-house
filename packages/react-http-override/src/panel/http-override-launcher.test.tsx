@@ -9,12 +9,12 @@ import {
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMemoryStorage, installFetchDevtools } from "../core";
-import { DevtoolsLauncher } from "./devtools-launcher";
-import { DevtoolsPanel } from "./devtools-panel";
+import { createMemoryStorage, installHttpOverride } from "../core";
+import { HttpOverrideLauncher } from "./http-override-launcher";
+import { HttpOverridePanel } from "./http-override-panel";
 
 const install = (baseFetch?: typeof fetch) => {
-  const api = installFetchDevtools({
+  const api = installHttpOverride({
     baseFetch:
       baseFetch ?? (async () => new Response("{}", { status: 200 })),
     enabled: true,
@@ -24,7 +24,7 @@ const install = (baseFetch?: typeof fetch) => {
   return api;
 };
 
-describe("DevtoolsLauncher", () => {
+describe("HttpOverrideLauncher", () => {
   beforeEach(() => {
     vi.spyOn(console, "info").mockImplementation(() => undefined);
   });
@@ -32,7 +32,7 @@ describe("DevtoolsLauncher", () => {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
-    delete window.__API_DEVTOOLS__;
+    delete window.__HTTP_OVERRIDE__;
     try {
       window.localStorage.clear();
     } catch {
@@ -40,9 +40,9 @@ describe("DevtoolsLauncher", () => {
     }
   });
 
-  it("DevtoolsPanel(임베드)은 버튼·닫기 없이 부모 안에 렌더된다", async () => {
+  it("HttpOverridePanel(임베드)은 버튼·닫기 없이 부모 안에 렌더된다", async () => {
     const api = install();
-    render(<DevtoolsPanel />);
+    render(<HttpOverridePanel />);
     expect(screen.queryByRole("button", { name: "API devtools" })).toBeNull();
     expect(screen.queryByRole("button", { name: "패널 닫기" })).toBeNull();
     expect(screen.getByText("아직 기록된 요청이 없습니다")).toBeTruthy();
@@ -52,25 +52,25 @@ describe("DevtoolsLauncher", () => {
     expect(screen.getByRole("button", { name: /settings/ })).toBeTruthy();
   });
 
-  it("DevtoolsPanel은 전역 미설치면 null", () => {
-    const { container } = render(<DevtoolsPanel />);
+  it("HttpOverridePanel은 전역 미설치면 null", () => {
+    const { container } = render(<HttpOverridePanel />);
     expect(container.innerHTML).toBe("");
   });
 
   it("enabled=false면 아무것도 그리지 않는다", () => {
     install();
-    render(<DevtoolsLauncher enabled={false} />);
+    render(<HttpOverrideLauncher enabled={false} />);
     expect(screen.queryByRole("button", { name: "API devtools" })).toBeNull();
   });
 
   it("전역이 설치돼 있지 않으면 아무것도 그리지 않는다", () => {
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     expect(screen.queryByRole("button", { name: "API devtools" })).toBeNull();
   });
 
   it("런처 버튼을 그리고, hide()에 반응해 숨긴다", () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     expect(screen.getByRole("button", { name: "API devtools" })).toBeTruthy();
     act(() => {
       api.hide();
@@ -85,7 +85,7 @@ describe("DevtoolsLauncher", () => {
   it("활성 룰이 있으면 런처 버튼에 개수 뱃지가 보인다", () => {
     const api = install();
     api.rules.add({ pattern: "settings", status: 500 });
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     const button = screen.getByRole("button", { name: "API devtools" });
     expect(button.textContent).toContain("1");
     act(() => {
@@ -96,7 +96,7 @@ describe("DevtoolsLauncher", () => {
 
   it("활성 룰이 매칭되는 행은 좌측 스트라이프가 켜진다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -115,7 +115,7 @@ describe("DevtoolsLauncher", () => {
 
   it("버튼 클릭으로 패널이 열리고, Esc로 닫힌다", async () => {
     install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     expect(screen.getByRole("dialog")).toBeTruthy();
     expect(screen.getByText("아직 기록된 요청이 없습니다")).toBeTruthy();
@@ -132,7 +132,7 @@ describe("DevtoolsLauncher", () => {
       pattern: "friend_ratings",
       status: 500,
     });
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
 
     await act(async () => {
@@ -153,7 +153,7 @@ describe("DevtoolsLauncher", () => {
       pattern: "friend_ratings",
       status: 500,
     });
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/friend_ratings");
@@ -172,7 +172,7 @@ describe("DevtoolsLauncher", () => {
 
   it("같은 method+URL은 한 행으로 묶이고 왼쪽 카운트가 올라간다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -189,7 +189,7 @@ describe("DevtoolsLauncher", () => {
   it("재요청 버튼은 onRevalidate가 있을 때만 보이고, 행의 URL로 호출한다", async () => {
     const api = install();
     const onRevalidate = vi.fn();
-    render(<DevtoolsLauncher enabled onRevalidate={onRevalidate} />);
+    render(<HttpOverrideLauncher enabled onRevalidate={onRevalidate} />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -203,7 +203,7 @@ describe("DevtoolsLauncher", () => {
 
   it("onRevalidate 미주입이면 재요청 버튼이 없다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -214,7 +214,7 @@ describe("DevtoolsLauncher", () => {
 
   it("에러 적용은 URL을 이스케이프한 룰을 만들어 다음 요청부터 목킹한다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/posts?userId=1");
@@ -242,7 +242,7 @@ describe("DevtoolsLauncher", () => {
     const api = install(
       async () => new Response('{"items":[1,2],"total":2}', { status: 200 })
     );
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/list");
@@ -265,7 +265,7 @@ describe("DevtoolsLauncher", () => {
       async () => new Response('{"items":[1,2],"total":2}', { status: 200 })
     );
     const onRevalidate = vi.fn();
-    render(<DevtoolsLauncher enabled onRevalidate={onRevalidate} />);
+    render(<HttpOverrideLauncher enabled onRevalidate={onRevalidate} />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/list");
@@ -295,7 +295,7 @@ describe("DevtoolsLauncher", () => {
     const api = install();
     api.rules.add({ pattern: "settings", status: 500 });
     api.rules.add({ delayMs: 3000, pattern: "posts" });
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
 
     fireEvent.click(screen.getByRole("button", { name: /룰 2개/ }));
@@ -318,7 +318,7 @@ describe("DevtoolsLauncher", () => {
         { error: "boom", key: "/fail" },
       ],
     };
-    render(<DevtoolsLauncher cacheAdapter={cacheAdapter} enabled />);
+    render(<HttpOverrideLauncher cacheAdapter={cacheAdapter} enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     fireEvent.click(screen.getByRole("button", { name: "Cache" }));
     expect(screen.getByText("/settings")).toBeTruthy();
@@ -334,7 +334,7 @@ describe("DevtoolsLauncher", () => {
         render: () => <div>RQ 패널 자리</div>,
       },
     ];
-    render(<DevtoolsLauncher extraTabs={extraTabs} enabled />);
+    render(<HttpOverrideLauncher extraTabs={extraTabs} enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     expect(screen.queryByText("RQ 패널 자리")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "React Query" }));
@@ -345,7 +345,7 @@ describe("DevtoolsLauncher", () => {
 
   it("cacheAdapter 미주입이면 Cache 탭이 없다", () => {
     install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     expect(screen.queryByRole("button", { name: "Cache" })).toBeNull();
   });
@@ -353,7 +353,7 @@ describe("DevtoolsLauncher", () => {
   it("상태 칩 필터·URL 검색·Clear가 동작한다", async () => {
     const api = install();
     api.rules.add({ pattern: "fail", status: 500 });
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -384,7 +384,7 @@ describe("DevtoolsLauncher", () => {
       pattern: "settings",
       status: 404,
     });
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -405,7 +405,7 @@ describe("DevtoolsLauncher", () => {
 
   it("지연 룰이 앞에 있어도 뒤의 에러 룰을 찾아 표시·프리필한다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -437,7 +437,7 @@ describe("DevtoolsLauncher", () => {
 
   it("메시지에 JSON 객체를 넣으면 그대로 body로 쓴다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -455,7 +455,7 @@ describe("DevtoolsLauncher", () => {
 
   it("같은 종류 트리거는 교체되고, 지연·에러 룰은 공존한다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -480,7 +480,7 @@ describe("DevtoolsLauncher", () => {
 
   it("행에서 만든 룰은 정확히 그 URL만 매칭한다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -506,7 +506,7 @@ describe("DevtoolsLauncher", () => {
 
   it("트리거 교체는 패치 룰을 지우지 않는다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -528,7 +528,7 @@ describe("DevtoolsLauncher", () => {
 
   it("행이 열려 있는 동안 생긴 룰 값으로 입력칸이 동기화된다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -558,7 +558,7 @@ describe("DevtoolsLauncher", () => {
 
   it("status 목 룰이 켜져 있으면 Data Explorer에 패치 대기 힌트를 띄운다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -585,7 +585,7 @@ describe("DevtoolsLauncher", () => {
 
   it("복합 룰에 지연을 적용하면 delayMs만 갱신되고 status는 보존된다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -607,7 +607,7 @@ describe("DevtoolsLauncher", () => {
 
   it("지연 버튼은 delayMs 룰을 만들고, 룰 해제는 매칭 룰을 지운다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
       await api.fetch("https://api.test/settings");
@@ -627,7 +627,7 @@ describe("DevtoolsLauncher", () => {
 
   it("패널의 버튼 숨기기는 런처 스토어를 갱신하고 패널도 닫는다", async () => {
     const api = install();
-    render(<DevtoolsLauncher enabled />);
+    render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     fireEvent.click(screen.getByRole("button", { name: "버튼 숨기기" }));
     expect(api.launcher.getSnapshot()).toBe(false);

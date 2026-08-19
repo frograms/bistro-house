@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import type { FetchDevtoolsCacheAdapter } from "../cache-adapter";
-import type { FetchDevtoolsApi, FetchDevtoolsPreset } from "../core";
+import type { HttpOverrideCacheAdapter } from "../cache-adapter";
+import type { HttpOverrideApi, HttpOverridePreset } from "../core";
 import { useLauncherVisible, useRules } from "./hooks";
-import type { DevtoolsTab } from "./panel";
+import type { HttpOverrideTab } from "./panel";
 import { Panel, PANEL_CLOSE_DURATION_MS } from "./panel";
 import {
   launcherButtonActiveStyle,
@@ -14,16 +14,16 @@ import {
   panelInteractionCss,
 } from "./styles";
 
-export type DevtoolsLauncherProps = {
+export type HttpOverrideLauncherProps = {
   /** SWR이면 createSwrAdapter로 생성 — 미주입 시 Cache 탭 숨김 */
-  cacheAdapter?: FetchDevtoolsCacheAdapter;
+  cacheAdapter?: HttpOverrideCacheAdapter;
   enabled: boolean;
   /** 확장 탭 — RQ devtools 패널 임베드 지점 */
-  extraTabs?: DevtoolsTab[];
+  extraTabs?: HttpOverrideTab[];
   /** 재요청 콜백 — 미주입 시 재요청 버튼 숨김 */
   onRevalidate?: (key: string) => void;
   /** 앱이 정의한 룰 묶음 */
-  presets?: FetchDevtoolsPreset[];
+  presets?: HttpOverridePreset[];
   zIndex?: number;
 };
 
@@ -35,11 +35,11 @@ const LauncherContent = ({
   presets,
   zIndex,
 }: {
-  api: FetchDevtoolsApi;
-  cacheAdapter?: FetchDevtoolsCacheAdapter;
-  extraTabs?: DevtoolsTab[];
+  api: HttpOverrideApi;
+  cacheAdapter?: HttpOverrideCacheAdapter;
+  extraTabs?: HttpOverrideTab[];
   onRevalidate?: (key: string) => void;
-  presets?: FetchDevtoolsPreset[];
+  presets?: HttpOverridePreset[];
   zIndex: number;
 }) => {
   const visible = useLauncherVisible(api);
@@ -128,16 +128,16 @@ const LauncherContent = ({
   );
 };
 
-export const DevtoolsLauncher = ({
+export const HttpOverrideLauncher = ({
   cacheAdapter,
   enabled,
   extraTabs,
   onRevalidate,
   presets,
   zIndex = 999999,
-}: DevtoolsLauncherProps) => {
+}: HttpOverrideLauncherProps) => {
   if (!enabled || typeof window === "undefined") return null;
-  const api = window.__API_DEVTOOLS__;
+  const api = window.__HTTP_OVERRIDE__;
   if (api === undefined) return null;
   return (
     <LauncherContent

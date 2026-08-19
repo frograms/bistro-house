@@ -1,4 +1,4 @@
-export type FetchDevtoolsRule = {
+export type HttpOverrideRule = {
   body?: string;
   delayMs?: number;
   id: string;
@@ -9,19 +9,19 @@ export type FetchDevtoolsRule = {
   status?: number;
 };
 
-export type FetchDevtoolsRuleInput = Omit<FetchDevtoolsRule, "id"> & {
+export type HttpOverrideRuleInput = Omit<HttpOverrideRule, "id"> & {
   id?: string;
 };
 
 /** 앱이 정의해 패널에 넘기는 룰 묶음 — 목록에서 하나 고르면 적용 */
-export type FetchDevtoolsPreset = {
+export type HttpOverridePreset = {
   description?: string;
   id: string;
   name: string;
-  rules: FetchDevtoolsRuleInput[];
+  rules: HttpOverrideRuleInput[];
 };
 
-export type FetchDevtoolsRecord = {
+export type HttpOverrideRecord = {
   durationMs: number;
   error?: string;
   method: string;
@@ -38,39 +38,39 @@ export type FetchDevtoolsRecord = {
   url: string;
 };
 
-export type FetchDevtoolsStorage = {
+export type HttpOverrideStorage = {
   getItem(key: string): string | null;
   removeItem(key: string): void;
   setItem(key: string, value: string): void;
 };
 
-export type FetchDevtoolsSubscribe = (listener: () => void) => () => void;
+export type HttpOverrideSubscribe = (listener: () => void) => () => void;
 
-export type FetchDevtoolsApi = {
+export type HttpOverrideApi = {
   fetch: typeof fetch;
   hide(): void;
   launcher: {
     getSnapshot(): boolean;
-    subscribe: FetchDevtoolsSubscribe;
+    subscribe: HttpOverrideSubscribe;
   };
   presetNames: {
     getSnapshot(): Record<string, string>;
     reset(id: string): void;
     set(id: string, name: string): void;
-    subscribe: FetchDevtoolsSubscribe;
+    subscribe: HttpOverrideSubscribe;
   };
   records: {
     clear(): void;
-    getSnapshot(): FetchDevtoolsRecord[];
-    subscribe: FetchDevtoolsSubscribe;
+    getSnapshot(): HttpOverrideRecord[];
+    subscribe: HttpOverrideSubscribe;
   };
   rules: {
-    add(input: FetchDevtoolsRuleInput): FetchDevtoolsRule;
+    add(input: HttpOverrideRuleInput): HttpOverrideRule;
     clear(): void;
-    getSnapshot(): FetchDevtoolsRule[];
+    getSnapshot(): HttpOverrideRule[];
     remove(id: string): void;
-    subscribe: FetchDevtoolsSubscribe;
-    update(id: string, patch: Partial<Omit<FetchDevtoolsRule, "id">>): void;
+    subscribe: HttpOverrideSubscribe;
+    update(id: string, patch: Partial<Omit<HttpOverrideRule, "id">>): void;
   };
   show(): void;
   toggle(): void;
@@ -78,6 +78,6 @@ export type FetchDevtoolsApi = {
 
 declare global {
   interface Window {
-    __API_DEVTOOLS__?: FetchDevtoolsApi;
+    __HTTP_OVERRIDE__?: HttpOverrideApi;
   }
 }

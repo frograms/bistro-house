@@ -1,14 +1,14 @@
-import type { FetchDevtoolsCacheAdapter } from "../cache-adapter";
-import type { FetchDevtoolsPreset } from "../core";
-import type { DevtoolsTab } from "./panel";
+import type { HttpOverrideCacheAdapter } from "../cache-adapter";
+import type { HttpOverridePreset } from "../core";
+import type { HttpOverrideTab } from "./panel";
 import { Panel } from "./panel";
 import { panelInteractionCss } from "./styles";
 
-export type DevtoolsPanelProps = {
-  cacheAdapter?: FetchDevtoolsCacheAdapter;
-  extraTabs?: DevtoolsTab[];
+export type HttpOverridePanelProps = {
+  cacheAdapter?: HttpOverrideCacheAdapter;
+  extraTabs?: HttpOverrideTab[];
   onRevalidate?: (key: string) => void;
-  presets?: FetchDevtoolsPreset[];
+  presets?: HttpOverridePreset[];
 };
 
 const noop = () => {
@@ -16,14 +16,14 @@ const noop = () => {
 };
 
 /** 버튼·포털·고정 위치 없는 임베더블 패널 — 남의 셸 안에 컴포넌트로 꽂는 용도 */
-export const DevtoolsPanel = ({
+export const HttpOverridePanel = ({
   cacheAdapter,
   extraTabs,
   onRevalidate,
   presets,
-}: DevtoolsPanelProps) => {
+}: HttpOverridePanelProps) => {
   if (typeof window === "undefined") return null;
-  const api = window.__API_DEVTOOLS__;
+  const api = window.__HTTP_OVERRIDE__;
   if (api === undefined) return null;
   return (
     <>

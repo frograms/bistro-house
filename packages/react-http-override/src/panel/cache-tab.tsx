@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import type { FetchDevtoolsCacheAdapter } from "../cache-adapter";
+import type { HttpOverrideCacheAdapter } from "../cache-adapter";
 import { JsonTree } from "./json-tree";
 import {
   chipErrorStyle,
@@ -22,7 +22,7 @@ const POLL_MS = 500;
 export const CacheTab = ({
   cacheAdapter,
 }: {
-  cacheAdapter: FetchDevtoolsCacheAdapter;
+  cacheAdapter: HttpOverrideCacheAdapter;
 }) => {
   const [entries, setEntries] = useState(() => cacheAdapter.getEntries());
   const [selectedKey, setSelectedKey] = useState<string | null>(null);

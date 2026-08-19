@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
 
 import type {
-  FetchDevtoolsApi,
-  FetchDevtoolsPreset,
-  FetchDevtoolsRecord,
+  HttpOverrideApi,
+  HttpOverridePreset,
+  HttpOverrideRecord,
 } from "../core";
 import { usePresetNames, useRules } from "./hooks";
 import {
@@ -42,10 +42,10 @@ const matchesAny = (patterns: string[], url: string): boolean =>
   });
 
 export type PresetSectionProps = {
-  api: FetchDevtoolsApi;
+  api: HttpOverrideApi;
   onRevalidate?: (key: string) => void;
-  presets: FetchDevtoolsPreset[];
-  record: FetchDevtoolsRecord;
+  presets: HttpOverridePreset[];
+  record: HttpOverrideRecord;
 };
 
 export const PresetSection = ({
@@ -91,7 +91,7 @@ export const PresetSection = ({
   );
 
   const handleSelect = useCallback(
-    (preset: FetchDevtoolsPreset) => {
+    (preset: HttpOverridePreset) => {
       const clearedPatterns: string[] = [];
       for (const rule of api.rules.getSnapshot()) {
         if (presetIdOf(rule.id) === null) continue;
@@ -115,7 +115,7 @@ export const PresetSection = ({
   );
 
   const applyName = useCallback(
-    (preset: FetchDevtoolsPreset, name: string | null) => {
+    (preset: HttpOverridePreset, name: string | null) => {
       if (name === null) api.presetNames.reset(preset.id);
       else api.presetNames.set(preset.id, name);
 
@@ -131,7 +131,7 @@ export const PresetSection = ({
   );
 
   const handleRenameCommit = useCallback(
-    (preset: FetchDevtoolsPreset) => {
+    (preset: HttpOverridePreset) => {
       const next = editValue.trim();
       applyName(preset, next === "" || next === preset.name ? null : next);
     },

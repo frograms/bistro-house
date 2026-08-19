@@ -1,4 +1,4 @@
-import type { FetchDevtoolsRecord } from "../core";
+import type { HttpOverrideRecord } from "../core";
 import {
   chipErrorStyle,
   chipOkStyle,
@@ -21,7 +21,7 @@ import {
 export type RequestGroup = {
   count: number;
   key: string;
-  latest: FetchDevtoolsRecord;
+  latest: HttpOverrideRecord;
 };
 
 export type RequestTableProps = {
@@ -39,10 +39,10 @@ const formatTime = (epochMs: number): string => {
   return `${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
 };
 
-const isErrorStatus = (record: FetchDevtoolsRecord): boolean =>
+const isErrorStatus = (record: HttpOverrideRecord): boolean =>
   record.status === 0 || record.status >= 400;
 
-const StatusChip = ({ record }: { record: FetchDevtoolsRecord }) => {
+const StatusChip = ({ record }: { record: HttpOverrideRecord }) => {
   if (record.status === 0) {
     return <span style={chipErrorStyle}>ERR</span>;
   }
