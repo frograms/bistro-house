@@ -10,6 +10,9 @@ export type PresetNameStore = {
   subscribe(listener: () => void): () => void;
 };
 
+/** 저장 모양이 바뀌면 올림 — 버전이 다른 저장분은 버림 */
+const SCHEMA_VERSION = 1;
+
 const loadNames = (
   storage: HttpOverrideStorage
 ): Record<string, string> => {
@@ -17,10 +20,17 @@ const loadNames = (
     const raw = storage.getItem(STORAGE_KEY);
     if (raw === null) return {};
     const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    if (typeof parsed !== "object" || parsed === null) return {};
+    const envelope = parsed as { names?: unknown; v?: unknown };
+    if (
+      envelope.v !== SCHEMA_VERSION ||
+      typeof envelope.names !== "object" ||
+      envelope.names === null ||
+      Array.isArray(envelope.names)
+    ) {
       return {};
     }
-    const entries = Object.entries(parsed).filter(
+    const entries = Object.entries(envelope.names).filter(
       ([, value]) => typeof value === "string"
     );
     return Object.fromEntries(entries) as Record<string, string>;
@@ -37,7 +47,7 @@ export const createPresetNameStore = (
   const setNames = (names: Record<string, string>) => {
     store.setSnapshot(names);
     try {
-      storage.setItem(STORAGE_KEY, JSON.stringify(names));
+      storage.setItem(STORAGE_KEY, JSON.stringify({ names, v: SCHEMA_VERSION }));
     } catch {
       // 실패해도 메모리 상태로 계속 동작
     }

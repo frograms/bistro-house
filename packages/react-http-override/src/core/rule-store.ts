@@ -23,13 +23,20 @@ const isRule = (value: unknown): value is HttpOverrideRule =>
   typeof (value as HttpOverrideRule).id === "string" &&
   typeof (value as HttpOverrideRule).pattern === "string";
 
+/** 룰 모양이 바뀌면 올림 — 버전이 다른 저장분은 통째로 버림 */
+const SCHEMA_VERSION = 1;
+
 const loadRules = (storage: HttpOverrideStorage): HttpOverrideRule[] => {
   try {
     const raw = storage.getItem(STORAGE_KEY);
     if (raw === null) return [];
     const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isRule);
+    if (typeof parsed !== "object" || parsed === null) return [];
+    const envelope = parsed as { rules?: unknown; v?: unknown };
+    if (envelope.v !== SCHEMA_VERSION || !Array.isArray(envelope.rules)) {
+      return [];
+    }
+    return envelope.rules.filter(isRule);
   } catch {
     return [];
   }
@@ -46,7 +53,7 @@ export const createRuleStore = (storage: HttpOverrideStorage): RuleStore => {
   const setRules = (rules: HttpOverrideRule[]) => {
     store.setSnapshot(rules);
     try {
-      storage.setItem(STORAGE_KEY, JSON.stringify(rules));
+      storage.setItem(STORAGE_KEY, JSON.stringify({ rules, v: SCHEMA_VERSION }));
     } catch {
       // 실패해도 메모리 상태로 계속 동작
     }

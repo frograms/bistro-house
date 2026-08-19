@@ -12,7 +12,25 @@ describe("createRuleStore", () => {
     const rule = store.add({ pattern: "users", status: 500 });
     expect(rule.id).toBeTruthy();
     expect(store.getSnapshot()).toEqual([rule]);
-    expect(JSON.parse(storage.getItem(STORAGE_KEY) ?? "[]")).toEqual([rule]);
+    expect(JSON.parse(storage.getItem(STORAGE_KEY) ?? "{}")).toEqual({
+      rules: [rule],
+      v: 1,
+    });
+  });
+
+  it("스키마 버전이 다르거나 버전이 없는 저장분은 버린다", () => {
+    const storage = createMemoryStorage();
+    storage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([{ id: "old", pattern: "users" }])
+    );
+    expect(createRuleStore(storage).getSnapshot()).toEqual([]);
+
+    storage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ rules: [{ id: "v2", pattern: "users" }], v: 2 })
+    );
+    expect(createRuleStore(storage).getSnapshot()).toEqual([]);
   });
 
   it("같은 storage로 새로 만들면 룰이 복원된다", () => {
