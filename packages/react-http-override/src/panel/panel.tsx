@@ -293,7 +293,7 @@ export const Panel = ({
         )}
         {activeExtraTab === undefined &&
           (activeTab === "cache" && cacheAdapter !== undefined ? (
-            <CacheTab cacheAdapter={cacheAdapter} />
+            <CacheTab cacheAdapter={cacheAdapter} onRevalidate={onRevalidate} />
           ) : (
             <>
               <div style={filterBarStyle}>

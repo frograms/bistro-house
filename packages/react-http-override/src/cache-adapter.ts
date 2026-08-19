@@ -35,7 +35,9 @@ export const createSwrAdapter = ({
         };
       }),
   },
-  onRevalidate: (key) => {
-    void mutate(key);
+  onRevalidate: (url) => {
+    for (const key of cache.keys()) {
+      if (key.includes(url)) void mutate(key);
+    }
   },
 });

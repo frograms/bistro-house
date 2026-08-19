@@ -325,6 +325,26 @@ describe("HttpOverrideLauncher", () => {
     expect(screen.getByText("error")).toBeTruthy();
   });
 
+  it("Cache 탭에서 엔트리를 고르면 재검증 버튼이 onRevalidate를 그 키로 호출한다", () => {
+    install();
+    const onRevalidate = vi.fn();
+    const cacheAdapter = {
+      getEntries: () => [{ data: { ok: true }, key: "/settings" }],
+    };
+    render(
+      <HttpOverrideLauncher
+        cacheAdapter={cacheAdapter}
+        enabled
+        onRevalidate={onRevalidate}
+      />
+    );
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cache" }));
+    fireEvent.click(screen.getByRole("button", { name: "/settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "재검증" }));
+    expect(onRevalidate).toHaveBeenCalledExactlyOnceWith("/settings");
+  });
+
   it("extraTabs가 탭으로 꽂히고 render 결과를 마운트한다", () => {
     install();
     const extraTabs = [

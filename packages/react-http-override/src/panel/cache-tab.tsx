@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import type { HttpOverrideCacheAdapter } from "../core";
 import { JsonTree } from "./json-tree";
 import {
+  actionPrimaryButtonStyle,
+  actionRowStyle,
   chipErrorStyle,
   chipOkStyle,
   detailSectionBodyStyle,
@@ -21,8 +23,10 @@ const POLL_MS = 500;
 
 export const CacheTab = ({
   cacheAdapter,
+  onRevalidate,
 }: {
   cacheAdapter: HttpOverrideCacheAdapter;
+  onRevalidate?: (key: string) => void;
 }) => {
   const [entries, setEntries] = useState(() => cacheAdapter.getEntries());
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
@@ -81,6 +85,18 @@ export const CacheTab = ({
       {selected !== null && (
         <aside style={detailStyle}>
           <div style={detailSectionBodyStyle}>
+            {onRevalidate !== undefined && (
+              <div style={actionRowStyle}>
+                <button
+                  className={panelClassNames.actionButton}
+                  style={actionPrimaryButtonStyle}
+                  type="button"
+                  onClick={() => onRevalidate(selected.key)}
+                >
+                  재검증
+                </button>
+              </div>
+            )}
             <JsonTree
             key={selected.key}
               value={{ data: selected.data, error: selected.error }}

@@ -318,7 +318,7 @@ devtools 코어를 설치하고 `window.__HTTP_OVERRIDE__`에 할당합니다. `
 | ---- | ---- | ------- | ----------- |
 | `enabled` | `boolean` | — | `false`면 렌더하지 않습니다 |
 | `cacheAdapter` | `HttpOverrideCacheAdapter` | — | Cache 탭 데이터 소스. SWR이면 `createSwrAdapter`로 생성합니다. 없으면 Cache 탭을 숨깁니다 |
-| `onRevalidate` | `(key: string) => void` | — | Cache 탭의 재요청 콜백. 없으면 재요청 버튼을 숨깁니다 |
+| `onRevalidate` | `(key: string) => void` | — | 재요청 콜백. API 탭의 재요청·트리 편집·프리셋은 요청 URL로, Cache 탭 재검증은 캐시 키로 호출합니다. 없으면 재요청 버튼을 숨깁니다 |
 | `extraTabs` | `HttpOverrideTab[]` | — | 패널에 추가할 확장 탭 |
 | `presets` | `HttpOverridePreset[]` | — | 앱이 정의한 룰 묶음. 요청 행 상세에서 URL이 매칭되는 프리셋을 골라 적용합니다 |
 | `zIndex` | `number` | `999999` | 런처 버튼·패널의 z-index |
@@ -332,7 +332,7 @@ devtools 코어를 설치하고 `window.__HTTP_OVERRIDE__`에 할당합니다. `
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `cacheAdapter` | `HttpOverrideCacheAdapter` | — | Cache 탭 데이터 소스. 없으면 Cache 탭을 숨깁니다 |
-| `onRevalidate` | `(key: string) => void` | — | Cache 탭의 재요청 콜백. 없으면 재요청 버튼을 숨깁니다 |
+| `onRevalidate` | `(key: string) => void` | — | 재요청 콜백. API 탭의 재요청·트리 편집·프리셋은 요청 URL로, Cache 탭 재검증은 캐시 키로 호출합니다. 없으면 재요청 버튼을 숨깁니다 |
 | `extraTabs` | `HttpOverrideTab[]` | — | 패널에 추가할 확장 탭 |
 | `presets` | `HttpOverridePreset[]` | — | 앱이 정의한 룰 묶음. 요청 행 상세에서 URL이 매칭되는 프리셋을 골라 적용합니다 |
 
@@ -352,7 +352,7 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `cacheAdapter` | `HttpOverrideCacheAdapter` | `HttpOverrideLauncher`·`HttpOverridePanel`의 `cacheAdapter`로 전달 |
-| `onRevalidate` | `(key: string) => void` | 해당 키를 `mutate`로 재검증. `onRevalidate` prop으로 전달 |
+| `onRevalidate` | `(url: string) => void` | 전달받은 URL을 포함하는 캐시 키를 전부 `mutate`로 재검증 (배열 키도 직렬화 형태로 매칭). `onRevalidate` prop으로 전달 |
 
 ### useRecords
 

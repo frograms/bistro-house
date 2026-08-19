@@ -19,10 +19,24 @@ describe("createSwrAdapter", () => {
     expect(entries[1]?.error).toBeInstanceOf(Error);
   });
 
-  it("onRevalidate가 mutate를 그 키로 호출한다", () => {
+  it("onRevalidate는 URL을 포함하는 캐시 키만 mutate한다 (배열 직렬화 키 포함)", () => {
+    const mutate = vi.fn();
+    const cache = new Map<string, unknown>([
+      ["/api/settings", {}],
+      ['@"/api/settings","ko",', {}],
+      ["/api/others", {}],
+    ]);
+    const { onRevalidate } = createSwrAdapter({ cache, mutate });
+    onRevalidate("/api/settings");
+    expect(mutate).toHaveBeenCalledTimes(2);
+    expect(mutate).toHaveBeenCalledWith("/api/settings");
+    expect(mutate).toHaveBeenCalledWith('@"/api/settings","ko",');
+  });
+
+  it("onRevalidate는 매칭되는 키가 없으면 mutate하지 않는다", () => {
     const mutate = vi.fn();
     const { onRevalidate } = createSwrAdapter({ cache: new Map(), mutate });
     onRevalidate("/settings");
-    expect(mutate).toHaveBeenCalledExactlyOnceWith("/settings");
+    expect(mutate).not.toHaveBeenCalled();
   });
 });
