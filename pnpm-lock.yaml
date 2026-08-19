@@ -504,7 +504,7 @@ importers:
         specifier: ^4.1.8
         version: 4.1.8(@types/node@24.13.3)(happy-dom@20.10.2)(vite@8.1.4(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))
 
-  packages/react-fetch-devtools:
+  packages/react-http-override:
     dependencies:
       use-sync-external-store:
         specifier: ^1.2.0

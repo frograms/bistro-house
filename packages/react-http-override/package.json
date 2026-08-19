@@ -1,8 +1,8 @@
 {
-  "name": "@watcha-authentic/react-fetch-devtools",
+  "name": "@watcha-authentic/react-http-override",
   "description": "Fetch observation and error simulation devtools panel",
   "version": "1.0.0",
-  "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/react-fetch-devtools#readme",
+  "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/react-http-override#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
     "email": "web-dev-group@watcha.com",

@@ -1,9 +1,9 @@
-import reactFetchDevtoolsReadme from "@packages/react-fetch-devtools/README.md?raw";
+import reactHttpOverrideReadme from "@packages/react-http-override/README.md?raw";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
 import { CommonReadme } from "@playground/component/view/_common/common-readme";
 
-export const ReactFetchDevtoolsDocumentationContainer = () => (
+export const ReactHttpOverrideDocumentationContainer = () => (
   <CommonContainer>
-    <CommonReadme markdown={reactFetchDevtoolsReadme} />
+    <CommonReadme markdown={reactHttpOverrideReadme} />
   </CommonContainer>
 );

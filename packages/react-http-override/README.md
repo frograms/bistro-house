@@ -1,6 +1,6 @@
-# @watcha-authentic/react-fetch-devtools
+# @watcha-authentic/react-http-override
 
-[![npm version](https://img.shields.io/npm/v/@watcha-authentic/react-fetch-devtools)](https://www.npmjs.com/package/@watcha-authentic/react-fetch-devtools)
+[![npm version](https://img.shields.io/npm/v/@watcha-authentic/react-http-override)](https://www.npmjs.com/package/@watcha-authentic/react-http-override)
 
 staging 환경에서 fetch 요청을 관찰하고 에러·지연·빈 상태를 시뮬레이션하는 devtools 패널입니다. SWR 앱을 1급으로 지원합니다.
 
@@ -8,10 +8,10 @@ staging 환경에서 fetch 요청을 관찰하고 에러·지연·빈 상태를 
 
 엔트리는 2개입니다.
 
-- `@watcha-authentic/react-fetch-devtools/core` — React 없이 동작하는 코어. 부팅 최상단에서 `installFetchDevtools`로 설치합니다.
-- `@watcha-authentic/react-fetch-devtools` — 런처 버튼·패널 등 React UI. 코어의 export도 함께 제공합니다.
+- `@watcha-authentic/react-http-override/core` — React 없이 동작하는 코어. 부팅 최상단에서 `installFetchDevtools`로 설치합니다.
+- `@watcha-authentic/react-http-override` — 런처 버튼·패널 등 React UI. 코어의 export도 함께 제공합니다.
 
-릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=react-fetch-devtools)
+릴리즈: [CHANGELOG](./CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=react-http-override)
 
 ## Table of contents
 
@@ -40,7 +40,7 @@ staging 환경에서 fetch 요청을 관찰하고 에러·지연·빈 상태를 
 ### Install this package
 
 ```bash
-pnpm add @watcha-authentic/react-fetch-devtools
+pnpm add @watcha-authentic/react-http-override
 ```
 
 ### Install peer dependencies
@@ -58,7 +58,7 @@ pnpm add react@>=17.0.0 react-dom@>=17.0.0
 1 — 부팅 최상단(엔트리 파일 가장 위)에서 코어를 설치합니다. SSR에서는 no-op이고, HMR로 다시 실행돼도 기존 설치를 재사용합니다. `enabled: false`면 아무것도 하지 않습니다.
 
 ```ts
-import { installFetchDevtools } from "@watcha-authentic/react-fetch-devtools/core";
+import { installFetchDevtools } from "@watcha-authentic/react-http-override/core";
 
 installFetchDevtools({ enabled: import.meta.env.MODE === "staging" });
 ```
@@ -76,7 +76,7 @@ const apiFetch = (url: string, init?: RequestInit) =>
 import { lazy, Suspense } from "react";
 
 const DevtoolsLauncher = lazy(() =>
-  import("@watcha-authentic/react-fetch-devtools").then((module) => ({
+  import("@watcha-authentic/react-http-override").then((module) => ({
     default: module.DevtoolsLauncher,
   }))
 );
@@ -101,7 +101,7 @@ const App = () => (
 import {
   createSwrAdapter,
   DevtoolsLauncher,
-} from "@watcha-authentic/react-fetch-devtools";
+} from "@watcha-authentic/react-http-override";
 import { useMemo } from "react";
 import { useSWRConfig } from "swr";
 
@@ -129,7 +129,7 @@ const DevtoolsMount = () => {
 import {
   DevtoolsLauncher,
   type DevtoolsTab,
-} from "@watcha-authentic/react-fetch-devtools";
+} from "@watcha-authentic/react-http-override";
 import { lazy } from "react";
 
 const ReactQueryPanel = lazy(() =>
@@ -154,7 +154,7 @@ const App = () => <DevtoolsLauncher enabled extraTabs={extraTabs} />;
 반대로 이 패널을 다른 devtools 셸 안에 꽂을 수도 있습니다. `DevtoolsPanel`은 런처 버튼·포털·고정 위치가 없는 임베더블 패널로, React Query의 `ReactQueryDevtoolsPanel`에 대응합니다. 열고 닫는 것은 감싸는 쪽이 담당합니다.
 
 ```tsx
-import { DevtoolsPanel } from "@watcha-authentic/react-fetch-devtools";
+import { DevtoolsPanel } from "@watcha-authentic/react-http-override";
 
 const MyDevtoolsShell = () => (
   <aside>
@@ -196,7 +196,7 @@ api?.rules.add({
 
 ```tsx
 // presets.ts — 목 데이터가 무거우므로 패널과 같은 lazy 청크에 둡니다
-import type { FetchDevtoolsPreset } from "@watcha-authentic/react-fetch-devtools/core";
+import type { FetchDevtoolsPreset } from "@watcha-authentic/react-http-override/core";
 
 export const PRESETS: FetchDevtoolsPreset[] = [
   {
@@ -232,7 +232,7 @@ import {
   useLauncherVisible,
   useRecords,
   useRules,
-} from "@watcha-authentic/react-fetch-devtools";
+} from "@watcha-authentic/react-http-override";
 
 const RequestLog = ({ api }: { api: FetchDevtoolsApi }) => {
   const records = useRecords(api);
@@ -263,7 +263,7 @@ const RequestLog = ({ api }: { api: FetchDevtoolsApi }) => {
 import {
   createMemoryStorage,
   installFetchDevtools,
-} from "@watcha-authentic/react-fetch-devtools/core";
+} from "@watcha-authentic/react-http-override/core";
 
 installFetchDevtools({ enabled: true, storage: createMemoryStorage() });
 ```

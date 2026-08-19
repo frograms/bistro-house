@@ -83,19 +83,19 @@ export const MENU_INFO: ReadonlyArray<MenuInfo> = [
   },
   {
     githubUrl:
-      "https://github.com/frograms/bistro-house/tree/master/packages/react-fetch-devtools#readme",
+      "https://github.com/frograms/bistro-house/tree/master/packages/react-http-override#readme",
     items: [
       {
         exampleLabel: "예제 - 요청 관찰과 목 응답 주입",
-        path: "/react-fetch-devtools/observe-and-mock",
+        path: "/react-http-override/observe-and-mock",
       },
     ],
     npmUrl:
-      "https://www.npmjs.com/package/@watcha-authentic/react-fetch-devtools",
+      "https://www.npmjs.com/package/@watcha-authentic/react-http-override",
     packageDescription: "Fetch observation and error simulation devtools panel",
     packageLabel: "React Fetch Devtools",
-    packageName: "@watcha-authentic/react-fetch-devtools",
-    path: "/react-fetch-devtools",
+    packageName: "@watcha-authentic/react-http-override",
+    path: "/react-http-override",
     showTableOfContents: true,
   },
 ];

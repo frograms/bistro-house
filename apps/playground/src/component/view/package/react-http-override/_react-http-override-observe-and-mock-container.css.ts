@@ -1,6 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
-export const reactFetchDevtoolsObserveAndMockContainerCss = {
+export const reactHttpOverrideObserveAndMockContainerCss = {
   callButton: style({
     ":hover": {
       borderColor: "#ff0558",

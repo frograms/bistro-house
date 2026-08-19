@@ -1,7 +1,7 @@
-import type { FetchDevtoolsApi } from "@packages/react-fetch-devtools/src/core";
-import { installFetchDevtools } from "@packages/react-fetch-devtools/src/core";
-import { DevtoolsLauncher } from "@packages/react-fetch-devtools/src/panel/devtools-launcher";
-import { useRecords, useRules } from "@packages/react-fetch-devtools/src/panel/hooks";
+import type { FetchDevtoolsApi } from "@packages/react-http-override/src/core";
+import { installFetchDevtools } from "@packages/react-http-override/src/core";
+import { DevtoolsLauncher } from "@packages/react-http-override/src/panel/devtools-launcher";
+import { useRecords, useRules } from "@packages/react-http-override/src/panel/hooks";
 import { CommonCodeBlock } from "@playground/component/view/_common/common-code-block";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
 import {
@@ -10,8 +10,8 @@ import {
   CommonExampleStatePanel,
 } from "@playground/component/view/_common/common-example-panels";
 import { CommonNote } from "@playground/component/view/_common/common-note";
-import { reactFetchDevtoolsObserveAndMockContainerCss as css } from "@playground/component/view/package/react-fetch-devtools/_react-fetch-devtools-observe-and-mock-container.css";
-import { DEMO_PRESETS } from "@playground/component/view/package/react-fetch-devtools/_shared/demo-presets";
+import { reactHttpOverrideObserveAndMockContainerCss as css } from "@playground/component/view/package/react-http-override/_react-http-override-observe-and-mock-container.css";
+import { DEMO_PRESETS } from "@playground/component/view/package/react-http-override/_shared/demo-presets";
 import { commonExampleControlsCss } from "@playground/resource/css/common/common-example-controls.css";
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
@@ -274,7 +274,7 @@ const ObserveAndMockExample = ({ api }: { api: FetchDevtoolsApi }) => {
   );
 };
 
-export const ReactFetchDevtoolsObserveAndMockContainer = () => {
+export const ReactHttpOverrideObserveAndMockContainer = () => {
   const [api] = useState(() => installFetchDevtools({ enabled: true }));
   if (api === null) return null;
   return <ObserveAndMockExample api={api} />;

@@ -1,4 +1,4 @@
-import type { FetchDevtoolsPreset } from "@packages/react-fetch-devtools/src/core";
+import type { FetchDevtoolsPreset } from "@packages/react-http-override/src/core";
 
 /** 앱이 정의해 넘기는 프리셋 — 목 데이터가 무거우므로 패널과 같은 lazy 청크에 둡니다 */
 export const DEMO_PRESETS: FetchDevtoolsPreset[] = [

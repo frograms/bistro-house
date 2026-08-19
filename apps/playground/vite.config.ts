@@ -2,7 +2,7 @@ import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin, type UserConfig } from "vite";
 
-import { DEMO_API_FIXTURES } from "./src/component/view/package/react-fetch-devtools/_shared/demo-api-fixtures";
+import { DEMO_API_FIXTURES } from "./src/component/view/package/react-http-override/_shared/demo-api-fixtures";
 
 type BuildConfig = "development" | "production";
 
