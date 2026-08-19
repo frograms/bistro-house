@@ -5,6 +5,7 @@ import type {
   HttpOverridePreset,
   HttpOverrideRecord,
 } from "../core";
+import { presetIdOf, presetRuleId, ruleMatchesUrl } from "../core";
 import { usePresetNames, useRules } from "./hooks";
 import {
   detailSectionBodyStyle,
@@ -19,27 +20,8 @@ import {
   treeCopyButtonStyle,
 } from "./styles";
 
-const RULE_ID_PREFIX = "preset:";
-
-const presetRuleId = (presetId: string, index: number): string =>
-  `${RULE_ID_PREFIX}${presetId}:${index}`;
-
-/** preset:<id>:<n>에서 <id> — 마지막 세그먼트만 인덱스로 분리 */
-const presetIdOf = (ruleId: string): string | null => {
-  if (!ruleId.startsWith(RULE_ID_PREFIX)) return null;
-  const lastColon = ruleId.lastIndexOf(":");
-  if (lastColon < RULE_ID_PREFIX.length) return null;
-  return ruleId.slice(RULE_ID_PREFIX.length, lastColon);
-};
-
 const matchesAny = (patterns: string[], url: string): boolean =>
-  patterns.some((pattern) => {
-    try {
-      return new RegExp(pattern).test(url);
-    } catch {
-      return false;
-    }
-  });
+  patterns.some((pattern) => ruleMatchesUrl(pattern, url));
 
 export type PresetSectionProps = {
   api: HttpOverrideApi;

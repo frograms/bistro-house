@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 
 import type { HttpOverrideApi, HttpOverrideRecord } from "../core";
+import { exactUrlPattern, ruleMatchesUrl } from "../core";
 import { useRules } from "./hooks";
 import {
   actionBodyHintBrokenStyle,
@@ -21,12 +22,6 @@ export type RowActionsProps = {
   onRevalidate?: (key: string) => void;
   record: HttpOverrideRecord;
 };
-
-const escapeRegExp = (value: string): string =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-export const exactUrlPattern = (url: string): string =>
-  `^${escapeRegExp(url)}$`;
 
 type BodyKind = "broken" | "json" | "text";
 
@@ -76,13 +71,7 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
 
   const matchedRules = useMemo(
     () =>
-      rules.filter((rule) => {
-        try {
-          return new RegExp(rule.pattern).test(record.url);
-        } catch {
-          return false;
-        }
-      }),
+      rules.filter((rule) => ruleMatchesUrl(rule.pattern, record.url)),
     [record.url, rules]
   );
 

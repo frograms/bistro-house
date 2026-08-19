@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import type { HttpOverrideCacheAdapter } from "../cache-adapter";
+import type { HttpOverrideCacheAdapter } from "../core";
 import { JsonTree } from "./json-tree";
 import {
   chipErrorStyle,

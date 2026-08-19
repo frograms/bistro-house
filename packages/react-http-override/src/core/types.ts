@@ -38,6 +38,17 @@ export type HttpOverrideRecord = {
   url: string;
 };
 
+export type HttpOverrideCacheEntry = {
+  data?: unknown;
+  error?: unknown;
+  isValidating?: boolean;
+  key: string;
+};
+
+export type HttpOverrideCacheAdapter = {
+  getEntries(): HttpOverrideCacheEntry[];
+};
+
 export type HttpOverrideStorage = {
   getItem(key: string): string | null;
   removeItem(key: string): void;

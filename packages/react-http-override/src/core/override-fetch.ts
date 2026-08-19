@@ -1,4 +1,5 @@
 import type { RecordBuffer } from "./record-buffer";
+import { ruleMatchesUrl } from "./rule-match";
 import type { HttpOverrideRule } from "./types";
 
 /** 저사양 기기 메모리 보호용 */
@@ -39,13 +40,7 @@ const matchRules = (
   rules: HttpOverrideRule[],
   url: string
 ): HttpOverrideRule[] =>
-  rules.filter((rule) => {
-    try {
-      return new RegExp(rule.pattern).test(url);
-    } catch {
-      return false;
-    }
-  });
+  rules.filter((rule) => ruleMatchesUrl(rule.pattern, url));
 
 const truncateBody = (text: string, maxBodyBytes: number): string =>
   text.length > maxBodyBytes

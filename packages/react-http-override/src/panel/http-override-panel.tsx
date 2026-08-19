@@ -1,15 +1,8 @@
-import type { HttpOverrideCacheAdapter } from "../cache-adapter";
-import type { HttpOverridePreset } from "../core";
-import type { HttpOverrideTab } from "./panel";
+import type { HttpOverridePanelOptions } from "./panel";
 import { Panel } from "./panel";
 import { panelInteractionCss } from "./styles";
 
-export type HttpOverridePanelProps = {
-  cacheAdapter?: HttpOverrideCacheAdapter;
-  extraTabs?: HttpOverrideTab[];
-  onRevalidate?: (key: string) => void;
-  presets?: HttpOverridePreset[];
-};
+export type HttpOverridePanelProps = HttpOverridePanelOptions;
 
 const noop = () => {
   // embedded 모드에선 닫기 개념이 호스트 셸 소관

@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import type { HttpOverrideCacheAdapter } from "../cache-adapter";
-import type { HttpOverrideApi, HttpOverridePreset } from "../core";
+import type { HttpOverrideApi } from "../core";
 import { useLauncherVisible, useRules } from "./hooks";
-import type { HttpOverrideTab } from "./panel";
+import type { HttpOverridePanelOptions } from "./panel";
 import { Panel, PANEL_CLOSE_DURATION_MS } from "./panel";
 import {
   launcherButtonActiveStyle,
@@ -14,16 +13,8 @@ import {
   panelInteractionCss,
 } from "./styles";
 
-export type HttpOverrideLauncherProps = {
-  /** SWR이면 createSwrAdapter로 생성 — 미주입 시 Cache 탭 숨김 */
-  cacheAdapter?: HttpOverrideCacheAdapter;
+export type HttpOverrideLauncherProps = HttpOverridePanelOptions & {
   enabled: boolean;
-  /** 확장 탭 — RQ devtools 패널 임베드 지점 */
-  extraTabs?: HttpOverrideTab[];
-  /** 재요청 콜백 — 미주입 시 재요청 버튼 숨김 */
-  onRevalidate?: (key: string) => void;
-  /** 앱이 정의한 룰 묶음 */
-  presets?: HttpOverridePreset[];
   zIndex?: number;
 };
 
@@ -34,12 +25,8 @@ const LauncherContent = ({
   onRevalidate,
   presets,
   zIndex,
-}: {
+}: HttpOverridePanelOptions & {
   api: HttpOverrideApi;
-  cacheAdapter?: HttpOverrideCacheAdapter;
-  extraTabs?: HttpOverrideTab[];
-  onRevalidate?: (key: string) => void;
-  presets?: HttpOverridePreset[];
   zIndex: number;
 }) => {
   const visible = useLauncherVisible(api);

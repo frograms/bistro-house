@@ -1,13 +1,4 @@
-export type HttpOverrideCacheEntry = {
-  data?: unknown;
-  error?: unknown;
-  isValidating?: boolean;
-  key: string;
-};
-
-export type HttpOverrideCacheAdapter = {
-  getEntries(): HttpOverrideCacheEntry[];
-};
+import type { HttpOverrideCacheAdapter } from "./core";
 
 export type SwrLikeCache = {
   get(key: string): unknown;

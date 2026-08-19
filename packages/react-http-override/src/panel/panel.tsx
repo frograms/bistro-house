@@ -1,8 +1,12 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { HttpOverrideCacheAdapter } from "../cache-adapter";
-import type { HttpOverrideApi, HttpOverridePreset } from "../core";
+import type {
+  HttpOverrideApi,
+  HttpOverrideCacheAdapter,
+  HttpOverridePreset,
+} from "../core";
+import { ruleMatchesUrl } from "../core";
 import { CacheTab } from "./cache-tab";
 import { useRecords, useRules } from "./hooks";
 import { RequestDetail } from "./request-detail";
@@ -53,14 +57,22 @@ export type HttpOverrideTab = {
   render: () => ReactNode;
 };
 
-export type PanelProps = {
-  api: HttpOverrideApi;
+/** 런처·임베드 패널이 공유하는 옵션 — 한쪽에만 추가되는 실수 방지 */
+export type HttpOverridePanelOptions = {
+  /** SWR이면 createSwrAdapter로 생성 — 미주입 시 Cache 탭 숨김 */
   cacheAdapter?: HttpOverrideCacheAdapter;
-  embedded?: boolean;
+  /** 확장 탭 — 다른 devtools 패널 임베드 지점 */
   extraTabs?: HttpOverrideTab[];
-  onClose: () => void;
+  /** 재요청 콜백 — 요청 URL(또는 캐시 키)이 전달됩니다. 미주입 시 재요청 버튼 숨김 */
   onRevalidate?: (key: string) => void;
+  /** 앱이 정의한 룰 묶음 — 행 상세에서 URL이 매칭되는 것만 표시 */
   presets?: HttpOverridePreset[];
+};
+
+export type PanelProps = HttpOverridePanelOptions & {
+  api: HttpOverrideApi;
+  embedded?: boolean;
+  onClose: () => void;
   shown: boolean;
   zIndex: number;
 };
@@ -136,13 +148,9 @@ export const Panel = ({
   const ruledKeys = useMemo(() => {
     const keys = new Set<string>();
     for (const group of groups) {
-      const matched = rules.some((rule) => {
-        try {
-          return new RegExp(rule.pattern).test(group.latest.url);
-        } catch {
-          return false;
-        }
-      });
+      const matched = rules.some((rule) =>
+        ruleMatchesUrl(rule.pattern, group.latest.url)
+      );
       if (matched) keys.add(group.key);
     }
     return keys;

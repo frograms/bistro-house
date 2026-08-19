@@ -5,10 +5,11 @@ import type {
   HttpOverridePreset,
   HttpOverrideRecord,
 } from "../core";
+import { exactUrlPattern, ruleMatchesUrl } from "../core";
 import { useRules } from "./hooks";
 import { JsonViewer } from "./json-viewer";
 import { PresetSection } from "./preset-section";
-import { exactUrlPattern, RowActions } from "./row-actions";
+import { RowActions } from "./row-actions";
 import {
   actionBodyHintBrokenStyle,
   actionBodyHintJsonStyle,
@@ -74,14 +75,10 @@ export const RequestDetail = ({
   const [editValue, setEditValue] = useState("");
   const rules = useRules(api);
 
-  const mockActive = rules.some((rule) => {
-    if (rule.status === undefined) return false;
-    try {
-      return new RegExp(rule.pattern).test(record.url);
-    } catch {
-      return false;
-    }
-  });
+  const mockActive = rules.some(
+    (rule) =>
+      rule.status !== undefined && ruleMatchesUrl(rule.pattern, record.url)
+  );
 
   // 같은 URL의 patch 전용 룰에 누적 (없으면 생성)
   const addPatch = useCallback(
@@ -150,7 +147,13 @@ export const RequestDetail = ({
         <InfoRow label="durationMs" value={`${record.durationMs}ms`} />
         <InfoRow label="시각" value={formatTime(record.startedAt)} />
         {record.ruleId !== undefined && (
-          <InfoRow label="rule" value={record.ruleId} />
+          <InfoRow
+            label="rule"
+            value={
+              rules.find((rule) => rule.id === record.ruleId)?.label ??
+              record.ruleId
+            }
+          />
         )}
         {record.error !== undefined && (
           <InfoRow label="error" value={record.error} />
