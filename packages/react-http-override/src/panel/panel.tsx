@@ -123,6 +123,11 @@ export const Panel = ({
     setSelectedKey((current) => (current === key ? null : key));
   }, []);
 
+  const [cacheSelectedKey, setCacheSelectedKey] = useState<string | null>(null);
+  const handleSelectCacheEntry = useCallback((key: string) => {
+    setCacheSelectedKey((current) => (current === key ? null : key));
+  }, []);
+
   // 같은 method+URL은 한 행으로 묶고 최신 기록을 대표로 (RQ devtools 방식)
   const groups = useMemo(() => {
     const map = new Map<string, RequestGroup>();
@@ -186,7 +191,13 @@ export const Panel = ({
     setSelectedKey(null);
   }, [api]);
 
-  const expanded = selected !== null;
+  const cacheTabActive =
+    activeTab === "cache" &&
+    cacheAdapter !== undefined &&
+    activeExtraTab === undefined;
+  const expanded = cacheTabActive
+    ? cacheSelectedKey !== null
+    : selected !== null;
   const targetWidth = expanded ? PANEL_EXPANDED_WIDTH : PANEL_WIDTH;
   const targetHeight = expanded ? PANEL_EXPANDED_HEIGHT : PANEL_HEIGHT;
 
@@ -237,6 +248,7 @@ export const Panel = ({
   return (
     <section
       aria-label="API devtools 패널"
+      data-expanded={expanded}
       role="dialog"
       style={animatedPanelStyle}>
       <div style={contentStyle}>
@@ -293,7 +305,12 @@ export const Panel = ({
         )}
         {activeExtraTab === undefined &&
           (activeTab === "cache" && cacheAdapter !== undefined ? (
-            <CacheTab cacheAdapter={cacheAdapter} onRevalidate={onRevalidate} />
+            <CacheTab
+              cacheAdapter={cacheAdapter}
+              selectedKey={cacheSelectedKey}
+              onRevalidate={onRevalidate}
+              onSelect={handleSelectCacheEntry}
+            />
           ) : (
             <>
               <div style={filterBarStyle}>

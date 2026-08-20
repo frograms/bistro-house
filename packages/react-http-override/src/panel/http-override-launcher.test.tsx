@@ -325,6 +325,23 @@ describe("HttpOverrideLauncher", () => {
     expect(screen.getByText("error")).toBeTruthy();
   });
 
+  it("Cache 탭에서 행을 고르면 API 탭처럼 패널이 확장된다", () => {
+    install();
+    const cacheAdapter = {
+      getEntries: () => [{ data: { ok: true }, key: "/settings" }],
+    };
+    render(<HttpOverrideLauncher cacheAdapter={cacheAdapter} enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cache" }));
+
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.getAttribute("data-expanded")).toBe("false");
+    fireEvent.click(screen.getByRole("button", { name: "/settings" }));
+    expect(dialog.getAttribute("data-expanded")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: "/settings" }));
+    expect(dialog.getAttribute("data-expanded")).toBe("false");
+  });
+
   it("Cache 탭에서 엔트리를 고르면 재검증 버튼이 onRevalidate를 그 키로 호출한다", () => {
     install();
     const onRevalidate = vi.fn();

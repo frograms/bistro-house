@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { HttpOverrideCacheAdapter } from "../core";
 import { JsonTree } from "./json-tree";
@@ -24,12 +24,15 @@ const POLL_MS = 500;
 export const CacheTab = ({
   cacheAdapter,
   onRevalidate,
+  onSelect,
+  selectedKey,
 }: {
   cacheAdapter: HttpOverrideCacheAdapter;
   onRevalidate?: (key: string) => void;
+  onSelect: (key: string) => void;
+  selectedKey: string | null;
 }) => {
   const [entries, setEntries] = useState(() => cacheAdapter.getEntries());
-  const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   // 캐시 구독 API는 라이브러리마다 달라 폴링이 최소 공통분모
   useEffect(() => {
@@ -40,10 +43,6 @@ export const CacheTab = ({
       window.clearInterval(id);
     };
   }, [cacheAdapter]);
-
-  const handleSelect = useCallback((key: string) => {
-    setSelectedKey((current) => (current === key ? null : key));
-  }, []);
 
   const selected =
     selectedKey === null
@@ -67,7 +66,7 @@ export const CacheTab = ({
                       : rowButtonStyle
                   }
                   type="button"
-                  onClick={() => handleSelect(entry.key)}
+                  onClick={() => onSelect(entry.key)}
                 >
                   <span style={rowUrlStyle}>{entry.key}</span>
                   {entry.error !== undefined && (
