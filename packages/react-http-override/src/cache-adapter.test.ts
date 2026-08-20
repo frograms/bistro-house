@@ -62,6 +62,45 @@ describe("createSwrAdapter", () => {
     expect(mutate).toHaveBeenCalledWith('@"/api/settings","ko",');
   });
 
+  it("절대/상대 url × 절대/상대 키 4조합 전부 매칭된다", () => {
+    const matrix = [
+      ["https://api.test/api/x", "https://api.test/api/x"],
+      ["https://api.test/api/x", "/api/x"],
+      ["/api/x", "https://api.test/api/x"],
+      ["/api/x", "/api/x"],
+    ] as const;
+    for (const [url, key] of matrix) {
+      const mutate = vi.fn();
+      const { onRevalidate } = createSwrAdapter({
+        cache: new Map<string, unknown>([[key, {}]]),
+        mutate,
+      });
+      onRevalidate(url);
+      expect(mutate, `url=${url} key=${key}`).toHaveBeenCalledExactlyOnceWith(
+        key
+      );
+    }
+  });
+
+  it("절대 url은 상대 배열 직렬화 키와도 매칭된다", () => {
+    const mutate = vi.fn();
+    const cache = new Map<string, unknown>([['@"/api/x","ko",', {}]]);
+    const { onRevalidate } = createSwrAdapter({ cache, mutate });
+    onRevalidate("https://api.test/api/x");
+    expect(mutate).toHaveBeenCalledExactlyOnceWith('@"/api/x","ko",');
+  });
+
+  it("url에만 쿼리가 있어도 쿼리 없는 키와 매칭된다", () => {
+    const mutate = vi.fn();
+    const cache = new Map<string, unknown>([
+      ["/api/x", {}],
+      ["/api/others", {}],
+    ]);
+    const { onRevalidate } = createSwrAdapter({ cache, mutate });
+    onRevalidate("https://api.test/api/x?page=2");
+    expect(mutate).toHaveBeenCalledExactlyOnceWith("/api/x");
+  });
+
   it("onRevalidate는 매칭되는 키가 없으면 mutate하지 않는다", () => {
     const mutate = vi.fn();
     const { onRevalidate } = createSwrAdapter({ cache: new Map(), mutate });

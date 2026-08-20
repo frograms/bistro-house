@@ -50,9 +50,19 @@ export const createSwrAdapter = ({
         };
       }),
   },
+  // 기록 url(절대/상대)과 캐시 키(절대/상대)의 조합이 어긋나도 매칭되도록 수정
   onRevalidate: (url) => {
+    const needles = new Set<string>([url, url.split("?")[0] ?? ""]);
+    try {
+      const parsed = new URL(url);
+      needles.add(`${parsed.pathname}${parsed.search}`);
+      needles.add(parsed.pathname);
+    } catch {
+    }
+    needles.delete("");
     for (const key of cache.keys()) {
-      if (key.includes(url)) void mutate(key);
+      const matched = [...needles].some((needle) => key.includes(needle));
+      if (matched) void mutate(key);
     }
   },
 });

@@ -361,7 +361,7 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `cacheAdapter` | `HttpOverrideCacheAdapter` | `HttpOverrideLauncher`·`HttpOverridePanel`의 `cacheAdapter`로 전달 |
-| `onRevalidate` | `(url: string) => void` | 전달받은 URL을 포함하는 캐시 키를 전부 `mutate`로 재검증 (배열 키도 직렬화 형태로 매칭). `onRevalidate` prop으로 전달 |
+| `onRevalidate` | `(url: string) => void` | 전달받은 URL과 매칭되는 캐시 키를 전부 `mutate`로 재검증. 기록 URL이 절대든 상대든, 캐시 키가 절대든 상대든(배열 키의 직렬화 형태 포함) 매칭됩니다. `onRevalidate` prop으로 전달 |
 
 ### useRecords
 
