@@ -55,10 +55,11 @@ const truncateBody = (text: string, maxBodyBytes: number): string =>
 const createMockResponse = (
   rule: HttpOverrideRule
 ): { body: string | null; response: Response } | null => {
-  const body =
-    rule.status !== undefined && NULL_BODY_STATUSES.has(rule.status)
-      ? null
-      : (rule.body ?? "");
+  const nullBody =
+    rule.status !== undefined && NULL_BODY_STATUSES.has(rule.status);
+  const filledBody =
+    rule.body === undefined || rule.body === "" ? "{}" : rule.body;
+  const body = nullBody ? null : filledBody;
   try {
     return {
       body,

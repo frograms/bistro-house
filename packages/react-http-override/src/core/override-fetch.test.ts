@@ -305,6 +305,15 @@ describe("createOverrideFetch", () => {
     });
   });
 
+  it("body 없는 status 목도 json() 파싱이 가능한 {}를 반환한다", async () => {
+    const { buffer, overrideFetch } = setup([
+      { id: "r1", pattern: "users", status: 500 },
+    ]);
+    const response = await overrideFetch("https://api.test/users");
+    await expect(response.json()).resolves.toEqual({});
+    expect(buffer.getSnapshot()[0]?.responseBody).toBe("{}");
+  });
+
   it("여러 status 룰이 매칭되면 첫 룰이 이긴다", async () => {
     const { buffer, overrideFetch } = setup([
       { body: '{"from":"first"}', id: "s1", pattern: "users", status: 500 },
