@@ -9,7 +9,6 @@ const sharedConfig: UserConfig = {
   tsconfig: "tsconfig.json",
 };
 
-
 export default defineConfig([
   {
     ...sharedConfig,
