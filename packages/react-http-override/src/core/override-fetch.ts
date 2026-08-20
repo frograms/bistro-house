@@ -42,9 +42,14 @@ const matchRules = (
 ): HttpOverrideRule[] =>
   rules.filter((rule) => ruleMatchesUrl(rule.pattern, url));
 
+const TRUNCATED_SUFFIX = "…(truncated)";
+
+export const isTruncatedBody = (body: string): boolean =>
+  body.endsWith(TRUNCATED_SUFFIX);
+
 const truncateBody = (text: string, maxBodyBytes: number): string =>
   text.length > maxBodyBytes
-    ? `${text.slice(0, maxBodyBytes)}…(truncated)`
+    ? `${text.slice(0, maxBodyBytes)}${TRUNCATED_SUFFIX}`
     : text;
 
 const createMockResponse = (

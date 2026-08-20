@@ -1,8 +1,13 @@
 import { useMemo } from "react";
 
 import type { HttpOverrideRecord } from "../core";
+import { isTruncatedBody } from "../core";
 import { JsonTree } from "./json-tree";
-import { detailBodyStyle, detailEmptyBodyStyle } from "./styles";
+import {
+  actionBodyHintBrokenStyle,
+  detailBodyStyle,
+  detailEmptyBodyStyle,
+} from "./styles";
 
 type ParsedBody = { ok: false } | { ok: true; value: unknown };
 
@@ -46,5 +51,15 @@ export const JsonViewer = ({
       />
     );
   }
-  return <pre style={detailBodyStyle}>{record.responseBody}</pre>;
+  return (
+    <>
+      {isTruncatedBody(record.responseBody) && (
+        <span style={actionBodyHintBrokenStyle}>
+          응답이 maxBodyBytes 한도를 넘어 잘려 트리로 볼 수 없습니다 —
+          installHttpOverride의 maxBodyBytes 옵션으로 한도를 늘릴 수 있어요
+        </span>
+      )}
+      <pre style={detailBodyStyle}>{record.responseBody}</pre>
+    </>
+  );
 };
