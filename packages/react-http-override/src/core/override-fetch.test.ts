@@ -157,6 +157,17 @@ describe("createOverrideFetch", () => {
     expect(buffer.getSnapshot()[0]?.responseBody).toBeNull();
   });
 
+  it("maxBodyBytes는 UTF-8 바이트 기준으로 자르고 잘린 문자는 버린다", async () => {
+    const { buffer, overrideFetch } = setup([], {
+      baseFetch: async () => new Response("가나다", { status: 200 }),
+      maxBodyBytes: 4,
+    });
+    await overrideFetch("https://api.test/users");
+    await vi.waitFor(() => {
+      expect(buffer.getSnapshot()[0]?.responseBody).toBe("가…(truncated)");
+    });
+  });
+
   it("patch 룰은 실제 응답의 path만 덮어써 반환한다", async () => {
     const { buffer, overrideFetch } = setup(
       [

@@ -47,10 +47,18 @@ const TRUNCATED_SUFFIX = "…(truncated)";
 export const isTruncatedBody = (body: string): boolean =>
   body.endsWith(TRUNCATED_SUFFIX);
 
-const truncateBody = (text: string, maxBodyBytes: number): string =>
-  text.length > maxBodyBytes
-    ? `${text.slice(0, maxBodyBytes)}${TRUNCATED_SUFFIX}`
-    : text;
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+const truncateBody = (text: string, maxBodyBytes: number): string => {
+  if (text.length * 3 <= maxBodyBytes) return text;
+  const bytes = encoder.encode(text);
+  if (bytes.length <= maxBodyBytes) return text;
+  const sliced = decoder
+    .decode(bytes.subarray(0, maxBodyBytes))
+    .replace(/�+$/, "");
+  return `${sliced}${TRUNCATED_SUFFIX}`;
+};
 
 const createMockResponse = (
   rule: HttpOverrideRule

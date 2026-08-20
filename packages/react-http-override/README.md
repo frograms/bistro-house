@@ -302,7 +302,7 @@ devtools 코어를 설치하고 `window.__HTTP_OVERRIDE__`에 할당합니다. `
 | ---- | ---- | ------- | ----------- |
 | `enabled` | `boolean` | — | `false`면 설치하지 않습니다 |
 | `baseFetch` | `typeof fetch` | 호출 시점의 `window.fetch` | 실제 요청에 쓸 fetch. 기본값은 설치 시점에 고정하지 않고 호출 시점에 조회하므로, 이후 다른 도구가 `window.fetch`를 패치해도 그 위에서 동작합니다 |
-| `maxBodyBytes` | `number` | `65536` | 기록에 남길 응답 body 최대 길이. 초과분은 잘라서 저장합니다 |
+| `maxBodyBytes` | `number` | `65536` | 기록에 남길 응답 body 최대 크기 (UTF-8 바이트 기준). 초과분은 잘라서 저장합니다 |
 | `maxRecords` | `number` | `200` | 보관할 요청 기록 수. 초과하면 오래된 것부터 버립니다 |
 | `storage` | `HttpOverrideStorage` | sessionStorage | 룰 저장소. Web Storage를 쓸 수 없는 환경에서는 인메모리로 폴백합니다 |
 
