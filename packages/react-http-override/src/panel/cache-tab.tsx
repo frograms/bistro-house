@@ -9,6 +9,7 @@ import {
   chipOkStyle,
   detailSectionBodyStyle,
   detailStyle,
+  mockBadgeStyle,
   panelBodyStyle,
   panelClassNames,
   rowButtonSelectedStyle,
@@ -69,6 +70,14 @@ export const CacheTab = ({
                   onClick={() => onSelect(entry.key)}
                 >
                   <span style={rowUrlStyle}>{entry.key}</span>
+                  {entry.isFallback === true && (
+                    <span
+                      style={mockBadgeStyle}
+                      title="SSR이 내려준 초기값 — 클라이언트에서 갱신된 적 없음"
+                    >
+                      fallback
+                    </span>
+                  )}
                   {entry.error !== undefined && (
                     <span style={chipErrorStyle}>error</span>
                   )}

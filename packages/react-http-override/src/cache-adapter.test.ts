@@ -19,6 +19,35 @@ describe("createSwrAdapter", () => {
     expect(entries[1]?.error).toBeInstanceOf(Error);
   });
 
+  it("캐시에 data가 없으면 fallback에서 보충하고 isFallback을 표시한다", () => {
+    const cache = new Map<string, unknown>([
+      ["/api/session/region", {}],
+      ["/api/users/me", { data: { name: "캐시값" } }],
+      ["/api/others", {}],
+    ]);
+    const { cacheAdapter } = createSwrAdapter({
+      cache,
+      fallback: {
+        "/api/session/region": { country: "KR" },
+        "/api/users/me": { name: "fallback값" },
+      },
+      mutate: () => {},
+    });
+    const entries = cacheAdapter.getEntries();
+    expect(entries[0]).toMatchObject({
+      data: { country: "KR" },
+      isFallback: true,
+      key: "/api/session/region",
+    });
+    expect(entries[1]).toMatchObject({
+      data: { name: "캐시값" },
+      key: "/api/users/me",
+    });
+    expect(entries[1]?.isFallback).toBeUndefined();
+    expect(entries[2]?.data).toBeUndefined();
+    expect(entries[2]?.isFallback).toBeUndefined();
+  });
+
   it("onRevalidate는 URL을 포함하는 캐시 키만 mutate한다 (배열 직렬화 키 포함)", () => {
     const mutate = vi.fn();
     const cache = new Map<string, unknown>([

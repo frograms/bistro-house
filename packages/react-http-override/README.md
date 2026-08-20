@@ -121,6 +121,14 @@ const DevtoolsMount = () => {
 };
 ```
 
+SSR 앱이라면 `fallback`도 함께 넘기세요. SWR은 SSR 초기값을 캐시 Map이 아니라 config의 `fallback`에 보관하므로, 재검증이 일어나지 않은 키(`useSWRImmutable` 등)는 캐시만 봐서는 data가 비어 보입니다. `fallback`을 넘기면 캐시에 값이 없는 키를 fallback에서 보충해 "fallback" 뱃지와 함께 표시합니다 (SWR과 같은 캐시 우선). `SWRConfig`에 준 것과 같은 객체 참조를 그대로 넘기면 되고, 부트스트랩 후 `delete window.__SWR_FALLBACK__` 같은 정리를 하더라도 참조가 살아 있어 안전합니다.
+
+```tsx
+const swrConfig = { fallback: window.__SWR_FALLBACK__ };
+// ...
+createSwrAdapter({ cache, fallback: swrConfig.fallback, mutate });
+```
+
 ### Embedding other devtools with extraTabs
 
 `extraTabs`로 패널에 탭을 추가할 수 있습니다. React Query devtools 패널처럼 다른 devtools를 같은 셸 안에 임베드하는 용도입니다.
@@ -345,6 +353,7 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `cache` | `SwrLikeCache` | — | `useSWRConfig()`의 `cache` |
+| `fallback` | `Record<string, unknown>` | — | `SWRConfig`에 준 SSR fallback. 캐시에 data가 없는 키를 보충해 "fallback" 뱃지로 표시합니다 |
 | `mutate` | `SwrLikeMutate` | — | `useSWRConfig()`의 `mutate` |
 
 #### Returns

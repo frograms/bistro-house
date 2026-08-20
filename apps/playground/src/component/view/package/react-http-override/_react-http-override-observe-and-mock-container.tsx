@@ -1,6 +1,10 @@
+import { createSwrAdapter } from "@packages/react-http-override/src/cache-adapter";
 import type { HttpOverrideApi } from "@packages/react-http-override/src/core";
 import { installHttpOverride } from "@packages/react-http-override/src/core";
-import { useRecords, useRules } from "@packages/react-http-override/src/panel/hooks";
+import {
+  useRecords,
+  useRules,
+} from "@packages/react-http-override/src/panel/hooks";
 import { HttpOverrideLauncher } from "@packages/react-http-override/src/panel/http-override-launcher";
 import { CommonCodeBlock } from "@playground/component/view/_common/common-code-block";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
@@ -15,6 +19,18 @@ import { DEMO_PRESETS } from "@playground/component/view/package/react-http-over
 import { commonExampleControlsCss } from "@playground/resource/css/common/common-example-controls.css";
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
+
+// Cache 탭 시연용 — 실제 SWR 대신 같은 모양의 정적 캐시 (fallback 뱃지 확인용)
+const DEMO_SWR_CACHE = new Map<string, unknown>([
+  ["/api/contents", { data: { total_count: 3 }, isValidating: false }],
+  ["/api/session/region", {}],
+]);
+const DEMO_SWR_FALLBACK = { "/api/session/region": { country: "KR" } };
+const { cacheAdapter: DEMO_CACHE_ADAPTER } = createSwrAdapter({
+  cache: DEMO_SWR_CACHE,
+  fallback: DEMO_SWR_FALLBACK,
+  mutate: () => {},
+});
 
 const DEMO_API_BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/api`;
 
@@ -116,7 +132,9 @@ const ObserveAndMockExample = ({ api }: { api: HttpOverrideApi }) => {
 
   const handleRevalidate = useCallback(
     (key: string) => {
-      void callApi(key.includes("friend-ratings") ? "friend-ratings" : "contents");
+      void callApi(
+        key.includes("friend-ratings") ? "friend-ratings" : "contents"
+      );
     },
     [callApi]
   );
@@ -251,8 +269,7 @@ const ObserveAndMockExample = ({ api }: { api: HttpOverrideApi }) => {
               type="button"
               onClick={() => {
                 void callApi(endpoint);
-              }}
-            >
+              }}>
               GET /api/{endpoint}
             </button>
           ))}
@@ -264,6 +281,7 @@ const ObserveAndMockExample = ({ api }: { api: HttpOverrideApi }) => {
       <CommonExampleStatePanel items={stateItems} />
 
       <HttpOverrideLauncher
+        cacheAdapter={DEMO_CACHE_ADAPTER}
         presets={DEMO_PRESETS}
         enabled
         onRevalidate={handleRevalidate}

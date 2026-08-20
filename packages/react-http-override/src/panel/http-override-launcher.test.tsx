@@ -325,6 +325,20 @@ describe("HttpOverrideLauncher", () => {
     expect(screen.getByText("error")).toBeTruthy();
   });
 
+  it("Cache 탭에서 fallback 엔트리에 뱃지를 표시한다", () => {
+    install();
+    const cacheAdapter = {
+      getEntries: () => [
+        { data: { country: "KR" }, isFallback: true, key: "/session" },
+        { data: { ok: true }, key: "/settings" },
+      ],
+    };
+    render(<HttpOverrideLauncher cacheAdapter={cacheAdapter} enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cache" }));
+    expect(screen.getAllByText("fallback")).toHaveLength(1);
+  });
+
   it("Cache 탭에서 행을 고르면 API 탭처럼 패널이 확장된다", () => {
     install();
     const cacheAdapter = {

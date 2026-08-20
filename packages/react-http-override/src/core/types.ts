@@ -41,6 +41,7 @@ export type HttpOverrideRecord = {
 export type HttpOverrideCacheEntry = {
   data?: unknown;
   error?: unknown;
+  isFallback?: boolean;
   isValidating?: boolean;
   key: string;
 };

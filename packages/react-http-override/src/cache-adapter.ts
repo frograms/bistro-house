@@ -15,9 +15,11 @@ type SwrState = {
 
 export const createSwrAdapter = ({
   cache,
+  fallback,
   mutate,
 }: {
   cache: SwrLikeCache;
+  fallback?: Record<string, unknown>;
   mutate: SwrLikeMutate;
 }): {
   cacheAdapter: HttpOverrideCacheAdapter;
@@ -27,6 +29,19 @@ export const createSwrAdapter = ({
     getEntries: () =>
       [...cache.keys()].map((key) => {
         const state = (cache.get(key) ?? {}) as SwrState;
+        if (
+          state.data === undefined &&
+          fallback !== undefined &&
+          key in fallback
+        ) {
+          return {
+            data: fallback[key],
+            error: state.error,
+            isFallback: true,
+            isValidating: state.isValidating,
+            key,
+          };
+        }
         return {
           data: state.data,
           error: state.error,
