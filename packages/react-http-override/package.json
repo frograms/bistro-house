@@ -1,0 +1,109 @@
+{
+  "name": "@watcha-authentic/react-http-override",
+  "description": "Fetch observation and error simulation devtools panel",
+  "version": "1.0.0",
+  "sideEffects": false,
+  "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/react-http-override#readme",
+  "author": {
+    "name": "@watcha-authentic#web-dev-group",
+    "email": "web-dev-group@watcha.com",
+    "url": "https://github.com/frograms"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frograms/bistro-house.git",
+    "directory": "packages/react-http-override"
+  },
+  "bugs": {
+    "url": "https://github.com/frograms/bistro-house/issues",
+    "email": "web-dev-group@watcha.com"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.3.0",
+    "happy-dom": "^20.0.0",
+    "@watcha-authentic/eslint-config": "^2.0.1",
+    "@watcha-authentic/prettier-config": "^1.1.4",
+    "prettier": "^3.7.4",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.8",
+    "eslint": "^9.39.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-perfectionist": "^5.9.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-import-resolver-typescript": "^3.6.0",
+    "jiti": "^2.6.1",
+    "@typescript-eslint/parser": "^8.50.0",
+    "@typescript-eslint/eslint-plugin": "^8.50.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/use-sync-external-store": "^1.5.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tsdown": "^0.21.5"
+  },
+  "dependencies": {
+    "use-sync-external-store": "^1.2.0"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./core": {
+      "import": {
+        "types": "./dist/core.d.mts",
+        "default": "./dist/core.mjs"
+      },
+      "require": {
+        "types": "./dist/core.d.ts",
+        "default": "./dist/core.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "core": [
+        "./dist/core.d.ts"
+      ]
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "scripts": {
+    "build": "rm -rf ./dist && tsdown && pnpm build:post",
+    "build:post": "bash ./project-attachment/post-build.sh",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "typecheck": "tsc"
+  },
+  "types": "./dist/index.d.ts"
+}

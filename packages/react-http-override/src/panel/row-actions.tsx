@@ -1,0 +1,267 @@
+import { useCallback, useMemo, useState } from "react";
+
+import type { HttpOverrideApi, HttpOverrideRecord } from "../core";
+import { exactUrlPattern, ruleMatchesUrl } from "../core";
+import { useRules } from "./hooks";
+import {
+  actionBodyHintBrokenStyle,
+  actionBodyHintJsonStyle,
+  actionBodyInputStyle,
+  actionNeutralButtonStyle,
+  actionPrimaryButtonStyle,
+  actionRowStyle,
+  actionSectionStyle,
+  actionStatusInputStyle,
+  actionWarmButtonStyle,
+  palette,
+  panelClassNames,
+} from "./styles";
+
+export type RowActionsProps = {
+  api: HttpOverrideApi;
+  onRevalidate?: (key: string) => void;
+  record: HttpOverrideRecord;
+};
+
+type BodyKind = "broken" | "json" | "text";
+
+const bodyKindOf = (input: string): BodyKind => {
+  const trimmed = input.trim();
+  if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) return "text";
+  try {
+    JSON.parse(trimmed);
+    return "json";
+  } catch {
+    return "broken";
+  }
+};
+
+const bodyToInput = (body: string | undefined): string => {
+  if (body === undefined || body === "") return "";
+  try {
+    const parsed: unknown = JSON.parse(body);
+    if (
+      parsed !== null &&
+      typeof parsed === "object" &&
+      !Array.isArray(parsed)
+    ) {
+      const record = parsed as Record<string, unknown>;
+      const keys = Object.keys(record);
+      if (keys.length === 1 && typeof record.message === "string") {
+        return record.message;
+      }
+    }
+  } catch {
+    // JSON 아니면 원문 표시
+  }
+  return body;
+};
+
+const buildErrorBody = (input: string): string => {
+  if (input.trim() === "") return "";
+  return bodyKindOf(input) === "json"
+    ? input.trim()
+    : JSON.stringify({ message: input });
+};
+
+type TriggerMode = "error" | "loading" | null;
+
+export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
+  const rules = useRules(api);
+
+  const matchedRules = useMemo(
+    () =>
+      rules.filter((rule) => ruleMatchesUrl(rule.pattern, record.url)),
+    [record.url, rules]
+  );
+
+  const statusRule = matchedRules.find((rule) => rule.status !== undefined);
+  const delayRule = matchedRules.find(
+    (rule) => rule.delayMs !== undefined && rule.delayMs > 0
+  );
+  const isErrorActive = statusRule !== undefined;
+  const isLoadingActive = delayRule !== undefined;
+
+  const [mode, setMode] = useState<TriggerMode>(() => {
+    if (isErrorActive) return "error";
+    if (isLoadingActive) return "loading";
+    return null;
+  });
+  const [status, setStatus] = useState(() =>
+    statusRule?.status !== undefined ? String(statusRule.status) : "500"
+  );
+  const [message, setMessage] = useState(() => bodyToInput(statusRule?.body));
+  const [delayMs, setDelayMs] = useState(() =>
+    delayRule?.delayMs !== undefined ? String(delayRule.delayMs) : "3000"
+  );
+
+  const [lastStatusRule, setLastStatusRule] = useState(statusRule);
+  if (statusRule !== lastStatusRule) {
+    setLastStatusRule(statusRule);
+    if (statusRule?.status !== undefined) {
+      setStatus(String(statusRule.status));
+      setMessage(bodyToInput(statusRule.body));
+    }
+  }
+  const [lastDelayRule, setLastDelayRule] = useState(delayRule);
+  if (delayRule !== lastDelayRule) {
+    setLastDelayRule(delayRule);
+    if (delayRule?.delayMs !== undefined) {
+      setDelayMs(String(delayRule.delayMs));
+    }
+  }
+
+  const bodyKind = message.trim() === "" ? "text" : bodyKindOf(message);
+
+  const applyTriggerRule = useCallback(
+    (input: { body?: string; delayMs?: number; status?: number }) => {
+      const field = input.delayMs !== undefined ? "delayMs" : "status";
+      const targets = matchedRules.filter((rule) => rule[field] !== undefined);
+      if (targets.length === 0) {
+        api.rules.add({ pattern: exactUrlPattern(record.url), ...input });
+        return;
+      }
+      targets.forEach((rule) => {
+        api.rules.update(rule.id, input);
+      });
+    },
+    [api, matchedRules, record.url]
+  );
+
+  const handleApplyError = useCallback(() => {
+    const parsed = Number(status);
+    if (!Number.isInteger(parsed)) return;
+    applyTriggerRule({
+      body: buildErrorBody(message),
+      status: parsed,
+    });
+  }, [applyTriggerRule, message, status]);
+
+  const handleDelay = useCallback(() => {
+    const parsed = Number(delayMs);
+    if (!(parsed > 0)) return;
+    applyTriggerRule({ delayMs: Math.round(parsed) });
+  }, [applyTriggerRule, delayMs]);
+
+  const handleRevalidate = useCallback(() => {
+    onRevalidate?.(record.url);
+  }, [onRevalidate, record.url]);
+
+  const handleRemoveRules = useCallback(() => {
+    matchedRules.forEach((rule) => {
+      api.rules.remove(rule.id);
+    });
+  }, [api, matchedRules]);
+
+  const bodyInputStyle = useMemo(
+    () => ({
+      ...actionBodyInputStyle,
+      ...(bodyKind === "json" ? { borderColor: palette.teal } : null),
+      ...(bodyKind === "broken" ? { borderColor: palette.orange } : null),
+    }),
+    [bodyKind]
+  );
+
+  return (
+    <div style={actionSectionStyle}>
+      <div style={actionRowStyle}>
+        {onRevalidate !== undefined && (
+          <button
+            className={panelClassNames.actionButton}
+            style={actionPrimaryButtonStyle}
+            type="button"
+            onClick={handleRevalidate}>
+            재요청
+          </button>
+        )}
+        <button
+          className={panelClassNames.warmButton}
+          style={
+            mode === "error" ? actionWarmButtonStyle : actionNeutralButtonStyle
+          }
+          type="button"
+          onClick={() => setMode((cur) => (cur === "error" ? null : "error"))}>
+          Error 트리거{isErrorActive && " 중"}
+        </button>
+        <button
+          className={panelClassNames.actionButton}
+          style={
+            mode === "loading"
+              ? actionWarmButtonStyle
+              : actionNeutralButtonStyle
+          }
+          type="button"
+          onClick={() =>
+            setMode((cur) => (cur === "loading" ? null : "loading"))
+          }>
+          Loading 트리거{isLoadingActive && " 중"}
+        </button>
+        {matchedRules.length > 0 && (
+          <button
+            className={panelClassNames.actionButton}
+            style={actionNeutralButtonStyle}
+            type="button"
+            onClick={handleRemoveRules}>
+            룰 해제 ({matchedRules.length})
+          </button>
+        )}
+      </div>
+      {mode === "error" && (
+        <>
+          <div style={actionRowStyle}>
+            <input
+              aria-label="status"
+              inputMode="numeric"
+              style={actionStatusInputStyle}
+              value={status}
+              onChange={(event) => setStatus(event.target.value)}
+            />
+            {bodyKind === "json" && (
+              <span style={actionBodyHintJsonStyle}>JSON body로 전송</span>
+            )}
+            {bodyKind === "broken" && (
+              <span style={actionBodyHintBrokenStyle}>
+                JSON 문법 오류 — 평문으로 전송
+              </span>
+            )}
+          </div>
+          <textarea
+            aria-label="에러 메시지"
+            placeholder="메시지 또는 JSON body"
+            rows={2}
+            style={bodyInputStyle}
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+          />
+          <div style={actionRowStyle}>
+            <button
+              className={panelClassNames.warmButton}
+              style={actionWarmButtonStyle}
+              type="button"
+              onClick={handleApplyError}>
+              적용 → 룰 생성
+            </button>
+          </div>
+        </>
+      )}
+      {mode === "loading" && (
+        <div style={actionRowStyle}>
+          <input
+            aria-label="지연 ms"
+            inputMode="numeric"
+            style={actionStatusInputStyle}
+            value={delayMs}
+            onChange={(event) => setDelayMs(event.target.value)}
+          />
+          <button
+            className={panelClassNames.actionButton}
+            style={actionNeutralButtonStyle}
+            type="button"
+            onClick={handleDelay}>
+            지연 적용
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
