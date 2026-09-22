@@ -8,7 +8,8 @@
     "publish": {
       "conventionalCommits": true,
       "changelogPreset": "angular",
-      "message": "chore(release): publish packages [skip ci]"
+      "message": "chore(release): publish packages [skip ci]",
+      "publishConfigOverrides": true
     }
   }
 }

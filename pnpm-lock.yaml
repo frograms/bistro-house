@@ -65,6 +65,24 @@ importers:
       '@vanilla-extract/css':
         specifier: ^1.21.1
         version: 1.21.1
+      '@watcha-authentic/react-a11y':
+        specifier: workspace:*
+        version: link:../../packages/react-a11y
+      '@watcha-authentic/react-context-factory':
+        specifier: workspace:*
+        version: link:../../packages/react-context-factory
+      '@watcha-authentic/react-event-callback':
+        specifier: workspace:*
+        version: link:../../packages/react-event-callback
+      '@watcha-authentic/react-motion':
+        specifier: workspace:*
+        version: link:../../packages/react-motion
+      '@watcha-authentic/react-slider':
+        specifier: workspace:*
+        version: link:../../packages/react-slider
+      '@watcha-authentic/react-stable-ref-callback':
+        specifier: workspace:*
+        version: link:../../packages/react-stable-ref-callback
       react:
         specifier: ^19.2.6
         version: 19.2.7
@@ -135,6 +153,9 @@ importers:
       globals:
         specifier: ^17.6.0
         version: 17.6.0
+      jiti:
+        specifier: ^2.6.1
+        version: 2.7.0
       typescript:
         specifier: ~5.9.3
         version: 5.9.3

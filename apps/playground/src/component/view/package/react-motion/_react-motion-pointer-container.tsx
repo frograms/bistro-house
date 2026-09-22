@@ -1,6 +1,3 @@
-import { usePointerMove } from "@packages/react-motion/src/component/hook/use-pointer-move";
-import type { Point2D } from "@packages/react-motion/src/script/type/primitives";
-import { addPoint } from "@packages/react-motion/src/script/util/point-utils";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
 import {
   CommonExampleControlPanel,
@@ -9,6 +6,11 @@ import {
 } from "@playground/component/view/_common/common-example-panels";
 import { reactMotionPointerContainerCss } from "@playground/component/view/package/react-motion/_react-motion-pointer-container.css";
 import { commonExampleControlsCss } from "@playground/resource/css/common/common-example-controls.css";
+import {
+  addPoint,
+  type Point2D,
+  usePointerMove,
+} from "@watcha-authentic/react-motion";
 import { useCallback, useRef, useState } from "react";
 
 const DEFAULT_POINT: Point2D = { x: 0, y: 0 };
