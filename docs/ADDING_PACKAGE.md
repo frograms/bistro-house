@@ -32,13 +32,13 @@ flowchart LR
   D --> E[5. PR / master 배포]
 ```
 
-| 단계 | 작업                                     | 완료 기준                                              |
-| ---- | ---------------------------------------- | ------------------------------------------------------ |
-| 1    | `pnpm prepare-package <name>`            | npm에 `@watcha-authentic/<name>@0.0.1` 존재            |
-| 2    | Notion에 따라 **Trusted Publisher** 등록 | `publish.yml`로 CI publish 가능                        |
-| 3    | `pnpm add-package ...`                   | `packages/<name>/` 스캐폴드 생성                       |
+| 단계 | 작업                                     | 완료 기준                                                                   |
+| ---- | ---------------------------------------- | --------------------------------------------------------------------------- |
+| 1    | `pnpm prepare-package <name>`            | npm에 `@watcha-authentic/<name>@0.0.1` 존재                                 |
+| 2    | Notion에 따라 **Trusted Publisher** 등록 | `publish.yml`로 CI publish 가능                                             |
+| 3    | `pnpm add-package ...`                   | `packages/<name>/` 스캐폴드 생성                                            |
 | 4    | 구현 · README · 루트 목록 · 로컬 검증    | `pnpm validate --filter=@watcha-authentic/<name>` 성공 · 루트 Packages 반영 |
-| 5    | PR → `master`                            | `validate-pr` 통과 후 Lerna-Lite 정식 배포             |
+| 5    | PR → `master`                            | `validate-pr` 통과 후 Lerna-Lite 정식 배포                                  |
 
 카나리로 tarball·설치를 먼저 검증할 때는 **1번 이후·5번 이전**에 `pnpm publish:canary <name>`(로컬 `npm login`)을 쓸 수 있습니다.
 
@@ -74,11 +74,11 @@ pnpm prepare-package <package-name>
 
 ### 자주 나는 오류
 
-| 메시지                                                     | 원인                                                         | 대응                                                            |
-| ---------------------------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------- |
-| `npm login이 필요` / whoami 실패                           | 미로그인                                                     | `npm login`                                                     |
+| 메시지                                                     | 원인                                                         | 대응                                                                           |
+| ---------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `npm login이 필요` / whoami 실패                           | 미로그인                                                     | `npm login`                                                                    |
 | `Cannot publish over previously published version "0.0.1"` | 같은 이름으로 `0.0.1` 이미 publish됨                         | 레지스트리 등록은 완료된 상태 → **2번(OIDC) 또는 3번으로 진행**. 재실행 불필요 |
-| `404` / permission                                         | org·스코프 publish 권한 없음, 또는 `~/.npmrc` 토큰만 사용 중 | org 멤버·권한 확인, 일상 작업은 **토큰 제거 후 `npm login`**    |
+| `404` / permission                                         | org·스코프 publish 권한 없음, 또는 `~/.npmrc` 토큰만 사용 중 | org 멤버·권한 확인, 일상 작업은 **토큰 제거 후 `npm login`**                   |
 
 `prepare-package`는 **CI에서 돌지 않습니다**. 로컬 전용입니다.
 
@@ -111,19 +111,19 @@ pnpm prepare-package <package-name>
 pnpm add-package <type> <project-name> <project-description> [options...]
 ```
 
-| 인자                  | 설명                                       |
-| --------------------- | ------------------------------------------ |
-| `type`                | `lib` · `react` · `react-vite`             |
+| 인자                  | 설명                                                                         |
+| --------------------- | ---------------------------------------------------------------------------- |
+| `type`                | `lib` · `react` · `react-vite`                                               |
 | `project-name`        | 폴더명·npm 패키지 접미사 (kebab-case 권장). **1번 `prepare-package`와 동일** |
-| `project-description` | `package.json` `description`               |
+| `project-description` | `package.json` `description`                                                 |
 
 #### `--type` 선택
 
-| `type`       | Build                        | React peer           | 언제 쓰나                          |
-| ------------ | ---------------------------- | -------------------- | ---------------------------------- |
-| `lib`        | tsdown (`platform: node`)    | 없음                 | React 없는 TypeScript 라이브러리   |
-| `react`      | tsdown (`platform: neutral`) | `react`, `react-dom` | hook·컴포넌트 npm 라이브러리       |
-| `react-vite` | Vite library mode            | `react`, `react-dom` | Vite 기반 React 라이브러리         |
+| `type`       | Build                        | React peer           | 언제 쓰나                        |
+| ------------ | ---------------------------- | -------------------- | -------------------------------- |
+| `lib`        | tsdown (`platform: node`)    | 없음                 | React 없는 TypeScript 라이브러리 |
+| `react`      | tsdown (`platform: neutral`) | `react`, `react-dom` | hook·컴포넌트 npm 라이브러리     |
+| `react-vite` | Vite library mode            | `react`, `react-dom` | Vite 기반 React 라이브러리       |
 
 스크립트가 고정하는 값: `@watcha-authentic` scope, 출력 경로 `packages/<project-name>/`, MIT 라이선스, 배포용 `package.json` variant, 저장소·author 메타.  
 4번째 인자부터는 `create-package` 옵션을 그대로 넘길 수 있습니다 (`--yes`, `--without-install` 등).
@@ -146,17 +146,18 @@ pnpm install
 - 스크립트: [add-package.sh](../project-attachment/script/add-package.sh)
 - 생성 위치: `packages/<project-name>/`
 - 템플릿·옵션 상세: `pnpm --filter=@watcha-authentic/common-cli dev create-package --help`
+- 생성 후 워크스페이스 `exports["."]`를 `src`로 두고, 템플릿 dist 맵을 `publishConfig.exports`에 넣습니다 ([patch-workspace-exports.mjs](../project-attachment/script/patch-workspace-exports.mjs)). 템플릿 `exports["."]`가 dist 객체가 아니면 실패합니다. 이어서 [add-workspace-readme-export.mjs](../project-attachment/script/add-workspace-readme-export.mjs)가 워크스페이스 `exports`에만 `"./README.md"`를 넣습니다. 정식 배포는 Lerna-lite(`lerna.json` `publishConfigOverrides: true`)가, 카나리는 [apply-publish-config-for-publish.mjs](../project-attachment/script/apply-publish-config-for-publish.mjs)가 같은 오버레이를 적용합니다.
 
 수동으로 디렉터리를 만들 때는 **4번**의 최소 구성을 참고하세요.
 
 ### 참고할 기존 패키지
 
-| 유형                      | 참고 경로                                              |
-| ------------------------- | ------------------------------------------------------ |
-| TypeScript 라이브러리     | `packages/` 내 tsdown 기반 lib (신규 스캐폴드와 동일 패턴) |
-| React 라이브러리 (tsdown) | `packages/react-event-callback/`                       |
+| 유형                      | 참고 경로                                                                                 |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
+| TypeScript 라이브러리     | `packages/` 내 tsdown 기반 lib (신규 스캐폴드와 동일 패턴)                                |
+| React 라이브러리 (tsdown) | `packages/react-event-callback/`                                                          |
 | Vite React 라이브러리     | `add-package react-vite` 스캐폴드 · [common-cli README](../packages/common-cli/README.md) |
-| ESLint/Prettier 설정      | `packages/eslint-config/`, `packages/prettier-config/` |
+| ESLint/Prettier 설정      | `packages/eslint-config/`, `packages/prettier-config/`                                    |
 
 ---
 
@@ -182,6 +183,8 @@ packages/<name>/
 
 - `name`: `@watcha-authentic/<name>` (**1번 `prepare-package`와 동일**)
 - `publishConfig.access`: `public`
+- 워크스페이스 `exports`: `src`. `main` / `module` / `types`는 dist
+- `publishConfig.exports`: 배포 tarball용 dist 맵
 - `repository` / `homepage`: 이 저장소·패키지 경로
 - `scripts`: `test`, `lint`, `build`, `typecheck` — 루트 `pnpm validate`가 turbo로 일괄 실행
 - `files`: 배포 tarball에 넣을 경로 (보통 `dist`)
@@ -212,9 +215,9 @@ pnpm validate --filter=@watcha-authentic/<name>
 pnpm build --filter=@watcha-authentic/<name>
 ```
 
-### playground (선택)
+### playground
 
-UI·동작을 눈으로 보려면 [apps/playground/package.json](../apps/playground/package.json)에 `workspace:*` 의존성을 추가합니다. 필수는 아닙니다.
+예제를 붙일 패키지는 [apps/playground/package.json](../apps/playground/package.json) `dependencies`에 `workspace:*`로 추가합니다. 워크스페이스 `exports`가 `src`를 가리키므로 dev 서버가 소스를 바로 반영합니다. 패키지끼리의 `dependencies`는 레지스트리 range를 유지합니다.
 
 ---
 

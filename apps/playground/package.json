@@ -13,6 +13,12 @@
   },
   "dependencies": {
     "@vanilla-extract/css": "^1.21.1",
+    "@watcha-authentic/react-a11y": "workspace:*",
+    "@watcha-authentic/react-context-factory": "workspace:*",
+    "@watcha-authentic/react-event-callback": "workspace:*",
+    "@watcha-authentic/react-motion": "workspace:*",
+    "@watcha-authentic/react-slider": "workspace:*",
+    "@watcha-authentic/react-stable-ref-callback": "workspace:*",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-markdown": "^10.1.0",
@@ -38,6 +44,7 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "globals": "^17.6.0",
+    "jiti": "^2.6.1",
     "typescript": "~5.9.3",
     "vite": "^8.1.4",
     "vitest": "^4.1.8"

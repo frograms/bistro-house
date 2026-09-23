@@ -48,3 +48,9 @@ pnpm --filter=@watcha-authentic/common-cli dev create-package \
 
 # 각 패키지에 추가되는 gitignore 는 제거 합니다. (루트에서 관리)
 rm -f "./packages/${project_name}/.gitignore"
+
+# 워크스페이스 exports 는 src, 배포용 dist 맵은 publishConfig.exports 에 둡니다.
+node ./project-attachment/script/patch-workspace-exports.mjs "${project_name}"
+
+# 패치가 exports 를 복사한 뒤, 워크스페이스 exports 에만 ./README.md 를 둡니다.
+node ./project-attachment/script/add-workspace-readme-export.mjs "${project_name}"

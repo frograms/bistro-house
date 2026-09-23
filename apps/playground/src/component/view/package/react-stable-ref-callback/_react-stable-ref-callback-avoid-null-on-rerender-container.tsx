@@ -1,4 +1,3 @@
-import { useStableRefCallback } from "@packages/react-stable-ref-callback/src/component/hook/use-stable-ref-callback";
 import { CommonCodeBlock } from "@playground/component/view/_common/common-code-block";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
 import {
@@ -9,6 +8,7 @@ import {
 import { CommonNote } from "@playground/component/view/_common/common-note";
 import { reactStableRefCallbackAvoidNullOnRerenderContainerCss as css } from "@playground/component/view/package/react-stable-ref-callback/_react-stable-ref-callback-avoid-null-on-rerender-container.css";
 import { commonExampleControlsCss } from "@playground/resource/css/common/common-example-controls.css";
+import { useStableRefCallback } from "@watcha-authentic/react-stable-ref-callback";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 
 const MAX_LOG_COUNT = 8;

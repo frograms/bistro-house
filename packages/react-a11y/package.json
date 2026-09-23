@@ -23,7 +23,14 @@
     "email": "web-dev-group@watcha.com"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      }
+    }
   },
   "scripts": {
     "test": "vitest run",
@@ -37,10 +44,10 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    }
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./README.md": "./README.md"
   },
   "files": [
     "dist"

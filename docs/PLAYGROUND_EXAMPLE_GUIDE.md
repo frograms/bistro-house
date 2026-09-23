@@ -5,10 +5,10 @@
 
 ### 이 문서 vs 스킬 (관심사 분리)
 
-| | **이 문서 (가이드)** | **스킬** (`.agents/skills/playground-example-add/SKILL.md`) |
-| --- | --- | --- |
+|         | **이 문서 (가이드)**                                                              | **스킬** (`.agents/skills/playground-example-add/SKILL.md`)         |
+| ------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | 담는 것 | 시나리오 선정·기획 표·§1~5 템플릿·블록 순서·옵션 노출·E2E **구현 요건**·품질 기준 | 작업 절차·E2E **실행**·**stage 비주얼·레이아웃**·자가점검·완료 보고 |
-| 수정 시 | 형식·규칙·템플릿 변경 | 절차·stage 비주얼·E2E 실행 정책 변경 |
+| 수정 시 | 형식·규칙·템플릿 변경                                                             | 절차·stage 비주얼·E2E 실행 정책 변경                                |
 
 에이전트는 가이드를 **단일 규칙 기준**으로 읽고, 스킬로 **순서·점검·보고**를 따릅니다. 동일 규칙을 스킬에 다시 정의하지 않습니다.
 
@@ -81,11 +81,11 @@ route 개수는 미리 정하지 않습니다. **예제 기획 표**와 **분할
 
 playground **예제 route**는 README만으로 전달하기 어려운 **복잡한 변형**에만 추가합니다. 기본 사용법은 **문서 route**(`CommonReadme`)로 충분합니다.
 
-| 추가함 (Y) | 추가하지 않음 (N) |
-| ---------- | ----------------- |
-| cleanup·언마운트·effect lifecycle을 stage에서 재현해야 함 | README `Basic usage`와 동일한 **단일 target·단일 동작** |
-| 다중 target·조건부 마운트·모드 전환 등 **조합 시나리오** | 옵션·필드 **하나**만 바뀌고 체감이 README 한 줄로 설명 가능 |
-| E2E 2~4단계로 **한 문장 차별점**을 재현해야 함 | 컨트롤 하나·StatePanel 숫자만 바뀌는 단순 토글 |
+| 추가함 (Y)                                                | 추가하지 않음 (N)                                           |
+| --------------------------------------------------------- | ----------------------------------------------------------- |
+| cleanup·언마운트·effect lifecycle을 stage에서 재현해야 함 | README `Basic usage`와 동일한 **단일 target·단일 동작**     |
+| 다중 target·조건부 마운트·모드 전환 등 **조합 시나리오**  | 옵션·필드 **하나**만 바뀌고 체감이 README 한 줄로 설명 가능 |
+| E2E 2~4단계로 **한 문장 차별점**을 재현해야 함            | 컨트롤 하나·StatePanel 숫자만 바뀌는 단순 토글              |
 
 - **옵션·필드마다 route를 늘리지 않습니다.** 복잡한 변형은 **한 route**에 통합합니다.
 - 이미 문서 route가 있으면, **기본 예제 route를 먼저 만들지 않고** 복잡한 변형이 필요할 때만 예제를 추가합니다.
@@ -112,11 +112,11 @@ playground **예제 route**는 README만으로 전달하기 어려운 **복잡�
 
 **타이틀과 slug는 기획 표의 「이 route만 보여 주는 것」한 문장에서 도출합니다.** 역할 이름(`basic`, `options`)을 쓰지 않습니다.
 
-| 항목           | 규칙                                      | 좋은 예                               | 나쁜 예                      |
-| -------------- | ----------------------------------------- | ------------------------------------- | ---------------------------- |
-| `exampleLabel` | `"예제 - "` + **8~20자 동작 설명** (한글) | `예제 - {동작 설명}`              | `예제 - 기본`, `예제 - 옵션` |
-| slug           | kebab-case **영어**, 타이틀 의미 반영     | `{descriptive-slug}`              | `basic`, `options`           |
-| path           | `/<package-name>/<slug>`                  | `/{package-name}/{descriptive-slug}` | `/{package-name}/basic`   |
+| 항목           | 규칙                                      | 좋은 예                              | 나쁜 예                      |
+| -------------- | ----------------------------------------- | ------------------------------------ | ---------------------------- |
+| `exampleLabel` | `"예제 - "` + **8~20자 동작 설명** (한글) | `예제 - {동작 설명}`                 | `예제 - 기본`, `예제 - 옵션` |
+| slug           | kebab-case **영어**, 타이틀 의미 반영     | `{descriptive-slug}`                 | `basic`, `options`           |
+| path           | `/<package-name>/<slug>`                  | `/{package-name}/{descriptive-slug}` | `/{package-name}/basic`      |
 
 - 사이드바에서 **어떤 예제인지 타이틀만 보고** 알 수 있어야 합니다.
 - slug는 URL·파일명에 쓰이므로 타이틀과 **같은 의미**를 유지합니다.
@@ -134,11 +134,11 @@ playground **예제 route**는 README만으로 전달하기 어려운 **복잡�
 
 **옵션 집약형** — 기본 동작과 옵션 통합 후보를 표에서 판정. slug·타이틀은 동작 설명에서 도출.
 
-| 예제 타이틀 (짧은 한글) | slug       | 대상 공개 API·옵션·반환 | 이 route만 보여 주는 것 (한 문장) | E2E 확인 단계              | stage·target·API 맥락이 다른가? | route           |
-| ----------------------- | ---------- | ----------------------- | --------------------------------- | -------------------------- | ------------------------------- | --------------- |
-| `{타이틀 A}`            | `{slug-a}` | `{Hook}` 기본           | …                                 | `{조작}`→`{stateField}` 변경 | —                               | Y               |
+| 예제 타이틀 (짧은 한글) | slug       | 대상 공개 API·옵션·반환 | 이 route만 보여 주는 것 (한 문장) | E2E 확인 단계                  | stage·target·API 맥락이 다른가? | route           |
+| ----------------------- | ---------- | ----------------------- | --------------------------------- | ------------------------------ | ------------------------------- | --------------- |
+| `{타이틀 A}`            | `{slug-a}` | `{Hook}` 기본           | …                                 | `{조작}`→`{stateField}` 변경   | —                               | Y               |
 | `{타이틀 B}`            | `{slug-b}` | `{option}`, `{return}`  | 같은 target에서 옵션·반환 토글    | `{토글}`→stage·StatePanel 변화 | N                               | Y 또는 **합침** |
-| `{옵션별 임시명}`       | —          | 단일 옵션만 분리        | …                                 | …                          | N (A와 동일 stage)              | **합침**        |
+| `{옵션별 임시명}`       | —          | 단일 옵션만 분리        | …                                 | …                              | N (A와 동일 stage)              | **합침**        |
 
 **모드 분리형** — 체감 모드마다 한 문장 차별점이 있을 때만 Y.
 
@@ -224,7 +224,7 @@ playground **예제 route**는 README만으로 전달하기 어려운 **복잡�
 ### 템플릿
 
 ```tsx
-import reactFooReadme from "@packages/react-foo/README.md?raw";
+import reactFooReadme from "@watcha-authentic/react-foo/README.md?raw";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
 import { CommonReadme } from "@playground/component/view/_common/common-readme";
 
@@ -243,14 +243,14 @@ export const ReactFooDocumentationContainer = () => (
 
 ### 파일 최상단 (조건부)
 
-| 순서 | 내용                                         | 조건                            |
-| ---- | -------------------------------------------- | ------------------------------- |
-| 1    | `import "@packages/{name}/src/.../*.css"`    | 패키지 CSS side effect 필요 시  |
-| 2    | `@packages/{name}/src/...` — 공개 API import | 항상                            |
-| 3    | `@playground/...` — 공통·로컬 스타일         | 항상                            |
-| 4    | `_shared/` fixture import                    | 더미 데이터·공유 스타일 필요 시 |
+| 순서 | 내용                                          | 조건                            |
+| ---- | --------------------------------------------- | ------------------------------- |
+| 1    | `import "@watcha-authentic/{name}/style.css"` | 패키지 CSS side effect 필요 시  |
+| 2    | `@watcha-authentic/{name}` — 공개 entrypoint  | 항상                            |
+| 3    | `@playground/...` — 공통·로컬 스타일          | 항상                            |
+| 4    | `_shared/` fixture import                     | 더미 데이터·공유 스타일 필요 시 |
 
-- `@watcha-authentic/{name}` barrel import는 쓰지 않습니다.
+- `@packages/` 경로와 패키지 `src` 파일 경로는 쓰지 않습니다. `apps/playground/package.json`에 해당 패키지를 `workspace:*`로 둔 뒤 공개 entrypoint만 import합니다.
 
 ### JSX 블록 구성 (고정 순서)
 
@@ -287,10 +287,10 @@ export const ReactFooDocumentationContainer = () => (
 
 공통 `stagePanel`은 `overflow: hidden`·`border-radius`가 있으므로, 자식이 가장자리에서 **잘리지 않게** 예제 전용 `stage` 클래스를 `className`으로 넘깁니다.
 
-| 예제 `*.css.ts`            | 역할                                                                                                         |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `stage`                    | `CommonExampleStagePanel`에 `className` — **padding**·`minHeight`·`display`·`gap` 등 무대 **안쪽** inset·배치 |
-| `target`·`{aux}` 등       | stage **자식** — `minHeight`·`padding`·`boxSizing: "border-box"`로 텍스트·포커스 링이 잘리지 않게            |
+| 예제 `*.css.ts`     | 역할                                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `stage`             | `CommonExampleStagePanel`에 `className` — **padding**·`minHeight`·`display`·`gap` 등 무대 **안쪽** inset·배치 |
+| `target`·`{aux}` 등 | stage **자식** — `minHeight`·`padding`·`boxSizing: "border-box"`로 텍스트·포커스 링이 잘리지 않게             |
 
 - 포커스·클릭 대상: 고정 `height`만 쓰면 라벨이 잘릴 수 있으므로 `minHeight`·`padding`을 명시합니다.
 - 여러 대상은 `stage`에서 `flex` + `gap`으로 배치합니다.
@@ -346,7 +346,7 @@ ControlPanel·StatePanel·stage에 올리는 것은 **사용자 조작으로 체
 | --------------- | --------------------------------------------------------------------- | ------------------------------------------------------- |
 | **노출**        | 토글·입력 직후 stage·StatePanel·포커스 등 **눈에 보이는 변화**가 있다 | ControlPanel + (필요 시) StatePanel                     |
 | **숨김**        | StatePanel 값만 바뀌고 체감이 없다                                    | UI에서 **제거**. `CommonCodeBlock`·README로만 언급 가능 |
-| **cleanup API** | 동작 시점이 effect cleanup·언마운트뿐이다 (`{cleanupOption}` 등)    | **A** 또는 **B**                                        |
+| **cleanup API** | 동작 시점이 effect cleanup·언마운트뿐이다 (`{cleanupOption}` 등)      | **A** 또는 **B**                                        |
 
 **A — cleanup이 실행되게 만든다**
 
@@ -377,7 +377,7 @@ ControlPanel·StatePanel·stage에 올리는 것은 **사용자 조작으로 체
 ### 템플릿 (예제 container)
 
 ```tsx
-// import { ExportName } from "@packages/react-foo/src/{path}/{module}";
+// import { ExportName } from "@watcha-authentic/react-foo";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
 import {
   CommonExampleControlPanel,
@@ -531,7 +531,7 @@ pnpm validate --filter=@watcha-authentic/<name>
 
 ## 규칙 변경 시
 
-| 변경 대상 | 수정할 문서 |
-| --------- | ----------- |
+| 변경 대상                                                            | 수정할 문서 |
+| -------------------------------------------------------------------- | ----------- |
 | 블록 순서·기획 표·route·CommonNote·옵션 노출·E2E 구현 요건·품질 기준 | **이 문서** |
-| 작업 절차·E2E 실행·stage 비주얼·자가점검·완료 보고 | **스킬** |
+| 작업 절차·E2E 실행·stage 비주얼·자가점검·완료 보고                   | **스킬**    |

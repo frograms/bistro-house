@@ -1,11 +1,5 @@
-import "@packages/react-slider/src/resource/css/common/slider.css";
+import "@watcha-authentic/react-slider/style.css";
 
-import { useSliderContext } from "@packages/react-slider/src/component/hook/use-slider-context";
-import {
-  Slider,
-  type SliderRef,
-} from "@packages/react-slider/src/component/view/slider";
-import type { SlideTriggerEvent } from "@packages/react-slider/src/script/type/slider-types";
 import { CommonCodeBlock } from "@playground/component/view/_common/common-code-block";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
 import {
@@ -21,6 +15,12 @@ import {
   type SliderItem,
 } from "@playground/component/view/package/react-slider/_shared/react-slider-items";
 import { commonExampleControlsCss } from "@playground/resource/css/common/common-example-controls.css";
+import {
+  Slider,
+  type SliderRef,
+  type SlideTriggerEvent,
+  useSliderContext,
+} from "@watcha-authentic/react-slider";
 import type { CSSProperties } from "react";
 import { useCallback, useRef, useState } from "react";
 
@@ -248,8 +248,7 @@ export const ReactSliderTransitionContainer = () => {
           </label>
         </CommonExampleControlPanel>
 
-        <CommonExampleStagePanel
-          className={reactSliderExampleCss.stage}>
+        <CommonExampleStagePanel className={reactSliderExampleCss.stage}>
           <Slider
             ref={slider}
             animationDuration={500}
