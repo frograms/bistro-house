@@ -1,7 +1,7 @@
 {
   "name": "@watcha-authentic/react-context-factory",
   "description": "React context를 타입 세이프하게 생성하는 팩토리 유틸",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/react-context-factory#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
@@ -35,8 +35,8 @@
     "@types/react-dom": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
-    "@watcha-authentic/eslint-config": "^2.0.1",
-    "@watcha-authentic/prettier-config": "^1.1.4",
+    "@watcha-authentic/eslint-config": "^2.0.4",
+    "@watcha-authentic/prettier-config": "^1.1.7",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.31.0",

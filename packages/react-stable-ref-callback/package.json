@@ -1,7 +1,7 @@
 {
   "name": "@watcha-authentic/react-stable-ref-callback",
   "description": "callback ref 참조를 고정해 리렌더 시 null 재호출·구독 리셋을 막는 React 훅",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/react-stable-ref-callback#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
@@ -35,8 +35,8 @@
     "@types/react-dom": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
-    "@watcha-authentic/eslint-config": "^2.0.1",
-    "@watcha-authentic/prettier-config": "^1.1.4",
+    "@watcha-authentic/eslint-config": "^2.0.4",
+    "@watcha-authentic/prettier-config": "^1.1.7",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.31.0",
