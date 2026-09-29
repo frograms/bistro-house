@@ -1,5 +1,6 @@
 import { reactPreset } from "@watcha-authentic/eslint-config/react";
+import type { Linter } from "eslint";
 
-const eslintConfig = [...reactPreset];
+const config: Array<Linter.Config> = [...reactPreset];
 
-export default eslintConfig;
+export default config;

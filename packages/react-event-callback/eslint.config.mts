@@ -1,5 +1,6 @@
 import { vitePreset } from "@watcha-authentic/eslint-config/vite";
+import type { Linter } from "eslint";
 
-const eslintConfig = [...vitePreset];
+const config: Array<Linter.Config> = [...vitePreset];
 
-export default eslintConfig;
+export default config;
