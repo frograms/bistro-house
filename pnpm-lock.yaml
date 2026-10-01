@@ -528,6 +528,72 @@ importers:
         specifier: ^4.1.8
         version: 4.1.8(@types/node@24.13.3)(happy-dom@20.10.2)(vite@8.1.4(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))
 
+  packages/react-isomorphic-layout-effect:
+    devDependencies:
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.16
+      '@types/react-dom':
+        specifier: ^19.0.0
+        version: 19.2.3(@types/react@19.2.16)
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.50.0
+        version: 8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.50.0
+        version: 8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      '@watcha-authentic/eslint-config':
+        specifier: ^2.0.1
+        version: 2.0.4(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-perfectionist@5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react-refresh@0.4.26(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.7.0)))(eslint-plugin-simple-import-sort@12.1.1(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(globals@17.6.0)
+      '@watcha-authentic/prettier-config':
+        specifier: ^1.1.4
+        version: 1.1.7(prettier@3.8.3)
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.4(jiti@2.7.0)
+      eslint-import-resolver-typescript:
+        specifier: ^3.6.0
+        version: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0))
+      eslint-plugin-import:
+        specifier: ^2.31.0
+        version: 2.32.0(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0))
+      eslint-plugin-perfectionist:
+        specifier: ^5.9.0
+        version: 5.9.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      eslint-plugin-react:
+        specifier: ^7.37.5
+        version: 7.37.5(eslint@9.39.4(jiti@2.7.0))
+      eslint-plugin-react-hooks:
+        specifier: ^7.0.0
+        version: 7.1.1(eslint@9.39.4(jiti@2.7.0))
+      eslint-plugin-simple-import-sort:
+        specifier: ^12.1.1
+        version: 12.1.1(eslint@9.39.4(jiti@2.7.0))
+      happy-dom:
+        specifier: 20.10.2
+        version: 20.10.2
+      jiti:
+        specifier: ^2.6.1
+        version: 2.7.0
+      prettier:
+        specifier: ^3.7.4
+        version: 3.8.3
+      react:
+        specifier: ^19.0.0
+        version: 19.2.7
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.7(react@19.2.7)
+      tsdown:
+        specifier: ^0.21.5
+        version: 0.21.10(@tsdown/css@0.21.10)(typescript@5.9.3)
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.8
+        version: 4.1.8(@types/node@24.13.3)(happy-dom@20.10.2)(vite@8.1.4(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))
+
   packages/react-motion:
     dependencies:
       '@watcha-authentic/react-event-callback':
@@ -6552,13 +6618,11 @@ snapshots:
 
   '@types/unist@3.0.3': {}
 
-  '@types/whatwg-mimetype@3.0.2':
-    optional: true
+  '@types/whatwg-mimetype@3.0.2': {}
 
   '@types/ws@8.18.1':
     dependencies:
       '@types/node': 24.13.3
-    optional: true
 
   '@typescript-eslint/eslint-plugin@8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)':
     dependencies:
@@ -7160,7 +7224,6 @@ snapshots:
   buffer-image-size@0.6.4:
     dependencies:
       '@types/node': 24.13.3
-    optional: true
 
   cac@7.0.0: {}
 
@@ -8076,7 +8139,6 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
-    optional: true
 
   has-bigints@1.1.0: {}
 
@@ -10505,8 +10567,7 @@ snapshots:
 
   walk-up-path@4.0.0: {}
 
-  whatwg-mimetype@3.0.0:
-    optional: true
+  whatwg-mimetype@3.0.0: {}
 
   which-boxed-primitive@1.1.1:
     dependencies:
@@ -10594,8 +10655,7 @@ snapshots:
       sort-keys: 6.0.0
       write-file-atomic: 6.0.0
 
-  ws@8.21.0:
-    optional: true
+  ws@8.21.0: {}
 
   y18n@5.0.8: {}
 
