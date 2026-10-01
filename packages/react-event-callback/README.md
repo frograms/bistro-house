@@ -11,6 +11,7 @@
 - [Dependencies](#dependencies)
 - [Installation](#installation)
 - [Usage](#usage)
+- [API](#api)
 
 ## Dependencies
 
@@ -34,6 +35,8 @@ pnpm add @watcha-authentic/react-event-callback react@>=18.0.0 react-dom@>=18.0.
 ## Usage
 
 ### Basic usage
+
+참조가 고정된 핸들러를 만들고, effect 의존성에 넣습니다.
 
 ```tsx
 import { useEventCallback } from "@watcha-authentic/react-event-callback";
@@ -63,3 +66,22 @@ function App() {
   );
 }
 ```
+
+## API
+
+### useEventCallback
+
+항상 최신 `callback`을 호출하는 안정된 함수를 반환합니다.
+
+#### Parameters
+
+| Name       | Type                    | Default | Description                 |
+| ---------- | ----------------------- | ------- | --------------------------- |
+| `callback` | `Callback \| undefined` | —       | 호출할 함수. 없어도 됩니다. |
+
+#### Returns
+
+| Name       | Type                               | Description                              |
+| ---------- | ---------------------------------- | ---------------------------------------- |
+| (function) | `Callback`                         | 함수를 넘긴 경우. 넘긴 함수와 같습니다.  |
+| (function) | `(...args) => Return \| undefined` | `callback`이 `undefined`일 수 있는 경우. |
