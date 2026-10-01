@@ -1,28 +1,24 @@
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
+
+type AnyFunction = (...args: never[]) => unknown;
 
 /**
- * - 항상 최신 callback을 참조하고 dependecy 변경으로 인한 재실행을 방지 하는 후크
- * - example
- *   ```tsx
- *   const handleClick = useEventCallback((count) => {
- *     console.log(count); // 항상 최신 count 가 참조됨
- *   });
- *   // count 종속성을 가진 useEffect
- *   useEffect(() => {
- *     someLib.on('event', handleClick);
- *   }, [handleClick]); // 디펜던시 변경으로 인한 effect 재실행이 방지됨
- *   ```
+ * 최신 callback을 호출하는 안정된 함수를 반환한다.
+ * callback이 있으면 반환 타입은 callback과 같다. 없으면 호출 결과는 undefined이다.
  */
-export const useEventCallback = <Args extends unknown[], Return>(
-  callback: ((...args: Args) => Return) | undefined
-): ((...args: Args) => Return | undefined) => {
+export function useEventCallback<Callback extends AnyFunction>(
+  callback: Callback
+): Callback;
+export function useEventCallback<Callback extends AnyFunction>(
+  callback: Callback | undefined
+): (...args: Parameters<Callback>) => ReturnType<Callback> | undefined;
+export function useEventCallback<Callback extends AnyFunction>(
+  callback: Callback | undefined
+) {
   const callbackRef = useRef(callback);
+  callbackRef.current = callback;
 
-  useLayoutEffect(() => {
-    callbackRef.current = callback;
-  });
-
-  return useCallback((...args: Args) => {
+  return useCallback((...args: Parameters<Callback>) => {
     return callbackRef.current?.(...args);
   }, []);
-};
+}

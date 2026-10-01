@@ -1,15 +1,13 @@
 {
-  "name": "@watcha-authentic/react-motion",
-  "description": "React용 포인터·제스처 훅과 유틸",
+  "name": "@watcha-authentic/react-isomorphic-layout-effect",
+  "description": "브라우저에서는 useLayoutEffect, 서버에서는 useEffect를 쓰는 훅",
   "keywords": [
     "react",
-    "motion",
-    "pointer",
-    "gesture",
-    "event"
+    "layout-effect",
+    "ssr"
   ],
-  "version": "1.2.1",
-  "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/react-motion#readme",
+  "version": "1.1.0",
+  "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/react-isomorphic-layout-effect#readme",
   "author": {
     "name": "@watcha-authentic#web-dev-group",
     "email": "web-dev-group@watcha.com",
@@ -33,36 +31,17 @@
       }
     }
   },
-  "scripts": {
-    "test": "vitest run",
-    "typecheck": "tsc",
-    "lint": "eslint .",
-    "build": "rm -rf ./dist && tsdown && pnpm build:post",
-    "build:post": "bash ./project-attachment/post-build.sh"
-  },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
-    },
-    "./README.md": "./README.md"
-  },
   "files": [
     "dist"
   ],
-  "dependencies": {
-    "@watcha-authentic/react-event-callback": "^1.3.0"
-  },
+  "license": "MIT",
   "devDependencies": {
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
-    "@watcha-authentic/eslint-config": "^2.0.4",
-    "@watcha-authentic/prettier-config": "^1.1.7",
+    "@watcha-authentic/eslint-config": "^2.0.1",
+    "@watcha-authentic/prettier-config": "^1.1.4",
     "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.31.0",
@@ -70,6 +49,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "happy-dom": "20.10.2",
     "jiti": "^2.6.1",
     "prettier": "^3.7.4",
     "react": "^19.0.0",
@@ -82,5 +62,21 @@
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
   },
-  "license": "MIT"
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./README.md": "./README.md"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "scripts": {
+    "build": "rm -rf ./dist && tsdown && pnpm build:post",
+    "build:post": "bash ./project-attachment/post-build.sh",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "typecheck": "tsc"
+  },
+  "types": "./dist/index.d.ts"
 }

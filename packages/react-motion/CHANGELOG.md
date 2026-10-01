@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.1](https://github.com/frograms/bistro-house/compare/@watcha-authentic/react-motion@1.2.0...@watcha-authentic/react-motion@1.2.1) (2026-10-01)
+
+**Note:** Version bump only for package @watcha-authentic/react-motion
+
 # [1.2.0](https://github.com/frograms/bistro-house/compare/@watcha-authentic/react-motion@1.1.7...@watcha-authentic/react-motion@1.2.0) (2026-09-23)
 
 ### Features
