@@ -38,7 +38,7 @@ const GithubIcon = () => {
   );
 };
 
-export const PackageAppContent = () => {
+export const AppPlaygroundContent = () => {
   const { pathname } = useLocation();
 
   const activePage = useMemo(() => {

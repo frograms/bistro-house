@@ -19,6 +19,7 @@
     "@watcha-authentic/react-motion": "workspace:*",
     "@watcha-authentic/react-slider": "workspace:*",
     "@watcha-authentic/react-stable-ref-callback": "workspace:*",
+    "@watcha-authentic/react-theme-context": "workspace:*",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-markdown": "^10.1.0",
