@@ -442,7 +442,7 @@ import { ReactFooExampleContainer } from "@playground/component/view/package/rea
 // ...
 
 withRouteComponent({
-  AppContent: PackageAppContent,
+  AppContent: AppPlaygroundContent,
   routes: [
     {
       lazy: async () => ({

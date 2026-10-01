@@ -81,6 +81,27 @@ export const MENU_INFO: ReadonlyArray<MenuInfo> = [
     path: "/react-stable-ref-callback",
     showTableOfContents: true,
   },
+  {
+    githubUrl:
+      "https://github.com/frograms/bistro-house/tree/master/packages/react-theme-context#readme",
+    items: [
+      {
+        exampleLabel: "예제 - 기본",
+        path: "/react-theme-context/pick-theme",
+      },
+      {
+        exampleLabel: "예제 - OS 어피어런스 표시",
+        path: "/react-theme-context/show-os-appearance",
+      },
+    ],
+    npmUrl:
+      "https://www.npmjs.com/package/@watcha-authentic/react-theme-context",
+    packageDescription: "테마 변경을 컨텍스트로 관리할 수 있는 컨텍스트",
+    packageLabel: "React Theme Context",
+    packageName: "@watcha-authentic/react-theme-context",
+    path: "/react-theme-context",
+    showTableOfContents: true,
+  },
 ];
 
 export const PAGE_INFOS = MENU_INFO.flatMap((menuInfo) => {
