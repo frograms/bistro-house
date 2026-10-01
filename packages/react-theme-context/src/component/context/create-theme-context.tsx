@@ -2,7 +2,8 @@
 
 import { createContext } from "@watcha-authentic/react-context-factory";
 import { useEventCallback } from "@watcha-authentic/react-event-callback";
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useIsomorphicLayoutEffect } from "@watcha-authentic/react-isomorphic-layout-effect";
+import { type SetStateAction, useMemo, useRef, useState } from "react";
 
 import type { SystemAppearanceName } from "../../script/type/appearance-type";
 import type {
@@ -66,10 +67,8 @@ export const createThemeContext = <
         const stableOnResolveSystemTheme =
           useEventCallback(onResolveSystemTheme);
 
-        const selectTheme = useCallback<
-          ThemeContextActions<ThemeValue, ThemeName>["setTheme"]
-        >(
-          (next) => {
+        const selectTheme = useEventCallback(
+          (next: SetStateAction<ThemeName | SystemAppearanceName>) => {
             setThemeName((prevThemeName) => {
               const nextThemeName =
                 typeof next === "function" ? next(prevThemeName) : next;
@@ -83,19 +82,14 @@ export const createThemeContext = <
                 );
               }
             });
-          },
-          [themes]
+          }
         );
 
         const theme = useMemo(() => {
           let resolvedThemeName: ThemeName;
 
           if (themeName === "system-appearance") {
-            const resolvedSystemTheme = stableOnResolveSystemTheme(appearance);
-            if (resolvedSystemTheme === undefined) {
-              throw new Error("System theme is not resolved");
-            }
-            resolvedThemeName = resolvedSystemTheme;
+            resolvedThemeName = stableOnResolveSystemTheme(appearance);
           } else {
             resolvedThemeName = themeName;
           }
@@ -120,7 +114,7 @@ export const createThemeContext = <
         }, [selectTheme, theme]);
 
         // 테마가 변경되면 onThemeSelect을 호출한다.
-        useLayoutEffect(() => {
+        useIsomorphicLayoutEffect(() => {
           if (prevTheme.current?.name !== theme.name) {
             stableOnThemeSelect(theme, prevTheme.current);
           }

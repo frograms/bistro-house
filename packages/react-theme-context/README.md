@@ -20,7 +20,8 @@
 이 패키지와 함께 설치됩니다.
 
 - `@watcha-authentic/react-context-factory` `^1.1.0` — 테마 컨텍스트를 만들 때 사용합니다.
-- `@watcha-authentic/react-event-callback` `^1.2.0` — `onThemeSelect`·`onResolveSystemTheme` 참조를 안정적으로 유지합니다.
+- `@watcha-authentic/react-event-callback` `^1.3.0` — `onThemeSelect`·`onResolveSystemTheme`·`setTheme` 참조를 안정적으로 유지합니다.
+- `@watcha-authentic/react-isomorphic-layout-effect` `^1.1.0` — `onThemeSelect`을 브라우저에서는 페인트 전에, 서버에서는 경고 없이 호출합니다.
 
 ### Peer dependencies
 
@@ -204,7 +205,7 @@ const ThemeName = () => {
 
 `onThemeSelect`는 클라이언트에서 호출됩니다. 서버 렌더 직후 첫 알림은 `defaultTheme`일 수 있습니다.
 
-`onResolveSystemTheme`이 이름을 못 정하거나, 그 이름이 `themes`에 없으면 에러가 납니다.
+`onResolveSystemTheme`이 반환한 이름이 `themes`에 없으면 에러가 납니다.
 
 ### ThemeContextActions
 

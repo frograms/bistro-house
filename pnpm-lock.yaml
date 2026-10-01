@@ -821,8 +821,11 @@ importers:
         specifier: ^1.1.0
         version: 1.2.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@watcha-authentic/react-event-callback':
-        specifier: ^1.2.0
+        specifier: ^1.3.0
         version: 1.3.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@watcha-authentic/react-isomorphic-layout-effect':
+        specifier: ^1.1.0
+        version: 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@types/react':
         specifier: ^19.0.0
@@ -2408,6 +2411,12 @@ packages:
 
   '@watcha-authentic/react-event-callback@1.3.0':
     resolution: {integrity: sha512-RY1ssMc+EuQrltsz9KkFNgVxK7CFkcoIdlpA567VlTPCXHO78m04WJgrmRZDXEWzJTAsgS4kN1SzjeD0xOvp4A==}
+    peerDependencies:
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
+
+  '@watcha-authentic/react-isomorphic-layout-effect@1.1.0':
+    resolution: {integrity: sha512-0soo1fZRkj7lv3GgTOVVrE5dk7TWbRWS9iIcKdRRDabwQP+tBWKhnwZWQJE1VeFjMeT8fuTpcYAa1Or/On0POA==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
@@ -7107,6 +7116,11 @@ snapshots:
       react-dom: 19.2.7(react@19.2.7)
 
   '@watcha-authentic/react-event-callback@1.3.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+
+  '@watcha-authentic/react-isomorphic-layout-effect@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
