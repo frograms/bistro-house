@@ -15,7 +15,7 @@ export const commonExamplePanelsCss = {
     borderRadius: 14,
     display: "grid",
     gap: 10,
-    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr))",
     margin: 0,
     padding: 16,
   }),
@@ -35,6 +35,8 @@ globalStyle(
     borderRadius: 12,
     display: "grid",
     gap: 6,
+    minWidth: 0,
+    overflow: "hidden",
     padding: "12px 14px",
   }
 );
@@ -48,10 +50,12 @@ globalStyle(`${commonExamplePanelsCss.statePanelTitle}`, {
 globalStyle(`${commonExamplePanelsCss.statePanel} dt`, {
   color: "#6b7280",
   fontSize: 13,
+  overflowWrap: "anywhere",
 });
 
 globalStyle(`${commonExamplePanelsCss.statePanel} dd`, {
   color: "#111827",
   fontWeight: 700,
   margin: 0,
+  overflowWrap: "anywhere",
 });

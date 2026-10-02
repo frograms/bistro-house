@@ -20,6 +20,8 @@ const RELOAD_AT_KEY = "playground:vite-preload-error-reload-at";
 const RELOAD_COOLDOWN_MS = 10_000;
 const EMPTY_VITE_PRELOAD_ERRORS: readonly Error[] = [];
 
+const listeners = new Set<UseSyncExternalStoreOnStoreChange>();
+
 let isRegistered = false;
 let pendingVitePreloadErrors: readonly Error[] = EMPTY_VITE_PRELOAD_ERRORS;
 
@@ -27,25 +29,18 @@ let reloadStartedInThisDocument = false;
 let giveUpHandledInThisDocument = false;
 
 /**
- * vitePreloadErrorStore 내부 상태·헬퍼.
+ * pending vitePreloadError 구독자에게 변경을 알린다.
  */
-const vitePreloadErrorStoreInternal = {
-  /**
-   * pending vitePreloadError 구독자에게 변경을 알린다.
-   */
-  emit(): void {
-    for (const listener of vitePreloadErrorStoreInternal.listeners) {
-      listener();
-    }
-  },
-
-  listeners: new Set<UseSyncExternalStoreOnStoreChange>(),
+const emit = (): void => {
+  for (const listener of listeners) {
+    listener();
+  }
 };
 
 /**
  * pending vitePreloadError external store.
  */
-export const vitePreloadErrorStore = {
+const vitePreloadErrorStore = {
   /**
    * SSR용 빈 스냅샷을 반환한다.
    */
@@ -61,22 +56,27 @@ export const vitePreloadErrorStore = {
   },
 
   /**
+   * pending vitePreloadError 스냅샷 변경을 구독한다.
+   */
+  subscribe: ((onStoreChange) => {
+    listeners.add(onStoreChange);
+    return () => {
+      listeners.delete(onStoreChange);
+    };
+  }) satisfies UseSyncExternalStoreSubscribe,
+};
+
+/**
+ * pending 큐를 넣고 뺀다.
+ */
+const vitePreloadErrorStoreActions = {
+  /**
    * payload를 pending 큐에 넣고 구독자에게 알린다.
    */
   push(error: Error): void {
     pendingVitePreloadErrors = [...pendingVitePreloadErrors, error];
-    vitePreloadErrorStoreInternal.emit();
+    emit();
   },
-
-  /**
-   * pending vitePreloadError 스냅샷 변경을 구독한다.
-   */
-  subscribe: ((onStoreChange) => {
-    vitePreloadErrorStoreInternal.listeners.add(onStoreChange);
-    return () => {
-      vitePreloadErrorStoreInternal.listeners.delete(onStoreChange);
-    };
-  }) satisfies UseSyncExternalStoreSubscribe,
 
   /**
    * pending 큐를 비우고 꺼낸 에러 목록을 반환한다.
@@ -88,7 +88,7 @@ export const vitePreloadErrorStore = {
 
     const taken = [...pendingVitePreloadErrors];
     pendingVitePreloadErrors = EMPTY_VITE_PRELOAD_ERRORS;
-    vitePreloadErrorStoreInternal.emit();
+    emit();
     return taken;
   },
 };
@@ -143,11 +143,11 @@ const consumeVitePreloadError = (): ConsumeVitePreloadErrorResult => {
 };
 
 /**
- * window 이벤트의 payload를 store에 쌓는다.
+ * window 이벤트의 payload를 큐에 쌓는다.
  */
 const onWindowVitePreloadError = (event: VitePreloadErrorEvent): void => {
   event.preventDefault();
-  vitePreloadErrorStore.push(event.payload);
+  vitePreloadErrorStoreActions.push(event.payload);
 };
 
 /**
@@ -186,7 +186,7 @@ export const useVitePreloadError = (): void => {
       return;
     }
 
-    const errors = vitePreloadErrorStore.takeAll();
+    const errors = vitePreloadErrorStoreActions.takeAll();
     for (const _error of errors) {
       if (consumeVitePreloadError() === "give-up") {
         // eslint-disable-next-line no-alert -- give-up 안내
