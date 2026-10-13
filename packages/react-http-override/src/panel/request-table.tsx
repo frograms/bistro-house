@@ -1,13 +1,18 @@
+import { useEffect, useState } from "react";
+
 import type { HttpOverrideRecord } from "../core";
 import {
   chipErrorStyle,
   chipOkStyle,
+  chipPendingStyle,
   mockBadgeStyle,
   panelClassNames,
+  pendingSpinnerStyle,
   rowButtonSelectedStyle,
   rowButtonStyle,
   rowCountErrorStyle,
   rowCountOkStyle,
+  rowCountPendingStyle,
   rowListStyle,
   rowMethodStyle,
   rowRuleChipStyle,
@@ -39,11 +44,46 @@ const formatTime = (epochMs: number): string => {
   return `${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
 };
 
-const isErrorStatus = (record: HttpOverrideRecord): boolean =>
-  record.status === 0 || record.status >= 400;
+export const isErrorRecord = (record: HttpOverrideRecord): boolean =>
+  record.state === "error" || (record.status !== null && record.status >= 400);
 
-const StatusChip = ({ record }: { record: HttpOverrideRecord }) => {
-  if (record.status === 0) {
+const ELAPSED_TICK_MS = 100;
+
+const PendingChip = ({ startedAt }: { startedAt: number }) => {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setNow(Date.now());
+    }, ELAPSED_TICK_MS);
+    return () => {
+      window.clearInterval(id);
+    };
+  }, []);
+
+  const elapsedSeconds = Math.max(0, now - startedAt) / 1000;
+  return (
+    <span aria-label="응답 대기 중" style={chipPendingStyle}>
+      <span
+        aria-hidden="true"
+        className={panelClassNames.spinner}
+        style={pendingSpinnerStyle}
+      />
+      {`${elapsedSeconds.toFixed(1)}s`}
+    </span>
+  );
+};
+
+const countStyleOf = (record: HttpOverrideRecord) => {
+  if (record.state === "pending") return rowCountPendingStyle;
+  return isErrorRecord(record) ? rowCountErrorStyle : rowCountOkStyle;
+};
+
+export const StatusChip = ({ record }: { record: HttpOverrideRecord }) => {
+  if (record.state === "pending" || record.status === null) {
+    return <PendingChip startedAt={record.startedAt} />;
+  }
+  if (record.state === "error") {
     return <span style={chipErrorStyle}>ERR</span>;
   }
   return (
@@ -78,12 +118,7 @@ export const RequestTable = ({
             title={ruledKeys.has(group.key) ? "활성 룰 적용 중" : undefined}
             type="button"
             onClick={() => onSelectGroup(group.key)}>
-            <span
-              style={
-                isErrorStatus(group.latest)
-                  ? rowCountErrorStyle
-                  : rowCountOkStyle
-              }>
+            <span style={countStyleOf(group.latest)}>
               {group.count}
             </span>
             <span style={rowTimeStyle}>
