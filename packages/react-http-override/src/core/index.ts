@@ -10,6 +10,7 @@ export type {
   HttpOverrideCacheEntry,
   HttpOverridePreset,
   HttpOverrideRecord,
+  HttpOverrideRecordState,
   HttpOverrideRule,
   HttpOverrideRuleInput,
   HttpOverrideStorage,
