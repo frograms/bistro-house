@@ -720,6 +720,13 @@ export const actionWarmButtonStyle: CSSProperties = {
   color: palette.orange,
 };
 
+export const actionPrimaryButtonStyle: CSSProperties = {
+  ...actionButtonBaseStyle,
+  background: palette.tealSoft,
+  border: `1px solid ${palette.teal}`,
+  color: palette.teal,
+};
+
 export const actionNeutralButtonStyle: CSSProperties = {
   ...actionButtonBaseStyle,
   border: `1px solid ${palette.line}`,

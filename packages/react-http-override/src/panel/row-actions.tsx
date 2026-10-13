@@ -8,6 +8,7 @@ import {
   actionBodyHintJsonStyle,
   actionBodyInputStyle,
   actionNeutralButtonStyle,
+  actionPrimaryButtonStyle,
   actionRowStyle,
   actionSectionStyle,
   actionStatusInputStyle,
@@ -156,9 +157,22 @@ export const RowActions = ({ api, record }: RowActionsProps) => {
     [bodyKind]
   );
 
+  const handleRevalidate = useCallback(() => {
+    api.revalidate(record.url, record.method);
+  }, [api, record.method, record.url]);
+
   return (
     <div style={actionSectionStyle}>
       <div style={actionRowStyle}>
+        {api.canRevalidate(record.method) && (
+          <button
+            className={panelClassNames.actionButton}
+            style={actionPrimaryButtonStyle}
+            type="button"
+            onClick={handleRevalidate}>
+            재요청
+          </button>
+        )}
         <button
           className={panelClassNames.warmButton}
           style={

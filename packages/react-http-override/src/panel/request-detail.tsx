@@ -112,8 +112,9 @@ export const RequestDetail = ({
   const handleEmptyPath = useCallback(
     (path: string, suggested: unknown) => {
       addPatch(path, { value: suggested });
+      api.revalidate(record.url, record.method);
     },
-    [addPatch]
+    [addPatch, api, record.method, record.url]
   );
 
   const handleEditPath = useCallback((path: string, current: unknown) => {
@@ -125,7 +126,8 @@ export const RequestDetail = ({
     if (editingPath === null) return;
     addPatch(editingPath, parseEditValue(editValue));
     setEditingPath(null);
-  }, [addPatch, editingPath, editValue]);
+    api.revalidate(record.url, record.method);
+  }, [addPatch, api, editingPath, editValue, record.method, record.url]);
 
   return (
     <>
@@ -207,7 +209,9 @@ export const RequestDetail = ({
                 style={actionWarmButtonStyle}
                 type="button"
                 onClick={handleApplyEdit}>
-                이 값으로 바꾸기
+                {api.canRevalidate(record.method)
+                  ? "바꾸고 재요청"
+                  : "이 값으로 바꾸기"}
               </button>
               <button
                 className={panelClassNames.actionButton}

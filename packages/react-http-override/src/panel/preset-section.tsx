@@ -58,19 +58,40 @@ export const PresetSection = ({
     return null;
   }, [rules]);
 
+  const revalidateMatching = useCallback(
+    (patterns: string[]) => {
+      if (patterns.length === 0) return;
+      const methodByUrl = new Map<string, string>();
+      for (const item of api.records.getSnapshot()) {
+        if (matchesAny(patterns, item.url)) methodByUrl.set(item.url, item.method);
+      }
+      methodByUrl.forEach((method, url) => api.revalidate(url, method));
+    },
+    [api]
+  );
+
   const handleSelect = useCallback(
     (preset: HttpOverridePreset) => {
+      const clearedPatterns: string[] = [];
       for (const rule of api.rules.getSnapshot()) {
         if (presetIdOf(rule.id) === null) continue;
+        clearedPatterns.push(rule.pattern);
         api.rules.remove(rule.id);
       }
-      if (activeId === preset.id) return;
+      if (activeId === preset.id) {
+        revalidateMatching(clearedPatterns);
+        return;
+      }
       const label = names[preset.id] ?? preset.name;
       preset.rules.forEach((rule, index) => {
         api.rules.add({ ...rule, id: presetRuleId(preset.id, index), label });
       });
+      revalidateMatching([
+        ...clearedPatterns,
+        ...preset.rules.map((rule) => rule.pattern),
+      ]);
     },
-    [activeId, api, names]
+    [activeId, api, names, revalidateMatching]
   );
 
   const applyName = useCallback(
