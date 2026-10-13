@@ -6,6 +6,10 @@ import {
   onUninstall,
 } from "./core/install";
 
+export type MountPanel = (options: {
+  presets?: HttpOverridePreset[];
+}) => () => void;
+
 export type InstallHttpOverrideOptions = CoreInstallOptions & {
   /** false면 패널을 띄우지 않기. 호스트가 HttpOverrideLauncher를 직접 마운트할 때 사용 */
   autoMount?: boolean;
@@ -37,27 +41,28 @@ const afterPageSettled = (callback: () => void): (() => void) => {
   };
 };
 
-export const installHttpOverride = (
-  options: InstallHttpOverrideOptions = {}
-): HttpOverrideApi | null => {
-  const { autoMount = true, presets, ...coreOptions } = options;
-  const alreadyInstalled = getHttpOverride() !== null;
-  const api = installCore(coreOptions);
-  if (api === null || alreadyInstalled || !autoMount) return api;
+/** 마운트 방식(React 버전별)만 주입받아 자동 마운트 install을 만든다 */
+export const createAutoInstall =
+  (loadMountPanel: () => Promise<{ mountPanel: MountPanel }>) =>
+  (options: InstallHttpOverrideOptions = {}): HttpOverrideApi | null => {
+    const { autoMount = true, presets, ...coreOptions } = options;
+    const alreadyInstalled = getHttpOverride() !== null;
+    const api = installCore(coreOptions);
+    if (api === null || alreadyInstalled || !autoMount) return api;
 
-  let disposed = false;
-  let unmount: (() => void) | null = null;
-  const cancelSchedule = afterPageSettled(() => {
-    void import("./panel/mount-panel").then(({ mountPanel }) => {
-      if (disposed) return;
-      unmount = mountPanel({ presets });
+    let disposed = false;
+    let unmount: (() => void) | null = null;
+    const cancelSchedule = afterPageSettled(() => {
+      void loadMountPanel().then(({ mountPanel }) => {
+        if (disposed) return;
+        unmount = mountPanel({ presets });
+      });
     });
-  });
 
-  onUninstall(() => {
-    disposed = true;
-    cancelSchedule();
-    unmount?.();
-  });
-  return api;
-};
+    onUninstall(() => {
+      disposed = true;
+      cancelSchedule();
+      unmount?.();
+    });
+    return api;
+  };
