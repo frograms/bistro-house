@@ -7,23 +7,32 @@ import { createSafeStorage } from "./safe-storage";
 import type { HttpOverrideApi, HttpOverrideStorage } from "./types";
 
 export type InstallHttpOverrideOptions = {
-  baseFetch?: typeof fetch;
-  enabled: boolean;
   maxBodyBytes?: number;
   maxRecords?: number;
   storage?: HttpOverrideStorage;
 };
 
-/** enabled=false 또는 SSR이면 no-op. 중복 호출 시 기존 설치 반환 */
+type Installation = {
+  api: HttpOverrideApi;
+  originalFetch: typeof fetch;
+  patchedFetch: typeof fetch;
+};
+
+let installation: Installation | null = null;
+
+/** 설치 안 됐거나 SSR이면 null */
+export const getHttpOverride = (): HttpOverrideApi | null =>
+  installation?.api ?? null;
+
+/** window.fetch를 가로채 설치한다. SSR이면 no-op, 중복 호출 시 기존 설치 반환 */
 export const installHttpOverride = (
-  options: InstallHttpOverrideOptions
+  options: InstallHttpOverrideOptions = {}
 ): HttpOverrideApi | null => {
-  const { baseFetch, enabled, maxBodyBytes, maxRecords, storage } = options;
-
-  if (!enabled) return null;
   if (typeof window === "undefined") return null;
-  if (window.__HTTP_OVERRIDE__ !== undefined) return window.__HTTP_OVERRIDE__;
+  if (installation !== null) return installation.api;
 
+  const { maxBodyBytes, maxRecords, storage } = options;
+  const originalFetch = window.fetch;
   const sessionStore =
     storage ?? createSafeStorage(() => window.sessionStorage);
   const ruleStore = createRuleStore(sessionStore);
@@ -32,17 +41,8 @@ export const installHttpOverride = (
   const launcher = createLauncherVisibility(
     createSafeStorage(() => window.localStorage)
   );
-  // 설치 시점에 고정하지 않고 호출 시점에 조회 — 이후 패치된 fetch 위에서도 동작
-  const defaultBaseFetch: typeof fetch = (input, init) =>
-    window.fetch(input, init);
 
   const api: HttpOverrideApi = {
-    fetch: createOverrideFetch({
-      baseFetch: baseFetch ?? defaultBaseFetch,
-      buffer,
-      getRules: ruleStore.getSnapshot,
-      maxBodyBytes,
-    }),
     hide: launcher.hide,
     launcher: {
       getSnapshot: launcher.getSnapshot,
@@ -71,6 +71,23 @@ export const installHttpOverride = (
     toggle: launcher.toggle,
   };
 
-  window.__HTTP_OVERRIDE__ = api;
+  const patchedFetch = createOverrideFetch({
+    baseFetch: (input, init) => originalFetch.call(window, input, init),
+    buffer,
+    getRules: ruleStore.getSnapshot,
+    maxBodyBytes,
+  });
+
+  window.fetch = patchedFetch;
+  installation = { api, originalFetch, patchedFetch };
   return api;
+};
+
+/** 원래 fetch로 되돌린다. 그 사이 다른 코드가 fetch를 다시 패치했다면 그 패치는 건드리지 않는다 */
+export const uninstallHttpOverride = (): void => {
+  if (installation === null) return;
+  if (window.fetch === installation.patchedFetch) {
+    window.fetch = installation.originalFetch;
+  }
+  installation = null;
 };
