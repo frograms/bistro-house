@@ -1,8 +1,6 @@
 export type { SwrLikeCache, SwrLikeMutate } from "./cache-adapter";
 export { createSwrAdapter } from "./cache-adapter";
 export * from "./core";
-export type { InstallHttpOverrideOptions } from "./install-with-panel";
-export { installHttpOverride } from "./install-with-panel";
 export {
   useHttpOverrideApi,
   useLauncherVisible,

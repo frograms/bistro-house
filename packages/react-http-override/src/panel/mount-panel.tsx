@@ -1,17 +1,11 @@
 import { createRoot } from "react-dom/client";
 
-import type { HttpOverridePreset } from "../core";
+import type { MountPanel } from "../create-auto-install";
 import { HttpOverrideLauncher } from "./http-override-launcher";
+import { appendPanelContainer } from "./panel-container";
 
-export type MountPanelOptions = {
-  presets?: HttpOverridePreset[];
-};
-
-export const mountPanel = ({ presets }: MountPanelOptions): (() => void) => {
-  const container = document.createElement("div");
-  container.setAttribute("data-http-override", "");
-  document.body.appendChild(container);
-
+export const mountPanel: MountPanel = ({ presets }) => {
+  const container = appendPanelContainer();
   const root = createRoot(container);
   root.render(<HttpOverrideLauncher presets={presets} enabled />);
 
