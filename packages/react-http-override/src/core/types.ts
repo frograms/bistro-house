@@ -91,9 +91,3 @@ export type HttpOverrideApi = {
   show(): void;
   toggle(): void;
 };
-
-declare global {
-  interface Window {
-    __HTTP_OVERRIDE__?: HttpOverrideApi;
-  }
-}
