@@ -5,6 +5,12 @@ import type {
   HttpOverrideRecord,
   HttpOverrideRule,
 } from "../core";
+import { getHttpOverride } from "../core";
+
+const subscribeNothing = () => () => undefined;
+
+export const useHttpOverrideApi = (): HttpOverrideApi | null =>
+  useSyncExternalStore(subscribeNothing, getHttpOverride, () => null);
 
 // SSR 프레임워크는 lazy 청크도 서버 렌더하므로 getServerSnapshot이 없으면 throw.
 export const useRecords = (api: HttpOverrideApi): HttpOverrideRecord[] =>
@@ -28,9 +34,7 @@ export const useLauncherVisible = (api: HttpOverrideApi): boolean =>
     api.launcher.getSnapshot
   );
 
-export const usePresetNames = (
-  api: HttpOverrideApi
-): Record<string, string> =>
+export const usePresetNames = (api: HttpOverrideApi): Record<string, string> =>
   useSyncExternalStore(
     api.presetNames.subscribe,
     api.presetNames.getSnapshot,
