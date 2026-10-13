@@ -12,6 +12,7 @@ const record = (responseBody: string | null): HttpOverrideRecord => ({
   ok: true,
   responseBody,
   seq: 1,
+  source: "client",
   startedAt: 0,
   state: "done",
   status: 200,
