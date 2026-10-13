@@ -1,5 +1,9 @@
 import { createLauncherVisibility } from "./launcher-visibility";
-import { createOverrideFetch } from "./override-fetch";
+import {
+  createOverrideFetch,
+  DEFAULT_MAX_BODY_BYTES,
+  truncateBody,
+} from "./override-fetch";
 import { createPresetNameStore } from "./preset-names";
 import { createRecordBuffer } from "./record-buffer";
 import { createRuleStore } from "./rule-store";
@@ -7,9 +11,19 @@ import { createSafeStorage } from "./safe-storage";
 import type { HttpOverrideApi, HttpOverrideStorage } from "./types";
 
 export type InstallHttpOverrideOptions = {
+  isServerRequest?: (url: string) => boolean;
   maxBodyBytes?: number;
   maxRecords?: number;
+  ssrData?: Record<string, unknown>;
   storage?: HttpOverrideStorage;
+};
+
+const stringifyForRecord = (value: unknown): string | null => {
+  try {
+    return JSON.stringify(value) ?? null;
+  } catch {
+    return null;
+  }
 };
 
 type Installation = {
@@ -32,13 +46,35 @@ export const installHttpOverride = (
   if (typeof window === "undefined") return null;
   if (installation !== null) return installation.api;
 
-  const { maxBodyBytes, maxRecords, storage } = options;
+  const {
+    isServerRequest,
+    maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
+    maxRecords,
+    ssrData,
+    storage,
+  } = options;
   const originalFetch = window.fetch;
   const sessionStore =
     storage ?? createSafeStorage(() => window.sessionStorage);
   const ruleStore = createRuleStore(sessionStore);
   const presetNames = createPresetNameStore(sessionStore);
   const buffer = createRecordBuffer({ maxRecords });
+  const installedAt = Date.now();
+  Object.entries(ssrData ?? {}).forEach(([key, value]) => {
+    const body = stringifyForRecord(value);
+    buffer.push({
+      durationMs: null,
+      method: "SSR",
+      mocked: false,
+      ok: true,
+      responseBody: body === null ? null : truncateBody(body, maxBodyBytes),
+      source: "server",
+      startedAt: installedAt,
+      state: "done",
+      status: null,
+      url: key,
+    });
+  });
   const launcher = createLauncherVisibility(
     createSafeStorage(() => window.localStorage)
   );
@@ -76,6 +112,7 @@ export const installHttpOverride = (
     baseFetch: (input, init) => originalFetch.call(window, input, init),
     buffer,
     getRules: ruleStore.getSnapshot,
+    isServerRequest,
     maxBodyBytes,
   });
 
