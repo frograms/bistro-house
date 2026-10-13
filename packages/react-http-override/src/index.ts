@@ -1,5 +1,3 @@
-export type { SwrLikeCache, SwrLikeMutate } from "./cache-adapter";
-export { createSwrAdapter } from "./cache-adapter";
 export * from "./core";
 export {
   useHttpOverrideApi,
