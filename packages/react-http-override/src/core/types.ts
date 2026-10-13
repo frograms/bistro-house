@@ -21,8 +21,11 @@ export type HttpOverridePreset = {
   rules: HttpOverrideRuleInput[];
 };
 
+export type HttpOverrideRecordState = "done" | "error" | "pending";
+
 export type HttpOverrideRecord = {
-  durationMs: number;
+  /** 응답 전(pending)엔 null */
+  durationMs: number | null;
   error?: string;
   method: string;
   mocked: boolean;
@@ -34,7 +37,9 @@ export type HttpOverrideRecord = {
   ruleId?: string;
   seq: number;
   startedAt: number;
-  status: number;
+  state: HttpOverrideRecordState;
+  /** 응답 전(pending)엔 null, 네트워크 에러면 0 */
+  status: number | null;
   url: string;
 };
 
@@ -59,7 +64,6 @@ export type HttpOverrideStorage = {
 export type HttpOverrideSubscribe = (listener: () => void) => () => void;
 
 export type HttpOverrideApi = {
-  fetch: typeof fetch;
   hide(): void;
   launcher: {
     getSnapshot(): boolean;
