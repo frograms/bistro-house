@@ -1,11 +1,12 @@
-import { createSwrAdapter } from "@packages/react-http-override/src/cache-adapter";
+import {
+  installHttpOverride,
+  uninstallHttpOverride,
+} from "@packages/react-http-override/src/auto";
 import type { HttpOverrideApi } from "@packages/react-http-override/src/core";
-import { installHttpOverride } from "@packages/react-http-override/src/core";
 import {
   useRecords,
   useRules,
 } from "@packages/react-http-override/src/panel/hooks";
-import { HttpOverrideLauncher } from "@packages/react-http-override/src/panel/http-override-launcher";
 import { CommonCodeBlock } from "@playground/component/view/_common/common-code-block";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
 import {
@@ -17,20 +18,13 @@ import { CommonNote } from "@playground/component/view/_common/common-note";
 import { reactHttpOverrideObserveAndMockContainerCss as css } from "@playground/component/view/package/react-http-override/_react-http-override-observe-and-mock-container.css";
 import { DEMO_PRESETS } from "@playground/component/view/package/react-http-override/_shared/demo-presets";
 import { commonExampleControlsCss } from "@playground/resource/css/common/common-example-controls.css";
-import type { ReactNode } from "react";
-import { useCallback, useMemo, useState } from "react";
+import type { MutableRefObject, ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-// Cache 탭 시연용 — 실제 SWR 대신 같은 모양의 정적 캐시 (fallback 뱃지 확인용)
-const DEMO_SWR_CACHE = new Map<string, unknown>([
-  ["/api/contents", { data: { total_count: 3 }, isValidating: false }],
-  ["/api/session/region", {}],
-]);
-const DEMO_SWR_FALLBACK = { "/api/session/region": { country: "KR" } };
-const { cacheAdapter: DEMO_CACHE_ADAPTER } = createSwrAdapter({
-  cache: DEMO_SWR_CACHE,
-  fallback: DEMO_SWR_FALLBACK,
-  mutate: () => {},
-});
+// SSR 앱이라면 서버가 HTML에 심어 둔 초기 데이터를 넘기는 자리
+const DEMO_SSR_DATA = {
+  "/api/session/region": { country: "KR", language: "ko" },
+};
 
 const DEMO_API_BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/api`;
 
@@ -47,11 +41,23 @@ const NOTE_ITEMS = [
   "앱이 정의한 프리셋은 요청 행을 펼치면 그 API에 맞는 것만 나타납니다 (이름도 바꿀 수 있어요).",
 ];
 
-const CODE_EXAMPLE = `// ① 부팅 최상단 (하이드레이션 전)
-if (isStaging) installHttpOverride();
+const CODE_EXAMPLE = `// 엔트리 파일 최상단 (하이드레이션 전) — 패널은 자동으로 뜹니다
+import { installHttpOverride } from "@watcha-authentic/react-http-override/auto";
+import { mutate } from "swr";
 
-// ② 앱 루트 (React.lazy 권장)
-<HttpOverrideLauncher enabled={isStaging} />;`;
+if (isStaging) {
+  installHttpOverride({
+    presets,
+    // SSR 초기 데이터 — 서버가 HTML에 심어 둔 객체 (앱마다 다름)
+    ssrData: window.__SWR_FALLBACK__,
+    // 패널에서 값을 바꾸면 그 API를 쓰는 SWR 키를 다시 불러옵니다.
+    // 기록된 url은 절대 주소, SWR 키는 엔드포인트라 경로로 맞춥니다 (키 규칙에 맞게 조정).
+    onRevalidate: (url) => {
+      const path = new URL(url, location.origin).pathname;
+      return mutate((key) => typeof key === "string" && path.endsWith(key));
+    },
+  });
+}`;
 
 type DemoEndpoint = "contents" | "friend-ratings";
 
@@ -75,7 +81,15 @@ type View =
   | { kind: "error"; message: string; status: number }
   | { kind: "loading" };
 
-const ObserveAndMockExample = ({ api }: { api: HttpOverrideApi }) => {
+type RevalidateRef = MutableRefObject<((url: string) => void) | null>;
+
+const ObserveAndMockExample = ({
+  api,
+  revalidateRef,
+}: {
+  api: HttpOverrideApi;
+  revalidateRef: RevalidateRef;
+}) => {
   const rules = useRules(api);
   const records = useRecords(api);
   const [view, setView] = useState<View | null>(null);
@@ -125,14 +139,16 @@ const ObserveAndMockExample = ({ api }: { api: HttpOverrideApi }) => {
     }
   }, []);
 
-  const handleRevalidate = useCallback(
-    (key: string) => {
-      void callApi(
-        key.includes("friend-ratings") ? "friend-ratings" : "contents"
-      );
-    },
-    [callApi]
-  );
+  // 바뀐 룰로 데모 API를 다시 부른다
+  useEffect(() => {
+    revalidateRef.current = (url) => {
+      if (url.includes("friend-ratings")) void callApi("friend-ratings");
+      else if (url.includes("contents")) void callApi("contents");
+    };
+    return () => {
+      revalidateRef.current = null;
+    };
+  }, [callApi, revalidateRef]);
 
   const toggleRule = useCallback(
     (
@@ -275,20 +291,28 @@ const ObserveAndMockExample = ({ api }: { api: HttpOverrideApi }) => {
 
       <CommonExampleStatePanel items={stateItems} />
 
-      <HttpOverrideLauncher
-        cacheAdapter={DEMO_CACHE_ADAPTER}
-        presets={DEMO_PRESETS}
-        enabled
-        onRevalidate={handleRevalidate}
-      />
-
       <CommonCodeBlock code={CODE_EXAMPLE} />
     </CommonContainer>
   );
 };
 
 export const ReactHttpOverrideObserveAndMockContainer = () => {
-  const [api] = useState(() => installHttpOverride());
+  const [api, setApi] = useState<HttpOverrideApi | null>(null);
+  const revalidateRef: RevalidateRef = useRef(null);
+
+  useEffect(() => {
+    setApi(
+      installHttpOverride({
+        onRevalidate: (url) => revalidateRef.current?.(url),
+        presets: DEMO_PRESETS,
+        ssrData: DEMO_SSR_DATA,
+      })
+    );
+    return () => {
+      uninstallHttpOverride();
+    };
+  }, []);
+
   if (api === null) return null;
-  return <ObserveAndMockExample api={api} />;
+  return <ObserveAndMockExample api={api} revalidateRef={revalidateRef} />;
 };
