@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import type { HttpOverrideRecord } from "../core";
+import { SourceIcon } from "./source-icon";
 import {
   chipErrorStyle,
   chipOkStyle,
@@ -80,9 +81,10 @@ const countStyleOf = (record: HttpOverrideRecord) => {
 };
 
 export const StatusChip = ({ record }: { record: HttpOverrideRecord }) => {
-  if (record.state === "pending" || record.status === null) {
+  if (record.state === "pending") {
     return <PendingChip startedAt={record.startedAt} />;
   }
+  if (record.status === null) return null;
   if (record.state === "error") {
     return <span style={chipErrorStyle}>ERR</span>;
   }
@@ -124,6 +126,7 @@ export const RequestTable = ({
             <span style={rowTimeStyle}>
               {formatTime(group.latest.startedAt)}
             </span>
+            <SourceIcon record={group.latest} />
             <span style={rowMethodStyle}>{group.latest.method}</span>
             <span style={rowUrlStyle}>{group.latest.url}</span>
             {ruledKeys.has(group.key) && (

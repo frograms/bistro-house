@@ -11,6 +11,7 @@ import { JsonViewer } from "./json-viewer";
 import { PresetSection } from "./preset-section";
 import { StatusChip } from "./request-table";
 import { RowActions } from "./row-actions";
+import { sourceLabelOf } from "./source-icon";
 import {
   actionBodyHintBrokenStyle,
   actionBodyHintJsonStyle,
@@ -31,7 +32,6 @@ import {
 
 export type RequestDetailProps = {
   api: HttpOverrideApi;
-  onRevalidate?: (key: string) => void;
   presets?: HttpOverridePreset[];
   record: HttpOverrideRecord;
 };
@@ -57,6 +57,11 @@ const parseEditValue = (input: string): Omit<PatchEntry, "path"> => {
   }
 };
 
+const formatDuration = (record: HttpOverrideRecord): string => {
+  if (record.state === "pending") return "대기 중";
+  return record.durationMs === null ? "-" : `${record.durationMs}ms`;
+};
+
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
   <div style={detailInfoRowStyle}>
     <span>{label}</span>
@@ -66,7 +71,6 @@ const InfoRow = ({ label, value }: { label: string; value: string }) => (
 
 export const RequestDetail = ({
   api,
-  onRevalidate,
   presets,
   record,
 }: RequestDetailProps) => {
@@ -108,9 +112,8 @@ export const RequestDetail = ({
   const handleEmptyPath = useCallback(
     (path: string, suggested: unknown) => {
       addPatch(path, { value: suggested });
-      onRevalidate?.(record.url);
     },
-    [addPatch, onRevalidate, record.url]
+    [addPatch]
   );
 
   const handleEditPath = useCallback((path: string, current: unknown) => {
@@ -122,8 +125,7 @@ export const RequestDetail = ({
     if (editingPath === null) return;
     addPatch(editingPath, parseEditValue(editValue));
     setEditingPath(null);
-    onRevalidate?.(record.url);
-  }, [addPatch, editingPath, editValue, onRevalidate, record.url]);
+  }, [addPatch, editingPath, editValue]);
 
   return (
     <>
@@ -137,9 +139,10 @@ export const RequestDetail = ({
           {record.mocked && <span style={mockBadgeStyle}>MOCK</span>}
           {record.patched === true && <span style={mockBadgeStyle}>PATCH</span>}
         </div>
+        <InfoRow label="출처" value={sourceLabelOf(record)} />
         <InfoRow
           label="durationMs"
-          value={record.durationMs === null ? "대기 중" : `${record.durationMs}ms`}
+          value={formatDuration(record)}
         />
         <InfoRow label="시각" value={formatTime(record.startedAt)} />
         {record.ruleId !== undefined && (
@@ -158,7 +161,7 @@ export const RequestDetail = ({
 
       <div style={detailSectionHeaderStyle}>Actions</div>
       <div style={detailSectionBodyStyle}>
-        <RowActions api={api} record={record} onRevalidate={onRevalidate} />
+        <RowActions api={api} record={record} />
       </div>
 
       {presets !== undefined && (
@@ -166,7 +169,6 @@ export const RequestDetail = ({
           api={api}
           presets={presets}
           record={record}
-          onRevalidate={onRevalidate}
         />
       )}
 
@@ -205,9 +207,7 @@ export const RequestDetail = ({
                 style={actionWarmButtonStyle}
                 type="button"
                 onClick={handleApplyEdit}>
-                {onRevalidate !== undefined
-                  ? "바꾸고 재요청"
-                  : "이 값으로 바꾸기"}
+                이 값으로 바꾸기
               </button>
               <button
                 className={panelClassNames.actionButton}
