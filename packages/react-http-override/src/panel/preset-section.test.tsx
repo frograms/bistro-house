@@ -3,7 +3,11 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { HttpOverridePreset } from "../core";
-import { createMemoryStorage, installHttpOverride } from "../core";
+import {
+  createMemoryStorage,
+  installHttpOverride,
+  uninstallHttpOverride,
+} from "../core";
 import { HttpOverrideLauncher } from "./http-override-launcher";
 
 const PRESETS: HttpOverridePreset[] = [
@@ -24,11 +28,8 @@ const PRESETS: HttpOverridePreset[] = [
 ];
 
 const install = () => {
-  const api = installHttpOverride({
-    baseFetch: async () => new Response("{}", { status: 200 }),
-    enabled: true,
-    storage: createMemoryStorage(),
-  });
+  window.fetch = async () => new Response("{}", { status: 200 });
+  const api = installHttpOverride({ storage: createMemoryStorage() });
   if (api === null) throw new Error("install 실패");
   return api;
 };
@@ -37,7 +38,7 @@ const install = () => {
 const openRow = async (api: ReturnType<typeof install>, url: string) => {
   fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
   await act(async () => {
-    await api.fetch(url);
+    await window.fetch(url);
   });
   fireEvent.click(screen.getByRole("button", { name: new RegExp(url) }));
 };
@@ -50,7 +51,7 @@ describe("PresetSection", () => {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
-    delete window.__HTTP_OVERRIDE__;
+    uninstallHttpOverride();
   });
 
   it("매칭되는 프리셋이 없는 행에는 프리셋 섹션을 그리지 않는다", async () => {
@@ -181,7 +182,7 @@ describe("PresetSection", () => {
     );
     await openRow(api, "https://api.test/payment/ready");
     await act(async () => {
-      await api.fetch("https://api.test/profile");
+      await window.fetch("https://api.test/profile");
     });
 
     fireEvent.click(screen.getByRole("button", { name: "결제 정상" }));
