@@ -178,6 +178,22 @@ export const createOverrideFetch = (
         : [];
     const primaryRule = statusRule ?? patchRule ?? matched[0];
 
+    const { seq } = buffer.push({
+      durationMs: null,
+      method,
+      mocked: false,
+      ok: false,
+      responseBody: null,
+      ruleId: primaryRule?.id,
+      startedAt,
+      state: "pending",
+      status: null,
+      url,
+    });
+    const settle = (patch: Parameters<RecordBuffer["patch"]>[1]) => {
+      buffer.patch(seq, { durationMs: Date.now() - startedAt, ...patch });
+    };
+
     if (delayRule?.delayMs !== undefined) {
       await sleep(delayRule.delayMs);
     }
@@ -185,16 +201,12 @@ export const createOverrideFetch = (
     if (statusRule !== undefined) {
       const mock = createMockResponse(statusRule);
       if (mock !== null) {
-        buffer.push({
-          durationMs: Date.now() - startedAt,
-          method,
+        settle({
           mocked: true,
           ok: mock.response.ok,
           responseBody: truncateBody(mock.body ?? "", maxBodyBytes),
-          ruleId: statusRule.id,
-          startedAt,
+          state: "done",
           status: mock.response.status,
-          url,
         });
         return mock.response;
       }
@@ -205,17 +217,12 @@ export const createOverrideFetch = (
       if (patches.length > 0) {
         const text = await response.text();
         const patchedText = applyPatches(text, patches);
-        buffer.push({
-          durationMs: Date.now() - startedAt,
-          method,
-          mocked: false,
+        settle({
           ok: response.ok,
           patched: true,
           responseBody: truncateBody(patchedText, maxBodyBytes),
-          ruleId: patchRule?.id,
-          startedAt,
+          state: "done",
           status: response.status,
-          url,
         });
 
         const headers = new Headers(response.headers);
@@ -230,31 +237,14 @@ export const createOverrideFetch = (
           }
         );
       }
-      const record = buffer.push({
-        durationMs: Date.now() - startedAt,
-        method,
-        mocked: false,
-        ok: response.ok,
-        responseBody: null,
-        ruleId: primaryRule?.id,
-        startedAt,
-        status: response.status,
-        url,
-      });
-      captureBody(response, record.seq);
+      settle({ ok: response.ok, state: "done", status: response.status });
+      captureBody(response, seq);
       return response;
     } catch (error) {
-      buffer.push({
-        durationMs: Date.now() - startedAt,
+      settle({
         error: error instanceof Error ? error.message : String(error),
-        method,
-        mocked: false,
-        ok: false,
-        responseBody: null,
-        ruleId: primaryRule?.id,
-        startedAt,
+        state: "error",
         status: 0,
-        url,
       });
       throw error;
     }

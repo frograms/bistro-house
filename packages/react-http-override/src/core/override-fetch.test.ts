@@ -129,7 +129,54 @@ describe("createOverrideFetch", () => {
     expect(buffer.getSnapshot()[0]).toMatchObject({
       error: "Failed to fetch",
       ok: false,
+      state: "error",
       status: 0,
+    });
+  });
+
+  it("요청 시작 즉시 pending으로 기록하고 응답이 오면 같은 기록을 갱신한다", async () => {
+    let resolve: (response: Response) => void = () => undefined;
+    const { buffer, overrideFetch } = setup([], {
+      baseFetch: () =>
+        new Promise<Response>((done) => {
+          resolve = done;
+        }),
+    });
+    const pending = overrideFetch("https://api.test/users");
+    expect(buffer.getSnapshot()).toHaveLength(1);
+    expect(buffer.getSnapshot()[0]).toMatchObject({
+      durationMs: null,
+      state: "pending",
+      status: null,
+    });
+
+    resolve(new Response("{}", { status: 201 }));
+    await pending;
+    expect(buffer.getSnapshot()).toHaveLength(1);
+    expect(buffer.getSnapshot()[0]).toMatchObject({
+      ok: true,
+      state: "done",
+      status: 201,
+    });
+    expect(buffer.getSnapshot()[0]?.durationMs).not.toBeNull();
+  });
+
+  it("지연 룰로 대기하는 동안에도 pending으로 보인다", async () => {
+    vi.useFakeTimers();
+    const { buffer, overrideFetch } = setup([
+      { delayMs: 1000, id: "slow", pattern: "users", status: 500 },
+    ]);
+    const pending = overrideFetch("https://api.test/users");
+    expect(buffer.getSnapshot()[0]).toMatchObject({
+      ruleId: "slow",
+      state: "pending",
+    });
+    await vi.advanceTimersByTimeAsync(1000);
+    await pending;
+    expect(buffer.getSnapshot()[0]).toMatchObject({
+      mocked: true,
+      state: "done",
+      status: 500,
     });
   });
 
