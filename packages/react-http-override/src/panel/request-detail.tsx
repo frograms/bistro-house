@@ -9,6 +9,7 @@ import { exactUrlPattern, ruleMatchesUrl } from "../core";
 import { useRules } from "./hooks";
 import { JsonViewer } from "./json-viewer";
 import { PresetSection } from "./preset-section";
+import { StatusChip } from "./request-table";
 import { RowActions } from "./row-actions";
 import {
   actionBodyHintBrokenStyle,
@@ -16,8 +17,6 @@ import {
   actionBodyInputStyle,
   actionRowStyle,
   actionWarmButtonStyle,
-  chipErrorStyle,
-  chipOkStyle,
   detailInfoRowStyle,
   detailInfoValueStyle,
   detailSectionBodyStyle,
@@ -134,17 +133,14 @@ export const RequestDetail = ({
           <span style={detailUrlStyle}>
             {record.method} {record.url}
           </span>
-          {record.status === 0 && <span style={chipErrorStyle}>ERR</span>}
-          {record.status >= 400 && (
-            <span style={chipErrorStyle}>{record.status}</span>
-          )}
-          {record.status > 0 && record.status < 400 && (
-            <span style={chipOkStyle}>{record.status}</span>
-          )}
+          <StatusChip record={record} />
           {record.mocked && <span style={mockBadgeStyle}>MOCK</span>}
           {record.patched === true && <span style={mockBadgeStyle}>PATCH</span>}
         </div>
-        <InfoRow label="durationMs" value={`${record.durationMs}ms`} />
+        <InfoRow
+          label="durationMs"
+          value={record.durationMs === null ? "대기 중" : `${record.durationMs}ms`}
+        />
         <InfoRow label="시각" value={formatTime(record.startedAt)} />
         {record.ruleId !== undefined && (
           <InfoRow
