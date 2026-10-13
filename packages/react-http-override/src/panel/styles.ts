@@ -2,6 +2,9 @@ import type { CSSProperties } from "react";
 
 export const palette = {
   bg: "#141b1c",
+  blue: "#6aa8f0",
+  blueLine: "#2c4a6e",
+  blueSoft: "rgba(106, 168, 240, 0.12)",
   line: "#2c393b",
   muted: "#8fa1a3",
   orange: "#e8935c",
@@ -195,8 +198,14 @@ export const filterBarStyle: CSSProperties = {
   display: "flex",
   flex: "none",
   flexWrap: "wrap",
-  gap: 6,
+  gap: 4,
   padding: "8px 12px",
+};
+
+export const filterClearButtonStyle: CSSProperties = {
+  ...ghostButtonStyle,
+  marginLeft: "auto",
+  padding: "1px 8px",
 };
 
 export const filterChipStyle: CSSProperties = {
@@ -209,7 +218,7 @@ export const filterChipStyle: CSSProperties = {
   fontFamily,
   fontSize: 10.5,
   fontVariantNumeric: "tabular-nums",
-  padding: "1px 8px",
+  padding: "1px 6px",
   WebkitAppearance: "none",
 };
 
@@ -312,6 +321,12 @@ export const rowCountOkStyle: CSSProperties = {
   color: palette.teal,
 };
 
+export const rowCountPendingStyle: CSSProperties = {
+  ...rowCountBadgeBaseStyle,
+  background: palette.blueSoft,
+  color: palette.blue,
+};
+
 export const rowCountErrorStyle: CSSProperties = {
   ...rowCountBadgeBaseStyle,
   background: palette.orangeSoft,
@@ -353,6 +368,28 @@ export const chipOkStyle: CSSProperties = {
   background: palette.tealSoft,
   border: `1px solid ${palette.teal}`,
   color: palette.teal,
+};
+
+export const chipPendingStyle: CSSProperties = {
+  ...chipBaseStyle,
+  alignItems: "center",
+  background: palette.blueSoft,
+  border: `1px solid ${palette.blueLine}`,
+  color: palette.blue,
+  display: "inline-flex",
+  fontVariantNumeric: "tabular-nums",
+  gap: 5,
+};
+
+export const pendingSpinnerStyle: CSSProperties = {
+  border: `2px solid ${palette.blueLine}`,
+  borderRadius: "50%",
+  borderTopColor: palette.blue,
+  boxSizing: "border-box",
+  display: "inline-block",
+  flex: "none",
+  height: 10,
+  width: 10,
 };
 
 export const chipErrorStyle: CSSProperties = {
@@ -731,6 +768,7 @@ export const panelClassNames = {
   actionButton: "rfd-btn",
   launcher: "rfd-launcher",
   row: "rfd-row",
+  spinner: "rfd-spinner",
   treeActions: "rfd-tree-actions",
   treeRow: "rfd-tree-row",
   warmButton: "rfd-btn-warm",
@@ -746,6 +784,8 @@ export const panelInteractionCss = `
 .${panelClassNames.treeActions} { display: inline-flex; gap: 2px; opacity: 0; transition: opacity 80ms; }
 .${panelClassNames.treeRow}:hover .${panelClassNames.treeActions},
 .${panelClassNames.treeActions}:focus-within { opacity: 1; }
+@keyframes rfd-spin { to { transform: rotate(360deg); } }
+.${panelClassNames.spinner} { animation: rfd-spin 0.8s linear infinite; }
 .${panelClassNames.row}:focus { outline: none; }
 .${panelClassNames.row}:focus-visible,
 .${panelClassNames.actionButton}:focus-visible,
