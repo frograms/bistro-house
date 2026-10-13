@@ -8,7 +8,11 @@ import {
 import { createMemoryStorage } from "./safe-storage";
 
 const stubWindow = (baseFetch: typeof fetch) => {
-  vi.stubGlobal("window", { fetch: baseFetch });
+  vi.stubGlobal("window", {
+    addEventListener: vi.fn(),
+    fetch: baseFetch,
+    removeEventListener: vi.fn(),
+  });
 };
 
 describe("installHttpOverride", () => {
@@ -35,7 +39,11 @@ describe("installHttpOverride", () => {
   it("window에 전역 핸들을 붙이지 않는다", () => {
     stubWindow(vi.fn(async () => new Response("real")));
     installHttpOverride({ storage: createMemoryStorage() });
-    expect(Object.keys(window)).toEqual(["fetch"]);
+    expect(Object.keys(window).sort()).toEqual([
+      "addEventListener",
+      "fetch",
+      "removeEventListener",
+    ]);
   });
 
   it("가로챈 fetch로 룰 목 응답과 원래 요청 통과가 동작한다", async () => {
@@ -53,6 +61,36 @@ describe("installHttpOverride", () => {
     expect(passed.status).toBe(200);
     expect(baseFetch).toHaveBeenCalledOnce();
     expect(api.records.getSnapshot()).toHaveLength(2);
+  });
+
+  it("onRevalidate가 있으면 method와 상관없이 그 콜백으로 재요청한다", () => {
+    const baseFetch = vi.fn(async () => new Response("real"));
+    stubWindow(baseFetch);
+    const onRevalidate = vi.fn();
+    const api = installHttpOverride({
+      onRevalidate,
+      storage: createMemoryStorage(),
+    });
+    expect(api?.canRevalidate("POST")).toBe(true);
+    api?.revalidate("https://api.test/users", "POST");
+    expect(onRevalidate).toHaveBeenCalledExactlyOnceWith(
+      "https://api.test/users"
+    );
+    expect(baseFetch).not.toHaveBeenCalled();
+  });
+
+  it("onRevalidate가 없으면 GET만 같은 URL로 다시 보낸다", () => {
+    const baseFetch = vi.fn(async () => new Response("real"));
+    stubWindow(baseFetch);
+    const api = installHttpOverride({ storage: createMemoryStorage() });
+    expect(api?.canRevalidate("GET")).toBe(true);
+    expect(api?.canRevalidate("POST")).toBe(false);
+    expect(api?.canRevalidate("SSR")).toBe(false);
+
+    api?.revalidate("https://api.test/users", "POST");
+    expect(baseFetch).not.toHaveBeenCalled();
+    api?.revalidate("https://api.test/users", "GET");
+    expect(baseFetch).toHaveBeenCalledOnce();
   });
 
   it("uninstall하면 원래 fetch로 돌아가고 다시 설치할 수 있다", () => {

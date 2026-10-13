@@ -1,4 +1,7 @@
-import { createLauncherVisibility } from "./launcher-visibility";
+import {
+  createLauncherVisibility,
+  isLauncherShortcut,
+} from "./launcher-visibility";
 import {
   createOverrideFetch,
   DEFAULT_MAX_BODY_BYTES,
@@ -130,8 +133,20 @@ export const installHttpOverride = (
     maxBodyBytes,
   });
 
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (!isLauncherShortcut(event)) return;
+    event.preventDefault();
+    launcher.toggle();
+  };
+  window.addEventListener("keydown", onKeyDown);
+
   window.fetch = patchedFetch;
-  installation = { api, cleanups: [], originalFetch, patchedFetch };
+  installation = {
+    api,
+    cleanups: [() => window.removeEventListener("keydown", onKeyDown)],
+    originalFetch,
+    patchedFetch,
+  };
   return api;
 };
 
