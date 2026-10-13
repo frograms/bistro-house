@@ -14,6 +14,7 @@ export type InstallHttpOverrideOptions = {
 
 type Installation = {
   api: HttpOverrideApi;
+  cleanups: (() => void)[];
   originalFetch: typeof fetch;
   patchedFetch: typeof fetch;
 };
@@ -79,13 +80,18 @@ export const installHttpOverride = (
   });
 
   window.fetch = patchedFetch;
-  installation = { api, originalFetch, patchedFetch };
+  installation = { api, cleanups: [], originalFetch, patchedFetch };
   return api;
+};
+
+export const onUninstall = (cleanup: () => void): void => {
+  installation?.cleanups.push(cleanup);
 };
 
 /** 원래 fetch로 되돌린다. 그 사이 다른 코드가 fetch를 다시 패치했다면 그 패치는 건드리지 않는다 */
 export const uninstallHttpOverride = (): void => {
   if (installation === null) return;
+  installation.cleanups.forEach((cleanup) => cleanup());
   if (window.fetch === installation.patchedFetch) {
     window.fetch = installation.originalFetch;
   }
