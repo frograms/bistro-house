@@ -1,3 +1,4 @@
+import { useHttpOverrideApi } from "./hooks";
 import type { HttpOverridePanelOptions } from "./panel";
 import { Panel } from "./panel";
 import { panelInteractionCss } from "./styles";
@@ -15,9 +16,8 @@ export const HttpOverridePanel = ({
   onRevalidate,
   presets,
 }: HttpOverridePanelProps) => {
-  if (typeof window === "undefined") return null;
-  const api = window.__HTTP_OVERRIDE__;
-  if (api === undefined) return null;
+  const api = useHttpOverrideApi();
+  if (api === null) return null;
   return (
     <>
       <style>{panelInteractionCss}</style>
