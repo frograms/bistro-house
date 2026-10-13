@@ -7,7 +7,7 @@ import { appendPanelContainer } from "./panel-container";
 export const mountPanel: MountPanel = ({ presets }) => {
   const container = appendPanelContainer();
   const root = createRoot(container);
-  root.render(<HttpOverrideLauncher presets={presets} enabled />);
+  root.render(<HttpOverrideLauncher presets={presets} />);
 
   return () => {
     root.unmount();

@@ -15,7 +15,7 @@ export const mountPanel: MountPanel = ({ presets }) => {
   const legacyDom = ReactDOM as unknown as LegacyReactDom;
   const container = appendPanelContainer();
   legacyDom.render(
-    <HttpOverrideLauncher presets={presets} enabled />,
+    <HttpOverrideLauncher presets={presets} />,
     container
   );
 
