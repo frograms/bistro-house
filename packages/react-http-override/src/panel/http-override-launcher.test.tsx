@@ -281,7 +281,7 @@ describe("HttpOverrideLauncher", () => {
     await expect(patched.json()).resolves.toEqual({ items: [], total: 2 });
   });
 
-  it("트리 편집으로 임의 값 패치 룰을 만든다", async () => {
+  it("트리 편집으로 패치 룰을 만들고 같은 GET 요청을 다시 보내 바뀐 값을 기록한다", async () => {
     const api = install(
       async () => new Response('{"items":[1,2],"total":2}', { status: 200 })
     );
@@ -302,10 +302,49 @@ describe("HttpOverrideLauncher", () => {
     fireEvent.change(input, { target: { value: "undefined" } });
     expect(screen.getByText(/필드 자체를 제거/)).toBeTruthy();
     fireEvent.change(input, { target: { value: "긴 텍스트 테스트" } });
-    fireEvent.click(screen.getByRole("button", { name: "이 값으로 바꾸기" }));
+    fireEvent.click(screen.getByRole("button", { name: "바꾸고 재요청" }));
     expect(api.rules.getSnapshot()[0]?.patch).toEqual([
       { path: "total", value: "긴 텍스트 테스트" },
     ]);
+    await waitFor(() => {
+      expect(api.records.getSnapshot()).toHaveLength(2);
+    });
+    expect(api.records.getSnapshot()[1]?.responseBody).toContain(
+      "긴 텍스트 테스트"
+    );
+  });
+
+  it("onRevalidate를 넘기면 값을 바꾼 뒤 그 콜백으로 재요청한다", async () => {
+    window.fetch = async () =>
+      new Response('{"items":[1,2],"total":2}', { status: 200 });
+    const onRevalidate = vi.fn();
+    installHttpOverride({ onRevalidate, storage: createMemoryStorage() });
+    render(<HttpOverrideLauncher />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+    await act(async () => {
+      await window.fetch("https://api.test/list");
+    });
+    fireEvent.click(screen.getByRole("button", { name: /list/ }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "items 비우기" })).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "items 비우기" }));
+    expect(onRevalidate).toHaveBeenCalledExactlyOnceWith(
+      "https://api.test/list"
+    );
+  });
+
+  it("Ctrl+Shift+H로 숨긴 런처를 다시 켠다", () => {
+    const api = install();
+    render(<HttpOverrideLauncher />);
+    act(() => {
+      api.hide();
+    });
+    expect(screen.queryByRole("button", { name: "API devtools" })).toBeNull();
+    fireEvent.keyDown(window, { code: "KeyH", ctrlKey: true, shiftKey: true });
+    expect(screen.getByRole("button", { name: "API devtools" })).toBeTruthy();
+    fireEvent.keyDown(window, { code: "KeyH", ctrlKey: true });
+    expect(screen.getByRole("button", { name: "API devtools" })).toBeTruthy();
   });
 
   it("룰 바에서 목록 펼치기·개별/전체 해제가 동작한다", () => {
