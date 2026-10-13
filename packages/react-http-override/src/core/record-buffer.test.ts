@@ -12,6 +12,7 @@ const input = (
   ok: true,
   responseBody: null,
   startedAt: 0,
+  state: "done",
   status: 200,
   url: "https://api.test/users",
   ...overrides,

@@ -13,6 +13,7 @@ const record = (responseBody: string | null): HttpOverrideRecord => ({
   responseBody,
   seq: 1,
   startedAt: 0,
+  state: "done",
   status: 200,
   url: "https://api.test/users",
 });
