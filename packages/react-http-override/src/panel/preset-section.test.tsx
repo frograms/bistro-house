@@ -56,7 +56,7 @@ describe("PresetSection", () => {
 
   it("매칭되는 프리셋이 없는 행에는 프리셋 섹션을 그리지 않는다", async () => {
     const api = install();
-    render(<HttpOverrideLauncher presets={PRESETS} enabled />);
+    render(<HttpOverrideLauncher presets={PRESETS} />);
     await openRow(api, "https://api.test/profile");
     expect(screen.getByText("Data Explorer")).toBeTruthy();
     expect(screen.queryByText("프리셋")).toBeNull();
@@ -64,7 +64,7 @@ describe("PresetSection", () => {
 
   it("프리셋을 고르면 룰이 적용되고 다시 누르면 해제된다", async () => {
     const api = install();
-    render(<HttpOverrideLauncher presets={PRESETS} enabled />);
+    render(<HttpOverrideLauncher presets={PRESETS} />);
     await openRow(api, "https://api.test/payment/ready");
     expect(screen.getByText("프리셋")).toBeTruthy();
 
@@ -81,7 +81,7 @@ describe("PresetSection", () => {
   it("다른 프리셋을 고르면 이전 프리셋 룰을 대체하고 손으로 만든 룰은 남는다", async () => {
     const api = install();
     api.rules.add({ delayMs: 300, id: "manual", pattern: "etc" });
-    render(<HttpOverrideLauncher presets={PRESETS} enabled />);
+    render(<HttpOverrideLauncher presets={PRESETS} />);
     await openRow(api, "https://api.test/payment/ready");
 
     fireEvent.click(screen.getByRole("button", { name: "결제 A" }));
@@ -97,7 +97,7 @@ describe("PresetSection", () => {
 
   it("이름을 바꾸면 저장되고 적용된 룰 label도 따라간다", async () => {
     const api = install();
-    render(<HttpOverrideLauncher presets={PRESETS} enabled />);
+    render(<HttpOverrideLauncher presets={PRESETS} />);
     await openRow(api, "https://api.test/payment/ready");
     fireEvent.click(screen.getByRole("button", { name: "결제 A" }));
 
@@ -120,7 +120,7 @@ describe("PresetSection", () => {
 
   it("취소하면 편집이 닫히고 이름이 그대로 남는다", async () => {
     const api = install();
-    render(<HttpOverrideLauncher presets={PRESETS} enabled />);
+    render(<HttpOverrideLauncher presets={PRESETS} />);
     await openRow(api, "https://api.test/payment/ready");
 
     fireEvent.click(screen.getByRole("button", { name: "결제 A 이름 변경" }));
@@ -136,7 +136,7 @@ describe("PresetSection", () => {
 
   it("되돌리기 버튼은 바꾼 이름이 있을 때만 나오고 원래 이름으로 되돌린다", async () => {
     const api = install();
-    render(<HttpOverrideLauncher presets={PRESETS} enabled />);
+    render(<HttpOverrideLauncher presets={PRESETS} />);
     await openRow(api, "https://api.test/payment/ready");
 
     fireEvent.click(screen.getByRole("button", { name: "결제 A 이름 변경" }));
@@ -158,7 +158,7 @@ describe("PresetSection", () => {
     act(() => {
       api.presetNames.set("pay-a", "바꾼 이름");
     });
-    render(<HttpOverrideLauncher presets={PRESETS} enabled />);
+    render(<HttpOverrideLauncher presets={PRESETS} />);
     await openRow(api, "https://api.test/payment/ready");
     expect(screen.getByRole("button", { name: "바꾼 이름" })).toBeTruthy();
 
@@ -174,20 +174,4 @@ describe("PresetSection", () => {
     expect(screen.getByRole("button", { name: "결제 A" })).toBeTruthy();
   });
 
-  it("프리셋 적용 시 매칭되는 기록의 URL로 재요청한다", async () => {
-    const api = install();
-    const onRevalidate = vi.fn();
-    render(
-      <HttpOverrideLauncher presets={PRESETS} enabled onRevalidate={onRevalidate} />
-    );
-    await openRow(api, "https://api.test/payment/ready");
-    await act(async () => {
-      await window.fetch("https://api.test/profile");
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: "결제 정상" }));
-    expect(onRevalidate).toHaveBeenCalledExactlyOnceWith(
-      "https://api.test/payment/ready"
-    );
-  });
 });
