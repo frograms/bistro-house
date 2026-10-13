@@ -107,7 +107,7 @@ export const installHttpOverride = (
     },
     revalidate: (url, method) => {
       if (onRevalidate !== undefined) {
-        onRevalidate(url);
+        void onRevalidate(url);
         return;
       }
       if (!canRevalidate(method)) return;
