@@ -23,6 +23,8 @@ export type HttpOverridePreset = {
 
 export type HttpOverrideRecordState = "done" | "error" | "pending";
 
+export type HttpOverrideRecordSource = "client" | "server";
+
 export type HttpOverrideRecord = {
   /** 응답 전(pending)엔 null */
   durationMs: number | null;
@@ -36,23 +38,12 @@ export type HttpOverrideRecord = {
   responseBody: string | null;
   ruleId?: string;
   seq: number;
+  source: HttpOverrideRecordSource;
   startedAt: number;
   state: HttpOverrideRecordState;
   /** 응답 전(pending)엔 null, 네트워크 에러면 0 */
   status: number | null;
   url: string;
-};
-
-export type HttpOverrideCacheEntry = {
-  data?: unknown;
-  error?: unknown;
-  isFallback?: boolean;
-  isValidating?: boolean;
-  key: string;
-};
-
-export type HttpOverrideCacheAdapter = {
-  getEntries(): HttpOverrideCacheEntry[];
 };
 
 export type HttpOverrideStorage = {

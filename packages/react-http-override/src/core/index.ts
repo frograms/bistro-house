@@ -10,10 +10,9 @@ export { exactUrlPattern, ruleMatchesUrl } from "./rule-match";
 export { createMemoryStorage } from "./safe-storage";
 export type {
   HttpOverrideApi,
-  HttpOverrideCacheAdapter,
-  HttpOverrideCacheEntry,
   HttpOverridePreset,
   HttpOverrideRecord,
+  HttpOverrideRecordSource,
   HttpOverrideRecordState,
   HttpOverrideRule,
   HttpOverrideRuleInput,
