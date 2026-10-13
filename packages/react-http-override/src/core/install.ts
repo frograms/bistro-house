@@ -14,6 +14,7 @@ export type InstallHttpOverrideOptions = {
   isServerRequest?: (url: string) => boolean;
   maxBodyBytes?: number;
   maxRecords?: number;
+  onRevalidate?: (url: string) => Promise<unknown> | void;
   ssrData?: Record<string, unknown>;
   storage?: HttpOverrideStorage;
 };
@@ -50,6 +51,7 @@ export const installHttpOverride = (
     isServerRequest,
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
     maxRecords,
+    onRevalidate,
     ssrData,
     storage,
   } = options;
@@ -79,7 +81,11 @@ export const installHttpOverride = (
     createSafeStorage(() => window.localStorage)
   );
 
+  const canRevalidate = (method: string) =>
+    onRevalidate !== undefined || method === "GET";
+
   const api: HttpOverrideApi = {
+    canRevalidate,
     hide: launcher.hide,
     launcher: {
       getSnapshot: launcher.getSnapshot,
@@ -95,6 +101,14 @@ export const installHttpOverride = (
       clear: buffer.clear,
       getSnapshot: buffer.getSnapshot,
       subscribe: buffer.subscribe,
+    },
+    revalidate: (url, method) => {
+      if (onRevalidate !== undefined) {
+        onRevalidate(url);
+        return;
+      }
+      if (!canRevalidate(method)) return;
+      patchedFetch(url).catch(() => undefined);
     },
     rules: {
       add: ruleStore.add,

@@ -55,6 +55,7 @@ export type HttpOverrideStorage = {
 export type HttpOverrideSubscribe = (listener: () => void) => () => void;
 
 export type HttpOverrideApi = {
+  canRevalidate(method: string): boolean;
   hide(): void;
   launcher: {
     getSnapshot(): boolean;
@@ -71,6 +72,7 @@ export type HttpOverrideApi = {
     getSnapshot(): HttpOverrideRecord[];
     subscribe: HttpOverrideSubscribe;
   };
+  revalidate(url: string, method: string): void;
   rules: {
     add(input: HttpOverrideRuleInput): HttpOverrideRule;
     clear(): void;
