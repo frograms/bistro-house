@@ -8,7 +8,6 @@ import {
   actionBodyHintJsonStyle,
   actionBodyInputStyle,
   actionNeutralButtonStyle,
-  actionPrimaryButtonStyle,
   actionRowStyle,
   actionSectionStyle,
   actionStatusInputStyle,
@@ -19,7 +18,6 @@ import {
 
 export type RowActionsProps = {
   api: HttpOverrideApi;
-  onRevalidate?: (key: string) => void;
   record: HttpOverrideRecord;
 };
 
@@ -66,7 +64,7 @@ const buildErrorBody = (input: string): string => {
 
 type TriggerMode = "error" | "loading" | null;
 
-export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
+export const RowActions = ({ api, record }: RowActionsProps) => {
   const rules = useRules(api);
 
   const matchedRules = useMemo(
@@ -143,10 +141,6 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
     applyTriggerRule({ delayMs: Math.round(parsed) });
   }, [applyTriggerRule, delayMs]);
 
-  const handleRevalidate = useCallback(() => {
-    onRevalidate?.(record.url);
-  }, [onRevalidate, record.url]);
-
   const handleRemoveRules = useCallback(() => {
     matchedRules.forEach((rule) => {
       api.rules.remove(rule.id);
@@ -165,15 +159,6 @@ export const RowActions = ({ api, onRevalidate, record }: RowActionsProps) => {
   return (
     <div style={actionSectionStyle}>
       <div style={actionRowStyle}>
-        {onRevalidate !== undefined && (
-          <button
-            className={panelClassNames.actionButton}
-            style={actionPrimaryButtonStyle}
-            type="button"
-            onClick={handleRevalidate}>
-            재요청
-          </button>
-        )}
         <button
           className={panelClassNames.warmButton}
           style={
