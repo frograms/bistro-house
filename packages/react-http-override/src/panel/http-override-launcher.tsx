@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import type { HttpOverrideApi } from "../core";
-import { useLauncherVisible, useRules } from "./hooks";
+import { useHttpOverrideApi, useLauncherVisible, useRules } from "./hooks";
 import type { HttpOverridePanelOptions } from "./panel";
 import { Panel, PANEL_CLOSE_DURATION_MS } from "./panel";
 import {
@@ -123,9 +123,8 @@ export const HttpOverrideLauncher = ({
   presets,
   zIndex = 999999,
 }: HttpOverrideLauncherProps) => {
-  if (!enabled || typeof window === "undefined") return null;
-  const api = window.__HTTP_OVERRIDE__;
-  if (api === undefined) return null;
+  const api = useHttpOverrideApi();
+  if (!enabled || api === null) return null;
   return (
     <LauncherContent
       api={api}

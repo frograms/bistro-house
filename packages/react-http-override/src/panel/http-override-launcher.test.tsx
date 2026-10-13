@@ -9,17 +9,18 @@ import {
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMemoryStorage, installHttpOverride } from "../core";
+import {
+  createMemoryStorage,
+  installHttpOverride,
+  uninstallHttpOverride,
+} from "../core";
 import { HttpOverrideLauncher } from "./http-override-launcher";
 import { HttpOverridePanel } from "./http-override-panel";
 
 const install = (baseFetch?: typeof fetch) => {
-  const api = installHttpOverride({
-    baseFetch:
-      baseFetch ?? (async () => new Response("{}", { status: 200 })),
-    enabled: true,
-    storage: createMemoryStorage(),
-  });
+  window.fetch =
+    baseFetch ?? (async () => new Response("{}", { status: 200 }));
+  const api = installHttpOverride({ storage: createMemoryStorage() });
   if (api === null) throw new Error("install 실패");
   return api;
 };
@@ -32,7 +33,7 @@ describe("HttpOverrideLauncher", () => {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
-    delete window.__HTTP_OVERRIDE__;
+    uninstallHttpOverride();
     try {
       window.localStorage.clear();
     } catch {
@@ -41,13 +42,13 @@ describe("HttpOverrideLauncher", () => {
   });
 
   it("HttpOverridePanel(임베드)은 버튼·닫기 없이 부모 안에 렌더된다", async () => {
-    const api = install();
+    install();
     render(<HttpOverridePanel />);
     expect(screen.queryByRole("button", { name: "API devtools" })).toBeNull();
     expect(screen.queryByRole("button", { name: "패널 닫기" })).toBeNull();
     expect(screen.getByText("아직 기록된 요청이 없습니다")).toBeTruthy();
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     expect(screen.getByRole("button", { name: /settings/ })).toBeTruthy();
   });
@@ -99,7 +100,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     const row = screen.getByRole("button", { name: /settings/ });
     expect(row.getAttribute("style") ?? "").toMatch(/transparent/);
@@ -111,6 +112,34 @@ describe("HttpOverrideLauncher", () => {
     );
     expect(row.textContent).toContain("룰");
     expect(screen.getByText("룰 1")).toBeTruthy();
+  });
+
+  it("응답 전 요청은 경과 시간과 함께 대기 중으로 보이고, 응답 후 상태 코드로 바뀐다", async () => {
+    let resolve: (response: Response) => void = () => undefined;
+    install(
+      () =>
+        new Promise<Response>((done) => {
+          resolve = done;
+        })
+    );
+    render(<HttpOverrideLauncher enabled />);
+    fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
+
+    let pending: Promise<Response> = Promise.resolve(new Response());
+    act(() => {
+      pending = window.fetch("https://api.test/slow");
+    });
+    const chip = screen.getByLabelText("응답 대기 중");
+    expect(chip.textContent).toMatch(/^\d+\.\ds$/);
+    expect(screen.getByRole("button", { name: "대기 1" })).toBeTruthy();
+
+    await act(async () => {
+      resolve(new Response("{}", { status: 201 }));
+      await pending;
+    });
+    expect(screen.queryByLabelText("응답 대기 중")).toBeNull();
+    expect(screen.getByText("201")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "대기 0" })).toBeTruthy();
   });
 
   it("버튼 클릭으로 패널이 열리고, Esc로 닫힌다", async () => {
@@ -136,8 +165,8 @@ describe("HttpOverrideLauncher", () => {
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
 
     await act(async () => {
-      await api.fetch("https://api.test/friend_ratings");
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/friend_ratings");
+      await window.fetch("https://api.test/settings");
     });
 
     expect(screen.getByText("https://api.test/friend_ratings")).toBeTruthy();
@@ -156,7 +185,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/friend_ratings");
+      await window.fetch("https://api.test/friend_ratings");
     });
 
     fireEvent.click(
@@ -171,13 +200,13 @@ describe("HttpOverrideLauncher", () => {
   });
 
   it("같은 method+URL은 한 행으로 묶이고 왼쪽 카운트가 올라간다", async () => {
-    const api = install();
+    install();
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
-      await api.fetch("https://api.test/settings");
-      await api.fetch("https://api.test/others");
+      await window.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/others");
     });
     const rows = screen.getAllByRole("button", { name: /api\.test/ });
     expect(rows).toHaveLength(2);
@@ -187,12 +216,12 @@ describe("HttpOverrideLauncher", () => {
   });
 
   it("재요청 버튼은 onRevalidate가 있을 때만 보이고, 행의 URL로 호출한다", async () => {
-    const api = install();
+    install();
     const onRevalidate = vi.fn();
     render(<HttpOverrideLauncher enabled onRevalidate={onRevalidate} />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
     fireEvent.click(screen.getByRole("button", { name: "재요청" }));
@@ -202,11 +231,11 @@ describe("HttpOverrideLauncher", () => {
   });
 
   it("onRevalidate 미주입이면 재요청 버튼이 없다", async () => {
-    const api = install();
+    install();
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
     expect(screen.queryByRole("button", { name: "재요청" })).toBeNull();
@@ -217,7 +246,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/posts?userId=1");
+      await window.fetch("https://api.test/posts?userId=1");
     });
     fireEvent.click(screen.getByRole("button", { name: /posts/ }));
 
@@ -232,7 +261,7 @@ describe("HttpOverrideLauncher", () => {
 
     expect(api.rules.getSnapshot()).toHaveLength(1);
     const mocked = await act(async () =>
-      api.fetch("https://api.test/posts?userId=1")
+      window.fetch("https://api.test/posts?userId=1")
     );
     expect(mocked.status).toBe(404);
     await expect(mocked.text()).resolves.toBe('{"message":"없어요"}');
@@ -245,7 +274,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/list");
+      await window.fetch("https://api.test/list");
     });
     fireEvent.click(screen.getByRole("button", { name: /list/ }));
     await waitFor(() => {
@@ -256,7 +285,7 @@ describe("HttpOverrideLauncher", () => {
       { path: "items", value: [] },
     ]);
 
-    const patched = await act(async () => api.fetch("https://api.test/list"));
+    const patched = await act(async () => window.fetch("https://api.test/list"));
     await expect(patched.json()).resolves.toEqual({ items: [], total: 2 });
   });
 
@@ -268,7 +297,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled onRevalidate={onRevalidate} />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/list");
+      await window.fetch("https://api.test/list");
     });
     fireEvent.click(screen.getByRole("button", { name: /list/ }));
     await waitFor(() => {
@@ -407,8 +436,8 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
-      await api.fetch("https://api.test/fail");
+      await window.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/fail");
     });
 
     fireEvent.click(screen.getByRole("button", { name: /^에러 1$/ }));
@@ -438,7 +467,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
     expect(
@@ -459,7 +488,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     api.rules.add({ delayMs: 1500, pattern: "settings" });
     api.rules.add({
@@ -491,7 +520,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
     fireEvent.click(screen.getByRole("button", { name: /Error 트리거/ }));
@@ -509,7 +538,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
 
@@ -534,15 +563,15 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
     fireEvent.click(screen.getByRole("button", { name: /Error 트리거/ }));
     fireEvent.click(screen.getByRole("button", { name: "적용 → 룰 생성" }));
 
     await act(async () => {
-      await api.fetch("https://api.test/settings/theme");
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings/theme");
+      await window.fetch("https://api.test/settings");
     });
     const records = api.records.getSnapshot();
     const child = records.find(
@@ -560,7 +589,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     api.rules.add({
       patch: [{ path: "title", value: "편집값" }],
@@ -582,7 +611,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
     fireEvent.click(screen.getByRole("button", { name: /Error 트리거/ }));
@@ -612,7 +641,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
     expect(
@@ -639,7 +668,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     api.rules.add({ delayMs: 2000, pattern: "settings", status: 500 });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
@@ -661,7 +690,7 @@ describe("HttpOverrideLauncher", () => {
     render(<HttpOverrideLauncher enabled />);
     fireEvent.click(screen.getByRole("button", { name: "API devtools" }));
     await act(async () => {
-      await api.fetch("https://api.test/settings");
+      await window.fetch("https://api.test/settings");
     });
     fireEvent.click(screen.getByRole("button", { name: /settings/ }));
 
