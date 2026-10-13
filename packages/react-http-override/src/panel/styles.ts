@@ -347,6 +347,11 @@ export const rowMethodStyle: CSSProperties = {
   minWidth: 34,
 };
 
+export const sourceIconStyle: CSSProperties = {
+  color: palette.muted,
+  flex: "none",
+};
+
 export const rowUrlStyle: CSSProperties = {
   flex: 1,
   minWidth: 0,
@@ -706,13 +711,6 @@ const actionButtonBaseStyle: CSSProperties = {
   fontFamily,
   fontSize: 11,
   padding: "3px 10px",
-};
-
-export const actionPrimaryButtonStyle: CSSProperties = {
-  ...actionButtonBaseStyle,
-  background: palette.tealSoft,
-  border: `1px solid ${palette.teal}`,
-  color: palette.teal,
 };
 
 export const actionWarmButtonStyle: CSSProperties = {
