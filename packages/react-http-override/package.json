@@ -77,6 +77,26 @@
         "default": "./dist/index.cjs"
       }
     },
+    "./auto": {
+      "import": {
+        "types": "./dist/auto.d.mts",
+        "default": "./dist/auto.mjs"
+      },
+      "require": {
+        "types": "./dist/auto.d.ts",
+        "default": "./dist/auto.cjs"
+      }
+    },
+    "./auto-legacy": {
+      "import": {
+        "types": "./dist/auto-legacy.d.mts",
+        "default": "./dist/auto-legacy.mjs"
+      },
+      "require": {
+        "types": "./dist/auto-legacy.d.ts",
+        "default": "./dist/auto-legacy.cjs"
+      }
+    },
     "./core": {
       "import": {
         "types": "./dist/core.d.mts",
@@ -91,6 +111,12 @@
   },
   "typesVersions": {
     "*": {
+      "auto": [
+        "./dist/auto.d.ts"
+      ],
+      "auto-legacy": [
+        "./dist/auto-legacy.d.ts"
+      ],
       "core": [
         "./dist/core.d.ts"
       ]

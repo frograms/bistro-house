@@ -1,7 +1,12 @@
 import { defineConfig, type UserConfig } from "tsdown";
 
 const sharedConfig: UserConfig = {
-  entry: { core: "src/core/index.ts", index: "src/index.ts" },
+  entry: {
+    auto: "src/auto.ts",
+    "auto-legacy": "src/auto-legacy.ts",
+    core: "src/core/index.ts",
+    index: "src/index.ts",
+  },
   fixedExtension: true,
   outDir: "dist",
   platform: "neutral",
