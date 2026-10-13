@@ -134,6 +134,32 @@ describe("createOverrideFetch", () => {
     });
   });
 
+  it("경로가 .data로 끝나는 요청은 서버, 나머지는 클라이언트로 기록한다", async () => {
+    const { buffer, overrideFetch } = setup([]);
+    await overrideFetch("https://app.test/contents.data?_routes=root");
+    await overrideFetch("https://api.test/contents");
+    expect(buffer.getSnapshot().map((record) => record.source)).toEqual([
+      "server",
+      "client",
+    ]);
+  });
+
+  it("isServerRequest로 서버 요청 판별을 바꿀 수 있다", async () => {
+    const buffer = createRecordBuffer();
+    const overrideFetch = createOverrideFetch({
+      baseFetch: async () => new Response("{}"),
+      buffer,
+      getRules: () => [],
+      isServerRequest: (url) => url.includes("/bff/"),
+    });
+    await overrideFetch("https://app.test/bff/home");
+    await overrideFetch("https://app.test/home.data");
+    expect(buffer.getSnapshot().map((record) => record.source)).toEqual([
+      "server",
+      "client",
+    ]);
+  });
+
   it("요청 시작 즉시 pending으로 기록하고 응답이 오면 같은 기록을 갱신한다", async () => {
     let resolve: (response: Response) => void = () => undefined;
     const { buffer, overrideFetch } = setup([], {

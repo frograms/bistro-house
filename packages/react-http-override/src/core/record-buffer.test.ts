@@ -11,6 +11,7 @@ const input = (
   mocked: false,
   ok: true,
   responseBody: null,
+  source: "client",
   startedAt: 0,
   state: "done",
   status: 200,

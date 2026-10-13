@@ -14,7 +14,13 @@ export type CreateOverrideFetchOptions = {
   baseFetch: typeof fetch;
   buffer: RecordBuffer;
   getRules(): HttpOverrideRule[];
+  isServerRequest?: (url: string) => boolean;
   maxBodyBytes?: number;
+};
+
+export const isLoaderDataRequest = (url: string): boolean => {
+  const pathname = url.split(/[?#]/)[0] ?? "";
+  return pathname.endsWith(".data");
 };
 
 const sleep = (ms: number) =>
@@ -50,7 +56,7 @@ export const isTruncatedBody = (body: string): boolean =>
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-const truncateBody = (text: string, maxBodyBytes: number): string => {
+export const truncateBody = (text: string, maxBodyBytes: number): string => {
   if (text.length * 3 <= maxBodyBytes) return text;
   const bytes = encoder.encode(text);
   if (bytes.length <= maxBodyBytes) return text;
@@ -100,7 +106,6 @@ const applyAtPath = (
   if (!(last in (current as Record<string, unknown>))) return;
   if (patch.remove === true) {
     if (Array.isArray(current)) {
-
       const index = Number(last);
       if (Number.isInteger(index)) {
         current.splice(index, 1);
@@ -136,11 +141,11 @@ export const createOverrideFetch = (
     baseFetch,
     buffer,
     getRules,
+    isServerRequest = isLoaderDataRequest,
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
   } = options;
 
   const captureBody = (response: Response, seq: number) => {
-
     const contentType = response.headers.get("content-type") ?? "";
     if (contentType !== "" && !TEXTUAL_CONTENT_TYPE.test(contentType)) return;
     try {
@@ -185,6 +190,7 @@ export const createOverrideFetch = (
       ok: false,
       responseBody: null,
       ruleId: primaryRule?.id,
+      source: isServerRequest(url) ? "server" : "client",
       startedAt,
       state: "pending",
       status: null,
