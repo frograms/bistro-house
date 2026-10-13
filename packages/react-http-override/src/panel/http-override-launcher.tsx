@@ -14,15 +14,12 @@ import {
 } from "./styles";
 
 export type HttpOverrideLauncherProps = HttpOverridePanelOptions & {
-  enabled: boolean;
   zIndex?: number;
 };
 
 const LauncherContent = ({
   api,
-  cacheAdapter,
   extraTabs,
-  onRevalidate,
   presets,
   zIndex,
 }: HttpOverridePanelOptions & {
@@ -101,13 +98,11 @@ const LauncherContent = ({
       {open && (
         <Panel
           api={api}
-          cacheAdapter={cacheAdapter}
           extraTabs={extraTabs}
           presets={presets}
           shown={shown}
           zIndex={zIndex}
           onClose={close}
-          onRevalidate={onRevalidate}
         />
       )}
     </div>,
@@ -116,23 +111,18 @@ const LauncherContent = ({
 };
 
 export const HttpOverrideLauncher = ({
-  cacheAdapter,
-  enabled,
   extraTabs,
-  onRevalidate,
   presets,
   zIndex = 999999,
 }: HttpOverrideLauncherProps) => {
   const api = useHttpOverrideApi();
-  if (!enabled || api === null) return null;
+  if (api === null) return null;
   return (
     <LauncherContent
       api={api}
-      cacheAdapter={cacheAdapter}
       extraTabs={extraTabs}
       presets={presets}
       zIndex={zIndex}
-      onRevalidate={onRevalidate}
     />
   );
 };

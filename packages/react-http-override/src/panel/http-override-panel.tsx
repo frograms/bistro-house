@@ -11,9 +11,7 @@ const noop = () => {
 
 /** 버튼·포털·고정 위치 없는 임베더블 패널 — 남의 셸 안에 컴포넌트로 꽂는 용도 */
 export const HttpOverridePanel = ({
-  cacheAdapter,
   extraTabs,
-  onRevalidate,
   presets,
 }: HttpOverridePanelProps) => {
   const api = useHttpOverrideApi();
@@ -23,14 +21,12 @@ export const HttpOverridePanel = ({
       <style>{panelInteractionCss}</style>
       <Panel
         api={api}
-        cacheAdapter={cacheAdapter}
         extraTabs={extraTabs}
         presets={presets}
         zIndex={0}
         embedded
         shown
         onClose={noop}
-        onRevalidate={onRevalidate}
       />
     </>
   );
