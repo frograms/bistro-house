@@ -11,7 +11,7 @@ import { CacheTab } from "./cache-tab";
 import { useRecords, useRules } from "./hooks";
 import { RequestDetail } from "./request-detail";
 import type { RequestGroup } from "./request-table";
-import { RequestTable } from "./request-table";
+import { isErrorRecord, RequestTable } from "./request-table";
 import { RuleBar } from "./rule-bar";
 import {
   activeTabStyle,
@@ -22,6 +22,7 @@ import {
   filterBarStyle,
   filterChipActiveStyle,
   filterChipStyle,
+  filterClearButtonStyle,
   filterSearchStyle,
   ghostButtonStyle,
   headerActionsStyle,
@@ -90,7 +91,9 @@ export const Panel = ({
 }: PanelProps) => {
   const records = useRecords(api);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [filterKind, setFilterKind] = useState<"all" | "error" | "mock" | "ok">(
+  const [filterKind, setFilterKind] = useState<
+    "all" | "error" | "mock" | "ok" | "pending"
+  >(
     "all"
   );
   const [query, setQuery] = useState("");
@@ -162,13 +165,16 @@ export const Panel = ({
   }, [groups, rules]);
 
   const counts = useMemo(() => {
-    const isError = (group: RequestGroup) =>
-      group.latest.status === 0 || group.latest.status >= 400;
+    const isError = (group: RequestGroup) => isErrorRecord(group.latest);
+    const isOk = (group: RequestGroup) =>
+      group.latest.state === "done" && !isError(group);
     return {
       all: groups.length,
       error: groups.filter(isError).length,
       mock: groups.filter((group) => group.latest.mocked).length,
-      ok: groups.filter((group) => !isError(group)).length,
+      ok: groups.filter(isOk).length,
+      pending: groups.filter((group) => group.latest.state === "pending")
+        .length,
     };
   }, [groups]);
 
@@ -178,10 +184,11 @@ export const Panel = ({
       if (keyword !== "" && !group.latest.url.toLowerCase().includes(keyword)) {
         return false;
       }
-      const isError = group.latest.status === 0 || group.latest.status >= 400;
+      const isError = isErrorRecord(group.latest);
       if (filterKind === "error") return isError;
-      if (filterKind === "ok") return !isError;
+      if (filterKind === "ok") return group.latest.state === "done" && !isError;
       if (filterKind === "mock") return group.latest.mocked;
+      if (filterKind === "pending") return group.latest.state === "pending";
       return true;
     });
   }, [filterKind, groups, query]);
@@ -344,6 +351,7 @@ export const Panel = ({
                     {(
                       [
                         ["all", `전체 ${counts.all}`],
+                        ["pending", `대기 ${counts.pending}`],
                         ["ok", `정상 ${counts.ok}`],
                         ["error", `에러 ${counts.error}`],
                         ["mock", `MOCK ${counts.mock}`],
@@ -374,7 +382,7 @@ export const Panel = ({
                     </button>
                     <button
                       className={panelClassNames.actionButton}
-                      style={ghostButtonStyle}
+                      style={filterClearButtonStyle}
                       type="button"
                       onClick={handleClear}>
                       Clear
