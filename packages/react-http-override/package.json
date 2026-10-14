@@ -19,7 +19,50 @@
     "email": "web-dev-group@watcha.com"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": {
+          "types": "./dist/index.d.mts",
+          "default": "./dist/index.mjs"
+        },
+        "require": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.cjs"
+        }
+      },
+      "./auto": {
+        "import": {
+          "types": "./dist/auto.d.mts",
+          "default": "./dist/auto.mjs"
+        },
+        "require": {
+          "types": "./dist/auto.d.ts",
+          "default": "./dist/auto.cjs"
+        }
+      },
+      "./auto-legacy": {
+        "import": {
+          "types": "./dist/auto-legacy.d.mts",
+          "default": "./dist/auto-legacy.mjs"
+        },
+        "require": {
+          "types": "./dist/auto-legacy.d.ts",
+          "default": "./dist/auto-legacy.cjs"
+        }
+      },
+      "./core": {
+        "import": {
+          "types": "./dist/core.d.mts",
+          "default": "./dist/core.mjs"
+        },
+        "require": {
+          "types": "./dist/core.d.ts",
+          "default": "./dist/core.cjs"
+        }
+      },
+      "./package.json": "./package.json"
+    }
   },
   "files": [
     "dist"
@@ -68,46 +111,23 @@
   },
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      },
-      "require": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.cjs"
-      }
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
     },
     "./auto": {
-      "import": {
-        "types": "./dist/auto.d.mts",
-        "default": "./dist/auto.mjs"
-      },
-      "require": {
-        "types": "./dist/auto.d.ts",
-        "default": "./dist/auto.cjs"
-      }
+      "types": "./src/auto.ts",
+      "default": "./src/auto.ts"
     },
     "./auto-legacy": {
-      "import": {
-        "types": "./dist/auto-legacy.d.mts",
-        "default": "./dist/auto-legacy.mjs"
-      },
-      "require": {
-        "types": "./dist/auto-legacy.d.ts",
-        "default": "./dist/auto-legacy.cjs"
-      }
+      "types": "./src/auto-legacy.ts",
+      "default": "./src/auto-legacy.ts"
     },
     "./core": {
-      "import": {
-        "types": "./dist/core.d.mts",
-        "default": "./dist/core.mjs"
-      },
-      "require": {
-        "types": "./dist/core.d.ts",
-        "default": "./dist/core.cjs"
-      }
+      "types": "./src/core/index.ts",
+      "default": "./src/core/index.ts"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./README.md": "./README.md"
   },
   "typesVersions": {
     "*": {

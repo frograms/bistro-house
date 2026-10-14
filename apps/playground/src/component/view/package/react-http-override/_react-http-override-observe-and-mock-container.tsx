@@ -1,12 +1,12 @@
 import {
   installHttpOverride,
   uninstallHttpOverride,
-} from "@packages/react-http-override/src/auto";
-import type { HttpOverrideApi } from "@packages/react-http-override/src/core";
+} from "@watcha-authentic/react-http-override/auto";
+import type { HttpOverrideApi } from "@watcha-authentic/react-http-override/core";
 import {
   useRecords,
   useRules,
-} from "@packages/react-http-override/src/panel/hooks";
+} from "@watcha-authentic/react-http-override";
 import { CommonCodeBlock } from "@playground/component/view/_common/common-code-block";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
 import {

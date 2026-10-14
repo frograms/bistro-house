@@ -1,4 +1,4 @@
-import type { HttpOverridePreset } from "@packages/react-http-override/src/core";
+import type { HttpOverridePreset } from "@watcha-authentic/react-http-override/core";
 
 /** 앱이 정의해 넘기는 프리셋 — 목 데이터가 무거우므로 패널과 같은 lazy 청크에 둡니다 */
 export const DEMO_PRESETS: HttpOverridePreset[] = [
