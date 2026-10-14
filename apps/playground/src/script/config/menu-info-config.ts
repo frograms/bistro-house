@@ -93,7 +93,7 @@ export const MENU_INFO: ReadonlyArray<MenuInfo> = [
     npmUrl:
       "https://www.npmjs.com/package/@watcha-authentic/react-http-override",
     packageDescription: "Fetch observation and error simulation devtools panel",
-    packageLabel: "React Fetch Devtools",
+    packageLabel: "React HTTP Override",
     packageName: "@watcha-authentic/react-http-override",
     path: "/react-http-override",
     showTableOfContents: true,
