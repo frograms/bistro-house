@@ -16,6 +16,7 @@
     "@watcha-authentic/react-a11y": "workspace:*",
     "@watcha-authentic/react-context-factory": "workspace:*",
     "@watcha-authentic/react-event-callback": "workspace:*",
+    "@watcha-authentic/react-http-override": "workspace:*",
     "@watcha-authentic/react-motion": "workspace:*",
     "@watcha-authentic/react-slider": "workspace:*",
     "@watcha-authentic/react-stable-ref-callback": "workspace:*",

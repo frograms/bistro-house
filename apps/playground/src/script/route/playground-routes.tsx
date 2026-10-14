@@ -1,3 +1,4 @@
+import { ReactHttpOverrideObserveAndMockContainer } from "@playground/component/view/package/react-http-override/_react-http-override-observe-and-mock-container";
 import { ReactMotionGlobalContainer } from "@playground/component/view/package/react-motion/_react-motion-global-container";
 import { ReactMotionPointerContainer } from "@playground/component/view/package/react-motion/_react-motion-pointer-container";
 import { ReactSliderPeekContainer } from "@playground/component/view/package/react-slider/_react-slider-peek-container";
@@ -77,6 +78,25 @@ export const playgroundRoutes: ReadonlyArray<RouteObject> = [
       {
         element: <ReactStableRefCallbackAvoidNullOnRerenderContainer />,
         path: "/react-stable-ref-callback/avoid-null-on-rerender",
+      },
+    ],
+  }),
+  // react-http-override
+  withRouteComponent({
+    routes: [
+      {
+        lazy: async () => {
+          return {
+            Component: (
+              await import("@playground/component/view/package/react-http-override/_react-http-override-documentation-container")
+            ).ReactHttpOverrideDocumentationContainer,
+          };
+        },
+        path: "/react-http-override",
+      },
+      {
+        element: <ReactHttpOverrideObserveAndMockContainer />,
+        path: "/react-http-override/observe-and-mock",
       },
     ],
   }),
