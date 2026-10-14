@@ -16,11 +16,11 @@ dist/런타임에서 import되나?
     └─ 아니오 → dependencies (runtime, transitive install)
 ```
 
-| 분류 | `package.json` | 언제 | 버전 |
-| ---- | -------------- | ---- | ---- |
-| **Peer** | `peerDependencies` | 호스트와 **같은 인스턴스**가 필요 (React hooks/context, ESLint toolchain 등) | 가능한 **느슨한 range** (`>=18.0.0`, `^x.y.z`) — 호환성 |
-| **Runtime** | `dependencies` | 런타임에 필요하지만 peer 해당 없음 (`@watcha-authentic/*` 내부 조합 등) | **느슨한 range** — transitive·호환성 |
-| **Development** | `devDependencies` | 빌드·lint·typecheck 전용. peer를 모노레포에서 로컬 검증할 때도 여기 | 로컬 개발용 (tarball·소비자 install 대상 아님) |
+| 분류            | `package.json`     | 언제                                                                         | 버전                                                    |
+| --------------- | ------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------- |
+| **Peer**        | `peerDependencies` | 호스트와 **같은 인스턴스**가 필요 (React hooks/context, ESLint toolchain 등) | 가능한 **느슨한 range** (`>=18.0.0`, `^x.y.z`) — 호환성 |
+| **Runtime**     | `dependencies`     | 런타임에 필요하지만 peer 해당 없음 (`@watcha-authentic/*` 내부 조합 등)      | **느슨한 range** — transitive·호환성                    |
+| **Development** | `devDependencies`  | 빌드·lint·typecheck 전용. peer를 모노레포에서 로컬 검증할 때도 여기          | 로컬 개발용 (tarball·소비자 install 대상 아님)          |
 
 **peer + dev 병행:** peer 패키지를 소스에서 import하는 경우, 모노레포 안 lint/typecheck/build를 위해 **같은 패키지를 `devDependencies`에도** 둡니다. npm 소비자에게는 **peer + README**로 안내합니다. (항상 병행은 아님 — 로컬 검증이 필요할 때만.)
 
@@ -28,11 +28,11 @@ dist/런타임에서 import되나?
 
 bistro-house의 `lib` / `react` 패키지는 **단일 entry** (`src/index.ts`)를 tsdown으로 번들합니다.
 
-| 항목               | 기본 동작                                                          |
-| ------------------ | ------------------------------------------------------------------ |
-| `dependencies`     | **external** — dist에 코드를 넣지 않고 `import` / `require`로 남김 |
+| 항목               | 기본 동작                                                                   |
+| ------------------ | --------------------------------------------------------------------------- |
+| `dependencies`     | **external** — dist에 코드를 넣지 않고 `import` / `require`로 남김          |
 | `peerDependencies` | **external** — 호스트 `node_modules`에서 resolve (**인스턴스 공유·싱글톤**) |
-| `devDependencies`  | 빌드·lint·typecheck 전용 — tarball·런타임과 무관                   |
+| `devDependencies`  | 빌드·lint·typecheck 전용 — tarball·런타임과 무관                            |
 
 즉 **dist는 “자기 코드 + external import”** 이고, 소비자가 `pnpm add` 할 때 `dependencies`는 함께 설치되고, `peerDependencies`는 호스트가 직접 맞춰 설치해 **같은 인스턴스**를 공유해야 합니다.
 
@@ -40,10 +40,10 @@ bistro-house의 `lib` / `react` 패키지는 **단일 entry** (`src/index.ts`)�
 
 ### platform 차이
 
-| 템플릿  | `platform` | 용도                                                     |
-| ------- | ---------- | -------------------------------------------------------- |
+| 템플릿  | `platform` | 용도                                            |
+| ------- | ---------- | ----------------------------------------------- |
 | `lib`   | `node`     | Node 전용 설정·유틸 (formatting·lint preset 등) |
-| `react` | `neutral`  | ESM/CJS 양쪽 소비 가능한 React 라이브러리                |
+| `react` | `neutral`  | ESM/CJS 양쪽 소비 가능한 React 라이브러리       |
 
 ## 종속성 종류별 역할
 
@@ -105,7 +105,7 @@ bistro-house의 `lib` / `react` 패키지는 **단일 entry** (`src/index.ts`)�
 
 | 상황                                                             | 권장                                    |
 | ---------------------------------------------------------------- | --------------------------------------- |
-| React / React DOM (hooks·context 등 **인스턴스 공유** 필요)     | `peerDependencies`                      |
+| React / React DOM (hooks·context 등 **인스턴스 공유** 필요)      | `peerDependencies`                      |
 | ESLint·PostCSS preset (호스트 toolchain **싱글톤**)              | `peerDependencies` (+ 필요 시 optional) |
 | `@watcha-authentic/*` 내부 조합 (항상 함께 쓰는 하위 라이브러리) | `dependencies`                          |
 | tsdown, eslint, prettier, `@types/*`                             | `devDependencies`                       |
@@ -123,6 +123,8 @@ build: rm -rf ./dist && tsdown && pnpm build:post
 - `clean: true`인 format(esm) pass가 dist를 비운 뒤 산출.
 - 산출물: `dist/index.mjs`, `dist/index.cjs`, `dist/index.d.ts` (+ post-build CSS 등).
 - `exports["."]`만 공식 entry — dist 여분 파일은 tarball에 들어가지 않도록 **clean build** 유지.
+- 워크스페이스 `exports`는 `src`, 배포는 `publishConfig.exports`의 dist 맵. Lerna latest(`publishConfigOverrides`)와 카나리(`apply-publish-config-for-publish.mjs`)가 배포 직전에 덮어쓴다. `files`는 `dist`만 포함한다.
+- `eslint-config`는 서브패스 exports가 여러 개라 이 스왑 대상이 아니다. `prettier-config`는 Node가 실행하는 설정이라 dist exports를 유지한다. `common-cli`는 `bin`이 dist를 가리키고 `exports`가 없다.
 
 **체크**
 
@@ -132,13 +134,16 @@ build: rm -rf ./dist && tsdown && pnpm build:post
 
 ## 워크스페이스 내부 vs npm 소비자
 
-| 구분                  | 모노레포 (`workspace:*`)                      | npm 소비자                |
-| --------------------- | --------------------------------------------- | ------------------------- |
-| `@watcha-authentic/*` | `dependencies`에 workspace 버전               | `^x.y.z` range로 install  |
-| React                 | 패키지 `devDependencies` + `peerDependencies` | peer로 직접 install       |
-| eslint preset 피어    | `devDependencies`에 전체 (로컬 lint)          | README 표 + `pnpm add -D` |
+| 구분                            | 모노레포                                      | npm 소비자                |
+| ------------------------------- | --------------------------------------------- | ------------------------- |
+| `@watcha-authentic/*` 패키지 간 | `dependencies`에 레지스트리 range (`^x.y.z`)  | `^x.y.z` range로 install  |
+| playground → 패키지             | `dependencies`에 `workspace:*`                | 해당 없음                 |
+| React                           | 패키지 `devDependencies` + `peerDependencies` | peer로 직접 install       |
+| eslint preset 피어              | `devDependencies`에 전체 (로컬 lint)          | README 표 + `pnpm add -D` |
 
 모노레포에서 `devDependencies`에 react·eslint를 넣는 것은 위 **종속성 선택 흐름**의 peer + dev 병행(로컬 validate)이고, npm 사용자에게는 **peer + README**로 안내합니다.
+
+패키지 간 의존성을 나중에 `workspace:*`로 바꾸려면 `pnpm set-workspace-deps`를 씁니다. 카나리 배포는 `rewrite-workspace-deps-for-publish.mjs`가, 정식 배포는 pnpm/Lerna publish가 `workspace:`를 실버전으로 바꿉니다.
 
 ## 자주 하는 실수
 
@@ -158,11 +163,11 @@ build: rm -rf ./dist && tsdown && pnpm build:post
 
 ## 패턴 유형 (요약)
 
-| 유형 | `dependencies` | `peerDependencies` | tsdown·빌드 |
-| ---- | -------------- | ------------------ | ----------- |
-| React 조합 라이브러리 | `@watcha-authentic/*` 내부 조합 | `react`, `react-dom` | `react` 템플릿, single entry |
-| ESLint / Prettier preset | 거의 없음 | 플러그인·코어 (필요 시 optional) | `lib` 템플릿 |
-| 설정·유틸 lib | 없거나 최소 | 없음 | `lib` 템플릿, Node `platform` |
+| 유형                     | `dependencies`                  | `peerDependencies`               | tsdown·빌드                   |
+| ------------------------ | ------------------------------- | -------------------------------- | ----------------------------- |
+| React 조합 라이브러리    | `@watcha-authentic/*` 내부 조합 | `react`, `react-dom`             | `react` 템플릿, single entry  |
+| ESLint / Prettier preset | 거의 없음                       | 플러그인·코어 (필요 시 optional) | `lib` 템플릿                  |
+| 설정·유틸 lib            | 없거나 최소                     | 없음                             | `lib` 템플릿, Node `platform` |
 
 ## 예제: Peer + Runtime + Development
 
@@ -189,11 +194,11 @@ build: rm -rf ./dist && tsdown && pnpm build:post
 }
 ```
 
-| 패키지 | `package.json` | tsdown dist | 소비자 install 시 |
-| ------ | -------------- | ----------- | ----------------- |
-| `@watcha-authentic/{internal-*}` | `dependencies` | **external** (`import … from "@watcha-authentic/…"`) | `pnpm add {package}` 시 **함께 설치** (transitive) |
-| `react`, `react-dom` | `peerDependencies` | **external** (`import … from "react"`) | 호스트가 **직접** install — dist import가 앱의 `react` **한 벌**을 resolve |
-| `react` (로컬 lint/typecheck) | `devDependencies` | dist에 **포함되지 않음** | tarball·런타임과 무관 |
+| 패키지                           | `package.json`     | tsdown dist                                          | 소비자 install 시                                                          |
+| -------------------------------- | ------------------ | ---------------------------------------------------- | -------------------------------------------------------------------------- |
+| `@watcha-authentic/{internal-*}` | `dependencies`     | **external** (`import … from "@watcha-authentic/…"`) | `pnpm add {package}` 시 **함께 설치** (transitive)                         |
+| `react`, `react-dom`             | `peerDependencies` | **external** (`import … from "react"`)               | 호스트가 **직접** install — dist import가 앱의 `react` **한 벌**을 resolve |
+| `react` (로컬 lint/typecheck)    | `devDependencies`  | dist에 **포함되지 않음**                             | tarball·런타임과 무관                                                      |
 
 ### 빌드 후 `dist/index.mjs` (형태 예)
 

@@ -21,7 +21,7 @@ export const withRouteComponent = ({
   AppContent,
   routes,
 }: {
-  AppContent: ComponentType;
+  AppContent?: ComponentType;
   routes: Array<RouteObject> | ReadonlyArray<RouteObject>;
 }) => {
   return {

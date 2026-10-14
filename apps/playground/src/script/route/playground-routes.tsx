@@ -1,4 +1,3 @@
-import { PackageAppContent } from "@playground/component/view/package/app-package-content";
 import { ReactHttpOverrideObserveAndMockContainer } from "@playground/component/view/package/react-http-override/_react-http-override-observe-and-mock-container";
 import { ReactMotionGlobalContainer } from "@playground/component/view/package/react-motion/_react-motion-global-container";
 import { ReactMotionPointerContainer } from "@playground/component/view/package/react-motion/_react-motion-pointer-container";
@@ -6,13 +5,15 @@ import { ReactSliderPeekContainer } from "@playground/component/view/package/rea
 import { ReactSliderSingleContainer } from "@playground/component/view/package/react-slider/_react-slider-single-container";
 import { ReactSliderTransitionContainer } from "@playground/component/view/package/react-slider/_react-slider-transition-container";
 import { ReactStableRefCallbackAvoidNullOnRerenderContainer } from "@playground/component/view/package/react-stable-ref-callback/_react-stable-ref-callback-avoid-null-on-rerender-container";
+import { ReactThemeContextPickThemeContainer } from "@playground/component/view/package/react-theme-context/_react-theme-context-pick-theme-container";
+import { ReactThemeContextShowOsAppearanceContainer } from "@playground/component/view/package/react-theme-context/_react-theme-context-show-os-appearance-container";
+import { AppThemeContent } from "@playground/component/view/package/react-theme-context/app-theme-content";
 import { withRouteComponent } from "@playground/script/util/router-utils";
 import type { RouteObject } from "react-router";
 
 export const playgroundRoutes: ReadonlyArray<RouteObject> = [
   // react-slider
   withRouteComponent({
-    AppContent: PackageAppContent,
     routes: [
       {
         lazy: async () => {
@@ -40,7 +41,6 @@ export const playgroundRoutes: ReadonlyArray<RouteObject> = [
   }),
   // react-motion
   withRouteComponent({
-    AppContent: PackageAppContent,
     routes: [
       {
         lazy: async () => {
@@ -64,7 +64,6 @@ export const playgroundRoutes: ReadonlyArray<RouteObject> = [
   }),
   // react-stable-ref-callback
   withRouteComponent({
-    AppContent: PackageAppContent,
     routes: [
       {
         lazy: async () => {
@@ -84,7 +83,6 @@ export const playgroundRoutes: ReadonlyArray<RouteObject> = [
   }),
   // react-http-override
   withRouteComponent({
-    AppContent: PackageAppContent,
     routes: [
       {
         lazy: async () => {
@@ -99,6 +97,34 @@ export const playgroundRoutes: ReadonlyArray<RouteObject> = [
       {
         element: <ReactHttpOverrideObserveAndMockContainer />,
         path: "/react-http-override/observe-and-mock",
+      },
+    ],
+  }),
+  // react-theme-context
+  withRouteComponent({
+    AppContent: AppThemeContent,
+    routes: [
+      {
+        lazy: async () => {
+          return {
+            Component: (
+              await import("@playground/component/view/package/react-theme-context/_react-theme-context-documentation-container")
+            ).ReactThemeContextDocumentationContainer,
+          };
+        },
+        path: "/react-theme-context",
+      },
+      {
+        element: <ReactThemeContextPickThemeContainer />,
+        path: "/react-theme-context/pick-theme",
+      },
+    ],
+  }),
+  withRouteComponent({
+    routes: [
+      {
+        element: <ReactThemeContextShowOsAppearanceContainer />,
+        path: "/react-theme-context/show-os-appearance",
       },
     ],
   }),

@@ -20,6 +20,10 @@
 # - NPM_PUBLISH_USERCONFIG: npm publish 에 사용할 userconfig(.npmrc) 경로
 # - NPM_PUBLISH_ACCESS: npm publish --access 값 (예: public)
 #
+# 배포 전 package.json 변경 (cleanup=true 면 EXIT 시 복원):
+#   - workspace: 의존성 치환
+#   - publishConfig 오버레이 (exports 등). npm publish 는 이 필드를 적용하지 않음
+#
 # 성공 시 마지막 줄 publish-prerelease-result-tag=@scope/pkg@version (태그 결과 grep용)
 
 set -e
@@ -315,6 +319,11 @@ rewrite_workspace_deps() {
   node "$script_dir/rewrite-workspace-deps-for-publish.mjs" "$short_name"
 }
 
+apply_publish_config() {
+  echo "📝 publishConfig 오버레이 적용 중..."
+  node "$script_dir/apply-publish-config-for-publish.mjs" "$short_name"
+}
+
 publish_package() {
   echo "📦 npm publish (dist-tag: ${channel})..."
 
@@ -322,6 +331,7 @@ publish_package() {
   cleanup_pending=1
 
   rewrite_workspace_deps
+  apply_publish_config
 
   (
     cd "$root_dir/$package_dir"

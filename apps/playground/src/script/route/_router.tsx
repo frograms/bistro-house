@@ -1,6 +1,7 @@
 import { AppContent } from "@playground/component/app-content";
 import { ErrorContainer } from "@playground/component/view/_common/_status-error-container";
 import { NotFoundContainer } from "@playground/component/view/_common/_status-not-found-container";
+import { AppPlaygroundContent } from "@playground/component/view/package/app-playground-content";
 import { commonRoutes } from "@playground/script/route/common-routes";
 import { playgroundRoutes } from "@playground/script/route/playground-routes";
 import { withRouteComponent } from "@playground/script/util/router-utils";
@@ -24,7 +25,12 @@ let routes: Array<RouteObject> = [
 ];
 
 routes = routes.concat(commonRoutes);
-routes = routes.concat(playgroundRoutes);
+routes = routes.concat(
+  withRouteComponent({
+    AppContent: AppPlaygroundContent,
+    routes: playgroundRoutes,
+  })
+);
 
 export const router = createBrowserRouter(
   [withRouteComponent({ AppContent, routes })],

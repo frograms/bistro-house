@@ -1,10 +1,5 @@
-import "@packages/react-slider/src/resource/css/common/slider.css";
+import "@watcha-authentic/react-slider/style.css";
 
-import {
-  Slider,
-  type SliderRef,
-} from "@packages/react-slider/src/component/view/slider";
-import type { SlideTriggerEvent } from "@packages/react-slider/src/script/type/slider-types";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
 import {
   CommonExampleControlPanel,
@@ -18,6 +13,11 @@ import {
   type SliderItem,
 } from "@playground/component/view/package/react-slider/_shared/react-slider-items";
 import { commonExampleControlsCss } from "@playground/resource/css/common/common-example-controls.css";
+import {
+  Slider,
+  type SliderRef,
+  type SlideTriggerEvent,
+} from "@watcha-authentic/react-slider";
 import type { CSSProperties } from "react";
 import { useCallback, useRef, useState } from "react";
 

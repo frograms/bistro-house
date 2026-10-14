@@ -1,3 +1,5 @@
+/* eslint-disable perfectionist/sort-objects -- package exports 조건은 선언 순서대로 평가된다. */
+
 import type {
   CreatePackageType,
   ReactViteMode,
@@ -40,9 +42,9 @@ export const toBuildSystemConfigType = (
 const tsdownBuildSystemConfig: PackageJsonFragment = {
   exports: {
     ".": {
+      types: "./dist/index.d.ts",
       import: "./dist/index.mjs",
       require: "./dist/index.cjs",
-      types: "./dist/index.d.ts",
     },
   },
   main: "./dist/index.cjs",
@@ -73,9 +75,9 @@ const viteSandboxScripts = {
 const viteBuildSystemBase: PackageJsonFragment = {
   exports: {
     ".": {
+      types: "./dist/index.d.ts",
       import: "./dist/index.js",
       require: "./dist/index.cjs",
-      types: "./dist/index.d.ts",
     },
   },
   main: "./dist/index.cjs",

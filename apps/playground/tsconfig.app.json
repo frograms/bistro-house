@@ -24,16 +24,9 @@
     /* Path Mapping */
     "baseUrl": ".",
     "paths": {
-      "@playground/*": ["./src/*"],
-      "@packages/*": ["../../packages/*"]
+      "@playground/*": ["./src/*"]
     }
   },
-  "include": ["src", "../../packages/*/src"],
-  "exclude": [
-    "../../packages/common-cli/src",
-    "../../packages/eslint-config/src",
-    "../../packages/prettier-config/src",
-    "**/*.test.*",
-    "**/*.spec.*"
-  ]
+  "include": ["src"],
+  "exclude": ["**/*.test.*", "**/*.spec.*"]
 }

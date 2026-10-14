@@ -7,7 +7,7 @@
     "pnpm": "^9.9.0"
   },
   "scripts": {
-    "dev": "pnpm build:packages && turbo run dev --filter=playground",
+    "dev": "turbo run dev --filter=playground",
     "test": "turbo run test",
     "validate": "turbo run test lint build typecheck",
     "lint": "turbo run lint",

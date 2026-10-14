@@ -5,13 +5,13 @@
 
 ## 운영 작업별 시작점
 
-| 작업 | 먼저 볼 문서·명령 | 완료 기준 |
-| ---- | ----------------- | --------- |
-| 새 패키지 추가 | [ADDING_PACKAGE.md](./ADDING_PACKAGE.md) | 레지스트리 선등록, OIDC 등록, 스캐폴딩, PR 검증 완료 |
-| README 작성·수정 | [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md) · [package-readme-guide-update](../.agents/skills/package-readme-guide-update/SKILL.md) | 외부 사용자 기준 Usage·Dependencies 정합성 유지 |
-| 종속성·빌드 확인 | [PACKAGE_DEPS_AND_BUILD.md](./PACKAGE_DEPS_AND_BUILD.md) | `dependencies` / `peerDependencies` 분류와 dist external import 일치 |
-| playground 예제 추가 | [PLAYGROUND_EXAMPLE_GUIDE.md](./PLAYGROUND_EXAMPLE_GUIDE.md) · [playground-example-add](../.agents/skills/playground-example-add/SKILL.md) | 기능 단위 예제 route와 메뉴 정보 일치 |
-| 배포·권한 확인 | [bistro-house npm registry (Notion)](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d) | 로컬 `npm login`과 CI OIDC 경로 구분 |
+| 작업                 | 먼저 볼 문서·명령                                                                                                                            | 완료 기준                                                            |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 새 패키지 추가       | [ADDING_PACKAGE.md](./ADDING_PACKAGE.md)                                                                                                     | 레지스트리 선등록, OIDC 등록, 스캐폴딩, PR 검증 완료                 |
+| README 작성·수정     | [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md) · [package-readme-guide-update](../.agents/skills/package-readme-guide-update/SKILL.md) | 외부 사용자 기준 Usage·Dependencies 정합성 유지                      |
+| 종속성·빌드 확인     | [PACKAGE_DEPS_AND_BUILD.md](./PACKAGE_DEPS_AND_BUILD.md)                                                                                     | `dependencies` / `peerDependencies` 분류와 dist external import 일치 |
+| playground 예제 추가 | [PLAYGROUND_EXAMPLE_GUIDE.md](./PLAYGROUND_EXAMPLE_GUIDE.md) · [playground-example-add](../.agents/skills/playground-example-add/SKILL.md)   | 기능 단위 예제 route와 메뉴 정보 일치                                |
+| 배포·권한 확인       | [bistro-house npm registry (Notion)](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d)                | 로컬 `npm login`과 CI OIDC 경로 구분                                 |
 
 ## 전제
 
@@ -32,16 +32,16 @@ bistro-house/
 
 ## 스크립트
 
-| 명령                            | 설명                                   |
-| ------------------------------- | -------------------------------------- |
-| `pnpm dev`                      | 패키지 빌드 후 playground dev 실행     |
-| `pnpm build`                    | 전체 turbo build                       |
-| `pnpm build:packages`           | `@watcha-authentic/*` 패키지만 build   |
-| `pnpm validate`                 | test · lint · build · typecheck        |
-| `pnpm publish:canary <package>` | 카나리 npm 배포 (로컬, `npm login`)    |
-| `pnpm prepare-package <name>`   | npm 레지스트리 빈 패키지 선등록 (로컬) |
-| `pnpm add-package`              | 모노레포 프리셋으로 패키지 스캐폴딩    |
-| `pnpm format`                   | Prettier                               |
+| 명령                            | 설명                                    |
+| ------------------------------- | --------------------------------------- |
+| `pnpm dev`                      | playground dev. 패키지 소스를 바로 반영 |
+| `pnpm build`                    | 전체 turbo build                        |
+| `pnpm build:packages`           | `@watcha-authentic/*` 패키지만 build    |
+| `pnpm validate`                 | test · lint · build · typecheck         |
+| `pnpm publish:canary <package>` | 카나리 npm 배포 (로컬, `npm login`)     |
+| `pnpm prepare-package <name>`   | npm 레지스트리 빈 패키지 선등록 (로컬)  |
+| `pnpm add-package`              | 모노레포 프리셋으로 패키지 스캐폴딩     |
+| `pnpm format`                   | Prettier                                |
 
 ## CI
 
@@ -56,12 +56,12 @@ bistro-house/
 Cursor 등 에이전트가 반복 작업할 때 쓰는 **작업 절차** 문서입니다.  
 **형식·규칙·품질 기준은 `docs/` 가이드**, **순서·자가점검·완료 보고는 스킬**에 둡니다. 스킬에 규칙을 중복 정의하지 않습니다.
 
-| 스킬 | 경로 | 짝 가이드 | 용도 |
-| ---- | ---- | --------- | ---- |
-| `package-readme-guide-update` | [.agents/skills/package-readme-guide-update/SKILL.md](../.agents/skills/package-readme-guide-update/SKILL.md) | [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md) | `packages/*/README.md` 작성·갱신 |
-| `playground-example-add` | [.agents/skills/playground-example-add/SKILL.md](../.agents/skills/playground-example-add/SKILL.md) | [PLAYGROUND_EXAMPLE_GUIDE.md](./PLAYGROUND_EXAMPLE_GUIDE.md) | playground 문서·예제 route 추가·수정 |
-| `common-cli-react-vite-migrate-analyze` | [.agents/skills/common-cli-react-vite-migrate-analyze/SKILL.md](../.agents/skills/common-cli-react-vite-migrate-analyze/SKILL.md) | — | `common-cli` react-vite Vite 업그레이드 분석·적용 |
-| `resolve-create-vite-for-vite` | [.agents/skills/resolve-create-vite-for-vite/SKILL.md](../.agents/skills/resolve-create-vite-for-vite/SKILL.md) | — | Vite 코어 버전 → `create-vite` 패키지 버전 해석 (위 스킬 보조) |
+| 스킬                                    | 경로                                                                                                                              | 짝 가이드                                                    | 용도                                                           |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
+| `package-readme-guide-update`           | [.agents/skills/package-readme-guide-update/SKILL.md](../.agents/skills/package-readme-guide-update/SKILL.md)                     | [PACKAGE_README_GUIDE.md](./PACKAGE_README_GUIDE.md)         | `packages/*/README.md` 작성·갱신                               |
+| `playground-example-add`                | [.agents/skills/playground-example-add/SKILL.md](../.agents/skills/playground-example-add/SKILL.md)                               | [PLAYGROUND_EXAMPLE_GUIDE.md](./PLAYGROUND_EXAMPLE_GUIDE.md) | playground 문서·예제 route 추가·수정                           |
+| `common-cli-react-vite-migrate-analyze` | [.agents/skills/common-cli-react-vite-migrate-analyze/SKILL.md](../.agents/skills/common-cli-react-vite-migrate-analyze/SKILL.md) | —                                                            | `common-cli` react-vite Vite 업그레이드 분석·적용              |
+| `resolve-create-vite-for-vite`          | [.agents/skills/resolve-create-vite-for-vite/SKILL.md](../.agents/skills/resolve-create-vite-for-vite/SKILL.md)                   | —                                                            | Vite 코어 버전 → `create-vite` 패키지 버전 해석 (위 스킬 보조) |
 
 규칙을 바꿀 때: README·playground **형식**은 해당 **가이드**만, **절차·E2E 실행·stage 비주얼** 등은 해당 **스킬**만 수정합니다.
 
@@ -101,10 +101,10 @@ pnpm publish:canary react-slider
 
 - 절차: [Notion — bistro-house npm registry](https://www.notion.so/watcha/bistro-house-npm-registry-2f1a2845fc0f80c7a4c9c2c2b7907d1d)
 
-| 경로 | 용도 | 필요한 설정 |
-| ---- | ---- | ----------- |
-| `npm login` | 로컬 `prepare-package`, 로컬 canary | `@watcha-authentic` org publish 권한 계정 |
-| OIDC Trusted Publishing | GitHub Actions latest/patch 배포 | 패키지별 Trusted Publisher, workflow `id-token: write` |
+| 경로                    | 용도                                | 필요한 설정                                            |
+| ----------------------- | ----------------------------------- | ------------------------------------------------------ |
+| `npm login`             | 로컬 `prepare-package`, 로컬 canary | `@watcha-authentic` org publish 권한 계정              |
+| OIDC Trusted Publishing | GitHub Actions latest/patch 배포    | 패키지별 Trusted Publisher, workflow `id-token: write` |
 
 ## 패키지 추가·개발 체크
 
