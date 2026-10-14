@@ -2,14 +2,14 @@
 
 [![npm version](https://img.shields.io/npm/v/@watcha-authentic/react-http-override)](https://www.npmjs.com/package/@watcha-authentic/react-http-override)
 
-staging 환경에서 fetch 요청을 관찰하고 에러·지연·빈 상태를 시뮬레이션하는 devtools 패널입니다. SWR 앱을 1급으로 지원합니다.
+staging 환경에서 fetch 요청을 관찰하고 에러·지연·빈 상태를 시뮬레이션하는 devtools 패널입니다. 엔트리 파일에서 `installHttpOverride`를 한 번 호출하면 `window.fetch`를 가로채 요청을 기록하고, 패널 버튼이 화면 우하단에 자동으로 뜹니다.
 
-`window.fetch`를 몽키패치하지 않습니다. 앱의 API 관문이 `(window.__HTTP_OVERRIDE__?.fetch ?? fetch)(url, init)` 한 줄로 자발적으로 위임하는 방식이라, devtools가 꺼져 있으면 원래 `fetch`가 그대로 쓰입니다.
+엔트리는 4개입니다. 앱의 React 버전에 맞는 것 하나를 쓰면 됩니다.
 
-엔트리는 2개입니다.
-
-- `@watcha-authentic/react-http-override/core` — React 없이 동작하는 코어. 부팅 최상단에서 `installHttpOverride`로 설치합니다.
-- `@watcha-authentic/react-http-override` — 런처 버튼·패널 등 React UI. 코어의 export도 함께 제공합니다.
+- `@watcha-authentic/react-http-override/auto` — **React 18 이상.** 설치와 패널 마운트를 한 번에 합니다.
+- `@watcha-authentic/react-http-override/auto-legacy` — **React 17.** 같은 API를 `ReactDOM.render`로 마운트합니다.
+- `@watcha-authentic/react-http-override/core` — React 없이 동작하는 코어. 패널 없이 기록·룰만 쓰거나, 런처 컴포넌트를 직접 마운트할 때 씁니다.
+- `@watcha-authentic/react-http-override` — 런처·임베드 패널 컴포넌트와 훅. 코어의 export도 함께 제공합니다.
 
 릴리즈: [CHANGELOG](https://github.com/frograms/bistro-house/blob/master/packages/react-http-override/CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=react-http-override)
 
@@ -53,113 +53,127 @@ pnpm add react@>=17.0.0 react-dom@>=17.0.0
 
 ### Basic usage
 
-설치는 3단계입니다. 코어 설치 → API 관문 위임 → 런처 마운트.
-
-1 — 부팅 최상단(엔트리 파일 가장 위)에서 코어를 설치합니다. SSR에서는 no-op이고, HMR로 다시 실행돼도 기존 설치를 재사용합니다. `enabled: false`면 아무것도 하지 않습니다.
+엔트리 파일 가장 위, 하이드레이션 전에 한 번 호출합니다. 그래야 첫 요청부터 기록되고, 다른 라이브러리가 `fetch` 참조를 잡아 두기 전에 가로챌 수 있습니다. SSR에서는 아무것도 하지 않고, HMR로 다시 실행돼도 기존 설치를 재사용합니다. 패널 UI는 이때만 동적 import로 받으므로 조건이 `false`인 환경에서는 패널 코드를 내려받지 않습니다.
 
 ```ts
-import { installHttpOverride } from "@watcha-authentic/react-http-override/core";
+import { installHttpOverride } from "@watcha-authentic/react-http-override/auto";
 
-installHttpOverride({ enabled: import.meta.env.MODE === "staging" });
+if (import.meta.env.MODE === "staging") {
+  installHttpOverride();
+}
 ```
 
-2 — 앱의 API 관문에서 한 줄로 위임합니다. devtools가 설치되지 않았으면 원래 `fetch`를 씁니다.
+React 17 앱은 `/auto-legacy`에서 같은 함수를 가져옵니다.
 
 ```ts
-const apiFetch = (url: string, init?: RequestInit) =>
-  (window.__HTTP_OVERRIDE__?.fetch ?? fetch)(url, init);
+import { installHttpOverride } from "@watcha-authentic/react-http-override/auto-legacy";
 ```
 
-3 — React UI(런처 버튼 + 패널)를 마운트합니다. staging에서만 쓰는 UI이므로 `React.lazy`로 청크를 분리하는 것을 권장합니다.
+앱 코드는 평소처럼 `fetch`를 호출하면 됩니다. 패널에서 만든 룰은 sessionStorage에 저장되어 새로고침해도 유지되고, 탭끼리는 격리됩니다. 런처 버튼은 패널의 "버튼 숨기기"로 숨기고 `Ctrl+Shift+H`로 다시 켤 수 있습니다.
 
-```tsx
-import { lazy, Suspense } from "react";
+### Revalidating after a rule change
 
-const HttpOverrideLauncher = lazy(() =>
-  import("@watcha-authentic/react-http-override").then((module) => ({
-    default: module.HttpOverrideLauncher,
-  }))
-);
+패널에서 응답 값을 바꾸거나 프리셋을 적용하면 그 URL을 다시 불러와야 화면에 반영됩니다. `onRevalidate`를 넘기면 앱의 데이터 계층이 다시 요청하므로 **앱 화면까지 바로 바뀝니다.** 넘기지 않으면 GET 요청만 패키지가 같은 URL로 다시 보내서 패널의 기록에만 반영됩니다.
 
-const App = () => (
-  <>
-    {/* ...앱... */}
-    <Suspense fallback={null}>
-      <HttpOverrideLauncher enabled={import.meta.env.MODE === "staging"} />
-    </Suspense>
-  </>
-);
+기록된 URL은 절대 주소이고 SWR 키는 보통 엔드포인트라서, 경로로 맞춥니다. 키 규칙은 앱마다 다르니 그에 맞게 조정합니다.
+
+```ts
+import { installHttpOverride } from "@watcha-authentic/react-http-override/auto";
+import { mutate } from "swr";
+
+installHttpOverride({
+  onRevalidate: (url) => {
+    const path = new URL(url, location.origin).pathname;
+    return mutate((key) => typeof key === "string" && path.endsWith(key));
+  },
+});
 ```
 
-패널에서 만든 룰은 sessionStorage에 저장되어 새로고침해도 유지되고, 탭끼리는 격리됩니다. 런처 버튼은 브라우저 콘솔에서 `__HTTP_OVERRIDE__.show()` / `.hide()` / `.toggle()`로 표시·숨김을 제어할 수 있습니다.
+### Showing SSR data
 
-### With SWR
+SSR 앱은 서버가 HTML에 심어 둔 초기 데이터를 `ssrData`로 넘기면 됩니다. 키마다 한 행씩 **서버 출처**로 테이블 맨 위에 들어가고, 상세에서 데이터를 볼 수 있습니다. 변수 이름은 앱마다 다릅니다.
 
-`createSwrAdapter`에 `useSWRConfig()` 결과를 넘기면 패널의 Cache 탭에서 SWR 캐시를 보고 키별 재요청을 실행할 수 있습니다. 구조적 타이핑이라 이 패키지는 `swr`에 의존하지 않습니다.
-
-```tsx
-import {
-  createSwrAdapter,
-  HttpOverrideLauncher,
-} from "@watcha-authentic/react-http-override";
-import { useMemo } from "react";
-import { useSWRConfig } from "swr";
-
-const DevtoolsMount = () => {
-  const { cache, mutate } = useSWRConfig();
-  const { cacheAdapter, onRevalidate } = useMemo(
-    () => createSwrAdapter({ cache, mutate }),
-    [cache, mutate]
-  );
-  return (
-    <HttpOverrideLauncher
-      cacheAdapter={cacheAdapter}
-      enabled
-      onRevalidate={onRevalidate}
-    />
-  );
-};
+```ts
+installHttpOverride({
+  // 서버가 HTML에 심어 둔 객체 (앱마다 다름)
+  ssrData: window.__SWR_FALLBACK__,
+});
 ```
 
-SSR 앱이라면 `fallback`도 함께 넘기세요. SWR은 SSR 초기값을 캐시 Map이 아니라 config의 `fallback`에 보관하므로, 재검증이 일어나지 않은 키(`useSWRImmutable` 등)는 캐시만 봐서는 data가 비어 보입니다. `fallback`을 넘기면 캐시에 값이 없는 키를 fallback에서 보충해 "fallback" 뱃지와 함께 표시합니다 (SWR과 같은 캐시 우선). `SWRConfig`에 준 것과 같은 객체 참조를 그대로 넘기면 되고, 부트스트랩 후 `delete window.__SWR_FALLBACK__` 같은 정리를 하더라도 참조가 살아 있어 안전합니다.
+브라우저 요청 중 경로가 `.data`로 끝나는 것(react-router·Remix의 서버 loader 요청)도 서버 출처로 표시됩니다. 판별 기준은 `isServerRequest`로 바꿀 수 있습니다.
 
-```tsx
-const swrConfig = { fallback: window.__SWR_FALLBACK__ };
-// ...
-createSwrAdapter({ cache, fallback: swrConfig.fallback, mutate });
+```ts
+installHttpOverride({
+  isServerRequest: (url) => url.includes("/bff/"),
+});
 ```
 
-### Embedding other devtools with extraTabs
+### Presets
 
-`extraTabs`로 패널에 탭을 추가할 수 있습니다. React Query devtools 패널처럼 다른 devtools를 같은 셸 안에 임베드하는 용도입니다.
+복잡한 목 데이터를 앱 코드에 정의해 두고 패널에서 골라 쓰는 방식입니다. `presets`를 넘기면 **요청 행을 펼쳤을 때 그 URL에 매칭되는 프리셋만** 상세의 프리셋 섹션에 나타나고, **하나를 고를 때만 적용**됩니다 (자동 적용은 없습니다). 고른 프리셋을 다시 누르면 해제되고, 다른 프리셋을 고르면 이전 프리셋의 룰을 대체합니다.
+
+```ts
+import type { HttpOverridePreset } from "@watcha-authentic/react-http-override/core";
+
+const PRESETS: HttpOverridePreset[] = [
+  {
+    description: "결제 수단이 등록된 상태",
+    id: "pay-ready",
+    name: "결제 정상",
+    rules: [{ body: JSON.stringify(PAID_USER), pattern: "/api/me", status: 200 }],
+  },
+  {
+    id: "pay-expired",
+    name: "카드 만료",
+    rules: [
+      { patch: [{ path: "card.expired", value: true }], pattern: "/api/me" },
+      { delayMs: 1500, pattern: "/api/orders" },
+    ],
+  },
+];
+
+installHttpOverride({ presets: PRESETS });
+```
+
+프리셋 하나가 룰 여러 개를 가질 수 있어서, "카드 만료 + 주문 API 지연" 같은 상태를 한 번에 세울 수 있습니다. 프리셋이 만든 룰과 패널에서 손으로 만든 룰은 함께 적용되므로, 프리셋을 켠 위에 지연을 추가로 거는 것도 됩니다.
+
+패널에서 프리셋 이름을 바꿀 수 있고(✎), 바꾼 이름은 sessionStorage에 저장됩니다. 빈 값으로 저장하면 앱이 준 원래 이름으로 돌아갑니다.
+
+### Mounting the launcher yourself
+
+`extraTabs`로 React Query devtools처럼 앱의 Provider가 필요한 탭을 끼우려면, 자동 마운트를 끄고 런처 컴포넌트를 앱 트리 안에 직접 둡니다. 설치되지 않았거나 하이드레이션 전이면 아무것도 렌더하지 않으므로 조건 분기는 필요 없습니다.
 
 ```tsx
+import { installHttpOverride } from "@watcha-authentic/react-http-override/auto";
 import {
   HttpOverrideLauncher,
   type HttpOverrideTab,
 } from "@watcha-authentic/react-http-override";
 import { lazy } from "react";
 
+installHttpOverride({ autoMount: false });
+
 const ReactQueryPanel = lazy(() =>
   import("@tanstack/react-query-devtools").then((module) => ({
-    default: module.ReactQueryHttpOverridePanel,
+    default: module.ReactQueryDevtoolsPanel,
   }))
 );
 
 const extraTabs: HttpOverrideTab[] = [
-  {
-    key: "react-query",
-    label: "React Query",
-    render: () => <ReactQueryPanel />,
-  },
+  { key: "react-query", label: "React Query", render: () => <ReactQueryPanel /> },
 ];
 
-const App = () => <HttpOverrideLauncher enabled extraTabs={extraTabs} />;
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    {/* ...앱... */}
+    <HttpOverrideLauncher extraTabs={extraTabs} />
+  </QueryClientProvider>
+);
 ```
 
 ### Embedding the panel elsewhere
 
-반대로 이 패널을 다른 devtools 셸 안에 꽂을 수도 있습니다. `HttpOverridePanel`은 런처 버튼·포털·고정 위치가 없는 임베더블 패널로, React Query의 `ReactQueryHttpOverridePanel`에 대응합니다. 열고 닫는 것은 감싸는 쪽이 담당합니다.
+반대로 이 패널을 다른 devtools 셸 안에 꽂을 수도 있습니다. `HttpOverridePanel`은 런처 버튼·포털·고정 위치가 없는 임베더블 패널로, 열고 닫는 것은 감싸는 쪽이 담당합니다.
 
 ```tsx
 import { HttpOverridePanel } from "@watcha-authentic/react-http-override";
@@ -173,10 +187,12 @@ const MyDevtoolsShell = () => (
 
 ### Controlling rules programmatically
 
-패널 UI 없이도 `window.__HTTP_OVERRIDE__`의 `rules`로 룰을 제어할 수 있습니다. `status`는 실제 요청 없이 목 응답을 반환하고, `delayMs`만 있으면 실제 응답을 지연 후 그대로 통과시키며, `patch`는 실제 응답 JSON에서 지정한 path의 값만 수정합니다. 같은 URL에 여러 룰이 매칭되면 서로 합성됩니다 — 자세한 규칙은 [HttpOverrideRule](#fetchdevtoolsrule)을 참고하세요.
+패널 UI 없이도 `getHttpOverride()`가 돌려주는 API의 `rules`로 룰을 제어할 수 있습니다. `status`는 실제 요청 없이 목 응답을 반환하고, `delayMs`만 있으면 실제 응답을 지연 후 그대로 통과시키며, `patch`는 실제 응답 JSON에서 지정한 path의 값만 수정합니다. 같은 URL에 여러 룰이 매칭되면 서로 합성됩니다 — 자세한 규칙은 [HttpOverrideRule](#httpoverriderule)을 참고하세요.
 
 ```ts
-const api = window.__HTTP_OVERRIDE__;
+import { getHttpOverride } from "@watcha-authentic/react-http-override/core";
+
+const api = getHttpOverride();
 
 // 500 에러 목 응답
 api?.rules.add({
@@ -198,51 +214,26 @@ api?.rules.add({
 });
 ```
 
-### Presets
-
-복잡한 목 데이터를 앱 코드에 정의해 두고 패널에서 골라 쓰는 방식입니다. `presets`를 넘기면 **요청 행을 펼쳤을 때 그 URL에 매칭되는 프리셋만** 상세의 프리셋 섹션에 나타나고, **하나를 고를 때만 적용**됩니다 (자동 적용은 없습니다). 고른 프리셋을 다시 누르면 해제되고, 다른 프리셋을 고르면 이전 프리셋의 룰을 대체합니다.
-
-```tsx
-// presets.ts — 목 데이터가 무거우므로 패널과 같은 lazy 청크에 둡니다
-import type { HttpOverridePreset } from "@watcha-authentic/react-http-override/core";
-
-export const PRESETS: HttpOverridePreset[] = [
-  {
-    description: "결제 수단이 등록된 상태",
-    id: "pay-ready",
-    name: "결제 정상",
-    rules: [{ body: JSON.stringify(PAID_USER), pattern: "/api/me", status: 200 }],
-  },
-  {
-    id: "pay-expired",
-    name: "카드 만료",
-    rules: [
-      { patch: [{ path: "card.expired", value: true }], pattern: "/api/me" },
-      { delayMs: 1500, pattern: "/api/orders" },
-    ],
-  },
-];
-
-<HttpOverrideLauncher enabled={isStaging} presets={PRESETS} />;
-```
-
-프리셋 하나가 룰 여러 개를 가질 수 있어서, "카드 만료 + 주문 API 지연" 같은 상태를 한 번에 세울 수 있습니다. 프리셋이 만든 룰과 패널에서 손으로 만든 룰은 함께 적용되므로, 프리셋을 켠 위에 지연을 추가로 거는 것도 됩니다.
-
-패널에서 프리셋 이름을 바꿀 수 있고(✎), 바꾼 이름은 sessionStorage에 저장됩니다. 빈 값으로 저장하면 앱이 준 원래 이름으로 돌아갑니다.
-
 ### Building custom UI with hooks
 
-`useRecords` , `useRules` , `useLauncherVisible` , `usePresetNames` 훅으로 요청 기록·룰·런처 표시 여부·프리셋 이름을 구독해 자체 UI를 만들 수 있습니다.
+`useHttpOverrideApi`로 설치된 API를 얻고, `useRecords`·`useRules`·`useLauncherVisible`·`usePresetNames`로 요청 기록·룰·런처 표시 여부·프리셋 이름을 구독해 자체 UI를 만들 수 있습니다.
 
 ```tsx
 import {
   type HttpOverrideApi,
+  useHttpOverrideApi,
   useLauncherVisible,
   useRecords,
   useRules,
 } from "@watcha-authentic/react-http-override";
 
-const RequestLog = ({ api }: { api: HttpOverrideApi }) => {
+const RequestLog = () => {
+  const api = useHttpOverrideApi();
+  if (api === null) return null;
+  return <RequestLogContent api={api} />;
+};
+
+const RequestLogContent = ({ api }: { api: HttpOverrideApi }) => {
   const records = useRecords(api);
   const rules = useRules(api);
   const visible = useLauncherVisible(api);
@@ -253,8 +244,9 @@ const RequestLog = ({ api }: { api: HttpOverrideApi }) => {
       <ul>
         {records.map((record) => (
           <li key={record.seq}>
-            {record.method} {record.url} → {record.status} (
-            {record.durationMs}ms){record.mocked ? " [mock]" : ""}
+            {record.method} {record.url} →{" "}
+            {record.state === "pending" ? "대기 중" : record.status}
+            {record.mocked ? " [mock]" : ""}
           </li>
         ))}
       </ul>
@@ -268,43 +260,75 @@ const RequestLog = ({ api }: { api: HttpOverrideApi }) => {
 룰은 기본으로 sessionStorage에 저장됩니다. `storage`를 주입해 저장 위치를 바꿀 수 있습니다. 예를 들어 `createMemoryStorage`를 넘기면 새로고침 시 룰이 사라집니다.
 
 ```ts
-import {
-  createMemoryStorage,
-  installHttpOverride,
-} from "@watcha-authentic/react-http-override/core";
+import { installHttpOverride } from "@watcha-authentic/react-http-override/auto";
+import { createMemoryStorage } from "@watcha-authentic/react-http-override/core";
 
-installHttpOverride({ enabled: true, storage: createMemoryStorage() });
+installHttpOverride({ storage: createMemoryStorage() });
+```
+
+### Uninstalling
+
+테스트나 페이지 단위로 켜고 끌 때는 `uninstallHttpOverride`로 원래 `fetch`를 되돌리고 패널을 걷어냅니다. 그 사이 다른 코드가 `window.fetch`를 다시 패치했다면 그 패치는 건드리지 않습니다.
+
+```ts
+import {
+  installHttpOverride,
+  uninstallHttpOverride,
+} from "@watcha-authentic/react-http-override/auto";
+
+installHttpOverride();
+// ...
+uninstallHttpOverride();
 ```
 
 ## API
 
 ### installHttpOverride
 
-devtools 코어를 설치하고 `window.__HTTP_OVERRIDE__`에 할당합니다. `enabled: false`이거나 SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 호출(HMR 재실행 등) 시 기존 설치를 그대로 반환합니다.
+`/auto`·`/auto-legacy` 엔트리의 함수입니다. 코어를 설치하고 페이지 로드가 끝난 뒤 런처를 `document.body`에 자동으로 띄웁니다. `/core` 엔트리의 같은 이름 함수는 코어만 설치하고 패널을 띄우지 않습니다.
+
+SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 호출(HMR 재실행 등) 시 기존 설치를 그대로 반환하고 패널도 하나만 유지합니다.
 
 #### Parameters
 
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `options` | `InstallHttpOverrideOptions` | — | 아래 `InstallHttpOverrideOptions` 참고 |
+| `options` | `InstallHttpOverrideOptions` | `{}` | 아래 `InstallHttpOverrideOptions` 참고 |
 
 #### Returns
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| `api` | `HttpOverrideApi \| null` | 설치된 devtools API. `enabled: false`·SSR이면 `null` |
+| `api` | `HttpOverrideApi \| null` | 설치된 devtools API. SSR이면 `null` |
 
 ### InstallHttpOverrideOptions
 
-`installHttpOverride`의 `options` 타입입니다.
+`installHttpOverride`의 `options` 타입입니다. `autoMount`·`presets`는 `/auto`·`/auto-legacy` 엔트리에만 있고, 나머지는 `/core`에도 있습니다.
 
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `enabled` | `boolean` | — | `false`면 설치하지 않습니다 |
-| `baseFetch` | `typeof fetch` | 호출 시점의 `window.fetch` | 실제 요청에 쓸 fetch. 기본값은 설치 시점에 고정하지 않고 호출 시점에 조회하므로, 이후 다른 도구가 `window.fetch`를 패치해도 그 위에서 동작합니다 |
+| `autoMount` | `boolean` | `true` | `false`면 패널을 띄우지 않습니다. `HttpOverrideLauncher`를 직접 마운트할 때 씁니다 |
+| `presets` | `HttpOverridePreset[]` | — | 앱이 정의한 룰 묶음. 요청 행 상세에서 URL이 매칭되는 프리셋을 골라 적용합니다 |
+| `onRevalidate` | `(url: string) => Promise<unknown> \| void` | — | 패널에서 룰을 바꾼 뒤 앱이 그 URL을 다시 불러오게 하는 콜백. 없으면 GET 요청만 패키지가 같은 URL로 다시 보냅니다 |
+| `ssrData` | `Record<string, unknown>` | — | SSR 초기 데이터. 키마다 서버 출처 행으로 기록합니다 |
+| `isServerRequest` | `(url: string) => boolean` | 경로가 `.data`로 끝나는지 | 서버 출처로 표시할 요청 판별 |
 | `maxBodyBytes` | `number` | `65536` | 기록에 남길 응답 body 최대 크기 (UTF-8 바이트 기준). 초과분은 잘라서 저장합니다 |
 | `maxRecords` | `number` | `200` | 보관할 요청 기록 수. 초과하면 오래된 것부터 버립니다 |
 | `storage` | `HttpOverrideStorage` | sessionStorage | 룰 저장소. Web Storage를 쓸 수 없는 환경에서는 인메모리로 폴백합니다 |
+
+### uninstallHttpOverride
+
+원래 `fetch`로 되돌리고, 자동으로 띄운 패널이 있으면 걷어냅니다. 설치되지 않은 상태에서 호출하면 아무것도 하지 않습니다.
+
+### getHttpOverride
+
+`/core` 엔트리의 함수입니다. 설치된 devtools API를 돌려줍니다.
+
+#### Returns
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `api` | `HttpOverrideApi \| null` | 설치 안 됐거나 SSR이면 `null` |
 
 ### createMemoryStorage
 
@@ -318,50 +342,36 @@ devtools 코어를 설치하고 `window.__HTTP_OVERRIDE__`에 할당합니다. `
 
 ### HttpOverrideLauncher
 
-화면 우하단에 런처 버튼을 띄우고, 클릭하면 패널을 여는 컴포넌트입니다. `document.body`에 포털로 렌더하며, `installHttpOverride`가 설치되지 않았거나 `enabled`가 `false`면 아무것도 렌더하지 않습니다. `React.lazy` 마운트를 권장합니다.
+화면 우하단에 런처 버튼을 띄우고, 클릭하면 패널을 여는 컴포넌트입니다. `document.body`에 포털로 렌더합니다. `/auto` 엔트리가 자동으로 마운트하는 컴포넌트이며, `autoMount: false`로 끄고 직접 둘 수 있습니다. 설치되지 않았거나 하이드레이션 전이면 아무것도 렌더하지 않습니다.
 
 #### Props
 
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `enabled` | `boolean` | — | `false`면 렌더하지 않습니다 |
-| `cacheAdapter` | `HttpOverrideCacheAdapter` | — | Cache 탭 데이터 소스. SWR이면 `createSwrAdapter`로 생성합니다. 없으면 Cache 탭을 숨깁니다 |
-| `onRevalidate` | `(key: string) => void` | — | 재요청 콜백. API 탭의 재요청·트리 편집·프리셋은 요청 URL로, Cache 탭 재검증은 캐시 키로 호출합니다. 없으면 재요청 버튼을 숨깁니다 |
 | `extraTabs` | `HttpOverrideTab[]` | — | 패널에 추가할 확장 탭 |
 | `presets` | `HttpOverridePreset[]` | — | 앱이 정의한 룰 묶음. 요청 행 상세에서 URL이 매칭되는 프리셋을 골라 적용합니다 |
 | `zIndex` | `number` | `999999` | 런처 버튼·패널의 z-index |
 
 ### HttpOverridePanel
 
-런처 버튼·포털·고정 위치가 없는 임베더블 패널입니다. 다른 devtools 셸이나 자체 UI 안에 컴포넌트로 꽂는 용도이며, 열고 닫기는 감싸는 쪽이 담당합니다. `installHttpOverride`가 설치되지 않았으면 아무것도 렌더하지 않습니다.
+런처 버튼·포털·고정 위치가 없는 임베더블 패널입니다. 다른 devtools 셸이나 자체 UI 안에 컴포넌트로 꽂는 용도이며, 열고 닫기는 감싸는 쪽이 담당합니다. 설치되지 않았거나 하이드레이션 전이면 아무것도 렌더하지 않습니다.
 
 #### Props
 
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `cacheAdapter` | `HttpOverrideCacheAdapter` | — | Cache 탭 데이터 소스. 없으면 Cache 탭을 숨깁니다 |
-| `onRevalidate` | `(key: string) => void` | — | 재요청 콜백. API 탭의 재요청·트리 편집·프리셋은 요청 URL로, Cache 탭 재검증은 캐시 키로 호출합니다. 없으면 재요청 버튼을 숨깁니다 |
 | `extraTabs` | `HttpOverrideTab[]` | — | 패널에 추가할 확장 탭 |
 | `presets` | `HttpOverridePreset[]` | — | 앱이 정의한 룰 묶음. 요청 행 상세에서 URL이 매칭되는 프리셋을 골라 적용합니다 |
 
-### createSwrAdapter
+### useHttpOverrideApi
 
-SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타이핑이라 `swr` 패키지에 의존하지 않으며, `useSWRConfig()`가 반환하는 `cache`·`mutate`를 그대로 넘기면 됩니다.
-
-#### Parameters
-
-| Name | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `cache` | `SwrLikeCache` | — | `useSWRConfig()`의 `cache` |
-| `fallback` | `Record<string, unknown>` | — | `SWRConfig`에 준 SSR fallback. 캐시에 data가 없는 키를 보충해 "fallback" 뱃지로 표시합니다 |
-| `mutate` | `SwrLikeMutate` | — | `useSWRConfig()`의 `mutate` |
+설치된 devtools API를 돌려주는 훅입니다. 서버 렌더와 하이드레이션 첫 렌더에서는 `null`을 돌려줘 hydration mismatch를 막고, 그 뒤에 실제 API를 돌려줍니다.
 
 #### Returns
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| `cacheAdapter` | `HttpOverrideCacheAdapter` | `HttpOverrideLauncher`·`HttpOverridePanel`의 `cacheAdapter`로 전달 |
-| `onRevalidate` | `(url: string) => void` | 전달받은 URL과 매칭되는 캐시 키를 전부 `mutate`로 재검증. 기록 URL이 절대든 상대든, 캐시 키가 절대든 상대든(배열 키의 직렬화 형태 포함) 매칭됩니다. `onRevalidate` prop으로 전달 |
+| `api` | `HttpOverrideApi \| null` | 설치 안 됐거나 하이드레이션 전이면 `null` |
 
 ### useRecords
 
@@ -371,7 +381,7 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `api` | `HttpOverrideApi` | — | `installHttpOverride`가 반환한 API |
+| `api` | `HttpOverrideApi` | — | `useHttpOverrideApi` 또는 `installHttpOverride`가 돌려준 API |
 
 #### Returns
 
@@ -387,7 +397,7 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `api` | `HttpOverrideApi` | — | `installHttpOverride`가 반환한 API |
+| `api` | `HttpOverrideApi` | — | `useHttpOverrideApi` 또는 `installHttpOverride`가 돌려준 API |
 
 #### Returns
 
@@ -403,7 +413,7 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `api` | `HttpOverrideApi` | — | `installHttpOverride`가 반환한 API |
+| `api` | `HttpOverrideApi` | — | `useHttpOverrideApi` 또는 `installHttpOverride`가 돌려준 API |
 
 #### Returns
 
@@ -419,7 +429,7 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `api` | `HttpOverrideApi` | — | `installHttpOverride`가 반환한 API |
+| `api` | `HttpOverrideApi` | — | `useHttpOverrideApi` 또는 `installHttpOverride`가 돌려준 API |
 
 #### Returns
 
@@ -429,11 +439,10 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 
 ### HttpOverrideApi
 
-`installHttpOverride`가 반환하고 `window.__HTTP_OVERRIDE__`에 할당되는 API입니다.
+`installHttpOverride`가 돌려주고 `getHttpOverride`·`useHttpOverrideApi`로 다시 얻을 수 있는 API입니다.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| `fetch` | `typeof fetch` | 룰 적용·기록을 수행하는 fetch. 앱의 API 관문에서 위임해 씁니다 |
 | `records.getSnapshot` | `() => HttpOverrideRecord[]` | 현재 요청 기록 |
 | `records.subscribe` | `HttpOverrideSubscribe` | 기록 변경 구독 |
 | `records.clear` | `() => void` | 기록 비우기 |
@@ -447,11 +456,13 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 | `rules.remove` | `(id: string) => void` | 룰 삭제 |
 | `rules.clear` | `() => void` | 룰 전체 삭제 |
 | `rules.subscribe` | `HttpOverrideSubscribe` | 룰 변경 구독 |
+| `revalidate` | `(url: string, method: string) => void` | 그 URL을 다시 불러옵니다. `onRevalidate`가 있으면 그 콜백을 부르고, 없으면 GET만 같은 URL로 다시 보냅니다 |
+| `canRevalidate` | `(method: string) => boolean` | 이 method의 요청을 다시 불러올 수 있는지. `onRevalidate`가 없으면 GET만 `true` |
 | `launcher.getSnapshot` | `() => boolean` | 런처 버튼 표시 여부 |
 | `launcher.subscribe` | `HttpOverrideSubscribe` | 런처 표시 여부 구독 |
-| `show` | `() => void` | 런처 버튼 표시. 브라우저 콘솔에서 `__HTTP_OVERRIDE__.show()`로 호출할 수 있습니다 |
+| `show` | `() => void` | 런처 버튼 표시 |
 | `hide` | `() => void` | 런처 버튼 숨김 |
-| `toggle` | `() => void` | 런처 버튼 표시 토글 |
+| `toggle` | `() => void` | 런처 버튼 표시 토글. `Ctrl+Shift+H`가 같은 동작을 합니다 |
 
 ### HttpOverrideRule
 
@@ -492,22 +503,32 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 
 ### HttpOverrideRecord
 
-요청 1건의 기록입니다.
+요청 1건의 기록입니다. 요청이 시작되면 `pending` 상태로 먼저 기록되고, 응답이 오면 같은 기록이 갱신됩니다.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `seq` | `number` | 기록 순번 |
-| `url` | `string` | 요청 URL |
-| `method` | `string` | HTTP 메서드 (대문자) |
-| `status` | `number` | 응답 상태 코드. 네트워크 에러면 `0` |
+| `url` | `string` | 요청 URL. `ssrData` 행이면 그 키 |
+| `method` | `string` | HTTP 메서드 (대문자). `ssrData` 행이면 `"SSR"` |
+| `state` | `HttpOverrideRecordState` | `"pending"` → `"done"` 또는 `"error"` |
+| `source` | `HttpOverrideRecordSource` | `"server"`는 `ssrData` 행과 `isServerRequest`에 걸린 요청, 그 외는 `"client"` |
+| `status` | `number \| null` | 응답 상태 코드. 응답 전이면 `null`, 네트워크 에러면 `0`, `ssrData` 행이면 `null` |
 | `ok` | `boolean` | `Response.ok` 여부 |
 | `mocked` | `boolean` | 목 응답 여부 |
 | `patched` | `boolean \| undefined` | `patch` 룰이 적용된 응답이면 `true` |
 | `ruleId` | `string \| undefined` | 적용된 룰 중 대표 1개의 `id` (목 룰 → 첫 패치 룰 → 첫 매칭 룰 순) |
 | `startedAt` | `number` | 요청 시작 시각 (epoch ms) |
-| `durationMs` | `number` | 소요 시간(ms) |
+| `durationMs` | `number \| null` | 소요 시간(ms). 응답 전과 `ssrData` 행은 `null` |
 | `responseBody` | `string \| null` | 응답 body. clone 후 비동기로 채워지므로 채워지기 전엔 `null` |
 | `error` | `string \| undefined` | 네트워크 에러 메시지 |
+
+### HttpOverrideRecordState
+
+`"pending" | "done" | "error"` — 기록의 진행 상태입니다.
+
+### HttpOverrideRecordSource
+
+`"client" | "server"` — 기록의 출처입니다. 패널 테이블의 행 아이콘이 이 값을 따릅니다.
 
 ### HttpOverrideStorage
 
@@ -532,35 +553,3 @@ SWR 캐시를 Cache 탭에 연결하는 어댑터를 만듭니다. 구조적 타
 | `key` | `string` | 탭 식별자 |
 | `label` | `string` | 탭 제목 |
 | `render` | `() => ReactNode` | 탭 내용을 렌더하는 함수 |
-
-### HttpOverrideCacheAdapter
-
-Cache 탭 데이터 소스 인터페이스입니다. SWR이 아니어도 이 모양만 맞추면 어떤 캐시든 연결할 수 있습니다.
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `getEntries` | `() => HttpOverrideCacheEntry[]` | 현재 캐시 엔트리 목록 |
-
-### HttpOverrideCacheEntry
-
-Cache 탭에 표시되는 캐시 엔트리 하나입니다.
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `key` | `string` | 캐시 키 |
-| `data` | `unknown` | 캐시된 데이터 |
-| `error` | `unknown` | 에러 |
-| `isValidating` | `boolean \| undefined` | 재검증 중 여부 |
-
-### SwrLikeCache
-
-`createSwrAdapter`의 `cache` 타입입니다. `useSWRConfig()`의 `cache`가 이 모양을 만족합니다.
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `get` | `(key: string) => unknown` | 키의 캐시 상태 조회 |
-| `keys` | `() => IterableIterator<string>` | 캐시 키 목록 |
-
-### SwrLikeMutate
-
-`(key: string) => unknown` — 키를 재검증하는 함수입니다. `useSWRConfig()`의 `mutate`가 이 모양을 만족합니다.
