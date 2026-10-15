@@ -18,6 +18,7 @@ export type InstallHttpOverrideOptions = {
   maxBodyBytes?: number;
   maxRecords?: number;
   onRevalidate?: (url: string) => Promise<unknown> | void;
+  shouldRecord?: (url: string, method: string) => boolean;
   ssrData?: Record<string, unknown>;
   storage?: HttpOverrideStorage;
 };
@@ -55,6 +56,7 @@ export const installHttpOverride = (
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
     maxRecords,
     onRevalidate,
+    shouldRecord,
     ssrData,
     storage,
   } = options;
@@ -72,6 +74,7 @@ export const installHttpOverride = (
       method: "SSR",
       mocked: false,
       ok: true,
+      requestBody: null,
       responseBody: body === null ? null : truncateBody(body, maxBodyBytes),
       source: "server",
       startedAt: installedAt,
@@ -131,6 +134,7 @@ export const installHttpOverride = (
     getRules: ruleStore.getSnapshot,
     isServerRequest,
     maxBodyBytes,
+    shouldRecord,
   });
 
   const onKeyDown = (event: KeyboardEvent) => {
