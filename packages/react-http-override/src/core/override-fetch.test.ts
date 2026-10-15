@@ -160,6 +160,89 @@ describe("createOverrideFetch", () => {
     ]);
   });
 
+  it("문자열·URLSearchParams·FormData 요청 본문을 기록하고 바이너리는 크기만 남긴다", async () => {
+    const { buffer, overrideFetch } = setup([]);
+    await overrideFetch("https://api.test/a", {
+      body: '{"name":"garu"}',
+      method: "POST",
+    });
+    await overrideFetch("https://api.test/b", {
+      body: new URLSearchParams({ page: "1", q: "x y" }),
+      method: "POST",
+    });
+    const form = new FormData();
+    form.append("title", "hi");
+    form.append("tags", "a");
+    form.append("tags", "b");
+    form.append("file", new Blob(["xyz"]), "cover.png");
+    await overrideFetch("https://api.test/c", { body: form, method: "POST" });
+    await overrideFetch("https://api.test/d", {
+      body: new Uint8Array(5),
+      method: "PUT",
+    });
+    await overrideFetch("https://api.test/e");
+
+    const bodies = buffer.getSnapshot().map((record) => record.requestBody);
+    expect(bodies[0]).toBe('{"name":"garu"}');
+    expect(bodies[1]).toBe("page=1&q=x+y");
+    expect(JSON.parse(bodies[2] ?? "null")).toEqual({
+      file: "[file cover.png 3 bytes]",
+      tags: ["a", "b"],
+      title: "hi",
+    });
+    expect(bodies[3]).toBe("[binary 5 bytes]");
+    expect(bodies[4]).toBeNull();
+  });
+
+  it("Request 객체 입력의 본문은 clone해서 비동기로 채운다", async () => {
+    const { buffer, overrideFetch } = setup([]);
+    await overrideFetch(
+      new Request("https://api.test/users", {
+        body: '{"id":1}',
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      })
+    );
+    await vi.waitFor(() => {
+      expect(buffer.getSnapshot()[0]?.requestBody).toBe('{"id":1}');
+    });
+  });
+
+  it("shouldRecord가 false면 기록도 룰 적용도 없이 원본 fetch로 통과한다", async () => {
+    const buffer = createRecordBuffer();
+    const baseFetch = vi.fn(async () => new Response("real", { status: 200 }));
+    const overrideFetch = createOverrideFetch({
+      baseFetch,
+      buffer,
+      getRules: () => [{ id: "r", pattern: "analytics", status: 500 }],
+      shouldRecord: (url) => !url.includes("analytics"),
+    });
+    const skipped = await overrideFetch("https://www.google-analytics.com/g");
+    expect(skipped.status).toBe(200);
+    expect(baseFetch).toHaveBeenCalledOnce();
+    expect(buffer.getSnapshot()).toHaveLength(0);
+
+    await overrideFetch("https://api.test/users");
+    expect(buffer.getSnapshot()).toHaveLength(1);
+  });
+
+  it("opaque 응답은 status 0·ok false에 opaque 표시로 완료 처리하고 본문을 읽지 않는다", async () => {
+    const opaque = new Response(null, { status: 200 });
+    Object.defineProperty(opaque, "type", { value: "opaque" });
+    const { buffer, overrideFetch } = setup([], { baseFetch: async () => opaque });
+    const response = await overrideFetch("https://www.google-analytics.com/g", {
+      mode: "no-cors",
+    });
+    expect(response).toBe(opaque);
+    expect(buffer.getSnapshot()[0]).toMatchObject({
+      ok: false,
+      opaque: true,
+      responseBody: null,
+      state: "done",
+      status: 0,
+    });
+  });
+
   it("요청 시작 즉시 pending으로 기록하고 응답이 오면 같은 기록을 갱신한다", async () => {
     let resolve: (response: Response) => void = () => undefined;
     const { buffer, overrideFetch } = setup([], {
