@@ -4,6 +4,7 @@ import type { HttpOverrideRecord } from "../core";
 import { SourceIcon } from "./source-icon";
 import {
   chipErrorStyle,
+  chipNeutralStyle,
   chipOkStyle,
   chipPendingStyle,
   mockBadgeStyle,
@@ -48,6 +49,10 @@ const formatTime = (epochMs: number): string => {
 export const isErrorRecord = (record: HttpOverrideRecord): boolean =>
   record.state === "error" || (record.status !== null && record.status >= 400);
 
+/** 완료됐고 에러도 opaque도 아닌 기록 */
+export const isOkRecord = (record: HttpOverrideRecord): boolean =>
+  record.state === "done" && record.opaque !== true && !isErrorRecord(record);
+
 const ELAPSED_TICK_MS = 100;
 
 const PendingChip = ({ startedAt }: { startedAt: number }) => {
@@ -87,6 +92,15 @@ export const StatusChip = ({ record }: { record: HttpOverrideRecord }) => {
   if (record.status === null) return null;
   if (record.state === "error") {
     return <span style={chipErrorStyle}>ERR</span>;
+  }
+  if (record.opaque === true) {
+    return (
+      <span
+        style={chipNeutralStyle}
+        title="no-cors 요청 — 브라우저가 상태와 본문을 숨긴 응답">
+        opaque
+      </span>
+    );
   }
   return (
     <span style={record.status >= 400 ? chipErrorStyle : chipOkStyle}>

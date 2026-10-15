@@ -10,6 +10,7 @@ const record = (responseBody: string | null): HttpOverrideRecord => ({
   method: "GET",
   mocked: false,
   ok: true,
+  requestBody: null,
   responseBody,
   seq: 1,
   source: "client",
