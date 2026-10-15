@@ -6,7 +6,7 @@ import { ruleMatchesUrl } from "../core";
 import { useRecords, useRules } from "./hooks";
 import { RequestDetail } from "./request-detail";
 import type { RequestGroup } from "./request-table";
-import { isErrorRecord, RequestTable } from "./request-table";
+import { isErrorRecord, isOkRecord, RequestTable } from "./request-table";
 import { RuleBar } from "./rule-bar";
 import {
   activeTabStyle,
@@ -150,8 +150,7 @@ export const Panel = ({
 
   const counts = useMemo(() => {
     const isError = (group: RequestGroup) => isErrorRecord(group.latest);
-    const isOk = (group: RequestGroup) =>
-      group.latest.state === "done" && !isError(group);
+    const isOk = (group: RequestGroup) => isOkRecord(group.latest);
     return {
       all: groups.length,
       error: groups.filter(isError).length,
@@ -170,7 +169,7 @@ export const Panel = ({
       }
       const isError = isErrorRecord(group.latest);
       if (filterKind === "error") return isError;
-      if (filterKind === "ok") return group.latest.state === "done" && !isError;
+      if (filterKind === "ok") return isOkRecord(group.latest);
       if (filterKind === "mock") return group.latest.mocked;
       if (filterKind === "pending") return group.latest.state === "pending";
       return true;

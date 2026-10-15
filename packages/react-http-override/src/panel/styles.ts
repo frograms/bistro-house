@@ -397,6 +397,13 @@ export const pendingSpinnerStyle: CSSProperties = {
   width: 10,
 };
 
+export const chipNeutralStyle: CSSProperties = {
+  ...chipBaseStyle,
+  background: "transparent",
+  border: `1px solid ${palette.line}`,
+  color: palette.muted,
+};
+
 export const chipErrorStyle: CSSProperties = {
   ...chipBaseStyle,
   background: palette.orangeSoft,
@@ -572,6 +579,32 @@ export const detailInfoValueStyle: CSSProperties = {
   color: palette.text,
   fontVariantNumeric: "tabular-nums",
   textAlign: "right",
+  wordBreak: "break-all",
+};
+
+export const queryTableStyle: CSSProperties = {
+  borderCollapse: "collapse",
+  flex: 1,
+  fontFamily: monoFontFamily,
+  maxWidth: "75%",
+  tableLayout: "fixed",
+};
+
+export const queryRowStyle: CSSProperties = {
+  verticalAlign: "top",
+};
+
+export const queryKeyStyle: CSSProperties = {
+  color: palette.teal,
+  padding: "1px 6px 1px 0",
+  textAlign: "right",
+  whiteSpace: "nowrap",
+  width: "1%",
+};
+
+export const queryValueStyle: CSSProperties = {
+  color: palette.text,
+  padding: "1px 0",
   wordBreak: "break-all",
 };
 

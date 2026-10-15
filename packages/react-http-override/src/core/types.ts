@@ -32,8 +32,10 @@ export type HttpOverrideRecord = {
   method: string;
   mocked: boolean;
   ok: boolean;
+  opaque?: boolean;
   /** patch 룰이 적용된 응답 */
   patched?: boolean;
+  requestBody: string | null;
   /** clone 후 비동기로 채워지므로 채워지기 전엔 null */
   responseBody: string | null;
   ruleId?: string;

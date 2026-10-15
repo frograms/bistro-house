@@ -69,7 +69,7 @@ React 17 앱은 `/auto-legacy`에서 같은 함수를 가져옵니다.
 import { installHttpOverride } from "@watcha-authentic/react-http-override/auto-legacy";
 ```
 
-앱 코드는 평소처럼 `fetch`를 호출하면 됩니다. 패널에서 만든 룰은 sessionStorage에 저장되어 새로고침해도 유지되고, 탭끼리는 격리됩니다. 런처 버튼은 패널의 "버튼 숨기기"로 숨기고 `Ctrl+Shift+H`로 다시 켤 수 있습니다.
+앱 코드는 평소처럼 `fetch`를 호출하면 됩니다. 요청 행을 펼치면 URL을 origin·경로·쿼리 파라미터로 나눠 보여주고, 요청 본문이 있으면 Payload 섹션에 나옵니다. 패널에서 만든 룰은 sessionStorage에 저장되어 새로고침해도 유지되고, 탭끼리는 격리됩니다. 런처 버튼은 패널의 "버튼 숨기기"로 숨기고 `Ctrl+Shift+H`로 다시 켤 수 있습니다.
 
 ### Revalidating after a rule change
 
@@ -107,6 +107,18 @@ installHttpOverride({
   isServerRequest: (url) => url.includes("/bff/"),
 });
 ```
+
+### Filtering out noise
+
+`window.fetch`를 전부 가로채므로 GA·Sentry·프레임워크 내부 요청까지 기록됩니다. `shouldRecord`가 `false`를 돌려준 요청은 기록도 룰 적용도 없이 그대로 통과합니다. 어떤 요청이 노이즈인지는 앱마다 달라서 기본 제외 목록은 없습니다.
+
+```ts
+installHttpOverride({
+  shouldRecord: (url) => url.startsWith(API_ORIGIN),
+});
+```
+
+no-cors 요청의 opaque 응답(상태·본문을 브라우저가 숨긴 응답)은 기록에 `opaque` 칩으로 표시되고, 정상·에러 어느 쪽으로도 세지 않습니다.
 
 ### Presets
 
@@ -312,6 +324,7 @@ SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 �
 | `onRevalidate` | `(url: string) => Promise<unknown> \| void` | — | 패널에서 룰을 바꾼 뒤 앱이 그 URL을 다시 불러오게 하는 콜백. 없으면 GET 요청만 패키지가 같은 URL로 다시 보냅니다 |
 | `ssrData` | `Record<string, unknown>` | — | SSR 초기 데이터. 키마다 서버 출처 행으로 기록합니다 |
 | `isServerRequest` | `(url: string) => boolean` | 경로가 `.data`로 끝나는지 | 서버 출처로 표시할 요청 판별 |
+| `shouldRecord` | `(url: string, method: string) => boolean` | 모두 기록 | `false`면 기록도 룰 적용도 없이 원본 `fetch`로 통과 |
 | `maxBodyBytes` | `number` | `65536` | 기록에 남길 응답 body 최대 크기 (UTF-8 바이트 기준). 초과분은 잘라서 저장합니다 |
 | `maxRecords` | `number` | `200` | 보관할 요청 기록 수. 초과하면 오래된 것부터 버립니다 |
 | `storage` | `HttpOverrideStorage` | sessionStorage | 룰 저장소. Web Storage를 쓸 수 없는 환경에서는 인메모리로 폴백합니다 |
@@ -512,13 +525,15 @@ SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 �
 | `method` | `string` | HTTP 메서드 (대문자). `ssrData` 행이면 `"SSR"` |
 | `state` | `HttpOverrideRecordState` | `"pending"` → `"done"` 또는 `"error"` |
 | `source` | `HttpOverrideRecordSource` | `"server"`는 `ssrData` 행과 `isServerRequest`에 걸린 요청, 그 외는 `"client"` |
-| `status` | `number \| null` | 응답 상태 코드. 응답 전이면 `null`, 네트워크 에러면 `0`, `ssrData` 행이면 `null` |
+| `status` | `number \| null` | 응답 상태 코드. 응답 전이면 `null`, 네트워크 에러와 opaque 응답이면 `0`, `ssrData` 행이면 `null` |
 | `ok` | `boolean` | `Response.ok` 여부 |
+| `opaque` | `boolean \| undefined` | no-cors 요청의 opaque 응답이면 `true` |
 | `mocked` | `boolean` | 목 응답 여부 |
 | `patched` | `boolean \| undefined` | `patch` 룰이 적용된 응답이면 `true` |
 | `ruleId` | `string \| undefined` | 적용된 룰 중 대표 1개의 `id` (목 룰 → 첫 패치 룰 → 첫 매칭 룰 순) |
 | `startedAt` | `number` | 요청 시작 시각 (epoch ms) |
 | `durationMs` | `number \| null` | 소요 시간(ms). 응답 전과 `ssrData` 행은 `null` |
+| `requestBody` | `string \| null` | 요청 body. 문자열·`URLSearchParams`는 원문, `FormData`는 키·값 JSON(파일은 이름·크기), 바이너리는 크기 요약. 없으면 `null` |
 | `responseBody` | `string \| null` | 응답 body. clone 후 비동기로 채워지므로 채워지기 전엔 `null` |
 | `error` | `string \| undefined` | 네트워크 에러 메시지 |
 
