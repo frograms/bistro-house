@@ -3,9 +3,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   detailInfoRowStyle,
   detailInfoValueStyle,
+  formTableStyle,
+  queryBlockStyle,
   queryKeyStyle,
   queryRowStyle,
-  queryTableStyle,
   queryValueStyle,
   treeCopyButtonStyle,
 } from "./styles";
@@ -77,9 +78,11 @@ export const CopyUrlButton = ({ url }: { url: string }) => {
 };
 
 export const QueryParamsTable = ({ params }: { params: [string, string][] }) => (
-  <div style={detailInfoRowStyle}>
-    <span>query</span>
-    <table aria-label="쿼리 파라미터" style={queryTableStyle}>
+  <div style={queryBlockStyle}>
+    <div style={detailInfoRowStyle}>
+      <span>query</span>
+    </div>
+    <table aria-label="쿼리 파라미터" style={formTableStyle}>
       <tbody>
         {params.map(([key, value], index) => (
           <tr key={`${key}-${index}`} style={queryRowStyle}>

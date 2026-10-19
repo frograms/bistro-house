@@ -604,6 +604,12 @@ export const queryTableStyle: CSSProperties = {
   tableLayout: "fixed",
 };
 
+export const queryBlockStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+};
+
 export const queryRowStyle: CSSProperties = {
   verticalAlign: "top",
 };
