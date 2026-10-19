@@ -2,6 +2,7 @@ import {
   createLauncherVisibility,
   isLauncherShortcut,
 } from "./launcher-visibility";
+import type { ReplayInput } from "./override-fetch";
 import {
   createOverrideFetch,
   DEFAULT_MAX_BODY_BYTES,
@@ -89,8 +90,10 @@ export const installHttpOverride = (
 
   const canRevalidate = (method: string) =>
     onRevalidate !== undefined || method === "GET";
+  const replayInputs = new Map<number, ReplayInput>();
 
   const api: HttpOverrideApi = {
+    canReplay: (seq) => replayInputs.has(seq),
     canRevalidate,
     hide: launcher.hide,
     launcher: {
@@ -107,6 +110,15 @@ export const installHttpOverride = (
       clear: buffer.clear,
       getSnapshot: buffer.getSnapshot,
       subscribe: buffer.subscribe,
+    },
+    replay: (seq) => {
+      const entry = replayInputs.get(seq);
+      if (entry === undefined) return;
+      const input =
+        typeof Request !== "undefined" && entry.input instanceof Request
+          ? entry.input.clone()
+          : entry.input;
+      patchedFetch(input, entry.init).catch(() => undefined);
     },
     revalidate: (url, method) => {
       if (onRevalidate !== undefined) {
@@ -134,6 +146,7 @@ export const installHttpOverride = (
     getRules: ruleStore.getSnapshot,
     isServerRequest,
     maxBodyBytes,
+    replayInputs,
     shouldRecord,
   });
 
