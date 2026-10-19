@@ -522,8 +522,22 @@ export const presetNameInputStyle: CSSProperties = {
   padding: "5px 8px",
 };
 
-export const detailStyle: CSSProperties = {
+export const resizeHandleStyle: CSSProperties = {
+  background: "transparent",
   borderLeft: `1px solid ${palette.line}`,
+  cursor: "col-resize",
+  flex: "none",
+  touchAction: "none",
+  width: 6,
+};
+
+export const resizeHandleActiveStyle: CSSProperties = {
+  ...resizeHandleStyle,
+  background: palette.tealSoft,
+  borderLeft: `1px solid ${palette.teal}`,
+};
+
+export const detailStyle: CSSProperties = {
   display: "flex",
   flex: "none",
   flexDirection: "column",
@@ -821,6 +835,7 @@ export const actionBodyHintBrokenStyle: CSSProperties = {
 export const panelClassNames = {
   actionButton: "rfd-btn",
   launcher: "rfd-launcher",
+  resizeHandle: "rfd-resize",
   row: "rfd-row",
   spinner: "rfd-spinner",
   treeActions: "rfd-tree-actions",
@@ -840,6 +855,8 @@ export const panelInteractionCss = `
 .${panelClassNames.treeActions}:focus-within { opacity: 1; }
 @keyframes rfd-spin { to { transform: rotate(360deg); } }
 .${panelClassNames.spinner} { animation: rfd-spin 0.8s linear infinite; }
+.${panelClassNames.resizeHandle}:hover { background: ${palette.tealSoft} !important; border-left-color: ${palette.teal} !important; }
+.${panelClassNames.resizeHandle}:focus-visible { outline: 2px solid ${palette.teal}; outline-offset: -2px; }
 .${panelClassNames.row}:focus { outline: none; }
 .${panelClassNames.row}:focus-visible,
 .${panelClassNames.actionButton}:focus-visible,

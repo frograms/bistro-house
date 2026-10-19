@@ -37,8 +37,11 @@ import {
   panelContentStyle,
   panelGhostLabelStyle,
   panelStyle,
+  resizeHandleActiveStyle,
+  resizeHandleStyle,
   tableWrapStyle,
 } from "./styles";
+import { TABLE_MIN_WIDTH, useDetailWidth } from "./use-detail-width";
 
 export const PANEL_CLOSE_DURATION_MS = 200;
 
@@ -181,8 +184,14 @@ export const Panel = ({
     setSelectedKey(null);
   }, [api]);
 
+  const detail = useDetailWidth();
   const expanded = selected !== null;
-  const targetWidth = expanded ? PANEL_EXPANDED_WIDTH : PANEL_WIDTH;
+  /* 상세를 기본보다 넓히면 목록 최소 너비를 남기고 패널 자체가 왼쪽으로 자란다 */
+  const expandedWidth =
+    detail.width === null
+      ? PANEL_EXPANDED_WIDTH
+      : `min(max(760px, ${detail.width + TABLE_MIN_WIDTH}px), calc(100vw - 32px))`;
+  const targetWidth = expanded ? expandedWidth : PANEL_WIDTH;
   const targetHeight = expanded ? PANEL_EXPANDED_HEIGHT : PANEL_HEIGHT;
 
   const animatedPanelStyle = useMemo(() => {
@@ -194,13 +203,22 @@ export const Panel = ({
       border: `1px solid ${shown ? palette.line : palette.teal}`,
       borderRadius: shown ? PANEL_RADIUS : LAUNCHER_SIZE / 2,
       height: shown ? targetHeight : LAUNCHER_SIZE,
-      transition: reducedMotion
-        ? undefined
-        : `width ${duration}ms ${ease}, height ${duration}ms ${ease}, border-radius ${duration}ms ${ease}, border-color ${duration}ms ${ease}`,
+      transition:
+        reducedMotion || detail.resizing
+          ? undefined
+          : `width ${duration}ms ${ease}, height ${duration}ms ${ease}, border-radius ${duration}ms ${ease}, border-color ${duration}ms ${ease}`,
       width: shown ? targetWidth : LAUNCHER_SIZE,
       zIndex,
     };
-  }, [embedded, reducedMotion, shown, targetHeight, targetWidth, zIndex]);
+  }, [
+    detail.resizing,
+    embedded,
+    reducedMotion,
+    shown,
+    targetHeight,
+    targetWidth,
+    zIndex,
+  ]);
 
   const contentStyle = useMemo(() => {
     if (embedded === true) return embeddedContentStyle;
@@ -211,12 +229,19 @@ export const Panel = ({
       ...panelContentStyle,
       height: targetHeight,
       opacity: shown ? 1 : 0,
-      transition: reducedMotion
-        ? undefined
-        : `width ${PANEL_OPEN_DURATION_MS}ms ${OPEN_EASE}, height ${PANEL_OPEN_DURATION_MS}ms ${OPEN_EASE}, ${opacityTransition}`,
+      transition:
+        reducedMotion || detail.resizing
+          ? undefined
+          : `width ${PANEL_OPEN_DURATION_MS}ms ${OPEN_EASE}, height ${PANEL_OPEN_DURATION_MS}ms ${OPEN_EASE}, ${opacityTransition}`,
       width: targetWidth,
     };
-  }, [embedded, reducedMotion, shown, targetHeight, targetWidth]);
+  }, [detail.resizing, embedded, reducedMotion, shown, targetHeight, targetWidth]);
+
+  const asideStyle = useMemo(
+    () =>
+      detail.width === null ? detailStyle : { ...detailStyle, width: detail.width },
+    [detail.width]
+  );
 
   const ghostLabelStyle = useMemo(() => {
     const transition = shown
@@ -362,7 +387,23 @@ export const Panel = ({
                   />
                 </div>
                 {selected !== null && (
-                  <aside style={detailStyle}>
+                  <div
+                    aria-label="상세 너비 조절 (더블클릭: 기본값)"
+                    aria-orientation="vertical"
+                    className={panelClassNames.resizeHandle}
+                    role="separator"
+                    style={
+                      detail.resizing
+                        ? resizeHandleActiveStyle
+                        : resizeHandleStyle
+                    }
+                    tabIndex={0}
+                    title="드래그해서 상세 너비 조절 · 더블클릭하면 기본값"
+                    {...detail.handleProps}
+                  />
+                )}
+                {selected !== null && (
+                  <aside ref={detail.asideRef} style={asideStyle}>
                     <RequestDetail
                       key={selectedKey}
                       api={api}

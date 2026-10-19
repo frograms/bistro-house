@@ -69,7 +69,7 @@ React 17 앱은 `/auto-legacy`에서 같은 함수를 가져옵니다.
 import { installHttpOverride } from "@watcha-authentic/react-http-override/auto-legacy";
 ```
 
-앱 코드는 평소처럼 `fetch`를 호출하면 됩니다. 요청 행을 펼치면 URL을 origin·경로·쿼리 파라미터로 나눠 보여주고, 요청 본문이 있으면 Payload 섹션에 나옵니다. JSON은 트리로, `a=1&b=2` 형식(GA collect처럼 줄마다 이벤트 하나)은 줄별 키·값 표로 풉니다. 패널에서 만든 룰은 sessionStorage에 저장되어 새로고침해도 유지되고, 탭끼리는 격리됩니다. 런처 버튼은 패널의 "버튼 숨기기"로 숨기고 `Ctrl+Shift+H`로 다시 켤 수 있습니다.
+앱 코드는 평소처럼 `fetch`를 호출하면 됩니다. 요청 행을 펼치면 URL을 origin·경로·쿼리 파라미터로 나눠 보여주고, 요청 본문이 있으면 Payload 섹션에 나옵니다. JSON은 트리로, `a=1&b=2` 형식(GA collect처럼 줄마다 이벤트 하나)은 줄별 키·값 표로 풉니다. 상세 영역은 왼쪽 가장자리를 끌어 너비를 조절할 수 있고(더블클릭하면 기본값), 넓힌 너비는 브라우저에 기억됩니다. 패널에서 만든 룰은 sessionStorage에 저장되어 새로고침해도 유지되고, 탭끼리는 격리됩니다. 런처 버튼은 패널의 "버튼 숨기기"로 숨기고 `Ctrl+Shift+H`로 다시 켤 수 있습니다.
 
 ### Revalidating after a rule change
 
