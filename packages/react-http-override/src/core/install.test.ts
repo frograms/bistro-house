@@ -26,6 +26,16 @@ describe("installHttpOverride", () => {
     expect(getHttpOverride()).toBeNull();
   });
 
+  it("window.fetch가 없으면(폴리필 전 구형 브라우저) 설치하지 않는다", () => {
+    vi.stubGlobal("window", {
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    });
+    expect(installHttpOverride({ storage: createMemoryStorage() })).toBeNull();
+    expect(getHttpOverride()).toBeNull();
+    expect("fetch" in window).toBe(false);
+  });
+
   it("window.fetch를 가로채고, 중복 호출 시 기존 설치를 반환한다", () => {
     const baseFetch = vi.fn(async () => new Response("real"));
     stubWindow(baseFetch);

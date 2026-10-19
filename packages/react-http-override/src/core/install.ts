@@ -51,6 +51,7 @@ export const installHttpOverride = (
 ): HttpOverrideApi | null => {
   if (typeof window === "undefined") return null;
   if (installation !== null) return installation.api;
+  if (typeof window.fetch !== "function") return null;
 
   const {
     isServerRequest,
