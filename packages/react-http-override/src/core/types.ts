@@ -57,6 +57,7 @@ export type HttpOverrideStorage = {
 export type HttpOverrideSubscribe = (listener: () => void) => () => void;
 
 export type HttpOverrideApi = {
+  canReplay(seq: number): boolean;
   canRevalidate(method: string): boolean;
   hide(): void;
   launcher: {
@@ -74,6 +75,7 @@ export type HttpOverrideApi = {
     getSnapshot(): HttpOverrideRecord[];
     subscribe: HttpOverrideSubscribe;
   };
+  replay(seq: number): void;
   revalidate(url: string, method: string): void;
   rules: {
     add(input: HttpOverrideRuleInput): HttpOverrideRule;
