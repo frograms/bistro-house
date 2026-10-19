@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import type { HttpOverrideApi, HttpOverrideRecord } from "../core";
 import { exactUrlPattern, ruleMatchesUrl } from "../core";
 import { useRules } from "./hooks";
+import { isResendable, resend, resendLabel } from "./resend";
 import {
   actionBodyHintBrokenStyle,
   actionBodyHintJsonStyle,
@@ -157,20 +158,20 @@ export const RowActions = ({ api, record }: RowActionsProps) => {
     [bodyKind]
   );
 
-  const handleRevalidate = useCallback(() => {
-    api.revalidate(record.url, record.method);
-  }, [api, record.method, record.url]);
+  const handleResend = useCallback(() => {
+    resend(api, record);
+  }, [api, record]);
 
   return (
     <div style={actionSectionStyle}>
       <div style={actionRowStyle}>
-        {api.canRevalidate(record.method) && (
+        {isResendable(api, record) && (
           <button
             className={panelClassNames.actionButton}
             style={actionPrimaryButtonStyle}
             type="button"
-            onClick={handleRevalidate}>
-            재요청
+            onClick={handleResend}>
+            {resendLabel(record)}
           </button>
         )}
         <button

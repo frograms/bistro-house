@@ -7,6 +7,7 @@ import type {
 } from "../core";
 import { presetIdOf, presetRuleId, ruleMatchesUrl } from "../core";
 import { usePresetNames, useRules } from "./hooks";
+import { isResendable, resend } from "./resend";
 import {
   detailSectionBodyStyle,
   detailSectionHeaderStyle,
@@ -29,11 +30,7 @@ export type PresetSectionProps = {
   record: HttpOverrideRecord;
 };
 
-export const PresetSection = ({
-  api,
-  presets,
-  record,
-}: PresetSectionProps) => {
+export const PresetSection = ({ api, presets, record }: PresetSectionProps) => {
   const rules = useRules(api);
   const names = usePresetNames(api);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -61,11 +58,15 @@ export const PresetSection = ({
   const revalidateMatching = useCallback(
     (patterns: string[]) => {
       if (patterns.length === 0) return;
-      const methodByUrl = new Map<string, string>();
+      const latestByKey = new Map<string, HttpOverrideRecord>();
       for (const item of api.records.getSnapshot()) {
-        if (matchesAny(patterns, item.url)) methodByUrl.set(item.url, item.method);
+        if (matchesAny(patterns, item.url)) {
+          latestByKey.set(`${item.method} ${item.url}`, item);
+        }
       }
-      methodByUrl.forEach((method, url) => api.revalidate(url, method));
+      latestByKey.forEach((item) => {
+        if (isResendable(api, item)) resend(api, item);
+      });
     },
     [api]
   );

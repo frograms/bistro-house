@@ -73,7 +73,10 @@ import { installHttpOverride } from "@watcha-authentic/react-http-override/auto-
 
 ### Revalidating after a rule change
 
-패널에서 응답 값을 바꾸거나 프리셋을 적용하면 그 URL을 다시 불러와야 화면에 반영됩니다. `onRevalidate`를 넘기면 앱의 데이터 계층이 다시 요청하므로 **앱 화면까지 바로 바뀝니다.** 넘기지 않으면 GET 요청만 패키지가 같은 URL로 다시 보내서 패널의 기록에만 반영됩니다.
+패널에서 응답 값을 바꾸거나 프리셋을 적용하면 그 요청을 다시 보내야 룰이 적용된 결과를 볼 수 있습니다. 재요청 방식은 method에 따라 다릅니다.
+
+- **GET.** `onRevalidate`를 넘기면 앱의 데이터 계층이 다시 요청하므로 **앱 화면까지 바로 바뀝니다.** 넘기지 않으면 패키지가 같은 URL로 다시 불러와 패널 기록에만 반영됩니다.
+- **POST, PUT, DELETE 등.** Chrome Network 패널의 Replay처럼 기록된 요청을 같은 method, 헤더, 본문으로 그대로 다시 보냅니다. 버튼 문구는 `POST 다시 보내기`처럼 method가 붙습니다. 서버 데이터가 바뀔 수 있는 동작이니 staging에서만 쓰세요. 원본을 보관하지 않는 SSR 행과 스트림 본문 요청은 다시 보낼 수 없습니다.
 
 기록된 URL은 절대 주소이고 SWR 키는 보통 엔드포인트라서, 경로로 맞춥니다. 키 규칙은 앱마다 다르니 그에 맞게 조정합니다.
 
@@ -471,6 +474,8 @@ SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 �
 | `rules.subscribe` | `HttpOverrideSubscribe` | 룰 변경 구독 |
 | `revalidate` | `(url: string, method: string) => void` | 그 URL을 다시 불러옵니다. `onRevalidate`가 있으면 그 콜백을 부르고, 없으면 GET만 같은 URL로 다시 보냅니다 |
 | `canRevalidate` | `(method: string) => boolean` | 이 method의 요청을 다시 불러올 수 있는지. `onRevalidate`가 없으면 GET만 `true` |
+| `replay` | `(seq: number) => void` | 기록된 요청을 같은 method, 헤더, 본문으로 다시 보냅니다. 룰이 걸려 있으면 적용됩니다 |
+| `canReplay` | `(seq: number) => boolean` | 원본 요청을 보관하고 있어 다시 보낼 수 있는지. SSR 행과 스트림 본문은 `false` |
 | `launcher.getSnapshot` | `() => boolean` | 런처 버튼 표시 여부 |
 | `launcher.subscribe` | `HttpOverrideSubscribe` | 런처 표시 여부 구독 |
 | `show` | `() => void` | 런처 버튼 표시 |
