@@ -146,6 +146,13 @@ export const installHttpOverride = (
     getRules: ruleStore.getSnapshot,
     isServerRequest,
     maxBodyBytes,
+    onRulesApplied: (applied) => {
+      applied.forEach((rule) => {
+        if (rule.remaining === undefined) return;
+        if (rule.remaining <= 1) ruleStore.remove(rule.id);
+        else ruleStore.update(rule.id, { remaining: rule.remaining - 1 });
+      });
+    },
     replayInputs,
     shouldRecord,
   });

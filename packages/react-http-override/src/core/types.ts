@@ -6,6 +6,7 @@ export type HttpOverrideRule = {
   label?: string;
   patch?: { path: string; remove?: boolean; value?: unknown }[];
   pattern: string;
+  remaining?: number;
   status?: number;
 };
 

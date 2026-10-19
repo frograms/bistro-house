@@ -3,13 +3,15 @@ import { useCallback, useMemo, useState } from "react";
 import type { HttpOverrideApi, HttpOverrideRecord } from "../core";
 import { exactUrlPattern, ruleMatchesUrl } from "../core";
 import { useRules } from "./hooks";
-import { isResendable, resend, resendLabel } from "./resend";
+import { canRerunInPanel, rerun } from "./resend";
 import {
   actionBodyHintBrokenStyle,
   actionBodyHintJsonStyle,
   actionBodyInputStyle,
+  actionCheckboxLabelStyle,
   actionNeutralButtonStyle,
   actionPrimaryButtonStyle,
+  actionRerunHintStyle,
   actionRowStyle,
   actionSectionStyle,
   actionStatusInputStyle,
@@ -70,8 +72,7 @@ export const RowActions = ({ api, record }: RowActionsProps) => {
   const rules = useRules(api);
 
   const matchedRules = useMemo(
-    () =>
-      rules.filter((rule) => ruleMatchesUrl(rule.pattern, record.url)),
+    () => rules.filter((rule) => ruleMatchesUrl(rule.pattern, record.url)),
     [record.url, rules]
   );
 
@@ -81,6 +82,8 @@ export const RowActions = ({ api, record }: RowActionsProps) => {
   );
   const isErrorActive = statusRule !== undefined;
   const isLoadingActive = delayRule !== undefined;
+  const rerunnable = canRerunInPanel(api, record);
+  const [once, setOnce] = useState(!rerunnable);
 
   const [mode, setMode] = useState<TriggerMode>(() => {
     if (isErrorActive) return "error";
@@ -114,7 +117,11 @@ export const RowActions = ({ api, record }: RowActionsProps) => {
   const bodyKind = message.trim() === "" ? "text" : bodyKindOf(message);
 
   const applyTriggerRule = useCallback(
-    (input: { body?: string; delayMs?: number; status?: number }) => {
+    (trigger: { body?: string; delayMs?: number; status?: number }) => {
+      const input = {
+        ...trigger,
+        remaining: !rerunnable && once ? 1 : undefined,
+      };
       const field = input.delayMs !== undefined ? "delayMs" : "status";
       const targets = matchedRules.filter((rule) => rule[field] !== undefined);
       if (targets.length === 0) {
@@ -125,7 +132,7 @@ export const RowActions = ({ api, record }: RowActionsProps) => {
         api.rules.update(rule.id, input);
       });
     },
-    [api, matchedRules, record.url]
+    [api, matchedRules, once, record.url, rerunnable]
   );
 
   const handleApplyError = useCallback(() => {
@@ -158,20 +165,34 @@ export const RowActions = ({ api, record }: RowActionsProps) => {
     [bodyKind]
   );
 
-  const handleResend = useCallback(() => {
-    resend(api, record);
+  const handleRerun = useCallback(() => {
+    rerun(api, record);
   }, [api, record]);
+
+  const remainingRule = matchedRules.find(
+    (rule) => rule.remaining !== undefined
+  );
+  const onceCheckbox = !rerunnable && (
+    <label style={actionCheckboxLabelStyle}>
+      <input
+        checked={once}
+        type="checkbox"
+        onChange={(event) => setOnce(event.target.checked)}
+      />
+      1회만 (다음 요청에 적용 후 자동 해제)
+    </label>
+  );
 
   return (
     <div style={actionSectionStyle}>
       <div style={actionRowStyle}>
-        {isResendable(api, record) && (
+        {rerunnable && (
           <button
             className={panelClassNames.actionButton}
             style={actionPrimaryButtonStyle}
             type="button"
-            onClick={handleResend}>
-            {resendLabel(record)}
+            onClick={handleRerun}>
+            재요청
           </button>
         )}
         <button
@@ -206,6 +227,14 @@ export const RowActions = ({ api, record }: RowActionsProps) => {
           </button>
         )}
       </div>
+      {!rerunnable && matchedRules.length > 0 && (
+        <p style={actionRerunHintStyle}>
+          앱에서 이 동작을 다시 하면 룰이 적용돼요.
+          {isErrorActive && " 응답은 목이라 서버로 보내지 않아요."}
+          {remainingRule?.remaining !== undefined &&
+            ` ${remainingRule.remaining}회 적용 후 자동 해제돼요.`}
+        </p>
+      )}
       {mode === "error" && (
         <>
           <div style={actionRowStyle}>
@@ -241,6 +270,7 @@ export const RowActions = ({ api, record }: RowActionsProps) => {
               onClick={handleApplyError}>
               적용 → 룰 생성
             </button>
+            {onceCheckbox}
           </div>
         </>
       )}
@@ -260,6 +290,7 @@ export const RowActions = ({ api, record }: RowActionsProps) => {
             onClick={handleDelay}>
             지연 적용
           </button>
+          {onceCheckbox}
         </div>
       )}
     </div>

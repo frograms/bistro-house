@@ -841,6 +841,22 @@ export const actionBodyHintJsonStyle: CSSProperties = {
   fontSize: 10,
 };
 
+export const actionCheckboxLabelStyle: CSSProperties = {
+  alignItems: "center",
+  color: palette.muted,
+  cursor: "pointer",
+  display: "inline-flex",
+  fontSize: 11,
+  gap: 4,
+};
+
+export const actionRerunHintStyle: CSSProperties = {
+  color: palette.teal,
+  fontSize: 11,
+  lineHeight: 1.5,
+  margin: 0,
+};
+
 export const actionBodyHintBrokenStyle: CSSProperties = {
   color: palette.orange,
   fontSize: 10,

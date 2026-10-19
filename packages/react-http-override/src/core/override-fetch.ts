@@ -21,6 +21,8 @@ export type CreateOverrideFetchOptions = {
   getRules(): HttpOverrideRule[];
   isServerRequest?: (url: string) => boolean;
   maxBodyBytes?: number;
+  /** 이번 요청에 실제로 적용된 룰 — 횟수 제한 룰을 차감하는 데 쓴다 */
+  onRulesApplied?: (rules: HttpOverrideRule[]) => void;
   /** 넘기면 다시 보낼 수 있는 요청의 원본을 기록 번호별로 보관한다. 기록이 밀려나면 같이 버린다 */
   replayInputs?: Map<number, ReplayInput>;
   shouldRecord?: (url: string, method: string) => boolean;
@@ -252,6 +254,7 @@ export const createOverrideFetch = (
     getRules,
     isServerRequest = isLoaderDataRequest,
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
+    onRulesApplied,
     replayInputs,
     shouldRecord,
   } = options;
@@ -297,6 +300,17 @@ export const createOverrideFetch = (
           )
         : [];
     const primaryRule = statusRule ?? patchRule ?? matched[0];
+    if (onRulesApplied !== undefined) {
+      const applied = new Set<HttpOverrideRule>();
+      if (delayRule !== undefined) applied.add(delayRule);
+      if (statusRule !== undefined) applied.add(statusRule);
+      else {
+        matched
+          .filter((rule) => rule.status === undefined && rule.patch !== undefined)
+          .forEach((rule) => applied.add(rule));
+      }
+      if (applied.size > 0) onRulesApplied([...applied]);
+    }
 
     const { seq } = buffer.push({
       durationMs: null,

@@ -10,7 +10,7 @@ import { useRules } from "./hooks";
 import { JsonViewer } from "./json-viewer";
 import { PresetSection } from "./preset-section";
 import { StatusChip } from "./request-table";
-import { editAndResendLabel, resend } from "./resend";
+import { editButtonLabel, rerun } from "./resend";
 import { RowActions } from "./row-actions";
 import { sourceLabelOf } from "./source-icon";
 import {
@@ -114,7 +114,7 @@ export const RequestDetail = ({
   const handleEmptyPath = useCallback(
     (path: string, suggested: unknown) => {
       addPatch(path, { value: suggested });
-      resend(api, record);
+      rerun(api, record);
     },
     [addPatch, api, record]
   );
@@ -128,10 +128,10 @@ export const RequestDetail = ({
     if (editingPath === null) return;
     addPatch(editingPath, parseEditValue(editValue));
     setEditingPath(null);
-    resend(api, record);
+    rerun(api, record);
   }, [addPatch, api, editingPath, editValue, record]);
 
-  const editButtonLabel = editAndResendLabel(api, record);
+  const editLabel = editButtonLabel(api, record);
 
   return (
     <>
@@ -224,7 +224,7 @@ export const RequestDetail = ({
                 style={actionWarmButtonStyle}
                 type="button"
                 onClick={handleApplyEdit}>
-                {editButtonLabel}
+                {editLabel}
               </button>
               <button
                 className={panelClassNames.actionButton}

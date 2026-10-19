@@ -7,7 +7,7 @@ import type {
 } from "../core";
 import { presetIdOf, presetRuleId, ruleMatchesUrl } from "../core";
 import { usePresetNames, useRules } from "./hooks";
-import { isResendable, resend } from "./resend";
+import { canRerunInPanel, rerun } from "./resend";
 import {
   detailSectionBodyStyle,
   detailSectionHeaderStyle,
@@ -65,7 +65,7 @@ export const PresetSection = ({ api, presets, record }: PresetSectionProps) => {
         }
       }
       latestByKey.forEach((item) => {
-        if (isResendable(api, item)) resend(api, item);
+        if (canRerunInPanel(api, item)) rerun(api, item);
       });
     },
     [api]

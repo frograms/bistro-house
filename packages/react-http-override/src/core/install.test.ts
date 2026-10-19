@@ -159,6 +159,36 @@ describe("installHttpOverride", () => {
     expect(api?.canReplay(seq)).toBe(false);
   });
 
+  it("remaining 1인 룰은 다음 요청 한 번에만 적용되고 자동으로 지워진다", async () => {
+    const baseFetch = vi.fn(async () => new Response("{}", { status: 200 }));
+    stubWindow(baseFetch);
+    const api = installHttpOverride({ storage: createMemoryStorage() });
+    if (api === null) throw new Error("install 실패");
+
+    api.rules.add({ pattern: "wishes", remaining: 1, status: 500 });
+    const failed = await window.fetch("https://api.test/wishes", { method: "POST" });
+    expect(failed.status).toBe(500);
+    expect(api.rules.getSnapshot()).toHaveLength(0);
+
+    const passed = await window.fetch("https://api.test/wishes", { method: "POST" });
+    expect(passed.status).toBe(200);
+    expect(baseFetch).toHaveBeenCalledOnce();
+  });
+
+  it("remaining은 적용될 때마다 줄고, 매칭되지 않은 요청은 횟수를 쓰지 않는다", async () => {
+    stubWindow(vi.fn(async () => new Response("{}", { status: 200 })));
+    const api = installHttpOverride({ storage: createMemoryStorage() });
+    if (api === null) throw new Error("install 실패");
+
+    api.rules.add({ delayMs: 1, pattern: "orders", remaining: 2 });
+    await window.fetch("https://api.test/users");
+    expect(api.rules.getSnapshot()[0]?.remaining).toBe(2);
+    await window.fetch("https://api.test/orders", { method: "POST" });
+    expect(api.rules.getSnapshot()[0]?.remaining).toBe(1);
+    await window.fetch("https://api.test/orders", { method: "POST" });
+    expect(api.rules.getSnapshot()).toHaveLength(0);
+  });
+
   it("uninstall하면 원래 fetch로 돌아가고 다시 설치할 수 있다", () => {
     const baseFetch = vi.fn(async () => new Response("real"));
     stubWindow(baseFetch);
