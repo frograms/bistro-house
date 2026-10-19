@@ -35,6 +35,9 @@ import {
   panelBodyStyle,
   panelClassNames,
   panelContentStyle,
+  panelCornerStyle,
+  panelEdgeLeftStyle,
+  panelEdgeTopStyle,
   panelGhostLabelStyle,
   panelStyle,
   resizeHandleActiveStyle,
@@ -42,6 +45,7 @@ import {
   tableWrapStyle,
 } from "./styles";
 import { TABLE_MIN_WIDTH, useDetailWidth } from "./use-detail-width";
+import { usePanelSize } from "./use-panel-size";
 
 export const PANEL_CLOSE_DURATION_MS = 200;
 
@@ -185,14 +189,25 @@ export const Panel = ({
   }, [api]);
 
   const detail = useDetailWidth();
+  const panelSize = usePanelSize();
   const expanded = selected !== null;
   /* 상세를 기본보다 넓히면 목록 최소 너비를 남기고 패널 자체가 왼쪽으로 자란다 */
   const expandedWidth =
     detail.width === null
       ? PANEL_EXPANDED_WIDTH
       : `min(max(760px, ${detail.width + TABLE_MIN_WIDTH}px), calc(100vw - 32px))`;
-  const targetWidth = expanded ? expandedWidth : PANEL_WIDTH;
-  const targetHeight = expanded ? PANEL_EXPANDED_HEIGHT : PANEL_HEIGHT;
+  const defaultWidth = expanded ? expandedWidth : PANEL_WIDTH;
+  const defaultHeight = expanded ? PANEL_EXPANDED_HEIGHT : PANEL_HEIGHT;
+  /* 사용자가 패널 크기를 직접 정했으면 열림·확장 구분 없이 그 크기를 쓴다 */
+  const targetWidth =
+    panelSize.size === null
+      ? defaultWidth
+      : `min(${panelSize.size.width}px, calc(100vw - 32px))`;
+  const targetHeight =
+    panelSize.size === null
+      ? defaultHeight
+      : `min(${panelSize.size.height}px, calc(100vh - 32px))`;
+  const resizing = detail.resizing || panelSize.resizing;
 
   const animatedPanelStyle = useMemo(() => {
     if (embedded === true) return { ...embeddedPanelStyle, zIndex };
@@ -204,21 +219,13 @@ export const Panel = ({
       borderRadius: shown ? PANEL_RADIUS : LAUNCHER_SIZE / 2,
       height: shown ? targetHeight : LAUNCHER_SIZE,
       transition:
-        reducedMotion || detail.resizing
+        reducedMotion || resizing
           ? undefined
           : `width ${duration}ms ${ease}, height ${duration}ms ${ease}, border-radius ${duration}ms ${ease}, border-color ${duration}ms ${ease}`,
       width: shown ? targetWidth : LAUNCHER_SIZE,
       zIndex,
     };
-  }, [
-    detail.resizing,
-    embedded,
-    reducedMotion,
-    shown,
-    targetHeight,
-    targetWidth,
-    zIndex,
-  ]);
+  }, [embedded, reducedMotion, resizing, shown, targetHeight, targetWidth, zIndex]);
 
   const contentStyle = useMemo(() => {
     if (embedded === true) return embeddedContentStyle;
@@ -230,12 +237,12 @@ export const Panel = ({
       height: targetHeight,
       opacity: shown ? 1 : 0,
       transition:
-        reducedMotion || detail.resizing
+        reducedMotion || resizing
           ? undefined
           : `width ${PANEL_OPEN_DURATION_MS}ms ${OPEN_EASE}, height ${PANEL_OPEN_DURATION_MS}ms ${OPEN_EASE}, ${opacityTransition}`,
       width: targetWidth,
     };
-  }, [detail.resizing, embedded, reducedMotion, shown, targetHeight, targetWidth]);
+  }, [embedded, reducedMotion, resizing, shown, targetHeight, targetWidth]);
 
   const asideStyle = useMemo(
     () =>
@@ -256,10 +263,47 @@ export const Panel = ({
 
   return (
     <section
+      ref={panelSize.panelRef}
       aria-label="API devtools 패널"
       data-expanded={expanded}
       role="dialog"
       style={animatedPanelStyle}>
+      {embedded !== true && shown && (
+        <>
+          <div
+            aria-label="패널 너비 조절 (더블클릭: 기본값)"
+            aria-orientation="vertical"
+            className={panelClassNames.panelEdge}
+            data-active={panelSize.resizing}
+            role="separator"
+            style={panelEdgeLeftStyle}
+            tabIndex={0}
+            title="드래그해서 패널 너비 조절 · 더블클릭하면 기본값"
+            {...panelSize.handleFor("x")}
+          />
+          <div
+            aria-label="패널 높이 조절 (더블클릭: 기본값)"
+            aria-orientation="horizontal"
+            className={panelClassNames.panelEdge}
+            data-active={panelSize.resizing}
+            role="separator"
+            style={panelEdgeTopStyle}
+            tabIndex={0}
+            title="드래그해서 패널 높이 조절 · 더블클릭하면 기본값"
+            {...panelSize.handleFor("y")}
+          />
+          <div
+            aria-label="패널 크기 조절 (더블클릭: 기본값)"
+            className={panelClassNames.panelEdge}
+            data-active={panelSize.resizing}
+            role="separator"
+            style={panelCornerStyle}
+            tabIndex={0}
+            title="드래그해서 패널 크기 조절 · 더블클릭하면 기본값"
+            {...panelSize.handleFor("both")}
+          />
+        </>
+      )}
       <div style={contentStyle}>
         <header style={headerStyle}>
           <button

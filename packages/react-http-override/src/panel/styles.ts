@@ -522,6 +522,43 @@ export const presetNameInputStyle: CSSProperties = {
   padding: "5px 8px",
 };
 
+const panelEdgeBase: CSSProperties = {
+  background: "transparent",
+  position: "absolute",
+  touchAction: "none",
+  zIndex: 1,
+};
+
+/** 패널 왼쪽 가장자리 — 너비 조절 */
+export const panelEdgeLeftStyle: CSSProperties = {
+  ...panelEdgeBase,
+  bottom: 0,
+  cursor: "ew-resize",
+  left: 0,
+  top: 12,
+  width: 6,
+};
+
+/** 패널 위쪽 가장자리 — 높이 조절 */
+export const panelEdgeTopStyle: CSSProperties = {
+  ...panelEdgeBase,
+  cursor: "ns-resize",
+  height: 6,
+  left: 12,
+  right: 0,
+  top: 0,
+};
+
+/** 패널 왼쪽 위 모서리 — 너비·높이 동시 조절 */
+export const panelCornerStyle: CSSProperties = {
+  ...panelEdgeBase,
+  cursor: "nwse-resize",
+  height: 14,
+  left: 0,
+  top: 0,
+  width: 14,
+};
+
 export const resizeHandleStyle: CSSProperties = {
   background: "transparent",
   borderLeft: `1px solid ${palette.line}`,
@@ -841,6 +878,7 @@ export const actionBodyHintBrokenStyle: CSSProperties = {
 export const panelClassNames = {
   actionButton: "rfd-btn",
   launcher: "rfd-launcher",
+  panelEdge: "rfd-panel-edge",
   resizeHandle: "rfd-resize",
   row: "rfd-row",
   spinner: "rfd-spinner",
@@ -862,6 +900,8 @@ export const panelInteractionCss = `
 @keyframes rfd-spin { to { transform: rotate(360deg); } }
 .${panelClassNames.spinner} { animation: rfd-spin 0.8s linear infinite; }
 .${panelClassNames.resizeHandle}:hover { background: ${palette.tealSoft} !important; border-left-color: ${palette.teal} !important; }
+.${panelClassNames.panelEdge}:hover, .${panelClassNames.panelEdge}[data-active="true"] { background: ${palette.tealSoft} !important; }
+.${panelClassNames.panelEdge}:focus-visible { outline: 2px solid ${palette.teal}; outline-offset: -2px; }
 .${panelClassNames.resizeHandle}:focus-visible { outline: 2px solid ${palette.teal}; outline-offset: -2px; }
 .${panelClassNames.row}:focus { outline: none; }
 .${panelClassNames.row}:focus-visible,
