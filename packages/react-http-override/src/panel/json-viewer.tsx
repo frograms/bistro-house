@@ -2,6 +2,7 @@ import { useMemo } from "react";
 
 import type { HttpOverrideRecord } from "../core";
 import { isTruncatedBody } from "../core";
+import { FormBodyView, parseFormBody } from "./form-body-view";
 import { JsonTree } from "./json-tree";
 import {
   actionBodyHintBrokenStyle,
@@ -36,11 +37,18 @@ export const JsonViewer = ({
     () => (body === null ? ({ ok: false } as const) : parseBody(body)),
     [body]
   );
+  const formLines = useMemo(
+    () => (body === null || parsed.ok ? null : parseFormBody(body)),
+    [body, parsed.ok]
+  );
 
   if (body === null) {
     return (
       <p style={detailEmptyBodyStyle}>본문이 없거나 아직 캡처되지 않았습니다</p>
     );
+  }
+  if (body === "") {
+    return <p style={detailEmptyBodyStyle}>본문이 비어 있습니다 (0 bytes)</p>;
   }
   if (parsed.ok) {
     return (
@@ -51,6 +59,9 @@ export const JsonViewer = ({
         onEmptyPath={onEmptyPath}
       />
     );
+  }
+  if (formLines !== null) {
+    return <FormBodyView lines={formLines} />;
   }
   return (
     <>
