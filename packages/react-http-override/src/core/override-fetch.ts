@@ -10,13 +10,45 @@ const NULL_BODY_STATUSES = new Set([204, 205, 304]);
 
 const TEXTUAL_CONTENT_TYPE = /json|text|xml|javascript|urlencoded/i;
 
+export type ReplayInput = {
+  init: RequestInit | undefined;
+  input: RequestInfo | URL;
+};
+
 export type CreateOverrideFetchOptions = {
   baseFetch: typeof fetch;
   buffer: RecordBuffer;
   getRules(): HttpOverrideRule[];
   isServerRequest?: (url: string) => boolean;
   maxBodyBytes?: number;
+  /** 넘기면 다시 보낼 수 있는 요청의 원본을 기록 번호별로 보관한다. 기록이 밀려나면 같이 버린다 */
+  replayInputs?: Map<number, ReplayInput>;
   shouldRecord?: (url: string, method: string) => boolean;
+};
+
+/* 스트림 본문은 한 번 읽으면 끝이라 다시 보낼 수 없다. Request 입력은 보내기 전에 복제해 둔다 */
+const toReplayInput = (
+  input: RequestInfo | URL,
+  init: RequestInit | undefined
+): ReplayInput | null => {
+  const body = init?.body;
+  if (
+    body !== undefined &&
+    body !== null &&
+    typeof ReadableStream !== "undefined" &&
+    body instanceof ReadableStream
+  ) {
+    return null;
+  }
+  if (typeof Request !== "undefined" && input instanceof Request) {
+    if (input.bodyUsed) return null;
+    try {
+      return { init, input: input.clone() };
+    } catch {
+      return null;
+    }
+  }
+  return { init, input };
 };
 
 export const isLoaderDataRequest = (url: string): boolean => {
@@ -220,6 +252,7 @@ export const createOverrideFetch = (
     getRules,
     isServerRequest = isLoaderDataRequest,
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
+    replayInputs,
     shouldRecord,
   } = options;
 
@@ -279,6 +312,14 @@ export const createOverrideFetch = (
       status: null,
       url,
     });
+    if (replayInputs !== undefined) {
+      const replayInput = toReplayInput(input, init);
+      if (replayInput !== null) replayInputs.set(seq, replayInput);
+      const oldest = buffer.getSnapshot()[0]?.seq ?? seq;
+      for (const key of replayInputs.keys()) {
+        if (key < oldest) replayInputs.delete(key);
+      }
+    }
     const settle = (patch: Parameters<RecordBuffer["patch"]>[1]) => {
       buffer.patch(seq, { durationMs: Date.now() - startedAt, ...patch });
     };
