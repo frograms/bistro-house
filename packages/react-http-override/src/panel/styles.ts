@@ -596,8 +596,8 @@ export const queryRowStyle: CSSProperties = {
 
 export const queryKeyStyle: CSSProperties = {
   color: palette.teal,
-  padding: "1px 6px 1px 0",
-  textAlign: "right",
+  padding: "1px 10px 1px 0",
+  textAlign: "left",
   whiteSpace: "nowrap",
   width: "1%",
 };
@@ -611,6 +611,8 @@ export const queryValueStyle: CSSProperties = {
 export const formTableStyle: CSSProperties = {
   ...queryTableStyle,
   maxWidth: "100%",
+  // 키 칸은 내용만큼, 값 칸이 나머지를 차지하도록 자동 레이아웃
+  tableLayout: "auto",
   width: "100%",
 };
 
