@@ -608,6 +608,20 @@ export const queryValueStyle: CSSProperties = {
   wordBreak: "break-all",
 };
 
+export const formTableStyle: CSSProperties = {
+  ...queryTableStyle,
+  maxWidth: "100%",
+  width: "100%",
+};
+
+export const formLineHeaderStyle: CSSProperties = {
+  color: palette.muted,
+  fontFamily: monoFontFamily,
+  fontSize: 10.5,
+  marginBottom: 2,
+  marginTop: 6,
+};
+
 export const detailMetaStyle: CSSProperties = {
   color: palette.muted,
   fontSize: 11,
