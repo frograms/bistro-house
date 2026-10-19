@@ -1,12 +1,3 @@
-import {
-  installHttpOverride,
-  uninstallHttpOverride,
-} from "@watcha-authentic/react-http-override/auto";
-import type { HttpOverrideApi } from "@watcha-authentic/react-http-override/core";
-import {
-  useRecords,
-  useRules,
-} from "@watcha-authentic/react-http-override";
 import { CommonCodeBlock } from "@playground/component/view/_common/common-code-block";
 import { CommonContainer } from "@playground/component/view/_common/common-container";
 import {
@@ -16,8 +7,18 @@ import {
 } from "@playground/component/view/_common/common-example-panels";
 import { CommonNote } from "@playground/component/view/_common/common-note";
 import { reactHttpOverrideObserveAndMockContainerCss as css } from "@playground/component/view/package/react-http-override/_react-http-override-observe-and-mock-container.css";
+import { WishDemo } from "@playground/component/view/package/react-http-override/_react-http-override-wish-demo";
 import { DEMO_PRESETS } from "@playground/component/view/package/react-http-override/_shared/demo-presets";
 import { commonExampleControlsCss } from "@playground/resource/css/common/common-example-controls.css";
+import {
+  useRecords,
+  useRules,
+} from "@watcha-authentic/react-http-override";
+import {
+  installHttpOverride,
+  uninstallHttpOverride,
+} from "@watcha-authentic/react-http-override/auto";
+import type { HttpOverrideApi } from "@watcha-authentic/react-http-override/core";
 import type { MutableRefObject, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -287,6 +288,12 @@ const ObserveAndMockExample = ({
         </div>
 
         <div className={css.viewCard}>{viewContent}</div>
+
+        <p className={css.stageGuide}>
+          POST 예제: 찜하기를 누른 뒤 패널에서 그 행에 Error 트리거를 걸고 다시
+          눌러 보세요. 1회만이 켜져 있으면 실패 후 다음 시도는 성공합니다.
+        </p>
+        <WishDemo />
       </CommonExampleStagePanel>
 
       <CommonExampleStatePanel items={stateItems} />
