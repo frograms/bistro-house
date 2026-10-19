@@ -27,20 +27,20 @@ import {
   inactiveTabStyle,
   LAUNCHER_SIZE,
   palette,
+  PANEL_CORNER_SIZE,
+  PANEL_EDGE_THICKNESS,
   PANEL_EXPANDED_HEIGHT,
   PANEL_EXPANDED_WIDTH,
   PANEL_HEIGHT,
+  PANEL_OFFSET,
   PANEL_RADIUS,
   PANEL_WIDTH,
   panelBodyStyle,
   panelClassNames,
   panelContentStyle,
-  panelCornerStyle,
-  panelEdgeLeftStyle,
-  panelEdgeTopStyle,
   panelGhostLabelStyle,
+  panelResizeHandleBaseStyle,
   panelStyle,
-  resizeHandleActiveStyle,
   resizeHandleStyle,
   tableWrapStyle,
 } from "./styles";
@@ -244,6 +244,38 @@ export const Panel = ({
     };
   }, [embedded, reducedMotion, resizing, shown, targetHeight, targetWidth]);
 
+  /* 핸들은 패널 바깥 fixed 요소라 패널 폭·높이(CSS 식)로 자리를 잡는다. 패널은 오른쪽 아래 고정 */
+  const resizeHandleStyles = useMemo(() => {
+    const half = PANEL_EDGE_THICKNESS / 2;
+    const base = { ...panelResizeHandleBaseStyle, zIndex };
+    return {
+      corner: {
+        ...base,
+        bottom: `calc(${PANEL_OFFSET}px + ${targetHeight} - ${PANEL_CORNER_SIZE / 2}px)`,
+        cursor: "nwse-resize",
+        height: PANEL_CORNER_SIZE,
+        right: `calc(${PANEL_OFFSET}px + ${targetWidth} - ${PANEL_CORNER_SIZE / 2}px)`,
+        width: PANEL_CORNER_SIZE,
+      } as const,
+      left: {
+        ...base,
+        bottom: PANEL_OFFSET,
+        cursor: "ew-resize",
+        height: targetHeight,
+        right: `calc(${PANEL_OFFSET}px + ${targetWidth} - ${half}px)`,
+        width: PANEL_EDGE_THICKNESS,
+      } as const,
+      top: {
+        ...base,
+        bottom: `calc(${PANEL_OFFSET}px + ${targetHeight} - ${half}px)`,
+        cursor: "ns-resize",
+        height: PANEL_EDGE_THICKNESS,
+        right: PANEL_OFFSET,
+        width: targetWidth,
+      } as const,
+    };
+  }, [targetHeight, targetWidth, zIndex]);
+
   const asideStyle = useMemo(
     () =>
       detail.width === null ? detailStyle : { ...detailStyle, width: detail.width },
@@ -262,48 +294,13 @@ export const Panel = ({
   }, [reducedMotion, shown]);
 
   return (
+    <>
     <section
       ref={panelSize.panelRef}
       aria-label="API devtools 패널"
       data-expanded={expanded}
       role="dialog"
       style={animatedPanelStyle}>
-      {embedded !== true && shown && (
-        <>
-          <div
-            aria-label="패널 너비 조절 (더블클릭: 기본값)"
-            aria-orientation="vertical"
-            className={panelClassNames.panelEdge}
-            data-active={panelSize.resizing}
-            role="separator"
-            style={panelEdgeLeftStyle}
-            tabIndex={0}
-            title="드래그해서 패널 너비 조절 · 더블클릭하면 기본값"
-            {...panelSize.handleFor("x")}
-          />
-          <div
-            aria-label="패널 높이 조절 (더블클릭: 기본값)"
-            aria-orientation="horizontal"
-            className={panelClassNames.panelEdge}
-            data-active={panelSize.resizing}
-            role="separator"
-            style={panelEdgeTopStyle}
-            tabIndex={0}
-            title="드래그해서 패널 높이 조절 · 더블클릭하면 기본값"
-            {...panelSize.handleFor("y")}
-          />
-          <div
-            aria-label="패널 크기 조절 (더블클릭: 기본값)"
-            className={panelClassNames.panelEdge}
-            data-active={panelSize.resizing}
-            role="separator"
-            style={panelCornerStyle}
-            tabIndex={0}
-            title="드래그해서 패널 크기 조절 · 더블클릭하면 기본값"
-            {...panelSize.handleFor("both")}
-          />
-        </>
-      )}
       <div style={contentStyle}>
         <header style={headerStyle}>
           <button
@@ -436,13 +433,8 @@ export const Panel = ({
                     aria-orientation="vertical"
                     className={panelClassNames.resizeHandle}
                     role="separator"
-                    style={
-                      detail.resizing
-                        ? resizeHandleActiveStyle
-                        : resizeHandleStyle
-                    }
+                    style={resizeHandleStyle}
                     tabIndex={0}
-                    title="드래그해서 상세 너비 조절 · 더블클릭하면 기본값"
                     {...detail.handleProps}
                   />
                 )}
@@ -467,5 +459,36 @@ export const Panel = ({
         </span>
       )}
     </section>
+    {embedded !== true && shown && (
+      <>
+        <div
+          aria-label="패널 너비 조절 (더블클릭: 기본값)"
+          aria-orientation="vertical"
+          className={panelClassNames.panelEdge}
+          role="separator"
+          style={resizeHandleStyles.left}
+          tabIndex={0}
+          {...panelSize.handleFor("x")}
+        />
+        <div
+          aria-label="패널 높이 조절 (더블클릭: 기본값)"
+          aria-orientation="horizontal"
+          className={panelClassNames.panelEdge}
+          role="separator"
+          style={resizeHandleStyles.top}
+          tabIndex={0}
+          {...panelSize.handleFor("y")}
+        />
+        <div
+          aria-label="패널 크기 조절 (더블클릭: 기본값)"
+          className={panelClassNames.panelEdge}
+          role="separator"
+          style={resizeHandleStyles.corner}
+          tabIndex={0}
+          {...panelSize.handleFor("both")}
+        />
+      </>
+    )}
+    </>
   );
 };
