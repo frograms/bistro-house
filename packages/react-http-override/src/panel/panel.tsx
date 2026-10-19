@@ -41,6 +41,7 @@ import {
   panelGhostLabelStyle,
   panelResizeHandleBaseStyle,
   panelStyle,
+  resizeHandleActiveStyle,
   resizeHandleStyle,
   tableWrapStyle,
 } from "./styles";
@@ -433,7 +434,11 @@ export const Panel = ({
                     aria-orientation="vertical"
                     className={panelClassNames.resizeHandle}
                     role="separator"
-                    style={resizeHandleStyle}
+                    style={
+                      detail.resizing
+                        ? resizeHandleActiveStyle
+                        : resizeHandleStyle
+                    }
                     tabIndex={0}
                     {...detail.handleProps}
                   />

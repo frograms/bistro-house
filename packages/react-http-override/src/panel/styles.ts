@@ -540,6 +540,11 @@ export const resizeHandleStyle: CSSProperties = {
   width: 6,
 };
 
+export const resizeHandleActiveStyle: CSSProperties = {
+  ...resizeHandleStyle,
+  borderLeft: `3px solid ${palette.teal}`,
+};
+
 export const detailStyle: CSSProperties = {
   display: "flex",
   flex: "none",
@@ -865,6 +870,7 @@ export const panelInteractionCss = `
 .${panelClassNames.treeActions}:focus-within { opacity: 1; }
 @keyframes rfd-spin { to { transform: rotate(360deg); } }
 .${panelClassNames.spinner} { animation: rfd-spin 0.8s linear infinite; }
+.${panelClassNames.resizeHandle}:hover { border-left-color: ${palette.teal} !important; }
 .${panelClassNames.panelEdge}:focus-visible { outline: 2px solid ${palette.teal}; outline-offset: -2px; }
 .${panelClassNames.resizeHandle}:focus-visible { outline: 2px solid ${palette.teal}; outline-offset: -2px; }
 .${panelClassNames.row}:focus { outline: none; }
