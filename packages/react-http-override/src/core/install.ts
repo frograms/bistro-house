@@ -2,6 +2,7 @@ import {
   createLauncherVisibility,
   isLauncherShortcut,
 } from "./launcher-visibility";
+import type { ReplayInput } from "./override-fetch";
 import {
   createOverrideFetch,
   DEFAULT_MAX_BODY_BYTES,
@@ -18,6 +19,7 @@ export type InstallHttpOverrideOptions = {
   maxBodyBytes?: number;
   maxRecords?: number;
   onRevalidate?: (url: string) => Promise<unknown> | void;
+  shouldRecord?: (url: string, method: string) => boolean;
   ssrData?: Record<string, unknown>;
   storage?: HttpOverrideStorage;
 };
@@ -49,12 +51,14 @@ export const installHttpOverride = (
 ): HttpOverrideApi | null => {
   if (typeof window === "undefined") return null;
   if (installation !== null) return installation.api;
+  if (typeof window.fetch !== "function") return null;
 
   const {
     isServerRequest,
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
     maxRecords,
     onRevalidate,
+    shouldRecord,
     ssrData,
     storage,
   } = options;
@@ -72,6 +76,7 @@ export const installHttpOverride = (
       method: "SSR",
       mocked: false,
       ok: true,
+      requestBody: null,
       responseBody: body === null ? null : truncateBody(body, maxBodyBytes),
       source: "server",
       startedAt: installedAt,
@@ -86,8 +91,10 @@ export const installHttpOverride = (
 
   const canRevalidate = (method: string) =>
     onRevalidate !== undefined || method === "GET";
+  const replayInputs = new Map<number, ReplayInput>();
 
   const api: HttpOverrideApi = {
+    canReplay: (seq) => replayInputs.has(seq),
     canRevalidate,
     hide: launcher.hide,
     launcher: {
@@ -104,6 +111,15 @@ export const installHttpOverride = (
       clear: buffer.clear,
       getSnapshot: buffer.getSnapshot,
       subscribe: buffer.subscribe,
+    },
+    replay: (seq) => {
+      const entry = replayInputs.get(seq);
+      if (entry === undefined) return;
+      const input =
+        typeof Request !== "undefined" && entry.input instanceof Request
+          ? entry.input.clone()
+          : entry.input;
+      patchedFetch(input, entry.init).catch(() => undefined);
     },
     revalidate: (url, method) => {
       if (onRevalidate !== undefined) {
@@ -131,6 +147,15 @@ export const installHttpOverride = (
     getRules: ruleStore.getSnapshot,
     isServerRequest,
     maxBodyBytes,
+    onRulesApplied: (applied) => {
+      applied.forEach((rule) => {
+        if (rule.remaining === undefined) return;
+        if (rule.remaining <= 1) ruleStore.remove(rule.id);
+        else ruleStore.update(rule.id, { remaining: rule.remaining - 1 });
+      });
+    },
+    replayInputs,
+    shouldRecord,
   });
 
   const onKeyDown = (event: KeyboardEvent) => {

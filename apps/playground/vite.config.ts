@@ -28,10 +28,25 @@ const buildOptionInfo: Record<BuildConfig, UserConfig> = {
 
 const DEMO_API_DELAY_MS = 200;
 
+const DEMO_WISH_PATH = /^(?:\/web-packages)?\/api\/contents\/([^/]+)\/wishes$/;
+
 const demoApiPlugin = (): Plugin => ({
   configureServer(server) {
+    // 찜 POST, DELETE 데모. 서버가 켜져 있는 동안만 메모리에 상태를 둔다
+    const wished = new Set<string>();
     server.middlewares.use((req, res, next) => {
       const url = (req.url ?? "").split("?")[0];
+      const wishMatch = DEMO_WISH_PATH.exec(url);
+      if (wishMatch !== null && (req.method === "POST" || req.method === "DELETE")) {
+        const code = wishMatch[1];
+        if (req.method === "POST") wished.add(code);
+        else wished.delete(code);
+        setTimeout(() => {
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ result: { wished: wished.has(code) } }));
+        }, DEMO_API_DELAY_MS);
+        return;
+      }
       const path = Object.keys(DEMO_API_FIXTURES).find(
         (candidate) =>
           url === candidate || url === `/web-packages${candidate}`

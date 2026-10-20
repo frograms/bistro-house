@@ -397,6 +397,13 @@ export const pendingSpinnerStyle: CSSProperties = {
   width: 10,
 };
 
+export const chipNeutralStyle: CSSProperties = {
+  ...chipBaseStyle,
+  background: "transparent",
+  border: `1px solid ${palette.line}`,
+  color: palette.muted,
+};
+
 export const chipErrorStyle: CSSProperties = {
   ...chipBaseStyle,
   background: palette.orangeSoft,
@@ -515,8 +522,30 @@ export const presetNameInputStyle: CSSProperties = {
   padding: "5px 8px",
 };
 
-export const detailStyle: CSSProperties = {
+export const panelResizeHandleBaseStyle: CSSProperties = {
+  background: "transparent",
+  position: "fixed",
+  touchAction: "none",
+};
+
+export const PANEL_EDGE_THICKNESS = 10;
+export const PANEL_CORNER_SIZE = 24;
+
+export const resizeHandleStyle: CSSProperties = {
+  background: "transparent",
   borderLeft: `1px solid ${palette.line}`,
+  cursor: "col-resize",
+  flex: "none",
+  touchAction: "none",
+  width: 6,
+};
+
+export const resizeHandleActiveStyle: CSSProperties = {
+  ...resizeHandleStyle,
+  borderLeft: `3px solid ${palette.teal}`,
+};
+
+export const detailStyle: CSSProperties = {
   display: "flex",
   flex: "none",
   flexDirection: "column",
@@ -573,6 +602,54 @@ export const detailInfoValueStyle: CSSProperties = {
   fontVariantNumeric: "tabular-nums",
   textAlign: "right",
   wordBreak: "break-all",
+};
+
+export const queryTableStyle: CSSProperties = {
+  borderCollapse: "collapse",
+  flex: 1,
+  fontFamily: monoFontFamily,
+  maxWidth: "75%",
+  tableLayout: "fixed",
+};
+
+export const queryBlockStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+};
+
+export const queryRowStyle: CSSProperties = {
+  verticalAlign: "top",
+};
+
+export const queryKeyStyle: CSSProperties = {
+  color: palette.teal,
+  padding: "1px 10px 1px 0",
+  textAlign: "left",
+  whiteSpace: "nowrap",
+  width: "1%",
+};
+
+export const queryValueStyle: CSSProperties = {
+  color: palette.text,
+  padding: "1px 0",
+  wordBreak: "break-all",
+};
+
+export const formTableStyle: CSSProperties = {
+  ...queryTableStyle,
+  maxWidth: "100%",
+  // 키 칸은 내용만큼, 값 칸이 나머지를 차지하도록 자동 레이아웃
+  tableLayout: "auto",
+  width: "100%",
+};
+
+export const formLineHeaderStyle: CSSProperties = {
+  color: palette.muted,
+  fontFamily: monoFontFamily,
+  fontSize: 10.5,
+  marginBottom: 2,
+  marginTop: 6,
 };
 
 export const detailMetaStyle: CSSProperties = {
@@ -764,6 +841,22 @@ export const actionBodyHintJsonStyle: CSSProperties = {
   fontSize: 10,
 };
 
+export const actionCheckboxLabelStyle: CSSProperties = {
+  alignItems: "center",
+  color: palette.muted,
+  cursor: "pointer",
+  display: "inline-flex",
+  fontSize: 11,
+  gap: 4,
+};
+
+export const actionRerunHintStyle: CSSProperties = {
+  color: palette.teal,
+  fontSize: 11,
+  lineHeight: 1.5,
+  margin: 0,
+};
+
 export const actionBodyHintBrokenStyle: CSSProperties = {
   color: palette.orange,
   fontSize: 10,
@@ -772,6 +865,8 @@ export const actionBodyHintBrokenStyle: CSSProperties = {
 export const panelClassNames = {
   actionButton: "rfd-btn",
   launcher: "rfd-launcher",
+  panelEdge: "rfd-panel-edge",
+  resizeHandle: "rfd-resize",
   row: "rfd-row",
   spinner: "rfd-spinner",
   treeActions: "rfd-tree-actions",
@@ -791,6 +886,9 @@ export const panelInteractionCss = `
 .${panelClassNames.treeActions}:focus-within { opacity: 1; }
 @keyframes rfd-spin { to { transform: rotate(360deg); } }
 .${panelClassNames.spinner} { animation: rfd-spin 0.8s linear infinite; }
+.${panelClassNames.resizeHandle}:hover { border-left-color: ${palette.teal} !important; }
+.${panelClassNames.panelEdge}:focus-visible { outline: 2px solid ${palette.teal}; outline-offset: -2px; }
+.${panelClassNames.resizeHandle}:focus-visible { outline: 2px solid ${palette.teal}; outline-offset: -2px; }
 .${panelClassNames.row}:focus { outline: none; }
 .${panelClassNames.row}:focus-visible,
 .${panelClassNames.actionButton}:focus-visible,

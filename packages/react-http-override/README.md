@@ -2,16 +2,16 @@
 
 [![npm version](https://img.shields.io/npm/v/@watcha-authentic/react-http-override)](https://www.npmjs.com/package/@watcha-authentic/react-http-override)
 
-staging 환경에서 fetch 요청을 관찰하고 에러·지연·빈 상태를 시뮬레이션하는 devtools 패널입니다. 엔트리 파일에서 `installHttpOverride`를 한 번 호출하면 `window.fetch`를 가로채 요청을 기록하고, 패널 버튼이 화면 우하단에 자동으로 뜹니다.
+staging 환경에서 fetch 요청을 관찰하고 에러, 지연, 빈 상태를 시뮬레이션하는 devtools 패널입니다. 엔트리 파일에서 `installHttpOverride`를 한 번 호출하면 `window.fetch`를 가로채 요청을 기록하고, 패널 버튼이 화면 우하단에 자동으로 뜹니다.
 
 엔트리는 4개입니다. 앱의 React 버전에 맞는 것 하나를 쓰면 됩니다.
 
 - `@watcha-authentic/react-http-override/auto` — **React 18 이상.** 설치와 패널 마운트를 한 번에 합니다.
 - `@watcha-authentic/react-http-override/auto-legacy` — **React 17.** 같은 API를 `ReactDOM.render`로 마운트합니다.
-- `@watcha-authentic/react-http-override/core` — React 없이 동작하는 코어. 패널 없이 기록·룰만 쓰거나, 런처 컴포넌트를 직접 마운트할 때 씁니다.
-- `@watcha-authentic/react-http-override` — 런처·임베드 패널 컴포넌트와 훅. 코어의 export도 함께 제공합니다.
+- `@watcha-authentic/react-http-override/core` — React 없이 동작하는 코어. 패널 없이 기록과 룰만 쓰거나, 런처 컴포넌트를 직접 마운트할 때 씁니다.
+- `@watcha-authentic/react-http-override` — 런처와 임베드 패널 컴포넌트, 훅. 코어의 export도 함께 제공합니다.
 
-릴리즈: [CHANGELOG](https://github.com/frograms/bistro-house/blob/master/packages/react-http-override/CHANGELOG.md) · [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=react-http-override)
+릴리즈: [CHANGELOG](https://github.com/frograms/bistro-house/blob/master/packages/react-http-override/CHANGELOG.md) / [GitHub Releases](https://github.com/frograms/bistro-house/releases?q=react-http-override)
 
 ## Table of contents
 
@@ -69,11 +69,14 @@ React 17 앱은 `/auto-legacy`에서 같은 함수를 가져옵니다.
 import { installHttpOverride } from "@watcha-authentic/react-http-override/auto-legacy";
 ```
 
-앱 코드는 평소처럼 `fetch`를 호출하면 됩니다. 패널에서 만든 룰은 sessionStorage에 저장되어 새로고침해도 유지되고, 탭끼리는 격리됩니다. 런처 버튼은 패널의 "버튼 숨기기"로 숨기고 `Ctrl+Shift+H`로 다시 켤 수 있습니다.
+앱 코드는 평소처럼 `fetch`를 호출하면 됩니다. 기록과 룰 적용은 `fetch`를 거치는 요청에만 동작합니다. `XMLHttpRequest`로 보내는 요청(axios 기본 설정 등)은 잡히지 않습니다. 요청 행을 펼치면 URL을 origin, 경로, 쿼리 파라미터로 나눠 보여주고, 요청 본문이 있으면 Payload 섹션에 나옵니다. JSON은 트리로, `a=1&b=2` 형식(GA collect처럼 줄마다 이벤트 하나)은 줄별 키와 값 표로 풉니다. 패널 자체는 왼쪽이나 위쪽 가장자리, 또는 왼쪽 위 모서리를 끌어 크기를 바꿀 수 있고, 상세 영역은 왼쪽 가장자리를 끌어 너비를 조절할 수 있습니다. 둘 다 더블클릭하면 기본값으로 돌아가고, 바꾼 크기는 브라우저에 기억됩니다. 패널에서 만든 룰은 sessionStorage에 저장되어 새로고침해도 유지되고, 탭끼리는 격리됩니다. 런처 버튼은 패널의 "버튼 숨기기"로 숨기고 `Ctrl+Shift+H`로 다시 켤 수 있습니다.
 
 ### Revalidating after a rule change
 
-패널에서 응답 값을 바꾸거나 프리셋을 적용하면 그 URL을 다시 불러와야 화면에 반영됩니다. `onRevalidate`를 넘기면 앱의 데이터 계층이 다시 요청하므로 **앱 화면까지 바로 바뀝니다.** 넘기지 않으면 GET 요청만 패키지가 같은 URL로 다시 보내서 패널의 기록에만 반영됩니다.
+패널에서 응답 값을 바꾸거나 프리셋을 적용하면 그 요청을 다시 보내야 룰이 적용된 결과를 볼 수 있습니다. 재요청 방식은 method에 따라 다릅니다.
+
+- **GET.** `onRevalidate`를 넘기면 앱의 데이터 계층이 다시 요청하므로 **앱 화면까지 바로 바뀝니다.** 넘기지 않으면 패키지가 같은 URL로 다시 불러와 패널 기록에만 반영됩니다.
+- **POST, PUT, DELETE 등.** 앱의 어떤 코드가 보낸 요청인지 패키지가 알 수 없어서 패널에서 대신 실행하지 않습니다. 룰을 건 뒤 **앱에서 그 동작을 다시 하면** 룰이 적용되고, 앱의 에러 처리와 로딩 화면이 그대로 동작합니다. 상태 코드 룰은 목 응답이라 서버로 요청을 보내지 않으니 결제나 삭제처럼 부담스러운 동작도 반복할 수 있습니다. Error와 Loading 트리거의 "1회만"(기본 켜짐)을 쓰면 다음 한 번만 적용되고 자동으로 풀려서, 실패한 뒤 다시 누르면 성공하는 흐름까지 바로 확인할 수 있습니다.
 
 기록된 URL은 절대 주소이고 SWR 키는 보통 엔드포인트라서, 경로로 맞춥니다. 키 규칙은 앱마다 다르니 그에 맞게 조정합니다.
 
@@ -100,13 +103,25 @@ installHttpOverride({
 });
 ```
 
-브라우저 요청 중 경로가 `.data`로 끝나는 것(react-router·Remix의 서버 loader 요청)도 서버 출처로 표시됩니다. 판별 기준은 `isServerRequest`로 바꿀 수 있습니다.
+브라우저 요청 중 경로가 `.data`로 끝나는 것(react-router와 Remix의 서버 loader 요청)도 서버 출처로 표시됩니다. 판별 기준은 `isServerRequest`로 바꿀 수 있습니다.
 
 ```ts
 installHttpOverride({
   isServerRequest: (url) => url.includes("/bff/"),
 });
 ```
+
+### Filtering out noise
+
+`window.fetch`를 전부 가로채므로 GA, Sentry, 프레임워크 내부 요청까지 기록됩니다. `shouldRecord`가 `false`를 돌려준 요청은 기록도 룰 적용도 없이 그대로 통과합니다. 어떤 요청이 노이즈인지는 앱마다 달라서 기본 제외 목록은 없습니다.
+
+```ts
+installHttpOverride({
+  shouldRecord: (url) => url.startsWith(API_ORIGIN),
+});
+```
+
+no-cors 요청의 opaque 응답(상태와 본문을 브라우저가 숨긴 응답)은 기록에 `opaque` 칩으로 표시되고, 정상과 에러 어느 쪽으로도 세지 않습니다.
 
 ### Presets
 
@@ -173,7 +188,7 @@ const App = () => (
 
 ### Embedding the panel elsewhere
 
-반대로 이 패널을 다른 devtools 셸 안에 꽂을 수도 있습니다. `HttpOverridePanel`은 런처 버튼·포털·고정 위치가 없는 임베더블 패널로, 열고 닫는 것은 감싸는 쪽이 담당합니다.
+반대로 이 패널을 다른 devtools 셸 안에 꽂을 수도 있습니다. `HttpOverridePanel`은 런처 버튼, 포털, 고정 위치가 없는 임베더블 패널로, 열고 닫는 것은 감싸는 쪽이 담당합니다.
 
 ```tsx
 import { HttpOverridePanel } from "@watcha-authentic/react-http-override";
@@ -216,7 +231,7 @@ api?.rules.add({
 
 ### Building custom UI with hooks
 
-`useHttpOverrideApi`로 설치된 API를 얻고, `useRecords`·`useRules`·`useLauncherVisible`·`usePresetNames`로 요청 기록·룰·런처 표시 여부·프리셋 이름을 구독해 자체 UI를 만들 수 있습니다.
+`useHttpOverrideApi`로 설치된 API를 얻고, `useRecords`, `useRules`, `useLauncherVisible`, `usePresetNames`로 요청 기록, 룰, 런처 표시 여부, 프리셋 이름을 구독해 자체 UI를 만들 수 있습니다.
 
 ```tsx
 import {
@@ -285,9 +300,9 @@ uninstallHttpOverride();
 
 ### installHttpOverride
 
-`/auto`·`/auto-legacy` 엔트리의 함수입니다. 코어를 설치하고 페이지 로드가 끝난 뒤 런처를 `document.body`에 자동으로 띄웁니다. `/core` 엔트리의 같은 이름 함수는 코어만 설치하고 패널을 띄우지 않습니다.
+`/auto`와 `/auto-legacy` 엔트리의 함수입니다. 코어를 설치하고 페이지 로드가 끝난 뒤 런처를 `document.body`에 자동으로 띄웁니다. `/core` 엔트리의 같은 이름 함수는 코어만 설치하고 패널을 띄우지 않습니다.
 
-SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 호출(HMR 재실행 등) 시 기존 설치를 그대로 반환하고 패널도 하나만 유지합니다.
+SSR 환경이거나 `window.fetch`가 없으면 아무것도 하지 않고 `null`을 반환합니다. `fetch` 폴리필을 비동기로 불러오는 앱은 폴리필이 끝난 뒤에 호출하세요. 중복 호출(HMR 재실행 등) 시 기존 설치를 그대로 반환하고 패널도 하나만 유지합니다.
 
 #### Parameters
 
@@ -303,7 +318,7 @@ SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 �
 
 ### InstallHttpOverrideOptions
 
-`installHttpOverride`의 `options` 타입입니다. `autoMount`·`presets`는 `/auto`·`/auto-legacy` 엔트리에만 있고, 나머지는 `/core`에도 있습니다.
+`installHttpOverride`의 `options` 타입입니다. `autoMount`와 `presets`는 `/auto`, `/auto-legacy` 엔트리에만 있고, 나머지는 `/core`에도 있습니다.
 
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
@@ -312,6 +327,7 @@ SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 �
 | `onRevalidate` | `(url: string) => Promise<unknown> \| void` | — | 패널에서 룰을 바꾼 뒤 앱이 그 URL을 다시 불러오게 하는 콜백. 없으면 GET 요청만 패키지가 같은 URL로 다시 보냅니다 |
 | `ssrData` | `Record<string, unknown>` | — | SSR 초기 데이터. 키마다 서버 출처 행으로 기록합니다 |
 | `isServerRequest` | `(url: string) => boolean` | 경로가 `.data`로 끝나는지 | 서버 출처로 표시할 요청 판별 |
+| `shouldRecord` | `(url: string, method: string) => boolean` | 모두 기록 | `false`면 기록도 룰 적용도 없이 원본 `fetch`로 통과 |
 | `maxBodyBytes` | `number` | `65536` | 기록에 남길 응답 body 최대 크기 (UTF-8 바이트 기준). 초과분은 잘라서 저장합니다 |
 | `maxRecords` | `number` | `200` | 보관할 요청 기록 수. 초과하면 오래된 것부터 버립니다 |
 | `storage` | `HttpOverrideStorage` | sessionStorage | 룰 저장소. Web Storage를 쓸 수 없는 환경에서는 인메모리로 폴백합니다 |
@@ -350,11 +366,11 @@ SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 �
 | ---- | ---- | ------- | ----------- |
 | `extraTabs` | `HttpOverrideTab[]` | — | 패널에 추가할 확장 탭 |
 | `presets` | `HttpOverridePreset[]` | — | 앱이 정의한 룰 묶음. 요청 행 상세에서 URL이 매칭되는 프리셋을 골라 적용합니다 |
-| `zIndex` | `number` | `999999` | 런처 버튼·패널의 z-index |
+| `zIndex` | `number` | `999999` | 런처 버튼과 패널의 z-index |
 
 ### HttpOverridePanel
 
-런처 버튼·포털·고정 위치가 없는 임베더블 패널입니다. 다른 devtools 셸이나 자체 UI 안에 컴포넌트로 꽂는 용도이며, 열고 닫기는 감싸는 쪽이 담당합니다. 설치되지 않았거나 하이드레이션 전이면 아무것도 렌더하지 않습니다.
+런처 버튼, 포털, 고정 위치가 없는 임베더블 패널입니다. 다른 devtools 셸이나 자체 UI 안에 컴포넌트로 꽂는 용도이며, 열고 닫기는 감싸는 쪽이 담당합니다. 설치되지 않았거나 하이드레이션 전이면 아무것도 렌더하지 않습니다.
 
 #### Props
 
@@ -439,7 +455,7 @@ SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 �
 
 ### HttpOverrideApi
 
-`installHttpOverride`가 돌려주고 `getHttpOverride`·`useHttpOverrideApi`로 다시 얻을 수 있는 API입니다.
+`installHttpOverride`가 돌려주고 `getHttpOverride`나 `useHttpOverrideApi`로 다시 얻을 수 있는 API입니다.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -458,6 +474,8 @@ SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 �
 | `rules.subscribe` | `HttpOverrideSubscribe` | 룰 변경 구독 |
 | `revalidate` | `(url: string, method: string) => void` | 그 URL을 다시 불러옵니다. `onRevalidate`가 있으면 그 콜백을 부르고, 없으면 GET만 같은 URL로 다시 보냅니다 |
 | `canRevalidate` | `(method: string) => boolean` | 이 method의 요청을 다시 불러올 수 있는지. `onRevalidate`가 없으면 GET만 `true` |
+| `replay` | `(seq: number) => void` | 기록된 요청을 같은 method, 헤더, 본문으로 다시 보냅니다. 룰이 걸려 있으면 적용됩니다 |
+| `canReplay` | `(seq: number) => boolean` | 원본 요청을 보관하고 있어 다시 보낼 수 있는지. SSR 행과 스트림 본문은 `false` |
 | `launcher.getSnapshot` | `() => boolean` | 런처 버튼 표시 여부 |
 | `launcher.subscribe` | `HttpOverrideSubscribe` | 런처 표시 여부 구독 |
 | `show` | `() => void` | 런처 버튼 표시 |
@@ -483,7 +501,8 @@ SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 �
 | `pattern` | `string` | — | URL에 매칭할 정규식 문자열 |
 | `status` | `number` | — | 지정 시 실제 요청 없이 이 상태 코드로 목 응답을 반환합니다 |
 | `body` | `string` | — | 목 응답 body. `status`와 함께 씁니다 |
-| `delayMs` | `number` | — | 응답 지연(ms). 목·패치·통과 어느 경우에도 먼저 적용되며, 여러 룰이 매칭되면 `delayMs > 0`인 첫 룰만 적용됩니다 |
+| `remaining` | `number` | — | 남은 적용 횟수. 적용될 때마다 줄고 0이 되면 룰이 지워집니다. 없으면 해제할 때까지 계속 적용됩니다 |
+| `delayMs` | `number` | — | 응답 지연(ms). 목, 패치, 통과 어느 경우에도 먼저 적용되며, 여러 룰이 매칭되면 `delayMs > 0`인 첫 룰만 적용됩니다 |
 | `patch` | `{ path: string; value?: unknown; remove?: boolean }[]` | — | 실제 응답 JSON에서 `path`(점 표기)의 값만 `value`로 바꿉니다. `remove: true`면 해당 키를 삭제합니다 |
 
 ### HttpOverrideRuleInput
@@ -512,13 +531,15 @@ SSR 환경이면 아무것도 하지 않고 `null`을 반환합니다. 중복 �
 | `method` | `string` | HTTP 메서드 (대문자). `ssrData` 행이면 `"SSR"` |
 | `state` | `HttpOverrideRecordState` | `"pending"` → `"done"` 또는 `"error"` |
 | `source` | `HttpOverrideRecordSource` | `"server"`는 `ssrData` 행과 `isServerRequest`에 걸린 요청, 그 외는 `"client"` |
-| `status` | `number \| null` | 응답 상태 코드. 응답 전이면 `null`, 네트워크 에러면 `0`, `ssrData` 행이면 `null` |
+| `status` | `number \| null` | 응답 상태 코드. 응답 전이면 `null`, 네트워크 에러와 opaque 응답이면 `0`, `ssrData` 행이면 `null` |
 | `ok` | `boolean` | `Response.ok` 여부 |
+| `opaque` | `boolean \| undefined` | no-cors 요청의 opaque 응답이면 `true` |
 | `mocked` | `boolean` | 목 응답 여부 |
 | `patched` | `boolean \| undefined` | `patch` 룰이 적용된 응답이면 `true` |
 | `ruleId` | `string \| undefined` | 적용된 룰 중 대표 1개의 `id` (목 룰 → 첫 패치 룰 → 첫 매칭 룰 순) |
 | `startedAt` | `number` | 요청 시작 시각 (epoch ms) |
 | `durationMs` | `number \| null` | 소요 시간(ms). 응답 전과 `ssrData` 행은 `null` |
+| `requestBody` | `string \| null` | 요청 body. 문자열과 `URLSearchParams`는 원문, `FormData`는 키와 값 JSON(파일은 이름과 크기), 바이너리는 크기 요약. 없으면 `null` |
 | `responseBody` | `string \| null` | 응답 body. clone 후 비동기로 채워지므로 채워지기 전엔 `null` |
 | `error` | `string \| undefined` | 네트워크 에러 메시지 |
 
