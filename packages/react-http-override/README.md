@@ -49,6 +49,33 @@ pnpm add @watcha-authentic/react-http-override
 pnpm add react@>=17.0.0 react-dom@>=17.0.0
 ```
 
+### Supported environments
+
+배포 파일은 ES2020 문법입니다. 구형 브라우저(구형 TV 웹 런타임 등)를 지원하는 앱은 이 패키지도 Babel 같은 변환 대상에 넣어야 합니다. 문법을 모르는 브라우저에서는 파일을 읽는 순간 에러가 나서 패키지가 스스로 막을 수 없습니다.
+
+webpack 5에서 React 17을 쓰면 React에 `exports` 필드가 없어 `react/jsx-runtime`을 찾지 못합니다. 이 패키지의 `.mjs`에만 확장자 없는 import를 허용해 주세요.
+
+```js
+{
+  test: /\.mjs$/,
+  include: /[\\/]@watcha-authentic[\\/]react-http-override[\\/]/,
+  resolve: { fullySpecified: false },
+}
+```
+
+설치할 때는 실행에 꼭 필요한 기능이 있는지 먼저 확인합니다. 하나라도 없으면 `fetch`를 건드리지 않고 건너뛰며, 콘솔에 없는 기능을 남깁니다. 앱은 원래대로 동작합니다.
+
+| 대상 | 확인하는 기능 | 없을 때 |
+| ---- | ------------- | ------- |
+| 요청 기록과 룰 적용 | `fetch`, `Response`, `Headers`, `Promise`, `Map`, `Set`, `TextEncoder`, `TextDecoder` | 설치하지 않고 `null` 반환 |
+| 패널 (`/auto`, `/auto-legacy`) | `MutationObserver`, `requestAnimationFrame` | 패널만 띄우지 않고 기록과 룰 적용은 동작 |
+
+```
+[react-http-override] 이 환경에서는 요청 기록과 룰 적용을 실행할 수 없어 건너뜁니다. 없는 기능: TextEncoder
+```
+
+`Object.entries`, `Array.prototype.includes` 같은 메서드는 확인하지 않습니다. 앱이 polyfill로 채워 주세요. 확인을 통과했는데도 설치 중 에러가 나면 원래 `fetch`와 리스너를 되돌리고 경고만 남깁니다. 패널 코드를 불러오거나 그리다 실패해도 같은 방식으로 경고만 남깁니다.
+
 ## Usage
 
 ### Basic usage
@@ -302,7 +329,7 @@ uninstallHttpOverride();
 
 `/auto`와 `/auto-legacy` 엔트리의 함수입니다. 코어를 설치하고 페이지 로드가 끝난 뒤 런처를 `document.body`에 자동으로 띄웁니다. `/core` 엔트리의 같은 이름 함수는 코어만 설치하고 패널을 띄우지 않습니다.
 
-SSR 환경이거나 `window.fetch`가 없으면 아무것도 하지 않고 `null`을 반환합니다. `fetch` 폴리필을 비동기로 불러오는 앱은 폴리필이 끝난 뒤에 호출하세요. 중복 호출(HMR 재실행 등) 시 기존 설치를 그대로 반환하고 패널도 하나만 유지합니다.
+SSR 환경이거나 실행에 필요한 기능이 없으면 아무것도 하지 않고 `null`을 반환합니다. 필요한 기능은 [Supported environments](#supported-environments)를 보세요. `fetch` 폴리필을 비동기로 불러오는 앱은 폴리필이 끝난 뒤에 호출하세요. 중복 호출(HMR 재실행 등) 시 기존 설치를 그대로 반환하고 패널도 하나만 유지합니다.
 
 #### Parameters
 
