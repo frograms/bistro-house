@@ -30,10 +30,13 @@ const loadNames = (
     ) {
       return {};
     }
-    const entries = Object.entries(envelope.names).filter(
-      ([, value]) => typeof value === "string"
+    return Object.entries(envelope.names).reduce<Record<string, string>>(
+      (names, [key, value]) => {
+        if (typeof value === "string") names[key] = value;
+        return names;
+      },
+      {}
     );
-    return Object.fromEntries(entries) as Record<string, string>;
   } catch {
     return {};
   }
