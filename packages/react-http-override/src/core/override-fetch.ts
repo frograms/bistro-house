@@ -114,7 +114,7 @@ const captureRequestBody = (
     if (typeof body === "string") {
       return { deferred: null, initial: truncateBody(body, maxBodyBytes) };
     }
-    if (body instanceof URLSearchParams) {
+    if (typeof URLSearchParams !== "undefined" && body instanceof URLSearchParams) {
       return { deferred: null, initial: body.toString() };
     }
     if (typeof FormData !== "undefined" && body instanceof FormData) {
@@ -295,8 +295,12 @@ export const createOverrideFetch = (
     );
     const patches =
       statusRule === undefined
-        ? matched.flatMap((rule) =>
-            rule.status === undefined ? (rule.patch ?? []) : []
+        ? matched.reduce<NonNullable<HttpOverrideRule["patch"]>>(
+            (all, rule) =>
+              rule.status === undefined && rule.patch !== undefined
+                ? all.concat(rule.patch)
+                : all,
+            []
           )
         : [];
     const primaryRule = statusRule ?? patchRule ?? matched[0];
