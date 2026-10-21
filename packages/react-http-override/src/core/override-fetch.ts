@@ -6,7 +6,8 @@ import type { HttpOverrideRule } from "./types";
 export const DEFAULT_MAX_BODY_BYTES = 64 * 1024;
 
 /** 스펙상 body를 가질 수 없는 status — body를 주면 Response 생성이 throw */
-const NULL_BODY_STATUSES = new Set([204, 205, 304]);
+const isNullBodyStatus = (status: number) =>
+  status === 204 || status === 205 || status === 304;
 
 const TEXTUAL_CONTENT_TYPE = /json|text|xml|javascript|urlencoded/i;
 
@@ -164,11 +165,13 @@ const TRUNCATED_SUFFIX = "…(truncated)";
 export const isTruncatedBody = (body: string): boolean =>
   body.endsWith(TRUNCATED_SUFFIX);
 
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
+// 모듈을 불러오는 것만으로 깨지지 않게, 설치 전 환경 확인이 끝난 뒤 처음 쓸 때 만든다
+let codec: { decoder: TextDecoder; encoder: TextEncoder } | null = null;
 
 export const truncateBody = (text: string, maxBodyBytes: number): string => {
   if (text.length * 3 <= maxBodyBytes) return text;
+  codec ??= { decoder: new TextDecoder(), encoder: new TextEncoder() };
+  const { decoder, encoder } = codec;
   const bytes = encoder.encode(text);
   if (bytes.length <= maxBodyBytes) return text;
   const sliced = decoder
@@ -181,7 +184,7 @@ const createMockResponse = (
   rule: HttpOverrideRule
 ): { body: string | null; response: Response } | null => {
   const nullBody =
-    rule.status !== undefined && NULL_BODY_STATUSES.has(rule.status);
+    rule.status !== undefined && isNullBodyStatus(rule.status);
   const filledBody =
     rule.body === undefined || rule.body === "" ? "{}" : rule.body;
   const body = nullBody ? null : filledBody;
@@ -386,7 +389,7 @@ export const createOverrideFetch = (
         headers.delete("content-length");
         headers.delete("content-encoding");
         return new Response(
-          NULL_BODY_STATUSES.has(response.status) ? null : patchedText,
+          isNullBodyStatus(response.status) ? null : patchedText,
           {
             headers,
             status: response.status,
