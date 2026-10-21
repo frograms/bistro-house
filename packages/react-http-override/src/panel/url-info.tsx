@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { parseQuery } from "./parse-query";
 import {
   detailInfoRowStyle,
   detailInfoValueStyle,
@@ -19,14 +20,13 @@ export type ParsedRecordUrl = {
 
 const RELATIVE_BASE = "http://relative.invalid";
 
-/** 절대 URL은 origin·경로·쿼리로, 상대 URL은 origin 없이 나눈다 */
 export const parseRecordUrl = (url: string): ParsedRecordUrl => {
   try {
     const parsed = new URL(url, RELATIVE_BASE);
     const relative = parsed.origin === RELATIVE_BASE;
     return {
       origin: relative ? null : parsed.origin,
-      params: [...parsed.searchParams.entries()],
+      params: parseQuery(parsed.search),
       pathname: parsed.pathname,
     };
   } catch {
@@ -77,7 +77,11 @@ export const CopyUrlButton = ({ url }: { url: string }) => {
   );
 };
 
-export const QueryParamsTable = ({ params }: { params: [string, string][] }) => (
+export const QueryParamsTable = ({
+  params,
+}: {
+  params: [string, string][];
+}) => (
   <div style={queryBlockStyle}>
     <div style={detailInfoRowStyle}>
       <span>query</span>
