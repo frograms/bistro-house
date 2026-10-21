@@ -1,3 +1,4 @@
+import { parseQuery } from "./parse-query";
 import {
   formLineHeaderStyle,
   formTableStyle,
@@ -16,7 +17,7 @@ export const parseFormBody = (body: string): FormLine[] | null => {
   if (lines.length === 0 || !lines.every((line) => FORM_LINE.test(line))) {
     return null;
   }
-  return lines.map((line) => [...new URLSearchParams(line).entries()]);
+  return lines.map((line) => parseQuery(line));
 };
 
 const lineTitle = (line: FormLine, index: number): string => {
