@@ -1,3 +1,9 @@
+import {
+  CORE_FEATURES,
+  findMissingFeatures,
+  unsupportedMessage,
+  warnHttpOverride,
+} from "./environment";
 import { createLauncherVisibility } from "./launcher-visibility";
 import type { ReplayInput } from "./override-fetch";
 import {
@@ -50,14 +56,11 @@ let installation: Installation | null = null;
 export const getHttpOverride = (): HttpOverrideApi | null =>
   installation?.api ?? null;
 
-/** window.fetch를 가로채 설치한다. SSR이면 no-op, 중복 호출 시 기존 설치 반환 */
-export const installHttpOverride = (
-  options: InstallHttpOverrideOptions = {}
-): HttpOverrideApi | null => {
-  if (typeof window === "undefined") return null;
-  if (installation !== null) return installation.api;
-  if (typeof window.fetch !== "function") return null;
-
+const setUp = (
+  options: InstallHttpOverrideOptions,
+  originalFetch: typeof fetch,
+  cleanups: (() => void)[]
+): Installation => {
   const {
     isServerRequest,
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
@@ -68,7 +71,6 @@ export const installHttpOverride = (
     ssrData,
     storage,
   } = options;
-  const originalFetch = window.fetch;
   const sessionStore =
     storage ?? createSafeStorage(() => window.sessionStorage);
   const ruleStore = createRuleStore(sessionStore);
@@ -165,7 +167,6 @@ export const installHttpOverride = (
     shouldRecord,
   });
 
-  const cleanups: (() => void)[] = [];
   const matchesShortcut = createShortcutMatcher(shortcut);
   if (matchesShortcut !== null) {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -178,13 +179,32 @@ export const installHttpOverride = (
   }
 
   window.fetch = patchedFetch;
-  installation = {
-    api,
-    cleanups,
-    originalFetch,
-    patchedFetch,
-  };
-  return api;
+  return { api, cleanups, originalFetch, patchedFetch };
+};
+
+/** window.fetch를 가로채 설치. SSR이거나 실행할 수 없는 환경이면 no-op, 중복 호출 시 기존 설치 반환 */
+export const installHttpOverride = (
+  options: InstallHttpOverrideOptions = {}
+): HttpOverrideApi | null => {
+  if (typeof window === "undefined") return null;
+  if (installation !== null) return installation.api;
+  const missing = findMissingFeatures(CORE_FEATURES);
+  if (missing.length > 0) {
+    warnHttpOverride(unsupportedMessage("요청 기록과 룰 적용을", missing));
+    return null;
+  }
+
+  const originalFetch = window.fetch;
+  const cleanups: (() => void)[] = [];
+  try {
+    installation = setUp(options, originalFetch, cleanups);
+    return installation.api;
+  } catch (error) {
+    cleanups.forEach((cleanup) => cleanup());
+    window.fetch = originalFetch;
+    warnHttpOverride("설치 중 오류가 나서 원래 fetch로 되돌렸습니다.", error);
+    return null;
+  }
 };
 
 export const onUninstall = (cleanup: () => void): void => {
