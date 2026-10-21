@@ -1,7 +1,4 @@
-import {
-  createLauncherVisibility,
-  isLauncherShortcut,
-} from "./launcher-visibility";
+import { createLauncherVisibility } from "./launcher-visibility";
 import type { ReplayInput } from "./override-fetch";
 import {
   createOverrideFetch,
@@ -12,6 +9,12 @@ import { createPresetNameStore } from "./preset-names";
 import { createRecordBuffer } from "./record-buffer";
 import { createRuleStore } from "./rule-store";
 import { createSafeStorage } from "./safe-storage";
+import type { HttpOverrideShortcut } from "./shortcut";
+import {
+  createShortcutMatcher,
+  DEFAULT_SHORTCUT,
+  formatShortcut,
+} from "./shortcut";
 import type { HttpOverrideApi, HttpOverrideStorage } from "./types";
 
 export type InstallHttpOverrideOptions = {
@@ -19,6 +22,8 @@ export type InstallHttpOverrideOptions = {
   maxBodyBytes?: number;
   maxRecords?: number;
   onRevalidate?: (url: string) => Promise<unknown> | void;
+  /** 런처 버튼 표시 토글 단축키. 기본 `Ctrl+Shift+H` */
+  shortcut?: HttpOverrideShortcut;
   shouldRecord?: (url: string, method: string) => boolean;
   ssrData?: Record<string, unknown>;
   storage?: HttpOverrideStorage;
@@ -58,6 +63,7 @@ export const installHttpOverride = (
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
     maxRecords,
     onRevalidate,
+    shortcut = DEFAULT_SHORTCUT,
     shouldRecord,
     ssrData,
     storage,
@@ -86,7 +92,8 @@ export const installHttpOverride = (
     });
   });
   const launcher = createLauncherVisibility(
-    createSafeStorage(() => window.localStorage)
+    createSafeStorage(() => window.localStorage),
+    formatShortcut(shortcut)
   );
 
   const canRevalidate = (method: string) =>
@@ -158,17 +165,22 @@ export const installHttpOverride = (
     shouldRecord,
   });
 
-  const onKeyDown = (event: KeyboardEvent) => {
-    if (!isLauncherShortcut(event)) return;
-    event.preventDefault();
-    launcher.toggle();
-  };
-  window.addEventListener("keydown", onKeyDown);
+  const cleanups: (() => void)[] = [];
+  const matchesShortcut = createShortcutMatcher(shortcut);
+  if (matchesShortcut !== null) {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!matchesShortcut(event)) return;
+      event.preventDefault();
+      launcher.toggle();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    cleanups.push(() => window.removeEventListener("keydown", onKeyDown));
+  }
 
   window.fetch = patchedFetch;
   installation = {
     api,
-    cleanups: [() => window.removeEventListener("keydown", onKeyDown)],
+    cleanups,
     originalFetch,
     patchedFetch,
   };

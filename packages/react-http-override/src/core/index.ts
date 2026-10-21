@@ -8,6 +8,7 @@ export { isTruncatedBody } from "./override-fetch";
 export { presetIdOf, presetRuleId } from "./preset-rules";
 export { exactUrlPattern, ruleMatchesUrl } from "./rule-match";
 export { createMemoryStorage } from "./safe-storage";
+export type { HttpOverrideShortcut } from "./shortcut";
 export type {
   HttpOverrideApi,
   HttpOverridePreset,

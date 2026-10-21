@@ -69,7 +69,7 @@ React 17 앱은 `/auto-legacy`에서 같은 함수를 가져옵니다.
 import { installHttpOverride } from "@watcha-authentic/react-http-override/auto-legacy";
 ```
 
-앱 코드는 평소처럼 `fetch`를 호출하면 됩니다. 기록과 룰 적용은 `fetch`를 거치는 요청에만 동작합니다. `XMLHttpRequest`로 보내는 요청(axios 기본 설정 등)은 잡히지 않습니다. 요청 행을 펼치면 URL을 origin, 경로, 쿼리 파라미터로 나눠 보여주고, 요청 본문이 있으면 Payload 섹션에 나옵니다. JSON은 트리로, `a=1&b=2` 형식(GA collect처럼 줄마다 이벤트 하나)은 줄별 키와 값 표로 풉니다. 패널 자체는 왼쪽이나 위쪽 가장자리, 또는 왼쪽 위 모서리를 끌어 크기를 바꿀 수 있고, 상세 영역은 왼쪽 가장자리를 끌어 너비를 조절할 수 있습니다. 둘 다 더블클릭하면 기본값으로 돌아가고, 바꾼 크기는 브라우저에 기억됩니다. 패널에서 만든 룰은 sessionStorage에 저장되어 새로고침해도 유지되고, 탭끼리는 격리됩니다. 런처 버튼은 패널의 "버튼 숨기기"로 숨기고 `Ctrl+Shift+H`로 다시 켤 수 있습니다.
+앱 코드는 평소처럼 `fetch`를 호출하면 됩니다. 기록과 룰 적용은 `fetch`를 거치는 요청에만 동작합니다. `XMLHttpRequest`로 보내는 요청(axios 기본 설정 등)은 잡히지 않습니다. 요청 행을 펼치면 URL을 origin, 경로, 쿼리 파라미터로 나눠 보여주고, 요청 본문이 있으면 Payload 섹션에 나옵니다. JSON은 트리로, `a=1&b=2` 형식(GA collect처럼 줄마다 이벤트 하나)은 줄별 키와 값 표로 풉니다. 패널 자체는 왼쪽이나 위쪽 가장자리, 또는 왼쪽 위 모서리를 끌어 크기를 바꿀 수 있고, 상세 영역은 왼쪽 가장자리를 끌어 너비를 조절할 수 있습니다. 둘 다 더블클릭하면 기본값으로 돌아가고, 바꾼 크기는 브라우저에 기억됩니다. 패널에서 만든 룰은 sessionStorage에 저장되어 새로고침해도 유지되고, 탭끼리는 격리됩니다. 런처 버튼은 패널의 "버튼 숨기기"로 숨기고 `Ctrl+Shift+H`로 다시 켤 수 있습니다. 단축키는 `shortcut` 옵션으로 바꿀 수 있고, 키보드가 없는 TV에서는 방향키 순서로 지정하면 됩니다.
 
 ### Revalidating after a rule change
 
@@ -328,6 +328,7 @@ SSR 환경이거나 `window.fetch`가 없으면 아무것도 하지 않고 `null
 | `ssrData` | `Record<string, unknown>` | — | SSR 초기 데이터. 키마다 서버 출처 행으로 기록합니다 |
 | `isServerRequest` | `(url: string) => boolean` | 경로가 `.data`로 끝나는지 | 서버 출처로 표시할 요청 판별 |
 | `shouldRecord` | `(url: string, method: string) => boolean` | 모두 기록 | `false`면 기록도 룰 적용도 없이 원본 `fetch`로 통과 |
+| `shortcut` | `string \| string[] \| false` | `"Ctrl+Shift+H"` | 런처 버튼을 숨기거나 다시 보여주는 단축키. 문자열은 `Ctrl`, `Shift`, `Alt`, `Meta`와 키 하나를 `+`로 이은 조합 키, 배열은 2초 안에 순서대로 누르는 `event.key` 이름들, `false`는 끄기 |
 | `maxBodyBytes` | `number` | `65536` | 기록에 남길 응답 body 최대 크기 (UTF-8 바이트 기준). 초과분은 잘라서 저장합니다 |
 | `maxRecords` | `number` | `200` | 보관할 요청 기록 수. 초과하면 오래된 것부터 버립니다 |
 | `storage` | `HttpOverrideStorage` | sessionStorage | 룰 저장소. Web Storage를 쓸 수 없는 환경에서는 인메모리로 폴백합니다 |
@@ -480,7 +481,7 @@ SSR 환경이거나 `window.fetch`가 없으면 아무것도 하지 않고 `null
 | `launcher.subscribe` | `HttpOverrideSubscribe` | 런처 표시 여부 구독 |
 | `show` | `() => void` | 런처 버튼 표시 |
 | `hide` | `() => void` | 런처 버튼 숨김 |
-| `toggle` | `() => void` | 런처 버튼 표시 토글. `Ctrl+Shift+H`가 같은 동작을 합니다 |
+| `toggle` | `() => void` | 런처 버튼 표시 토글. `shortcut` 옵션의 단축키(기본 `Ctrl+Shift+H`)가 같은 동작을 합니다 |
 
 ### HttpOverrideRule
 
