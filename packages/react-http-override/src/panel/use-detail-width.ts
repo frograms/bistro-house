@@ -1,5 +1,10 @@
-import type { PointerEvent as ReactPointerEvent } from "react";
+import type {
+  MouseEvent as ReactMouseEvent,
+  PointerEvent as ReactPointerEvent,
+} from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+import { SUPPORTS_POINTER_EVENTS, trackMouseDrag } from "./mouse-drag";
 
 const STORAGE_KEY = "__HTTP_OVERRIDE_DETAIL_WIDTH__";
 
@@ -39,46 +44,89 @@ export const useDetailWidth = () => {
   const [resizing, setResizing] = useState(false);
   const asideRef = useRef<HTMLElement | null>(null);
   const dragRef = useRef<{ startWidth: number; startX: number; } | null>(null);
+  const stopMouseDragRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     persistWidth(width);
   }, [width]);
 
-  const handlePointerDown = useCallback((event: ReactPointerEvent) => {
+  useEffect(
+    () => () => {
+      stopMouseDragRef.current?.();
+    },
+    []
+  );
+
+  const beginDrag = useCallback((clientX: number): boolean => {
     const aside = asideRef.current;
-    if (aside === null || event.button !== 0) return;
-    event.preventDefault();
-    try {
-      event.currentTarget.setPointerCapture(event.pointerId);
-    } catch {
-      // 캡처 불가 환경에서도 move/up이 핸들 위에서 오는 동안은 동작
-    }
+    if (aside === null) return false;
     dragRef.current = {
       startWidth: aside.getBoundingClientRect().width,
-      startX: event.clientX,
+      startX: clientX,
     };
     setResizing(true);
+    return true;
   }, []);
 
-  const handlePointerMove = useCallback((event: ReactPointerEvent) => {
+  const moveDrag = useCallback((clientX: number) => {
     const drag = dragRef.current;
     if (drag === null) return;
     // 상세는 오른쪽에 붙어 있어 왼쪽으로 끌수록 넓어진다
-    setWidth(clamp(drag.startWidth + (drag.startX - event.clientX)));
+    setWidth(clamp(drag.startWidth + (drag.startX - clientX)));
   }, []);
+
+  const finishDrag = useCallback(() => {
+    if (dragRef.current === null) return false;
+    dragRef.current = null;
+    stopMouseDragRef.current = null;
+    setResizing(false);
+    return true;
+  }, []);
+
+  const handlePointerDown = useCallback(
+    (event: ReactPointerEvent) => {
+      if (event.button !== 0 || !beginDrag(event.clientX)) return;
+      event.preventDefault();
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // 캡처 불가 환경에서도 move/up이 핸들 위에서 오는 동안은 동작
+      }
+    },
+    [beginDrag]
+  );
+
+  const handlePointerMove = useCallback(
+    (event: ReactPointerEvent) => {
+      moveDrag(event.clientX);
+    },
+    [moveDrag]
+  );
 
   /* pointerup 외에 취소·캡처 상실로 끝나는 경우도 드래그를 반드시 닫는다.
      안 닫히면 이후 지나가는 pointermove마다 너비가 바뀐다 */
-  const endDrag = useCallback((event: ReactPointerEvent) => {
-    if (dragRef.current === null) return;
-    dragRef.current = null;
-    setResizing(false);
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      // 이미 해제된 포인터
-    }
-  }, []);
+  const endDrag = useCallback(
+    (event: ReactPointerEvent) => {
+      if (!finishDrag()) return;
+      try {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      } catch {
+        // 이미 해제된 포인터
+      }
+    },
+    [finishDrag]
+  );
+
+  const handleMouseDown = useCallback(
+    (event: ReactMouseEvent) => {
+      if (event.button !== 0 || !beginDrag(event.clientX)) return;
+      event.preventDefault();
+      stopMouseDragRef.current = trackMouseDrag((moveEvent) => {
+        moveDrag(moveEvent.clientX);
+      }, finishDrag);
+    },
+    [beginDrag, finishDrag, moveDrag]
+  );
 
   const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
     const aside = asideRef.current;
@@ -103,6 +151,7 @@ export const useDetailWidth = () => {
       onDoubleClick: reset,
       onKeyDown: handleKeyDown,
       onLostPointerCapture: endDrag,
+      onMouseDown: SUPPORTS_POINTER_EVENTS ? undefined : handleMouseDown,
       onPointerCancel: endDrag,
       onPointerDown: handlePointerDown,
       onPointerMove: handlePointerMove,

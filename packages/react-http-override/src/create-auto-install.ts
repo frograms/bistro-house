@@ -62,7 +62,7 @@ export const createAutoInstall =
     onUninstall(() => {
       disposed = true;
       cancelSchedule();
-      if (unmount !== null) queueMicrotask(unmount);
+      if (unmount !== null) void Promise.resolve().then(unmount);
     });
     return api;
   };

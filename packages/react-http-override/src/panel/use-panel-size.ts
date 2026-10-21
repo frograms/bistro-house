@@ -1,8 +1,11 @@
 import type {
   KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
 } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+import { SUPPORTS_POINTER_EVENTS, trackMouseDrag } from "./mouse-drag";
 
 const STORAGE_KEY = "__HTTP_OVERRIDE_PANEL_SIZE__";
 
@@ -65,10 +68,18 @@ export const usePanelSize = () => {
   const [resizing, setResizing] = useState(false);
   const panelRef = useRef<HTMLElement | null>(null);
   const dragRef = useRef<Drag | null>(null);
+  const stopMouseDragRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     persistSize(size);
   }, [size]);
+
+  useEffect(
+    () => () => {
+      stopMouseDragRef.current?.();
+    },
+    []
+  );
 
   const currentSize = useCallback((): PanelSize | null => {
     const panel = panelRef.current;
@@ -77,16 +88,62 @@ export const usePanelSize = () => {
     return { height: rect.height, width: rect.width };
   }, []);
 
-  const endDrag = useCallback((event: ReactPointerEvent) => {
-    if (dragRef.current === null) return;
-    dragRef.current = null;
-    setResizing(false);
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      // 이미 해제된 포인터
-    }
+  const beginDrag = useCallback(
+    (axis: ResizeAxis, clientX: number, clientY: number): boolean => {
+      const start = currentSize();
+      if (start === null) return false;
+      dragRef.current = { axis, start, startX: clientX, startY: clientY };
+      setResizing(true);
+      return true;
+    },
+    [currentSize]
+  );
+
+  const moveDrag = useCallback((clientX: number, clientY: number) => {
+    const drag = dragRef.current;
+    if (drag === null) return;
+    const dx = drag.axis === "y" ? 0 : drag.startX - clientX;
+    const dy = drag.axis === "x" ? 0 : drag.startY - clientY;
+    setSize(
+      clampSize({
+        height: drag.start.height + dy,
+        width: drag.start.width + dx,
+      })
+    );
   }, []);
+
+  const finishDrag = useCallback(() => {
+    if (dragRef.current === null) return false;
+    dragRef.current = null;
+    stopMouseDragRef.current = null;
+    setResizing(false);
+    return true;
+  }, []);
+
+  const endDrag = useCallback(
+    (event: ReactPointerEvent) => {
+      if (!finishDrag()) return;
+      try {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      } catch {
+        // 이미 해제된 포인터
+      }
+    },
+    [finishDrag]
+  );
+
+  const handleMouseDown = useCallback(
+    (axis: ResizeAxis, event: ReactMouseEvent) => {
+      if (event.button !== 0 || !beginDrag(axis, event.clientX, event.clientY)) {
+        return;
+      }
+      event.preventDefault();
+      stopMouseDragRef.current = trackMouseDrag((moveEvent) => {
+        moveDrag(moveEvent.clientX, moveEvent.clientY);
+      }, finishDrag);
+    },
+    [beginDrag, finishDrag, moveDrag]
+  );
 
   const handleFor = useCallback(
     (axis: ResizeAxis) => ({
@@ -112,39 +169,29 @@ export const usePanelSize = () => {
         else if (event.key === "ArrowDown") grow(0, -KEYBOARD_STEP);
       },
       onLostPointerCapture: endDrag,
+      onMouseDown: SUPPORTS_POINTER_EVENTS
+        ? undefined
+        : (event: ReactMouseEvent) => {
+            handleMouseDown(axis, event);
+          },
       onPointerCancel: endDrag,
       onPointerDown: (event: ReactPointerEvent) => {
-        const start = currentSize();
-        if (start === null || event.button !== 0) return;
+        if (event.button !== 0 || !beginDrag(axis, event.clientX, event.clientY)) {
+          return;
+        }
         event.preventDefault();
         try {
           event.currentTarget.setPointerCapture(event.pointerId);
         } catch {
           // 캡처 불가 환경에서도 move/up이 핸들 위에서 오는 동안은 동작
         }
-        dragRef.current = {
-          axis,
-          start,
-          startX: event.clientX,
-          startY: event.clientY,
-        };
-        setResizing(true);
       },
       onPointerMove: (event: ReactPointerEvent) => {
-        const drag = dragRef.current;
-        if (drag === null) return;
-        const dx = drag.axis === "y" ? 0 : drag.startX - event.clientX;
-        const dy = drag.axis === "x" ? 0 : drag.startY - event.clientY;
-        setSize(
-          clampSize({
-            height: drag.start.height + dy,
-            width: drag.start.width + dx,
-          })
-        );
+        moveDrag(event.clientX, event.clientY);
       },
       onPointerUp: endDrag,
     }),
-    [currentSize, endDrag]
+    [beginDrag, currentSize, endDrag, handleMouseDown, moveDrag]
   );
 
   return { handleFor, panelRef, resizing, size };
