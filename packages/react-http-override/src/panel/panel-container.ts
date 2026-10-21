@@ -11,12 +11,14 @@ export const keepPanelAttached = (container: HTMLElement): (() => void) => {
   let scheduled = false;
   const reattach = () => {
     scheduled = false;
-    if (!container.isConnected) document.body.appendChild(container);
+    if (!document.documentElement.contains(container)) {
+      document.body.appendChild(container);
+    }
   };
   const observer = new MutationObserver(() => {
     if (scheduled) return;
     scheduled = true;
-    queueMicrotask(reattach);
+    void Promise.resolve().then(reattach);
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
   return () => {
