@@ -174,8 +174,11 @@ const setUp = (
       event.preventDefault();
       launcher.toggle();
     };
-    window.addEventListener("keydown", onKeyDown);
-    cleanups.push(() => window.removeEventListener("keydown", onKeyDown));
+
+    window.addEventListener("keydown", onKeyDown, true);
+    cleanups.push(() => {
+      window.removeEventListener("keydown", onKeyDown, true);
+    });
   }
 
   window.fetch = patchedFetch;
@@ -200,8 +203,14 @@ export const installHttpOverride = (
     installation = setUp(options, originalFetch, cleanups);
     return installation.api;
   } catch (error) {
-    cleanups.forEach((cleanup) => cleanup());
     window.fetch = originalFetch;
+    cleanups.forEach((cleanup) => {
+      try {
+        cleanup();
+      } catch {
+        // 정리 하나가 실패해도 나머지 정리는 이어간다
+      }
+    });
     warnHttpOverride("설치 중 오류가 나서 원래 fetch로 되돌렸습니다.", error);
     return null;
   }
