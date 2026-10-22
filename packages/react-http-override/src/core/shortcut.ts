@@ -5,7 +5,6 @@ export const DEFAULT_SHORTCUT = "Ctrl+Shift+H";
 
 const SEQUENCE_TIMEOUT_MS = 2000;
 
-// 일부 TV 리모컨은 방향키의 event.key를 비워 보낸다
 const ARROW_KEYS_BY_CODE: Record<number, string> = {
   37: "ArrowLeft",
   38: "ArrowUp",
@@ -14,9 +13,14 @@ const ARROW_KEYS_BY_CODE: Record<number, string> = {
 };
 
 const keyOf = (event: KeyboardEvent): string =>
-  event.key !== "" && event.key !== "Unidentified"
+  typeof event.key === "string" &&
+  event.key !== "" &&
+  event.key !== "Unidentified"
     ? event.key
     : (ARROW_KEYS_BY_CODE[event.keyCode] ?? "");
+
+const codeOf = (event: KeyboardEvent): string =>
+  typeof event.code === "string" ? event.code.toLowerCase() : "";
 
 const createComboMatcher = (combo: string) => {
   const parts = combo.split("+").map((part) => part.trim().toLowerCase());
@@ -28,8 +32,7 @@ const createComboMatcher = (combo: string) => {
     event.metaKey === modifiers.has("meta") &&
     event.shiftKey === modifiers.has("shift") &&
     // Alt 등으로 event.key가 바뀌어도 물리 키(event.code)로 맞춘다
-    (keyOf(event).toLowerCase() === key ||
-      event.code.toLowerCase() === `key${key}`);
+    (keyOf(event).toLowerCase() === key || codeOf(event) === `key${key}`);
 };
 
 const createSequenceMatcher = (keys: readonly string[]) => {
@@ -56,7 +59,9 @@ export const createShortcutMatcher = (
   return shortcut.length === 0 ? null : createSequenceMatcher(shortcut);
 };
 
-export const formatShortcut = (shortcut: HttpOverrideShortcut): null | string => {
+export const formatShortcut = (
+  shortcut: HttpOverrideShortcut
+): null | string => {
   if (shortcut === false) return null;
   if (typeof shortcut === "string") return shortcut;
   return shortcut.length === 0 ? null : shortcut.join(" ");
