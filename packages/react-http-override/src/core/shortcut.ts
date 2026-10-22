@@ -22,10 +22,32 @@ const keyOf = (event: KeyboardEvent): string =>
 const codeOf = (event: KeyboardEvent): string =>
   typeof event.code === "string" ? event.code.toLowerCase() : "";
 
+const MODIFIER_ALIASES: Record<string, "alt" | "ctrl" | "meta" | "shift"> = {
+  alt: "alt",
+  cmd: "meta",
+  command: "meta",
+  control: "ctrl",
+  ctrl: "ctrl",
+  meta: "meta",
+  option: "alt",
+  shift: "shift",
+};
+
 const createComboMatcher = (combo: string) => {
   const parts = combo.split("+").map((part) => part.trim().toLowerCase());
   const key = parts[parts.length - 1] ?? "";
-  const modifiers = new Set(parts.slice(0, -1));
+  const modifiers = new Set<string>();
+  const unknown = parts.slice(0, -1).filter((part) => {
+    const modifier = MODIFIER_ALIASES[part];
+    if (modifier !== undefined) modifiers.add(modifier);
+    return modifier === undefined;
+  });
+  if (unknown.length > 0) {
+    console.warn(
+      `[react-http-override] 단축키 "${combo}"에 모르는 수식 키(${unknown.join(", ")})가 있어 단축키를 끕니다. Ctrl, Shift, Alt, Meta(Cmd)를 쓰세요.`
+    );
+    return () => false;
+  }
   return (event: KeyboardEvent) =>
     event.altKey === modifiers.has("alt") &&
     event.ctrlKey === modifiers.has("ctrl") &&

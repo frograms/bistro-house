@@ -355,7 +355,7 @@ SSR 환경이거나 실행에 필요한 기능이 없으면 아무것도 하지 
 | `ssrData` | `Record<string, unknown>` | — | SSR 초기 데이터. 키마다 서버 출처 행으로 기록합니다 |
 | `isServerRequest` | `(url: string) => boolean` | 경로가 `.data`로 끝나는지 | 서버 출처로 표시할 요청 판별 |
 | `shouldRecord` | `(url: string, method: string) => boolean` | 모두 기록 | `false`면 기록도 룰 적용도 없이 원본 `fetch`로 통과 |
-| `shortcut` | `string \| string[] \| false` | `"Ctrl+Shift+H"` | 런처 버튼을 숨기거나 다시 보여주는 단축키. 문자열은 `Ctrl`, `Shift`, `Alt`, `Meta`와 키 하나를 `+`로 이은 조합 키, 배열은 2초 안에 순서대로 누르는 `event.key` 이름들, `false`는 끄기 |
+| `shortcut` | `string \| string[] \| false` | `"Ctrl+Shift+H"` | 런처 버튼을 숨기거나 다시 보여주는 단축키. 문자열은 `Ctrl`, `Shift`, `Alt`, `Meta`와 키 하나를 `+`로 이은 조합 키(`Cmd`, `Control`, `Option`도 받고, 모르는 수식 키가 있으면 경고 후 끔), 배열은 2초 안에 순서대로 누르는 `event.key` 이름들, `false`는 끄기 |
 | `maxBodyBytes` | `number` | `65536` | 기록에 남길 응답 body 최대 크기 (UTF-8 바이트 기준). 초과분은 잘라서 저장합니다 |
 | `maxRecords` | `number` | `200` | 보관할 요청 기록 수. 초과하면 오래된 것부터 버립니다 |
 | `storage` | `HttpOverrideStorage` | sessionStorage | 룰 저장소. Web Storage를 쓸 수 없는 환경에서는 인메모리로 폴백합니다 |
