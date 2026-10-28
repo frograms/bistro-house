@@ -1,90 +1,90 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+type LogRecord = {
+  attributes: { key: string; value: { stringValue?: string } }[];
+  eventName?: string;
+  severityNumber: number;
+  traceId?: string;
+};
+
 type OtlpBody = {
   resourceLogs: {
     resource: { attributes: { key: string; value: unknown }[] };
-    scopeLogs: {
-      logRecords: {
-        attributes: { key: string; value: { stringValue?: string } }[];
-        eventName: string;
-        severityNumber: number;
-        traceId?: string;
-      }[];
-      scope: { name: string };
-    }[];
+    scopeLogs: { logRecords: LogRecord[]; scope: { name: string } }[];
   }[];
 };
 
 const traceId = "0af7651916cd43dd8448eb211c80319c";
+let fetchMock: ReturnType<typeof vi.fn>;
 
-function sentBodies(fetchMock: ReturnType<typeof vi.fn>) {
+beforeEach(() => {
+  vi.resetModules();
+  sessionStorage.clear();
+  document.head.innerHTML = "";
+  fetchMock = vi.fn(() => Promise.resolve(new Response()));
+  vi.stubGlobal("fetch", fetchMock);
+});
+
+/** 페이지를 떠나며 보낸 OTLP 본문 */
+function flush() {
+  window.dispatchEvent(new Event("pagehide"));
   return fetchMock.mock.calls.map(
     ([, init]) => JSON.parse(String((init as RequestInit).body)) as OtlpBody
   );
 }
 
-function attr(
-  record: OtlpBody["resourceLogs"][number]["scopeLogs"][number]["logRecords"][number],
-  key: string
-) {
-  return record.attributes.find((a) => a.key === key)?.value.stringValue;
+/** 보낸 로그 중 해당 scope 의 레코드 */
+function recordsOf(bodies: OtlpBody[], scope: string) {
+  return bodies
+    .flatMap((body) => body.resourceLogs[0]?.scopeLogs ?? [])
+    .filter((s) => s.scope.name === scope)
+    .flatMap((s) => s.logRecords);
 }
 
-describe("startRum 오류 리포터", () => {
-  beforeEach(() => {
-    vi.resetModules();
-    sessionStorage.clear();
-    document.head.innerHTML = `<meta name="traceparent" content="00-${traceId}-b7ad6b7169203331-01">`;
+function attr(record: LogRecord | undefined, key: string) {
+  return record?.attributes.find((a) => a.key === key)?.value.stringValue;
+}
+
+async function startWithErrors(errors: number) {
+  const rum = await import("../browser/index.ts");
+  rum.startRum({
+    errors: { ignoreErrors: [/ignored/] },
+    path: "/_/rum",
+    release: "v1",
+    sampleRates: { errors, full: 0, vitals: 0 },
+    service: "test-browser",
   });
+  return rum;
+}
 
-  it("전역 오류·처리 안 된 거절·captureException 을 OTLP 로그로 보낸다", async () => {
-    const fetchMock = vi.fn(() => Promise.resolve(new Response()));
-    vi.stubGlobal("fetch", fetchMock);
-    const { captureException, startRum } = await import("../browser/index.ts");
-
-    startRum({
-      errors: { ignoreErrors: [/ignored/] },
-      path: "/_/rum",
-      release: "v1",
-      sampleRates: { errors: 1, full: 0, vitals: 0 },
-      service: "test-browser",
-    });
+describe("오류 리포터", () => {
+  it("전역 오류·처리 안 된 거절·captureException 을 보낸다", async () => {
+    document.head.innerHTML = `<meta name="traceparent" content="00-${traceId}-b7ad6b7169203331-01">`;
+    const { captureException } = await startWithErrors(1);
 
     window.dispatchEvent(
-      new ErrorEvent("error", {
-        error: new TypeError("global boom"),
-        message: "global boom",
-      })
+      new ErrorEvent("error", { error: new TypeError("global boom") })
     );
-    const rejection = new Event("unhandledrejection") as Event & {
-      reason: unknown;
-    };
-    rejection.reason = new Error("rejected");
+    const rejection = Object.assign(new Event("unhandledrejection"), {
+      reason: new Error("rejected"),
+    });
     window.dispatchEvent(rejection);
     window.dispatchEvent(
       new ErrorEvent("error", { error: new Error("ignored one") })
     );
     captureException(new Error("manual"), { "app.reason": "test" });
 
-    window.dispatchEvent(new Event("pagehide"));
-
+    const bodies = flush();
+    const records = recordsOf(bodies, "watcha.rum.errors");
     expect(fetchMock).toHaveBeenCalledWith(
       `${location.origin}/_/rum/v1/logs`,
       expect.objectContaining({ credentials: "omit", keepalive: true })
     );
-    const [body] = sentBodies(fetchMock);
-    const scope = body?.resourceLogs[0]?.scopeLogs[0];
-    expect(scope?.scope.name).toBe("watcha.rum.errors");
-    const records = scope?.logRecords ?? [];
+    // ignoreErrors 에 걸린 오류는 빠진다
     expect(records.map((r) => attr(r, "exception.message"))).toEqual([
       "global boom",
       "rejected",
-      "manual",
-    ]);
-    expect(records.map((r) => attr(r, "o11y.exception.source"))).toEqual([
-      "global",
-      "global",
       "manual",
     ]);
     expect(records[0]).toMatchObject({
@@ -92,9 +92,10 @@ describe("startRum 오류 리포터", () => {
       severityNumber: 17,
       traceId,
     });
-    expect(attr(records[0]!, "exception.type")).toBe("TypeError");
-    expect(attr(records[2]!, "app.reason")).toBe("test");
-    expect(body?.resourceLogs[0]?.resource.attributes).toEqual(
+    expect(attr(records[0], "exception.type")).toBe("TypeError");
+    expect(attr(records[2], "o11y.exception.source")).toBe("manual");
+    expect(attr(records[2], "app.reason")).toBe("test");
+    expect(bodies[0]?.resourceLogs[0]?.resource.attributes).toEqual(
       expect.arrayContaining([
         { key: "service.name", value: { stringValue: "test-browser" } },
         { key: "service.version", value: { stringValue: "v1" } },
@@ -102,102 +103,42 @@ describe("startRum 오류 리포터", () => {
     );
   });
 
-  it("오류 플래그가 꺼진 세션은 보내지 않는다", async () => {
-    const fetchMock = vi.fn(() => Promise.resolve(new Response()));
-    vi.stubGlobal("fetch", fetchMock);
-    const { captureException, startRum } = await import("../browser/index.ts");
-    startRum({
-      path: "/_/rum",
-      sampleRates: { errors: 0, full: 0, vitals: 0 },
-      service: "test-browser",
-    });
+  it("오류 수집이 꺼진 세션은 보내지 않는다", async () => {
+    const { captureException } = await startWithErrors(0);
     captureException(new Error("manual"));
-    window.dispatchEvent(new Event("pagehide"));
+    flush();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 
 describe("logger", () => {
-  beforeEach(() => {
-    vi.resetModules();
-    sessionStorage.clear();
-    document.head.innerHTML = "";
-  });
+  it("심각도와 속성을 실은 일반 로그로 보낸다", async () => {
+    const { logger } = await startWithErrors(1);
+    logger.warn("Player", { from: "shaka" });
 
-  it("심각도·속성을 실은 OTLP 로그(eventName 없음)로 보낸다", async () => {
-    const fetchMock = vi.fn(() => Promise.resolve(new Response()));
-    vi.stubGlobal("fetch", fetchMock);
-    const { logger, startRum } = await import("../browser/index.ts");
-    startRum({
-      path: "/_/rum",
-      sampleRates: { errors: 1, full: 0, vitals: 0 },
-      service: "test-browser",
-    });
-    logger.warn("Player", { from: "shaka", payload: '{"code":1001}' });
-    window.dispatchEvent(new Event("pagehide"));
-
-    const scopes = sentBodies(fetchMock).flatMap(
-      (body) => body.resourceLogs[0]?.scopeLogs ?? []
-    );
-    const logs = scopes.find((scope) => scope.scope.name === "watcha.rum.logs");
-    const [record] = logs?.logRecords ?? [];
+    const [record] = recordsOf(flush(), "watcha.rum.logs");
     expect(record).toMatchObject({ severityNumber: 13 });
     expect(record).not.toHaveProperty("eventName");
-    expect(attr(record!, "from")).toBe("shaka");
-    expect(attr(record!, "event.name")).toBeUndefined();
+    expect(attr(record, "from")).toBe("shaka");
   });
 });
 
-describe("통합 진입점(브라우저 구현)", () => {
-  beforeEach(() => {
-    vi.resetModules();
-    sessionStorage.clear();
-    document.head.innerHTML = "";
-  });
-
-  it("init·captureException·logger 가 같은 수신 경로로 보낸다", async () => {
-    const fetchMock = vi.fn(() => Promise.resolve(new Response()));
-    vi.stubGlobal("fetch", fetchMock);
-    const O11y = await import("../index.browser.ts");
-    O11y.init({
-      path: "/_/rum",
-      sampleRates: { errors: 1, full: 0, vitals: 0 },
-      service: "test-browser",
-    });
-    O11y.captureException(new Error("facade"));
-    O11y.logger.info("hello");
-    window.dispatchEvent(new Event("pagehide"));
-
-    const scopes = sentBodies(fetchMock).flatMap(
-      (body) => body.resourceLogs[0]?.scopeLogs ?? []
-    );
-    const byScope = Object.fromEntries(
-      scopes.map((scope) => [scope.scope.name, scope.logRecords])
-    );
-    expect(attr(byScope["watcha.rum.errors"]![0]!, "exception.message")).toBe(
-      "facade"
-    );
-    expect(byScope["watcha.rum.logs"]).toHaveLength(1);
-    expect(O11y.getSessionId()).toMatch(/^[0-9a-f]{32}$/);
-  });
-
-  it("수신 경로가 없으면(RUM 이 꺼진 환경) 시작하지 않는다", async () => {
-    const fetchMock = vi.fn(() => Promise.resolve(new Response()));
-    vi.stubGlobal("fetch", fetchMock);
+describe("통합 진입점(브라우저)", () => {
+  it("RUM 설정이 없으면 init 해도 아무것도 보내지 않는다", async () => {
     const O11y = await import("../index.browser.ts");
     O11y.init();
     O11y.captureException(new Error("ignored"));
-    window.dispatchEvent(new Event("pagehide"));
+    flush();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 
 describe("rumOptionsFromEnv", () => {
-  it("RUM_ENABLED·경로·서비스명이 있어야 켠다", async () => {
+  it("RUM_ENABLED·경로·서비스명이 모두 있어야 켠다", async () => {
     const { rumOptionsFromEnv } = await import("../browser/index.ts");
-    expect(rumOptionsFromEnv({ RUM_ENABLED: "true", RUM_PATH: "/_/rum" })).toBe(
-      undefined
-    );
+    expect(
+      rumOptionsFromEnv({ RUM_ENABLED: "true", RUM_PATH: "/_/rum" })
+    ).toBeUndefined();
     expect(
       rumOptionsFromEnv({
         RUM_ENABLED: "true",

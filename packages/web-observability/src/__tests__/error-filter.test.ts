@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  ErrorFilter,
-  exceptionAttributes,
-  topFrameUrl,
-} from "../browser/error-filter.ts";
+import { ErrorFilter, exceptionAttributes } from "../browser/error-filter.ts";
 
 function errorAt(url: string, message = "boom", name = "TypeError") {
   const error = new Error(message);
@@ -42,15 +38,6 @@ describe("exceptionAttributes", () => {
       "exception.message": '{"code":1}',
       "exception.type": "object",
     });
-  });
-});
-
-describe("topFrameUrl", () => {
-  it("첫 프레임의 스크립트 URL", () => {
-    expect(topFrameUrl(errorAt("https://cdn.example.com/a.js").stack)).toBe(
-      "https://cdn.example.com/a.js"
-    );
-    expect(topFrameUrl(undefined)).toBeUndefined();
   });
 });
 
