@@ -1,17 +1,23 @@
 import type { SpanContext } from "@opentelemetry/api";
 import { trace } from "@opentelemetry/api";
 
+import type { Attributes, Context, Logger } from "../options.ts";
+import {
+  contextAttributes,
+  exceptionAttributes,
+  isIgnoredError,
+} from "../shared/attributes.ts";
+import { getServerConfig } from "./config.ts";
 import { recordExceptionOnActiveSpan } from "./trace.ts";
 
-type LogLevel = "debug" | "error" | "info" | "warn";
-type LogValue = boolean | number | string | undefined;
+type Level = keyof Logger;
 
 /** trace_id·span_id 를 포함한 구조화 JSON 한 줄을 stdout 으로 쓴다(수집은 컨테이너 로그 수집기가 맡는다) */
 export function writeJsonLog(
-  level: LogLevel,
+  level: Level,
   logger: string,
   message: string,
-  fields: Record<string, LogValue>,
+  fields: Attributes,
   spanContext: SpanContext | undefined = trace.getActiveSpan()?.spanContext()
 ) {
   process.stdout.write(
@@ -29,63 +35,123 @@ export function writeJsonLog(
   );
 }
 
-function stackWithCauses(error: Error) {
-  let stack = error.stack ?? `${error.name}: ${error.message}`;
-  let { cause } = error;
-  for (let depth = 0; cause !== undefined && depth < 5; depth++) {
-    stack += `\nCaused by: ${cause instanceof Error ? (cause.stack ?? cause.message) : String(cause)}`;
-    cause = cause instanceof Error ? cause.cause : undefined;
-  }
-  return stack;
-}
-
 /**
- * 서버 오류를 보고한다(Sentry `captureException` 자리).
- * - 활성 서버 스팬: `recordException` + 상태 ERROR
- * - 로그: `exception` 이벤트 JSON 한 줄(trace_id·span_id 포함, OTel semconv `exception.*`)
+ * 서버 로그. 문자열이면 메시지 로그(`logger: "app"`), 그 밖의 값이면 예외 로그(`logger: "app.exception"`).
+ * error 레벨 예외는 활성 서버 스팬에도 `recordException` + 상태 ERROR 로 남긴다.
+ * `init` 전에도 동작한다(설정이 없으면 기본값).
  */
-export function captureServerException(
-  error: unknown,
-  attributes: Record<string, LogValue> = {}
+export function writeServerLog(
+  level: Level,
+  messageOrError: unknown,
+  context: Context = {},
+  asException = false
 ) {
-  const spanContext =
-    recordExceptionOnActiveSpan(error) ?? trace.getActiveSpan()?.spanContext();
-  const isError = error instanceof Error;
-  const message = isError ? error.message : String(error);
-  writeJsonLog(
-    "error",
-    "app.exception",
-    message,
-    {
+  const config = getServerConfig();
+  if (config?.enabled === false) {
+    return;
+  }
+  // 처리 안 된 예외·거절은 이유가 문자열이어도 예외로 남긴다
+  if (!asException && typeof messageOrError === "string") {
+    writeJsonLog(level, "app", messageOrError, contextAttributes(context));
+    return;
+  }
+  if (Math.random() >= (config?.sampleRate ?? 1)) {
+    return;
+  }
+  let record = {
+    attributes: {
       "event.name": "exception",
-      "exception.message": message,
-      "exception.stacktrace": isError ? stackWithCauses(error) : undefined,
-      "exception.type": isError ? error.name : typeof error,
-      ...attributes,
-    },
+      ...exceptionAttributes(messageOrError),
+      ...contextAttributes(context),
+    } as Attributes,
+    error: messageOrError,
+  };
+  if (isIgnoredError(record.attributes, config?.ignoreErrors)) {
+    return;
+  }
+  if (config?.beforeSend) {
+    const result = config.beforeSend(record);
+    if (!result) {
+      return;
+    }
+    record = result;
+  }
+  const spanContext =
+    (level === "error"
+      ? recordExceptionOnActiveSpan(messageOrError)
+      : undefined) ?? trace.getActiveSpan()?.spanContext();
+  writeJsonLog(
+    level,
+    "app.exception",
+    String(record.attributes["exception.message"] ?? "exception"),
+    record.attributes,
     spanContext
   );
 }
 
+const REPORTED = Symbol.for("@watcha-authentic/web-observability/reported");
+
+function markReported(error: unknown) {
+  if (typeof error === "object" && error !== null) {
+    (error as Record<symbol, boolean>)[REPORTED] = true;
+  }
+}
+
+function wasReported(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    (error as Record<symbol, boolean>)[REPORTED] === true
+  );
+}
+
+/** `--unhandled-rejections` 모드. 지정이 없으면 Node 기본(throw) */
+function unhandledRejectionsMode() {
+  const flags = [
+    ...process.execArgv,
+    ...(process.env.NODE_OPTIONS ?? "").split(/\s+/),
+  ];
+  const flag = flags.find((arg) => arg.startsWith("--unhandled-rejections="));
+  return flag?.split("=")[1] ?? "throw";
+}
+
 /**
  * 프로세스에서 처리되지 않은 오류를 보고한다(Sentry Node 의 onUncaughtException·onUnhandledRejection 자리).
- * 프로세스 동작(종료 여부)은 바꾸지 않는다.
+ * 다른 처리기(Sentry 등)를 앞뒤 어느 쪽에 등록해도 프로세스 동작(종료 여부)은 바꾸지 않는다.
  * - 처리 안 된 예외: `uncaughtExceptionMonitor` 로만 듣는다(일반 리스너를 달면 Node 가 종료하지 않게 된다)
- * - 처리 안 된 거절: 이미 리스너가 있으면(Sentry 등) 거절이 예외로 바뀌지 않으므로 그때만 같이 듣는다.
- *   리스너가 없으면 Node 기본 동작으로 예외가 되어 위 monitor 에 온다.
- * `Sentry.init` 등 다른 처리기 등록 뒤에 호출한다.
+ * - 처리 안 된 거절: 리스너를 달면 Node 기본 동작(예외로 바꿔 종료)이 사라지므로,
+ *   거절 시점에 다른 리스너가 없으면 Node 기본(`throw` 모드)처럼 예외로 다시 던진다
  */
 export function captureUncaughtErrors() {
   process.on("uncaughtExceptionMonitor", (error, origin) => {
-    captureServerException(error, { "o11y.exception.source": origin });
+    if (!wasReported(error)) {
+      writeServerLog("error", error, { "o11y.exception.source": origin }, true);
+    }
   });
-  if (process.listenerCount("unhandledRejection") > 0) {
-    process.on("unhandledRejection", (reason) => {
-      captureServerException(reason, {
-        "o11y.exception.source": "unhandledRejection",
-      });
-    });
-  }
+  process.on("unhandledRejection", (reason) => {
+    writeServerLog(
+      "error",
+      reason,
+      { "o11y.exception.source": "unhandledRejection" },
+      true
+    );
+    if (
+      process.listenerCount("unhandledRejection") === 1 &&
+      unhandledRejectionsMode() === "throw"
+    ) {
+      const error =
+        reason instanceof Error
+          ? reason
+          : Object.assign(
+              new Error(
+                `This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). The promise rejected with the reason "${String(reason)}".`
+              ),
+              { code: "ERR_UNHANDLED_REJECTION" }
+            );
+      markReported(error);
+      throw error;
+    }
+  });
 }
 
 /** express 와 맞는 최소 타입(express 를 의존성으로 두지 않는다) */
@@ -100,7 +166,7 @@ type AccessLogResponse = {
   statusCode: number;
 };
 
-function accessLogLevel(status: number | undefined): LogLevel {
+function accessLogLevel(status: number | undefined): Level {
   if (status === undefined) {
     return "warn";
   }

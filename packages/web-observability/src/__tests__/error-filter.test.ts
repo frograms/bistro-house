@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { ErrorFilter, exceptionAttributes } from "../browser/error-filter.ts";
+import { ErrorFilter, topFrameUrl } from "../browser/error-filter.ts";
+import { exceptionAttributes } from "../shared/attributes.ts";
 
 function errorAt(url: string, message = "boom", name = "TypeError") {
   const error = new Error(message);
@@ -13,31 +14,12 @@ function record(error: unknown) {
   return { attributes: exceptionAttributes(error), error };
 }
 
-describe("exceptionAttributes", () => {
-  it("Error 는 semconv exception.* 로", () => {
-    const error = errorAt("https://cdn.example.com/a.js");
-    expect(exceptionAttributes(error)).toEqual({
-      "exception.message": "boom",
-      "exception.stacktrace": error.stack,
-      "exception.type": "TypeError",
-    });
-  });
-
-  it("cause 연쇄를 Caused by 로 잇는다", () => {
-    const root = new Error("root");
-    const error = new Error("outer", { cause: root });
-    const stack = String(exceptionAttributes(error)["exception.stacktrace"]);
-    expect(stack).toContain("Caused by: Error: root");
-  });
-
-  it("문자열·객체도 메시지로 남긴다", () => {
-    expect(exceptionAttributes("Script error.")).toEqual({
-      "exception.message": "Script error.",
-    });
-    expect(exceptionAttributes({ code: 1 })).toEqual({
-      "exception.message": '{"code":1}',
-      "exception.type": "object",
-    });
+describe("topFrameUrl", () => {
+  it("스택에서 처음 나오는 스크립트 URL", () => {
+    expect(topFrameUrl(errorAt("https://cdn.example.com/a.js").stack)).toBe(
+      "https://cdn.example.com/a.js"
+    );
+    expect(topFrameUrl(undefined)).toBeUndefined();
   });
 });
 
@@ -81,7 +63,7 @@ describe("ErrorFilter", () => {
   });
 
   it("페이지당 상한", () => {
-    const filter = new ErrorFilter({ maxPerPage: 2 });
+    const filter = new ErrorFilter({}, 2);
     expect(filter.apply(record(new Error("1")))).not.toBeNull();
     expect(filter.apply(record(new Error("2")))).not.toBeNull();
     expect(filter.apply(record(new Error("3")))).toBeNull();

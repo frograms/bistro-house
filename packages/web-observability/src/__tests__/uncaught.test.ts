@@ -49,6 +49,27 @@ describe("captureUncaughtErrors", () => {
     });
   });
 
+  it("다른 거절 리스너(Sentry 등)를 나중에 등록해도 종료하지 않고 한 번만 남긴다", () => {
+    const { lines, status } = run(`
+      captureUncaughtErrors();
+      process.on("unhandledRejection", () => {});
+      Promise.reject(new Error("rejected"));
+      setTimeout(() => console.log("alive"), 50);
+    `);
+    expect(status).toBe(0);
+    expect(lines).toHaveLength(1);
+  });
+
+  it("거절 이유가 Error 가 아니어도 Node 와 같은 오류로 종료한다", () => {
+    const { lines, status } = run(`
+      captureUncaughtErrors();
+      Promise.reject("plain");
+    `);
+    expect(status).toBe(1);
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatchObject({ "exception.message": "plain" });
+  });
+
   it("거절 리스너가 이미 있으면(Sentry 등) 같이 듣고 종료하지 않는다", () => {
     const { lines, status } = run(`
       process.on("unhandledRejection", () => {});

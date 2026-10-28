@@ -1,23 +1,12 @@
-export type { RumEnv } from "../shared/rum-env.ts";
-export { pickRumEnv } from "../shared/rum-env.ts";
-export {
-  captureServerException,
-  captureUncaughtErrors,
-  jsonAccessLog,
-  writeJsonLog,
-} from "./log.ts";
-export type { OtelEnv } from "./otel.ts";
-export {
-  createOtlpSpanProcessor,
-  readOtelEnv,
-  SampledTraceContextPropagator,
-} from "./otel.ts";
+/**
+ * 서버 진입 파일 연결 도구(요청 파이프라인 배선). 오류·로그는 통합 진입점(`.`)의 `logger` 를 쓴다.
+ */
+export { instrumentIncomingHttp } from "./http.ts";
+export { jsonAccessLog } from "./log.ts";
 export {
   appendTraceparentServerTiming,
   createPathMatcher,
   getServerTraceparent,
-  isSampled,
-  recordExceptionOnActiveSpan,
   routePathFromMatches,
   setServerRoute,
 } from "./trace.ts";

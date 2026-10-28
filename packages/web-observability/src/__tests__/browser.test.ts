@@ -1,8 +1,11 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { BrowserOptions } from "../options.ts";
+
 type LogRecord = {
   attributes: { key: string; value: { stringValue?: string } }[];
+  body: { stringValue: string };
   eventName?: string;
   severityNumber: number;
   traceId?: string;
@@ -20,6 +23,7 @@ let fetchMock: ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
   vi.resetModules();
+  vi.restoreAllMocks();
   sessionStorage.clear();
   document.head.innerHTML = "";
   fetchMock = vi.fn(() => Promise.resolve(new Response()));
@@ -34,11 +38,11 @@ function flush() {
   );
 }
 
-/** 보낸 로그 중 해당 scope 의 레코드 */
-function recordsOf(bodies: OtlpBody[], scope: string) {
+/** 보낸 로그 레코드(scope `watcha.rum.logs`) */
+function sentLogs(bodies: OtlpBody[]) {
   return bodies
     .flatMap((body) => body.resourceLogs[0]?.scopeLogs ?? [])
-    .filter((s) => s.scope.name === scope)
+    .filter((s) => s.scope.name === "watcha.rum.logs")
     .flatMap((s) => s.logRecords);
 }
 
@@ -46,37 +50,43 @@ function attr(record: LogRecord | undefined, key: string) {
   return record?.attributes.find((a) => a.key === key)?.value.stringValue;
 }
 
-async function startWithErrors(errors: number) {
-  const rum = await import("../browser/index.ts");
-  rum.startRum({
-    errors: { ignoreErrors: [/ignored/] },
-    path: "/_/rum",
+async function start(options: Partial<BrowserOptions> = {}) {
+  const O11y = await import("../index.browser.ts");
+  O11y.init({
+    endpoint: "/_/rum",
     release: "v1",
-    sampleRates: { errors, full: 0, vitals: 0 },
     service: "test-browser",
+    tracesSampleRate: 0,
+    webVitalsSampleRate: 0,
+    ...options,
   });
-  return rum;
+  return O11y;
 }
 
-describe("오류 리포터", () => {
-  it("전역 오류·처리 안 된 거절·captureException 을 보낸다", async () => {
+describe("예외", () => {
+  it("전역 오류·처리 안 된 거절·logger.error(오류 객체)를 예외 로그로 보낸다", async () => {
     document.head.innerHTML = `<meta name="traceparent" content="00-${traceId}-b7ad6b7169203331-01">`;
-    const { captureException } = await startWithErrors(1);
+    const { logger } = await start({ ignoreErrors: [/ignored/] });
 
     window.dispatchEvent(
       new ErrorEvent("error", { error: new TypeError("global boom") })
     );
-    const rejection = Object.assign(new Event("unhandledrejection"), {
-      reason: new Error("rejected"),
-    });
-    window.dispatchEvent(rejection);
+    window.dispatchEvent(
+      Object.assign(new Event("unhandledrejection"), {
+        reason: new Error("rejected"),
+      })
+    );
     window.dispatchEvent(
       new ErrorEvent("error", { error: new Error("ignored one") })
     );
-    captureException(new Error("manual"), { "app.reason": "test" });
+    // 교차 출처 스크립트 오류 — 이유가 문자열이어도 예외
+    window.dispatchEvent(
+      new ErrorEvent("error", { error: null, message: "Script error." })
+    );
+    logger.error(new Error("manual"), { request: { id: 7 }, step: "save" });
 
     const bodies = flush();
-    const records = recordsOf(bodies, "watcha.rum.errors");
+    const records = sentLogs(bodies);
     expect(fetchMock).toHaveBeenCalledWith(
       `${location.origin}/_/rum/v1/logs`,
       expect.objectContaining({ credentials: "omit", keepalive: true })
@@ -85,6 +95,7 @@ describe("오류 리포터", () => {
     expect(records.map((r) => attr(r, "exception.message"))).toEqual([
       "global boom",
       "rejected",
+      "Script error.",
       "manual",
     ]);
     expect(records[0]).toMatchObject({
@@ -93,8 +104,11 @@ describe("오류 리포터", () => {
       traceId,
     });
     expect(attr(records[0], "exception.type")).toBe("TypeError");
-    expect(attr(records[2], "o11y.exception.source")).toBe("manual");
-    expect(attr(records[2], "app.reason")).toBe("test");
+    expect(attr(records[0], "o11y.exception.source")).toBe("global");
+    // 컨텍스트 — 원시값은 그대로, 객체는 JSON 문자열
+    expect(records[2]).toMatchObject({ eventName: "exception" });
+    expect(attr(records[3], "step")).toBe("save");
+    expect(attr(records[3], "request")).toBe('{"id":7}');
     expect(bodies[0]?.resourceLogs[0]?.resource.attributes).toEqual(
       expect.arrayContaining([
         { key: "service.name", value: { stringValue: "test-browser" } },
@@ -103,54 +117,51 @@ describe("오류 리포터", () => {
     );
   });
 
-  it("오류 수집이 꺼진 세션은 보내지 않는다", async () => {
-    const { captureException } = await startWithErrors(0);
-    captureException(new Error("manual"));
-    flush();
-    expect(fetchMock).not.toHaveBeenCalled();
+  it("오류 표본에서 빠진 세션은 예외만 보내지 않는다(메시지 로그는 보낸다)", async () => {
+    const { logger } = await start({ sampleRate: 0 });
+    logger.error(new Error("dropped"));
+    logger.info("kept");
+    const records = sentLogs(flush());
+    expect(records.map((r) => r.body.stringValue)).toEqual(["kept"]);
   });
 });
 
-describe("logger", () => {
-  it("심각도와 속성을 실은 일반 로그로 보낸다", async () => {
-    const { logger } = await startWithErrors(1);
+describe("메시지 로그", () => {
+  it("문자열은 심각도와 컨텍스트를 실은 일반 로그(eventName 없음)", async () => {
+    const { logger } = await start({ user: { id: "u1" } });
     logger.warn("Player", { from: "shaka" });
 
-    const [record] = recordsOf(flush(), "watcha.rum.logs");
-    expect(record).toMatchObject({ severityNumber: 13 });
+    const [record] = sentLogs(flush());
+    expect(record).toMatchObject({
+      body: { stringValue: "Player" },
+      severityNumber: 13,
+    });
     expect(record).not.toHaveProperty("eventName");
     expect(attr(record, "from")).toBe("shaka");
+    expect(attr(record, "user.id")).toBe("u1");
   });
 });
 
-describe("통합 진입점(브라우저)", () => {
-  it("RUM 설정이 없으면 init 해도 아무것도 보내지 않는다", async () => {
+describe("init", () => {
+  it("endpoint 가 없으면 아무것도 보내지 않고, debug 면 경고한다", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const O11y = await import("../index.browser.ts");
-    O11y.init();
-    O11y.captureException(new Error("ignored"));
+    O11y.init({ debug: true, service: "test-browser" });
+    O11y.logger.error(new Error("ignored"));
+    flush();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalledOnce();
+  });
+
+  it("enabled: false 면 보내지 않는다", async () => {
+    const { logger } = await start({ enabled: false });
+    logger.info("ignored");
     flush();
     expect(fetchMock).not.toHaveBeenCalled();
   });
-});
 
-describe("rumOptionsFromEnv", () => {
-  it("RUM_ENABLED·경로·서비스명이 모두 있어야 켠다", async () => {
-    const { rumOptionsFromEnv } = await import("../browser/index.ts");
-    expect(
-      rumOptionsFromEnv({ RUM_ENABLED: "true", RUM_PATH: "/_/rum" })
-    ).toBeUndefined();
-    expect(
-      rumOptionsFromEnv({
-        RUM_ENABLED: "true",
-        RUM_FULL_SAMPLE_RATE: "0.5",
-        RUM_PATH: "/_/rum",
-        RUM_SERVICE: "a-browser",
-      })
-    ).toMatchObject({
-      maskText: true,
-      path: "/_/rum",
-      sampleRates: { errors: 1, full: 0.5, replay: 0.1, vitals: 1 },
-      service: "a-browser",
-    });
+  it("탭 세션 ID 를 돌려준다", async () => {
+    const O11y = await start();
+    expect(O11y.getSessionId()).toMatch(/^[0-9a-f]{32}$/);
   });
 });

@@ -1,32 +1,22 @@
-export type SampleRates = {
-  /** 오류 리포터. 기본 1 — 오류는 표본이 아니라 한 건 한 건이 의미가 있다 */
-  errors?: number;
-  /** HyperDX SDK(브라우저 트레이스). 기본 0.1 */
-  full?: number;
-  /** 세션 리플레이 — full 세션 중 비율(전체 세션 기준은 full × replay). 기본 0.1 */
-  replay?: number;
-  /** 경량 Web Vitals 리포터. 기본 1 */
-  vitals?: number;
-};
+import type { BrowserOptions } from "../options.ts";
 
 export type SessionFlags = {
+  /** 예외 레코드 */
   errors: boolean;
-  full: boolean;
+  /** 세션 리플레이(tracing 세션 안에서만) */
   replay: boolean;
   sid: string;
+  /** 브라우저 tracing(HyperDX SDK) */
+  tracing: boolean;
   vitals: boolean;
 };
 
-const STORAGE_KEY = "o11y_rum";
+const STORAGE_KEY = "o11y_session";
 
 function randomId() {
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
   return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-function readFlag(flags: object, key: keyof SessionFlags) {
-  return key in flags && (flags as Record<string, unknown>)[key] === true;
 }
 
 function readFlags(): SessionFlags | undefined {
@@ -40,13 +30,14 @@ function readFlags(): SessionFlags | undefined {
       "sid" in flags &&
       typeof flags.sid === "string"
     ) {
+      const read = (key: keyof SessionFlags) =>
+        key in flags && (flags as Record<string, unknown>)[key] === true;
       return {
-        // 오류 플래그가 없는 이전 저장값은 오류 수집을 켠 것으로 본다
-        errors: "errors" in flags ? readFlag(flags, "errors") : true,
-        full: readFlag(flags, "full"),
-        replay: readFlag(flags, "replay"),
+        errors: read("errors"),
+        replay: read("replay"),
         sid: flags.sid,
-        vitals: readFlag(flags, "vitals"),
+        tracing: read("tracing"),
+        vitals: read("vitals"),
       };
     }
   } catch {
@@ -56,18 +47,19 @@ function readFlags(): SessionFlags | undefined {
 }
 
 /** 탭 세션마다 한 번 판정해 sessionStorage 에 둔다(같은 탭 안에서는 유지) */
-export function sessionFlags(rates: SampleRates): SessionFlags {
+export function sessionFlags(options: BrowserOptions): SessionFlags {
   const saved = readFlags();
   if (saved) {
     return saved;
   }
-  const full = Math.random() < (rates.full ?? 0.1);
+  const tracing = Math.random() < (options.tracesSampleRate ?? 0.1);
   const flags: SessionFlags = {
-    errors: Math.random() < (rates.errors ?? 1),
-    full,
-    replay: full && Math.random() < (rates.replay ?? 0.1),
+    errors: Math.random() < (options.sampleRate ?? 1),
+    replay:
+      tracing && Math.random() < (options.replaysSessionSampleRate ?? 0.1),
     sid: randomId(),
-    vitals: Math.random() < (rates.vitals ?? 1),
+    tracing,
+    vitals: Math.random() < (options.webVitalsSampleRate ?? 1),
   };
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(flags));
@@ -77,6 +69,6 @@ export function sessionFlags(rates: SampleRates): SessionFlags {
   return flags;
 }
 
-export function getRumSessionId() {
+export function getSessionId() {
   return readFlags()?.sid;
 }

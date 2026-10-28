@@ -1,36 +1,14 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { pickRumEnv } from "../shared/rum-env.ts";
-import { parseSampleRate } from "../shared/sample-rate.ts";
+import {
+  contextAttributes,
+  exceptionAttributes,
+  isIgnoredError,
+} from "../shared/attributes.ts";
 import {
   formatSampledTraceparent,
   parseTraceparent,
 } from "../shared/traceparent.ts";
-
-describe("parseSampleRate", () => {
-  it("0~1 범위 값은 그대로 쓴다", () => {
-    expect(parseSampleRate("0", 0.1)).toBe(0);
-    expect(parseSampleRate("0.25", 0.1)).toBe(0.25);
-    expect(parseSampleRate("1", 0.1)).toBe(1);
-  });
-
-  it("없거나 빈 값이면 경고 없이 기본값", () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    expect(parseSampleRate(undefined, 0.1)).toBe(0.1);
-    expect(parseSampleRate("", 0.1)).toBe(0.1);
-    expect(warn).not.toHaveBeenCalled();
-    warn.mockRestore();
-  });
-
-  it("잘못된 값이면 경고하고 기본값", () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    expect(parseSampleRate("10%", 0.1, "RUM_FULL_SAMPLE_RATE")).toBe(0.1);
-    expect(parseSampleRate("1.5", 0.1)).toBe(0.1);
-    expect(warn).toHaveBeenCalledTimes(2);
-    expect(warn.mock.calls[0]?.[0]).toContain("RUM_FULL_SAMPLE_RATE");
-    warn.mockRestore();
-  });
-});
 
 describe("traceparent", () => {
   const traceId = "0af7651916cd43dd8448eb211c80319c";
@@ -48,23 +26,62 @@ describe("traceparent", () => {
   });
 });
 
-describe("pickRumEnv", () => {
-  it("RUM 값만 고르고 브라우저 서비스명을 만든다", () => {
+describe("contextAttributes", () => {
+  it("원시값은 그대로, 객체는 JSON 문자열, undefined 는 뺀다", () => {
     expect(
-      pickRumEnv({
-        OTEL_SERVICE_NAME: "my-app",
-        RUM_ENABLED: "true",
-        RUM_PATH: "/_/rum",
-        SECRET: "x",
+      contextAttributes({
+        count: 3,
+        flag: true,
+        nested: { a: [1, 2] },
+        skip: undefined,
+        step: "save",
       })
-    ).toEqual(
-      expect.objectContaining({
-        RUM_ENABLED: "true",
-        RUM_PATH: "/_/rum",
-        RUM_SERVICE: "my-app-browser",
-      })
+    ).toEqual({
+      count: 3,
+      flag: true,
+      nested: '{"a":[1,2]}',
+      step: "save",
+    });
+  });
+
+  it("직렬화할 수 없는 값도 막히지 않는다", () => {
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+    expect(contextAttributes({ circular })).toEqual({
+      circular: "[unserializable]",
+    });
+  });
+});
+
+describe("exceptionAttributes", () => {
+  it("Error 는 semconv exception.*, cause 연쇄는 Caused by 로", () => {
+    const error = new Error("outer", { cause: new Error("root") });
+    const attributes = exceptionAttributes(error);
+    expect(attributes).toMatchObject({
+      "exception.message": "outer",
+      "exception.type": "Error",
+    });
+    expect(String(attributes["exception.stacktrace"])).toContain(
+      "Caused by: Error: root"
     );
-    expect(pickRumEnv({})).not.toHaveProperty("SECRET");
-    expect(pickRumEnv({}).RUM_SERVICE).toBeUndefined();
+  });
+
+  it("문자열·객체도 메시지로 남긴다", () => {
+    expect(exceptionAttributes("Script error.")).toEqual({
+      "exception.message": "Script error.",
+    });
+    expect(exceptionAttributes({ code: 1 })).toEqual({
+      "exception.message": '{"code":1}',
+      "exception.type": "object",
+    });
+  });
+});
+
+describe("isIgnoredError", () => {
+  it("메시지 또는 `타입: 메시지` 에 맞춘다(문자열은 부분 일치)", () => {
+    const attributes = exceptionAttributes(new TypeError("Failed to fetch"));
+    expect(isIgnoredError(attributes, ["Failed to"])).toBe(true);
+    expect(isIgnoredError(attributes, [/^TypeError: Failed/])).toBe(true);
+    expect(isIgnoredError(attributes, [/AbortError/])).toBe(false);
   });
 });

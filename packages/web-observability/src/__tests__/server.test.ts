@@ -3,7 +3,10 @@ import { EventEmitter } from "node:events";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import * as O11y from "../index.node.ts";
-import { captureServerException, jsonAccessLog } from "../server/log.ts";
+import type { ServerOptions } from "../options.ts";
+import { installW3CPropagator, sentryOptions } from "../sentry.ts";
+import { setServerConfig } from "../server/config.ts";
+import { jsonAccessLog } from "../server/log.ts";
 import { createPathMatcher, routePathFromMatches } from "../server/trace.ts";
 
 /** stdout 으로 쓴 JSON 로그 줄 */
@@ -16,8 +19,20 @@ function captureStdout() {
   return lines;
 }
 
+const CONFIG_KEY = Symbol.for(
+  "@watcha-authentic/web-observability/server-config"
+);
+
+function resetConfig(options?: ServerOptions) {
+  delete (globalThis as Record<symbol, unknown>)[CONFIG_KEY];
+  if (options) {
+    setServerConfig(options);
+  }
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
+  resetConfig();
 });
 
 describe("routePathFromMatches", () => {
@@ -106,32 +121,10 @@ describe("jsonAccessLog", () => {
   });
 });
 
-describe("captureServerException", () => {
-  it("exception 로그 한 줄에 cause 까지 남긴다", () => {
+describe("logger(서버)", () => {
+  it("문자열은 메시지 로그, 컨텍스트 객체는 JSON 문자열", () => {
     const lines = captureStdout();
-    captureServerException(
-      new Error("db down", { cause: new Error("timeout") }),
-      { "app.route": "/ko" }
-    );
-
-    expect(lines[0]).toMatchObject({
-      "app.route": "/ko",
-      "event.name": "exception",
-      "exception.message": "db down",
-      "exception.type": "Error",
-      level: "error",
-      logger: "app.exception",
-    });
-    expect(String(lines[0]?.["exception.stacktrace"])).toContain(
-      "Caused by: Error: timeout"
-    );
-  });
-});
-
-describe("통합 진입점(서버)", () => {
-  it("logger 는 심각도별 JSON 로그를 남긴다", () => {
-    const lines = captureStdout();
-    O11y.logger.warn("allReady 없음", { from: "render" });
+    O11y.logger.warn("allReady 없음", { from: "render", meta: { bot: true } });
     O11y.logger.debug("detail");
 
     expect(lines).toEqual([
@@ -140,17 +133,104 @@ describe("통합 진입점(서버)", () => {
         level: "warn",
         logger: "app",
         message: "allReady 없음",
+        meta: '{"bot":true}',
       }),
       expect.objectContaining({ level: "debug", message: "detail" }),
     ]);
   });
 
-  it("init 은 여러 번 불러도 처리기를 한 번만 등록하고, 브라우저 옵션은 무시한다", () => {
+  it("오류 객체는 exception 로그 한 줄에 cause 까지 남긴다", () => {
+    const lines = captureStdout();
+    O11y.logger.error(new Error("db down", { cause: new Error("timeout") }), {
+      route: "/ko",
+    });
+
+    expect(lines[0]).toMatchObject({
+      "event.name": "exception",
+      "exception.message": "db down",
+      "exception.type": "Error",
+      level: "error",
+      logger: "app.exception",
+      route: "/ko",
+    });
+    expect(String(lines[0]?.["exception.stacktrace"])).toContain(
+      "Caused by: Error: timeout"
+    );
+  });
+
+  it("ignoreErrors·beforeSend·sampleRate·enabled 설정을 따른다", () => {
+    const lines = captureStdout();
+    resetConfig({
+      beforeSend: (record) =>
+        record.attributes["exception.message"] === "drop"
+          ? null
+          : { ...record, attributes: { ...record.attributes, tagged: true } },
+      ignoreErrors: [/ignored/],
+      service: "app",
+    });
+    O11y.logger.error(new Error("ignored one"));
+    O11y.logger.error(new Error("drop"));
+    O11y.logger.error(new Error("kept"));
+    expect(lines).toEqual([
+      expect.objectContaining({ "exception.message": "kept", tagged: true }),
+    ]);
+
+    resetConfig({ sampleRate: 0, service: "app" });
+    O11y.logger.error(new Error("sampled out"));
+    O11y.logger.info("message is kept");
+    resetConfig({ enabled: false, service: "app" });
+    O11y.logger.info("disabled");
+    expect(lines.slice(1)).toEqual([
+      expect.objectContaining({ message: "message is kept" }),
+    ]);
+  });
+});
+
+describe("init(서버)", () => {
+  it("한 번만 설정·처리기를 등록하고, 세션 ID 는 없다", () => {
     const before = process.listenerCount("uncaughtExceptionMonitor");
-    O11y.init({ path: "/_/rum", service: "a-browser" });
-    O11y.init();
+    O11y.init({ service: "app" });
+    O11y.init({ service: "other" });
 
     expect(process.listenerCount("uncaughtExceptionMonitor")).toBe(before + 1);
     expect(O11y.getSessionId()).toBeUndefined();
+  });
+});
+
+describe("sentryOptions", () => {
+  it("init 전에 부르면 순서를 알려 주는 오류", () => {
+    expect(() => sentryOptions("https://key@sentry.example/1")).toThrow(
+      /O11y.init/
+    );
+  });
+
+  it("tracesEndpoint·tracesSampleRate 가 있으면 OTLP 처리기를 싣고 Sentry 트랜잭션은 버린다", () => {
+    resetConfig({
+      release: "v1",
+      service: "app",
+      tracesEndpoint: "http://collector:4318/v1/traces",
+      tracesSampleRate: 0.1,
+    });
+    const options = sentryOptions(undefined);
+
+    expect(options).toMatchObject({
+      dsn: "https://otel@sentry.invalid/0",
+      tracesSampleRate: 0.1,
+    });
+    expect(options).toHaveProperty(
+      ["openTelemetrySpanProcessors", "length"],
+      1
+    );
+    expect(
+      "beforeSendTransaction" in options && options.beforeSendTransaction()
+    ).toBeNull();
+  });
+
+  it("서버 트레이스를 끈 설정이면 DSN 만 넘기고 전파기도 바꾸지 않는다", () => {
+    resetConfig({ service: "app", tracesSampleRate: 0.1 });
+    expect(sentryOptions("https://key@sentry.example/1")).toEqual({
+      dsn: "https://key@sentry.example/1",
+    });
+    expect(() => installW3CPropagator()).not.toThrow();
   });
 });

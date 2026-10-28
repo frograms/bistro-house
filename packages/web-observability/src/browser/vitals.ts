@@ -39,7 +39,7 @@ export function startVitalsReporter(
         "browser.web_vital.value": metric.value,
         "o11y.session_id": flags.sid,
         "o11y.web_vital.reported_after_ms": time - pageStart,
-        "rum.sdk": flags.full ? "full" : "lite",
+        "rum.sdk": flags.tracing ? "full" : "lite",
         "url.path": path,
       },
       body: name,
