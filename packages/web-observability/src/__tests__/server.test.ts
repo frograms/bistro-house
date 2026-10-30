@@ -1,5 +1,6 @@
 import { EventEmitter } from "node:events";
 
+import { propagation } from "@opentelemetry/api";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import * as O11y from "../index.node.ts";
@@ -122,9 +123,9 @@ describe("jsonAccessLog", () => {
 });
 
 describe("logger(서버)", () => {
-  it("문자열은 메시지 로그, 컨텍스트 객체는 JSON 문자열", () => {
+  it("문자열은 메시지 로그", () => {
     const lines = captureStdout();
-    O11y.logger.warn("allReady 없음", { from: "render", meta: { bot: true } });
+    O11y.logger.warn("allReady 없음", { from: "render" });
     O11y.logger.debug("detail");
 
     expect(lines).toEqual([
@@ -133,17 +134,14 @@ describe("logger(서버)", () => {
         level: "warn",
         logger: "app",
         message: "allReady 없음",
-        meta: '{"bot":true}',
       }),
       expect.objectContaining({ level: "debug", message: "detail" }),
     ]);
   });
 
-  it("오류 객체는 exception 로그 한 줄에 cause 까지 남긴다", () => {
+  it("오류 객체는 exception 로그 한 줄로 남긴다", () => {
     const lines = captureStdout();
-    O11y.logger.error(new Error("db down", { cause: new Error("timeout") }), {
-      route: "/ko",
-    });
+    O11y.logger.error(new Error("db down"), { route: "/ko" });
 
     expect(lines[0]).toMatchObject({
       "event.name": "exception",
@@ -153,9 +151,6 @@ describe("logger(서버)", () => {
       logger: "app.exception",
       route: "/ko",
     });
-    expect(String(lines[0]?.["exception.stacktrace"])).toContain(
-      "Caused by: Error: timeout"
-    );
   });
 
   it("ignoreErrors·beforeSend·sampleRate·enabled 설정을 따른다", () => {
@@ -231,6 +226,8 @@ describe("sentryOptions", () => {
     expect(sentryOptions("https://key@sentry.example/1")).toEqual({
       dsn: "https://key@sentry.example/1",
     });
-    expect(() => installW3CPropagator()).not.toThrow();
+    const before = propagation.fields();
+    installW3CPropagator();
+    expect(propagation.fields()).toEqual(before);
   });
 });

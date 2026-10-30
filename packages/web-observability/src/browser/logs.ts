@@ -50,9 +50,6 @@ export function startLogs(
   pageTrace: TraceContext | undefined,
   options: BrowserOptions
 ) {
-  if (emit) {
-    return;
-  }
   const sender = new OtlpLogSender(endpoint, resource, "watcha.rum.logs");
   const filter = new ErrorFilter(options);
   let messages = 0;

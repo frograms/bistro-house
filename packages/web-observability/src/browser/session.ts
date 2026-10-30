@@ -46,12 +46,16 @@ function readFlags(): SessionFlags | undefined {
   return undefined;
 }
 
+// 이 페이지에서 판정한 값 — sessionStorage 에 저장하지 못해도 getSessionId 가 로그와 같은 sid 를 돌려주도록 둔다
+let current: SessionFlags | undefined;
+
 /** 탭 세션마다 한 번 판정해 sessionStorage 에 둔다(같은 탭 안에서는 유지) */
 export function sessionFlags(options: BrowserOptions): SessionFlags {
-  const saved = readFlags();
-  if (saved) {
-    return saved;
-  }
+  current = readFlags() ?? decideFlags(options);
+  return current;
+}
+
+function decideFlags(options: BrowserOptions): SessionFlags {
   const tracing = Math.random() < (options.tracesSampleRate ?? 0.1);
   const flags: SessionFlags = {
     errors: Math.random() < (options.sampleRate ?? 1),
@@ -70,5 +74,5 @@ export function sessionFlags(options: BrowserOptions): SessionFlags {
 }
 
 export function getSessionId() {
-  return readFlags()?.sid;
+  return (current ?? readFlags())?.sid;
 }

@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   contextAttributes,
   exceptionAttributes,
-  isIgnoredError,
 } from "../shared/attributes.ts";
 import {
   formatSampledTraceparent,
@@ -74,14 +73,5 @@ describe("exceptionAttributes", () => {
       "exception.message": '{"code":1}',
       "exception.type": "object",
     });
-  });
-});
-
-describe("isIgnoredError", () => {
-  it("메시지 또는 `타입: 메시지` 에 맞춘다(문자열은 부분 일치)", () => {
-    const attributes = exceptionAttributes(new TypeError("Failed to fetch"));
-    expect(isIgnoredError(attributes, ["Failed to"])).toBe(true);
-    expect(isIgnoredError(attributes, [/^TypeError: Failed/])).toBe(true);
-    expect(isIgnoredError(attributes, [/AbortError/])).toBe(false);
   });
 });

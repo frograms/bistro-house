@@ -10,7 +10,7 @@ export type ErrorFilterOptions = Pick<
 >;
 
 /** 스택에서 가장 먼저 나오는 프레임의 스크립트 URL */
-export function topFrameUrl(stack: string | undefined) {
+function topFrameUrl(stack: string | undefined) {
   return stack ? FRAME_URL.exec(stack)?.[1] : undefined;
 }
 

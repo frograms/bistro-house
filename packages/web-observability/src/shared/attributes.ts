@@ -1,8 +1,21 @@
-import type { Attributes, Context } from "../options.ts";
+import type { Attributes, Context, SharedOptions } from "../options.ts";
 
 const MAX_VALUE_LENGTH = 1000;
 const MAX_STACK_LENGTH = 8000;
 const MAX_CAUSE_DEPTH = 5;
+
+/** `init` 의 service·release·environment 를 OTel 리소스 속성으로 */
+export function resourceAttributes(
+  options: Pick<SharedOptions, "environment" | "release" | "service">
+): Record<string, string> {
+  return {
+    "service.name": options.service,
+    ...(options.release && { "service.version": options.release }),
+    ...(options.environment && {
+      "deployment.environment.name": options.environment,
+    }),
+  };
+}
 
 function serialize(value: unknown) {
   try {

@@ -1,7 +1,5 @@
+import type { Attributes, AttributeValue } from "../options.ts";
 import type { TraceContext } from "../shared/traceparent.ts";
-
-export type AttributeValue = boolean | number | string;
-export type Attributes = Record<string, AttributeValue | undefined>;
 
 export type OtlpLogRecord = {
   attributes: Attributes;
@@ -17,7 +15,7 @@ export type OtlpLogRecord = {
   trace?: TraceContext;
 };
 
-function toOtlpValue(value: AttributeValue) {
+function toOtlpValue(value: NonNullable<AttributeValue>) {
   if (typeof value === "number") {
     return Number.isInteger(value)
       ? { intValue: value }
@@ -29,7 +27,7 @@ function toOtlpValue(value: AttributeValue) {
   return { stringValue: value };
 }
 
-export function toOtlpAttributes(attributes: Attributes) {
+function toOtlpAttributes(attributes: Attributes) {
   return Object.entries(attributes).flatMap(([key, value]) =>
     value === undefined ? [] : [{ key, value: toOtlpValue(value) }]
   );

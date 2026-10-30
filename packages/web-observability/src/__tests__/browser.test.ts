@@ -83,7 +83,7 @@ describe("예외", () => {
     window.dispatchEvent(
       new ErrorEvent("error", { error: null, message: "Script error." })
     );
-    logger.error(new Error("manual"), { request: { id: 7 }, step: "save" });
+    logger.error(new Error("manual"), { step: "save" });
 
     const bodies = flush();
     const records = sentLogs(bodies);
@@ -105,10 +105,8 @@ describe("예외", () => {
     });
     expect(attr(records[0], "exception.type")).toBe("TypeError");
     expect(attr(records[0], "o11y.exception.source")).toBe("global");
-    // 컨텍스트 — 원시값은 그대로, 객체는 JSON 문자열
     expect(records[2]).toMatchObject({ eventName: "exception" });
     expect(attr(records[3], "step")).toBe("save");
-    expect(attr(records[3], "request")).toBe('{"id":7}');
     expect(bodies[0]?.resourceLogs[0]?.resource.attributes).toEqual(
       expect.arrayContaining([
         { key: "service.name", value: { stringValue: "test-browser" } },

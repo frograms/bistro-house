@@ -1,5 +1,3 @@
-import { parseTraceparent } from "../shared/traceparent.ts";
-
 const META_SELECTOR = 'meta[name="traceparent"]';
 
 /**
@@ -30,9 +28,4 @@ export function ensureTraceparentMeta(value: string | undefined) {
   element.name = "traceparent";
   element.content = value;
   document.head.append(element);
-}
-
-/** 샘플되지 않은 요청이면 undefined */
-export function pageTraceContext(traceparent: string | undefined) {
-  return parseTraceparent(traceparent);
 }

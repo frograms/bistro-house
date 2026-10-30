@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { ErrorFilter, topFrameUrl } from "../browser/error-filter.ts";
+import { ErrorFilter } from "../browser/error-filter.ts";
 import { exceptionAttributes } from "../shared/attributes.ts";
 
 function errorAt(url: string, message = "boom", name = "TypeError") {
@@ -13,15 +13,6 @@ function errorAt(url: string, message = "boom", name = "TypeError") {
 function record(error: unknown) {
   return { attributes: exceptionAttributes(error), error };
 }
-
-describe("topFrameUrl", () => {
-  it("스택에서 처음 나오는 스크립트 URL", () => {
-    expect(topFrameUrl(errorAt("https://cdn.example.com/a.js").stack)).toBe(
-      "https://cdn.example.com/a.js"
-    );
-    expect(topFrameUrl(undefined)).toBeUndefined();
-  });
-});
 
 describe("ErrorFilter", () => {
   it("ignoreErrors 는 메시지·`타입: 메시지` 에 맞춘다(문자열은 부분 일치)", () => {

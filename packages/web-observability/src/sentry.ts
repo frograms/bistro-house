@@ -21,6 +21,7 @@ import {
   createOtlpSpanProcessor,
   SampledTraceContextPropagator,
 } from "./server/otel.ts";
+import { resourceAttributes } from "./shared/attributes.ts";
 
 type SpanResource = ReadableSpan["resource"];
 const serviceResources = new WeakMap<SpanResource, SpanResource>();
@@ -35,16 +36,6 @@ function overrideProperty<T extends object>(
   return new Proxy(target, {
     get: (t, k, receiver) => (k === key ? value : Reflect.get(t, k, receiver)),
   });
-}
-
-function resourceAttributes(config: ServerOptions) {
-  return {
-    "service.name": config.service,
-    ...(config.release && { "service.version": config.release }),
-    ...(config.environment && {
-      "deployment.environment.name": config.environment,
-    }),
-  };
 }
 
 // Sentry 고정 리소스(service.name=node 등)를 `init` 의 service·release·environment 로 교체
@@ -99,7 +90,9 @@ function requireConfig() {
   return config;
 }
 
-function tracesEnabled(config: ServerOptions) {
+function tracesEnabled(
+  config: ServerOptions
+): config is ServerOptions & { tracesEndpoint: string } {
   return (
     config.enabled !== false &&
     Boolean(config.tracesEndpoint) &&
@@ -114,7 +107,7 @@ function tracesEnabled(config: ServerOptions) {
  */
 export function sentryOptions(dsn: string | undefined) {
   const config = requireConfig();
-  if (!tracesEnabled(config) || !config.tracesEndpoint) {
+  if (!tracesEnabled(config)) {
     return { dsn };
   }
   return {

@@ -1,7 +1,7 @@
 import type { Metric } from "web-vitals";
 
+import type { Attributes } from "../options.ts";
 import type { TraceContext } from "../shared/traceparent.ts";
-import type { Attributes } from "./otlp-logs.ts";
 import { OtlpLogSender } from "./otlp-logs.ts";
 import type { SessionFlags } from "./session.ts";
 

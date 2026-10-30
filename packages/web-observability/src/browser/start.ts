@@ -1,6 +1,8 @@
 import type { BrowserOptions } from "../options.ts";
+import { resourceAttributes } from "../shared/attributes.ts";
+import { parseTraceparent } from "../shared/traceparent.ts";
 import { startLogs } from "./logs.ts";
-import { pageTraceContext, readPageTraceparent } from "./page-trace.ts";
+import { readPageTraceparent } from "./page-trace.ts";
 import { sessionFlags } from "./session.ts";
 import { scheduleTracing } from "./tracing.ts";
 import { startVitalsReporter } from "./vitals.ts";
@@ -27,16 +29,10 @@ export function startBrowser(options: BrowserOptions) {
   }
   started = true;
   const flags = sessionFlags(options);
-  const resource: Record<string, string> = {
-    "service.name": options.service,
-    ...(options.release && { "service.version": options.release }),
-    ...(options.environment && {
-      "deployment.environment.name": options.environment,
-    }),
-  };
+  const resource = resourceAttributes(options);
   const logsEndpoint = `${location.origin}${endpoint}/v1/logs`;
   const traceparent = readPageTraceparent();
-  const pageTrace = pageTraceContext(traceparent);
+  const pageTrace = parseTraceparent(traceparent);
 
   startLogs(logsEndpoint, resource, flags, pageTrace, options);
   if (flags.vitals) {
