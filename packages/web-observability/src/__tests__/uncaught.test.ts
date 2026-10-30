@@ -3,7 +3,9 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-const logModule = fileURLToPath(new URL("../server/log.ts", import.meta.url));
+const logModule = fileURLToPath(
+  new URL("../script/module/server/server-log.ts", import.meta.url)
+);
 
 // 실제 프로세스에서 종료 여부와 로그를 함께 확인한다(Node 22 타입 제거로 .ts 를 바로 실행)
 function run(body: string) {

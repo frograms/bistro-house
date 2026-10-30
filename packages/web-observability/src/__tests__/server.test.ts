@@ -3,12 +3,15 @@ import { EventEmitter } from "node:events";
 import { propagation } from "@opentelemetry/api";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import * as O11y from "../index.node.ts";
-import type { ServerOptions } from "../options.ts";
-import { installW3CPropagator, sentryOptions } from "../sentry.ts";
-import { setServerConfig } from "../server/config.ts";
-import { jsonAccessLog } from "../server/log.ts";
-import { createPathMatcher, routePathFromMatches } from "../server/trace.ts";
+import * as O11y from "../node-index.ts";
+import { setServerConfig } from "../script/module/server/server-config.ts";
+import { jsonAccessLog } from "../script/module/server/server-log.ts";
+import {
+  createPathMatcher,
+  routePathFromMatches,
+} from "../script/module/server/server-trace.ts";
+import type { ServerOptions } from "../script/type/observability-types.ts";
+import { installW3CPropagator, sentryOptions } from "../sentry-index.ts";
 
 /** stdout 으로 쓴 JSON 로그 줄 */
 function captureStdout() {

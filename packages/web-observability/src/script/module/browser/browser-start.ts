@@ -1,11 +1,11 @@
-import type { BrowserOptions } from "../options.ts";
-import { resourceAttributes } from "../shared/attributes.ts";
-import { parseTraceparent } from "../shared/traceparent.ts";
-import { startLogs } from "./logs.ts";
-import { readPageTraceparent } from "./page-trace.ts";
-import { sessionFlags } from "./session.ts";
-import { scheduleTracing } from "./tracing.ts";
-import { startVitalsReporter } from "./vitals.ts";
+import type { BrowserOptions } from "../../type/observability-types.ts";
+import { resourceAttributes } from "../../util/attribute-utils.ts";
+import { parseTraceparent } from "../../util/traceparent-utils.ts";
+import { startLogs } from "./browser-logs.ts";
+import { readPageTraceparent } from "./browser-page-trace.ts";
+import { sessionFlags } from "./browser-session.ts";
+import { scheduleTracing } from "./browser-tracing.ts";
+import { startVitalsReporter } from "./browser-vitals.ts";
 
 let started = false;
 

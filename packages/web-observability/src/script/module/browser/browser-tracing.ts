@@ -1,6 +1,6 @@
-import type { BrowserOptions } from "../options.ts";
-import { ensureTraceparentMeta } from "./page-trace.ts";
-import type { SessionFlags } from "./session.ts";
+import type { BrowserOptions } from "../../type/observability-types.ts";
+import { ensureTraceparentMeta } from "./browser-page-trace.ts";
+import type { SessionFlags } from "./browser-session.ts";
 
 const ASSET_URL = /\.(png|jpe?g|webp|gif|svg|ico|woff2?|css)(\?|$)/;
 // 분석 도구 전송은 fetch 스팬에서 뺀다

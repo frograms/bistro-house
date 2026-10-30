@@ -15,13 +15,13 @@ import type {
 } from "@opentelemetry/sdk-trace-base";
 import { SentryPropagator } from "@sentry/opentelemetry";
 
-import type { ServerOptions } from "./options.ts";
-import { getServerConfig } from "./server/config.ts";
+import type { ServerOptions } from "../../type/observability-types.ts";
+import { resourceAttributes } from "../../util/attribute-utils.ts";
+import { getServerConfig } from "../server/server-config.ts";
 import {
   createOtlpSpanProcessor,
   SampledTraceContextPropagator,
-} from "./server/otel.ts";
-import { resourceAttributes } from "./shared/attributes.ts";
+} from "../server/server-otel.ts";
 
 type SpanResource = ReadableSpan["resource"];
 const serviceResources = new WeakMap<SpanResource, SpanResource>();

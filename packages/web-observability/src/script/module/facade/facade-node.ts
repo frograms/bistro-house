@@ -1,10 +1,14 @@
 /**
- * 앱 코드가 쓰는 통합 진입점(서버 구현). 브라우저 구현(`index.browser.ts`)과 같은 이름·시그니처를 내보낸다.
+ * 앱 코드가 쓰는 통합 진입점(서버 구현). 브라우저 구현(`facade-browser.ts`)과 같은 이름·시그니처를 내보낸다.
  * SSR 렌더링·loader 처럼 같은 코드가 서버에서 돌면 이 구현이 쓰인다.
  */
-import type { InitOptions, Logger, ServerOptions } from "./options.ts";
-import { getServerConfig, setServerConfig } from "./server/config.ts";
-import { captureUncaughtErrors, writeServerLog } from "./server/log.ts";
+import type {
+  InitOptions,
+  Logger,
+  ServerOptions,
+} from "../../type/observability-types.ts";
+import { getServerConfig, setServerConfig } from "../server/server-config.ts";
+import { captureUncaughtErrors, writeServerLog } from "../server/server-log.ts";
 
 /**
  * 관측을 시작한다(Sentry `init` 자리). 서버 시작 시 한 번 호출한다.
@@ -42,14 +46,3 @@ export const logger: Logger = {
 export function getSessionId(): string | undefined {
   return undefined;
 }
-
-export type {
-  AttributeValue,
-  BrowserOptions,
-  Context,
-  ErrorRecord,
-  InitOptions,
-  Logger,
-  ServerOptions,
-  SharedOptions,
-} from "./options.ts";

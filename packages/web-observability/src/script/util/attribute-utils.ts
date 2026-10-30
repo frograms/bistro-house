@@ -1,4 +1,8 @@
-import type { Attributes, Context, SharedOptions } from "../options.ts";
+import type {
+  Attributes,
+  Context,
+  SharedOptions,
+} from "../type/observability-types.ts";
 
 const MAX_VALUE_LENGTH = 1000;
 const MAX_STACK_LENGTH = 8000;

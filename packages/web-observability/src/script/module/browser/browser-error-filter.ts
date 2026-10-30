@@ -1,5 +1,8 @@
-import type { BrowserOptions, ErrorRecord } from "../options.ts";
-import { isIgnoredError, matchesPatterns } from "../shared/attributes.ts";
+import type {
+  BrowserOptions,
+  ErrorRecord,
+} from "../../type/observability-types.ts";
+import { isIgnoredError, matchesPatterns } from "../../util/attribute-utils.ts";
 
 const FRAME_URL = /(https?:\/\/[^\s()]+?):\d+(?::\d+)?/;
 const MAX_PER_PAGE = 50;

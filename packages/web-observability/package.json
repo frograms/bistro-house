@@ -74,18 +74,18 @@
   },
   "exports": {
     ".": {
-      "types": "./src/index.browser.ts",
-      "browser": "./src/index.browser.ts",
-      "node": "./src/index.node.ts",
-      "default": "./src/index.browser.ts"
+      "types": "./src/browser-index.ts",
+      "browser": "./src/browser-index.ts",
+      "node": "./src/node-index.ts",
+      "default": "./src/browser-index.ts"
     },
     "./server": {
-      "types": "./src/server/index.ts",
-      "default": "./src/server/index.ts"
+      "types": "./src/server-index.ts",
+      "default": "./src/server-index.ts"
     },
     "./sentry": {
-      "types": "./src/sentry.ts",
-      "default": "./src/sentry.ts"
+      "types": "./src/sentry-index.ts",
+      "default": "./src/sentry-index.ts"
     },
     "./README.md": "./README.md"
   },

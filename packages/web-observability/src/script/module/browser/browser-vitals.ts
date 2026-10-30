@@ -1,9 +1,9 @@
 import type { Metric } from "web-vitals";
 
-import type { Attributes } from "../options.ts";
-import type { TraceContext } from "../shared/traceparent.ts";
-import { OtlpLogSender } from "./otlp-logs.ts";
-import type { SessionFlags } from "./session.ts";
+import type { Attributes } from "../../type/observability-types.ts";
+import type { TraceContext } from "../../util/traceparent-utils.ts";
+import { OtlpLogSender } from "./browser-otlp-logs.ts";
+import type { SessionFlags } from "./browser-session.ts";
 
 /**
  * 경량 Web Vitals 리포터 — OTel semconv `browser.web_vital` 이벤트.

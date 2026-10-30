@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   contextAttributes,
   exceptionAttributes,
-} from "../shared/attributes.ts";
+} from "../script/util/attribute-utils.ts";
 import {
   formatSampledTraceparent,
   parseTraceparent,
-} from "../shared/traceparent.ts";
+} from "../script/util/traceparent-utils.ts";
 
 describe("traceparent", () => {
   const traceId = "0af7651916cd43dd8448eb211c80319c";

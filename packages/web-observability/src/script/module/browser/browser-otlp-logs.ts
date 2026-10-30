@@ -1,5 +1,8 @@
-import type { Attributes, AttributeValue } from "../options.ts";
-import type { TraceContext } from "../shared/traceparent.ts";
+import type {
+  Attributes,
+  AttributeValue,
+} from "../../type/observability-types.ts";
+import type { TraceContext } from "../../util/traceparent-utils.ts";
 
 export type OtlpLogRecord = {
   attributes: Attributes;

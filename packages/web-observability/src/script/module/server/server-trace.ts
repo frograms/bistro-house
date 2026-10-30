@@ -1,8 +1,8 @@
 import { context, trace } from "@opentelemetry/api";
 import { getRPCMetadata, RPCType } from "@opentelemetry/core";
 
-import { formatSampledTraceparent } from "../shared/traceparent.ts";
-import { isSampled } from "./span.ts";
+import { formatSampledTraceparent } from "../../util/traceparent-utils.ts";
+import { isSampled } from "./server-span.ts";
 
 /** 루트 로더에서 `<meta name="traceparent">` 값. 샘플되지 않은 요청은 없음 */
 export function getServerTraceparent() {

@@ -4,7 +4,7 @@ import { W3CTraceContextPropagator } from "@opentelemetry/core";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 
-import { isSampled } from "./span.ts";
+import { isSampled } from "./server-span.ts";
 
 /** OTLP/HTTP 로 서버 스팬을 묶어 보내는 처리기 */
 export function createOtlpSpanProcessor(endpoint: string) {

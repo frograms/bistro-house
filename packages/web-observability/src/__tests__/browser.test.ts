@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { BrowserOptions } from "../options.ts";
+import type { BrowserOptions } from "../script/type/observability-types.ts";
 
 type LogRecord = {
   attributes: { key: string; value: { stringValue?: string } }[];
@@ -51,7 +51,7 @@ function attr(record: LogRecord | undefined, key: string) {
 }
 
 async function start(options: Partial<BrowserOptions> = {}) {
-  const O11y = await import("../index.browser.ts");
+  const O11y = await import("../browser-index.ts");
   O11y.init({
     endpoint: "/_/rum",
     release: "v1",
@@ -143,7 +143,7 @@ describe("메시지 로그", () => {
 describe("init", () => {
   it("endpoint 가 없으면 아무것도 보내지 않고, debug 면 경고한다", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    const O11y = await import("../index.browser.ts");
+    const O11y = await import("../browser-index.ts");
     O11y.init({ debug: true, service: "test-browser" });
     O11y.logger.error(new Error("ignored"));
     flush();

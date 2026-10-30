@@ -1,4 +1,4 @@
-import type { BrowserOptions } from "../options.ts";
+import type { BrowserOptions } from "../../type/observability-types.ts";
 
 export type SessionFlags = {
   /** 예외 레코드 */

@@ -1,14 +1,18 @@
 import type { SpanContext } from "@opentelemetry/api";
 import { trace } from "@opentelemetry/api";
 
-import type { Attributes, Context, Logger } from "../options.ts";
+import type {
+  Attributes,
+  Context,
+  Logger,
+} from "../../type/observability-types.ts";
 import {
   contextAttributes,
   exceptionAttributes,
   isIgnoredError,
-} from "../shared/attributes.ts";
-import { getServerConfig } from "./config.ts";
-import { recordExceptionOnActiveSpan } from "./span.ts";
+} from "../../util/attribute-utils.ts";
+import { getServerConfig } from "./server-config.ts";
+import { recordExceptionOnActiveSpan } from "./server-span.ts";
 
 type Level = keyof Logger;
 

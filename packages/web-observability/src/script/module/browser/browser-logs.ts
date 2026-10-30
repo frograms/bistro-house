@@ -6,15 +6,15 @@ import type {
   BrowserOptions,
   Context,
   Logger,
-} from "../options.ts";
+} from "../../type/observability-types.ts";
 import {
   contextAttributes,
   exceptionAttributes,
-} from "../shared/attributes.ts";
-import type { TraceContext } from "../shared/traceparent.ts";
-import { ErrorFilter } from "./error-filter.ts";
-import { OtlpLogSender } from "./otlp-logs.ts";
-import type { SessionFlags } from "./session.ts";
+} from "../../util/attribute-utils.ts";
+import type { TraceContext } from "../../util/traceparent-utils.ts";
+import { ErrorFilter } from "./browser-error-filter.ts";
+import { OtlpLogSender } from "./browser-otlp-logs.ts";
+import type { SessionFlags } from "./browser-session.ts";
 
 type Level = keyof Logger;
 

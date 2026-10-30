@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { ErrorFilter } from "../browser/error-filter.ts";
-import { exceptionAttributes } from "../shared/attributes.ts";
+import { ErrorFilter } from "../script/module/browser/browser-error-filter.ts";
+import { exceptionAttributes } from "../script/util/attribute-utils.ts";
 
 function errorAt(url: string, message = "boom", name = "TypeError") {
   const error = new Error(message);
