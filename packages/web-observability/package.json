@@ -1,0 +1,135 @@
+{
+  "name": "@watcha-authentic/web-observability",
+  "description": "SSR·브라우저 관측성(OpenTelemetry·HyperDX)을 Sentry 처럼 쓰는 공통 모듈",
+  "version": "1.0.0",
+  "homepage": "https://github.com/frograms/bistro-house/tree/master/packages/web-observability#readme",
+  "author": {
+    "name": "@watcha-authentic#web-dev-group",
+    "email": "web-dev-group@watcha.com",
+    "url": "https://github.com/frograms"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frograms/bistro-house.git"
+  },
+  "bugs": {
+    "url": "https://github.com/frograms/bistro-house/issues",
+    "email": "web-dev-group@watcha.com"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.browser.d.ts",
+        "browser": {
+          "import": "./dist/index.browser.mjs",
+          "require": "./dist/index.browser.cjs"
+        },
+        "node": {
+          "import": "./dist/index.node.mjs",
+          "require": "./dist/index.node.cjs"
+        },
+        "default": "./dist/index.browser.mjs"
+      },
+      "./server": {
+        "types": "./dist/server.d.ts",
+        "import": "./dist/server.mjs",
+        "require": "./dist/server.cjs"
+      },
+      "./sentry": {
+        "types": "./dist/sentry.d.ts",
+        "import": "./dist/sentry.mjs",
+        "require": "./dist/sentry.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@hyperdx/browser": "0.26.0",
+    "@opentelemetry/api": "1.9.1",
+    "@opentelemetry/core": "2.1.0",
+    "@opentelemetry/exporter-trace-otlp-http": "0.204.0",
+    "@opentelemetry/sdk-trace-base": "2.1.0",
+    "@sentry/core": "10.14.0",
+    "@sentry/opentelemetry": "10.14.0",
+    "@types/node": "^24",
+    "@typescript-eslint/eslint-plugin": "^8.50.0",
+    "@typescript-eslint/parser": "^8.50.0",
+    "@watcha-authentic/eslint-config": "^2.0.1",
+    "@watcha-authentic/prettier-config": "^1.1.4",
+    "eslint": "^9.39.2",
+    "eslint-import-resolver-typescript": "^3.6.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-perfectionist": "^5.9.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "jiti": "^2.6.1",
+    "jsdom": "^27",
+    "prettier": "^3.7.4",
+    "tsdown": "^0.21.5",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.8"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/browser-index.ts",
+      "browser": "./src/browser-index.ts",
+      "node": "./src/node-index.ts",
+      "default": "./src/browser-index.ts"
+    },
+    "./server": {
+      "types": "./src/server-index.ts",
+      "default": "./src/server-index.ts"
+    },
+    "./sentry": {
+      "types": "./src/sentry-index.ts",
+      "default": "./src/sentry-index.ts"
+    },
+    "./README.md": "./README.md"
+  },
+  "main": "./dist/index.node.cjs",
+  "module": "./dist/index.browser.mjs",
+  "scripts": {
+    "build": "rm -rf ./dist && tsdown && pnpm build:post",
+    "build:post": "bash ./project-attachment/post-build.sh",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "typecheck": "tsc"
+  },
+  "types": "./dist/index.browser.d.ts",
+  "sideEffects": false,
+  "dependencies": {
+    "@opentelemetry/api-logs": "^0.223.0",
+    "@opentelemetry/browser-instrumentation": "0.9.0",
+    "@opentelemetry/instrumentation": "^0.204.0",
+    "@opentelemetry/instrumentation-http": "^0.204.0",
+    "web-vitals": "^6.2.3"
+  },
+  "peerDependencies": {
+    "@hyperdx/browser": ">=0.26.0",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/core": ">=1.30.0 <3",
+    "@opentelemetry/exporter-trace-otlp-http": ">=0.57.0",
+    "@opentelemetry/sdk-trace-base": ">=1.30.0 <3",
+    "@sentry/opentelemetry": ">=9.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@hyperdx/browser": {
+      "optional": true
+    },
+    "@opentelemetry/core": {
+      "optional": true
+    },
+    "@opentelemetry/exporter-trace-otlp-http": {
+      "optional": true
+    },
+    "@opentelemetry/sdk-trace-base": {
+      "optional": true
+    },
+    "@sentry/opentelemetry": {
+      "optional": true
+    }
+  }
+}
