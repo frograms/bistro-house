@@ -18,5 +18,12 @@ const sharedConfig: UserConfig = {
 
 export default defineConfig([
   { ...sharedConfig, clean: true, dts: false, format: "esm" },
-  { ...sharedConfig, clean: false, dts: true, format: "cjs" },
+  {
+    ...sharedConfig,
+    clean: false,
+    // ESM 전용 패키지라 require 하면 Jest 같은 CJS 로더가 파싱하지 못해 CJS 에만 포함
+    deps: { alwaysBundle: [/^@opentelemetry\/browser-instrumentation\//] },
+    dts: true,
+    format: "cjs",
+  },
 ]);
