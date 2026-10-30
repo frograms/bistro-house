@@ -151,7 +151,7 @@ export function installW3CPropagator() {
   );
   if (!registered) {
     console.error(
-      "[web-observability] 전파기 등록에 실패했습니다. 앱과 Sentry 가 서로 다른 @opentelemetry/api 버전을 쓰고 있을 수 있습니다(`pnpm why @opentelemetry/api` 로 한 벌인지 확인)."
+      "[web-observability] 전파기 등록에 실패했습니다. 앱과 Sentry 가 서로 다른 @opentelemetry/api 버전을 쓰고 있을 수 있습니다(`pnpm why @opentelemetry/api` 로 한 버전만 설치되어 있는지 확인)."
     );
   }
 }

@@ -8,7 +8,7 @@ import {
   isIgnoredError,
 } from "../shared/attributes.ts";
 import { getServerConfig } from "./config.ts";
-import { recordExceptionOnActiveSpan } from "./trace.ts";
+import { recordExceptionOnActiveSpan } from "./span.ts";
 
 type Level = keyof Logger;
 

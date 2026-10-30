@@ -1,14 +1,8 @@
-import type { SpanContext } from "@opentelemetry/api";
-import { context, SpanStatusCode, trace, TraceFlags } from "@opentelemetry/api";
+import { context, trace } from "@opentelemetry/api";
 import { getRPCMetadata, RPCType } from "@opentelemetry/core";
 
 import { formatSampledTraceparent } from "../shared/traceparent.ts";
-
-export function isSampled(spanContext: SpanContext | undefined) {
-  return (
-    ((spanContext?.traceFlags ?? TraceFlags.NONE) & TraceFlags.SAMPLED) !== 0
-  );
-}
+import { isSampled } from "./span.ts";
 
 /** 루트 로더에서 `<meta name="traceparent">` 값. 샘플되지 않은 요청은 없음 */
 export function getServerTraceparent() {
@@ -62,16 +56,4 @@ export function createPathMatcher(prefixes: readonly string[]) {
     const path = url.split("?")[0] ?? url;
     return prefixes.some((prefix) => path.startsWith(prefix));
   };
-}
-
-/** 활성 서버 스팬에 예외를 남기고 상태를 ERROR 로 둔다 */
-export function recordExceptionOnActiveSpan(error: unknown) {
-  const span = trace.getActiveSpan();
-  if (!span) {
-    return undefined;
-  }
-  const exception = error instanceof Error ? error : new Error(String(error));
-  span.recordException(exception);
-  span.setStatus({ code: SpanStatusCode.ERROR, message: exception.message });
-  return span.spanContext();
 }
