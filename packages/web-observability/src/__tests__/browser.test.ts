@@ -20,14 +20,35 @@ type OtlpBody = {
 
 const traceId = "0af7651916cd43dd8448eb211c80319c";
 let fetchMock: ReturnType<typeof vi.fn>;
+const globalErrorListeners: Array<{
+  listener: EventListener;
+  type: "error" | "unhandledrejection";
+}> = [];
 
 beforeEach(() => {
+  for (const { listener, type } of globalErrorListeners) {
+    window.removeEventListener(type, listener);
+  }
+  globalErrorListeners.length = 0;
+
   vi.resetModules();
   vi.restoreAllMocks();
   sessionStorage.clear();
   document.head.innerHTML = "";
   fetchMock = vi.fn(() => Promise.resolve(new Response()));
   vi.stubGlobal("fetch", fetchMock);
+  const addEventListener = window.addEventListener.bind(window);
+  vi.spyOn(window, "addEventListener").mockImplementation(
+    (type, listener, options) => {
+      if (
+        (type === "error" || type === "unhandledrejection") &&
+        typeof listener === "function"
+      ) {
+        globalErrorListeners.push({ listener, type });
+      }
+      addEventListener(type, listener, options);
+    }
+  );
 });
 
 /** 페이지를 떠나며 보낸 OTLP 본문 */
@@ -64,6 +85,20 @@ async function start(options: Partial<BrowserOptions> = {}) {
 }
 
 describe("예외", () => {
+  it("captureUncaughtErrors: false 면 전역 리스너를 달지 않고 logger.error 는 보낸다", async () => {
+    const addEventListener = vi.mocked(window.addEventListener);
+    addEventListener.mockClear();
+    const { logger } = await start({ captureUncaughtErrors: false });
+    const eventTypes = addEventListener.mock.calls.map(([type]) => type);
+
+    expect(eventTypes).not.toContain("error");
+    expect(eventTypes).not.toContain("unhandledrejection");
+    logger.error(new Error("manual"));
+    expect(sentLogs(flush()).map((r) => attr(r, "exception.message"))).toEqual([
+      "manual",
+    ]);
+  });
+
   it("전역 오류·처리 안 된 거절·logger.error(오류 객체)를 예외 로그로 보낸다", async () => {
     document.head.innerHTML = `<meta name="traceparent" content="00-${traceId}-b7ad6b7169203331-01">`;
     const { logger } = await start({ ignoreErrors: [/ignored/] });
