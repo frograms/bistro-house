@@ -20,26 +20,26 @@
     "access": "public",
     "exports": {
       ".": {
-        "types": "./dist/index.browser.d.ts",
+        "types": "./dist/browser-index.d.ts",
         "browser": {
-          "import": "./dist/index.browser.mjs",
-          "require": "./dist/index.browser.cjs"
+          "import": "./dist/browser-index.mjs",
+          "require": "./dist/browser-index.cjs"
         },
         "node": {
-          "import": "./dist/index.node.mjs",
-          "require": "./dist/index.node.cjs"
+          "import": "./dist/node-index.mjs",
+          "require": "./dist/node-index.cjs"
         },
-        "default": "./dist/index.browser.mjs"
+        "default": "./dist/browser-index.mjs"
       },
       "./server": {
-        "types": "./dist/server.d.ts",
-        "import": "./dist/server.mjs",
-        "require": "./dist/server.cjs"
+        "types": "./dist/server-index.d.ts",
+        "import": "./dist/server-index.mjs",
+        "require": "./dist/server-index.cjs"
       },
       "./sentry": {
-        "types": "./dist/sentry.d.ts",
-        "import": "./dist/sentry.mjs",
-        "require": "./dist/sentry.cjs"
+        "types": "./dist/sentry-index.d.ts",
+        "import": "./dist/sentry-index.mjs",
+        "require": "./dist/sentry-index.cjs"
       }
     }
   },
@@ -89,8 +89,8 @@
     },
     "./README.md": "./README.md"
   },
-  "main": "./dist/index.node.cjs",
-  "module": "./dist/index.browser.mjs",
+  "main": "./dist/node-index.cjs",
+  "module": "./dist/browser-index.mjs",
   "scripts": {
     "build": "rm -rf ./dist && tsdown && pnpm build:post",
     "build:post": "bash ./project-attachment/post-build.sh",
@@ -98,7 +98,7 @@
     "test": "vitest run",
     "typecheck": "tsc"
   },
-  "types": "./dist/index.browser.d.ts",
+  "types": "./dist/browser-index.d.ts",
   "sideEffects": false,
   "dependencies": {
     "@opentelemetry/api-logs": "^0.223.0",
