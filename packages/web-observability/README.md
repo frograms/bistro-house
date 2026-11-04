@@ -94,16 +94,17 @@ const traceparent = getServerTraceparent();
 
 ### 공통
 
-| 필드           | 기본값  | 설명                                                          |
-| -------------- | ------- | ------------------------------------------------------------- |
-| `service`      | 필수    | `service.name`                                                |
-| `release`      | —       | `service.version`                                             |
-| `environment`  | —       | `deployment.environment.name`                                 |
-| `enabled`      | `true`  | `false` 면 아무것도 보내지 않음                               |
-| `debug`        | `false` | 콘솔 진단                                                     |
-| `sampleRate`   | `1`     | 예외 표본. 브라우저는 탭 세션 단위, 서버는 건 단위            |
-| `ignoreErrors` | —       | 메시지 또는 `타입: 메시지` 가 맞으면 버림(문자열은 부분 일치) |
-| `beforeSend`   | —       | 예외 레코드 가공·필터. `null` 을 돌려주면 버림                |
+| 필드                    | 기본값  | 설명                                                                                                         |
+| ----------------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| `service`               | 필수    | `service.name`                                                                                               |
+| `release`               | —       | `service.version`                                                                                            |
+| `environment`           | —       | `deployment.environment.name`                                                                                |
+| `enabled`               | `true`  | `false` 면 아무것도 보내지 않음                                                                              |
+| `debug`                 | `false` | 콘솔 진단                                                                                                    |
+| `sampleRate`            | `1`     | 예외 표본. 브라우저는 탭 세션 단위, 서버는 건 단위                                                           |
+| `ignoreErrors`          | —       | 메시지 또는 `타입: 메시지` 가 맞으면 버림(문자열은 부분 일치)                                                |
+| `beforeSend`            | —       | 예외 레코드 가공·필터. `null` 을 돌려주면 버림                                                               |
+| `captureUncaughtErrors` | `true`  | 처리 안 된 예외·거절. 브라우저는 `error`·`unhandledrejection`, 서버는 프로세스 예외·거절(종료 동작은 그대로) |
 
 ### 브라우저
 
@@ -123,10 +124,9 @@ const traceparent = getServerTraceparent();
 
 ### 서버
 
-| 필드                    | 기본값 | 설명                                                        |
-| ----------------------- | ------ | ----------------------------------------------------------- |
-| `tracesEndpoint`        | —      | 서버 트레이스 OTLP/HTTP 엔드포인트. 없으면 서버 트레이스 끔 |
-| `tracesSampleRate`      | `0`    | 서버 트레이스 비율. 상위에서 샘플된 요청은 그 결정을 따름   |
-| `captureUncaughtErrors` | `true` | 처리 안 된 예외·거절 보고. 프로세스 종료 동작은 바꾸지 않음 |
+| 필드               | 기본값 | 설명                                                        |
+| ------------------ | ------ | ----------------------------------------------------------- |
+| `tracesEndpoint`   | —      | 서버 트레이스 OTLP/HTTP 엔드포인트. 없으면 서버 트레이스 끔 |
+| `tracesSampleRate` | `0`    | 서버 트레이스 비율. 상위에서 샘플된 요청은 그 결정을 따름   |
 
 서버 로그는 `trace_id`·`span_id` 가 붙은 stdout JSON 한 줄이며, 수집은 컨테이너 로그 수집기가 맡습니다.

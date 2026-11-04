@@ -15,6 +15,11 @@ export type ErrorRecord = {
 export type SharedOptions = {
   /** 예외 레코드의 마지막 가공·필터. null 이면 버린다 */
   beforeSend?: (record: ErrorRecord) => ErrorRecord | null;
+  /**
+   * 처리 안 된 예외·거절을 이 패키지가 잡을지. 기본 true.
+   * 브라우저는 `error`·`unhandledrejection`, 서버는 프로세스 예외·거절(종료 동작은 바꾸지 않음).
+   */
+  captureUncaughtErrors?: boolean;
   /** 콘솔 진단(종착지 누락 경고, 브라우저는 보내는 레코드도 출력) */
   debug?: boolean;
   /** false 면 아무것도 보내지 않는다. 기본 true */
@@ -59,8 +64,6 @@ export type BrowserOptions = SharedOptions & {
 
 /** 서버 `init` 옵션 */
 export type ServerOptions = SharedOptions & {
-  /** 프로세스의 처리 안 된 예외·거절 보고. 기본 true. 종료 동작은 바꾸지 않는다 */
-  captureUncaughtErrors?: boolean;
   /** 서버 트레이스 OTLP/HTTP 엔드포인트(예: `http://collector:4318/v1/traces`). 없으면 서버 트레이스를 끈다 */
   tracesEndpoint?: string;
   /** 서버 트레이스 비율(0~1). 기본 0(끔). 상위에서 샘플된 요청은 그 결정을 따른다 */

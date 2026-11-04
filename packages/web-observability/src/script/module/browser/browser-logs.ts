@@ -41,7 +41,7 @@ let emit:
  * 로그·예외 전송을 시작한다.
  * - 문자열은 메시지 로그(페이지당 100건)
  * - 그 밖의 값은 예외 로그(`exception.*`, eventName `exception`) — 오류 표본·필터·중복 제거를 거친다
- * - 전역 오류(`error`·`unhandledrejection`)는 OTel 공식 `ErrorsInstrumentation` 이 잡아 error 레벨 예외로 보낸다
+ * - `captureUncaughtErrors` 가 false 가 아니면 전역 오류(`error`·`unhandledrejection`)를 `ErrorsInstrumentation` 이 잡아 error 레벨 예외로 보낸다
  */
 export function startLogs(
   endpoint: string,
@@ -102,28 +102,31 @@ export function startLogs(
     sender.flushAfter(isMessage ? LOG_FLUSH_DELAY_MS : ERROR_FLUSH_DELAY_MS);
   };
 
-  // 공식 계측이 만든 로그 레코드를 받아 같은 경로로 보낸다. 원본 오류는 applyCustomAttributes 에서 넘겨받는다
-  let pendingError: unknown;
-  const otelLogger: OtelLogs.Logger = {
-    emit: (logRecord) => {
-      const error = pendingError ?? logRecord.attributes?.["exception.message"];
-      pendingError = undefined;
-      emit?.("error", error, { "o11y.exception.source": "global" }, true);
-    },
-    enabled: () => true,
-  };
-  const loggerProvider: OtelLogs.LoggerProvider = {
-    getLogger: () => otelLogger,
-  };
-  const instrumentation = new ErrorsInstrumentation({
-    applyCustomAttributes: (error) => {
-      pendingError = error;
-      return {};
-    },
-    enabled: false,
-  });
-  instrumentation.setLoggerProvider(loggerProvider);
-  instrumentation.enable();
+  if (options.captureUncaughtErrors !== false) {
+    // 공식 계측이 만든 로그 레코드를 받아 같은 경로로 보낸다. 원본 오류는 applyCustomAttributes 에서 넘겨받는다
+    let pendingError: unknown;
+    const otelLogger: OtelLogs.Logger = {
+      emit: (logRecord) => {
+        const error =
+          pendingError ?? logRecord.attributes?.["exception.message"];
+        pendingError = undefined;
+        emit?.("error", error, { "o11y.exception.source": "global" }, true);
+      },
+      enabled: () => true,
+    };
+    const loggerProvider: OtelLogs.LoggerProvider = {
+      getLogger: () => otelLogger,
+    };
+    const instrumentation = new ErrorsInstrumentation({
+      applyCustomAttributes: (error) => {
+        pendingError = error;
+        return {};
+      },
+      enabled: false,
+    });
+    instrumentation.setLoggerProvider(loggerProvider);
+    instrumentation.enable();
+  }
 }
 
 const log =
