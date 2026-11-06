@@ -2,6 +2,7 @@ import { useMemo } from "react";
 
 import type { HttpOverrideRecord } from "../core";
 import { isTruncatedBody } from "../core";
+import { FormBodyView, parseFormBody } from "./form-body-view";
 import { JsonTree } from "./json-tree";
 import {
   actionBodyHintBrokenStyle,
@@ -20,46 +21,57 @@ const parseBody = (body: string): ParsedBody => {
 };
 
 export const JsonViewer = ({
+  body: bodyOverride,
   onEditPath,
   onEmptyPath,
   record,
 }: {
+  /** 기본은 record.responseBody — 요청 본문 등 다른 문자열을 보일 때 넘긴다 */
+  body?: string | null;
   onEditPath?: (path: string, current: unknown) => void;
   onEmptyPath?: (path: string, suggested: unknown) => void;
   record: HttpOverrideRecord;
 }) => {
+  const body = bodyOverride === undefined ? record.responseBody : bodyOverride;
   const parsed = useMemo(
-    () =>
-      record.responseBody === null
-        ? ({ ok: false } as const)
-        : parseBody(record.responseBody),
-    [record.responseBody]
+    () => (body === null ? ({ ok: false } as const) : parseBody(body)),
+    [body]
+  );
+  const formLines = useMemo(
+    () => (body === null || parsed.ok ? null : parseFormBody(body)),
+    [body, parsed.ok]
   );
 
-  if (record.responseBody === null) {
+  if (body === null) {
     return (
       <p style={detailEmptyBodyStyle}>본문이 없거나 아직 캡처되지 않았습니다</p>
     );
   }
+  if (body === "") {
+    return <p style={detailEmptyBodyStyle}>본문이 비어 있습니다 (0 bytes)</p>;
+  }
   if (parsed.ok) {
     return (
       <JsonTree
-        key={record.responseBody}
+        key={body}
         value={parsed.value}
         onEditPath={onEditPath}
         onEmptyPath={onEmptyPath}
       />
     );
   }
+  if (formLines !== null) {
+    return <FormBodyView lines={formLines} />;
+  }
   return (
     <>
-      {isTruncatedBody(record.responseBody) && (
+      {isTruncatedBody(body) && (
         <span style={actionBodyHintBrokenStyle}>
           응답이 maxBodyBytes 한도를 넘어 잘려 트리로 볼 수 없습니다 —
           installHttpOverride의 maxBodyBytes 옵션으로 한도를 늘릴 수 있어요
         </span>
       )}
-      <pre style={detailBodyStyle}>{record.responseBody}</pre>
+      <pre style={detailBodyStyle}>{body}</pre>
     </>
   );
 };

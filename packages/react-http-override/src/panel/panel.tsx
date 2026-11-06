@@ -6,7 +6,7 @@ import { ruleMatchesUrl } from "../core";
 import { useRecords, useRules } from "./hooks";
 import { RequestDetail } from "./request-detail";
 import type { RequestGroup } from "./request-table";
-import { isErrorRecord, RequestTable } from "./request-table";
+import { isErrorRecord, isOkRecord, RequestTable } from "./request-table";
 import { RuleBar } from "./rule-bar";
 import {
   activeTabStyle,
@@ -27,18 +27,26 @@ import {
   inactiveTabStyle,
   LAUNCHER_SIZE,
   palette,
+  PANEL_CORNER_SIZE,
+  PANEL_EDGE_THICKNESS,
   PANEL_EXPANDED_HEIGHT,
   PANEL_EXPANDED_WIDTH,
   PANEL_HEIGHT,
+  PANEL_OFFSET,
   PANEL_RADIUS,
   PANEL_WIDTH,
   panelBodyStyle,
   panelClassNames,
   panelContentStyle,
   panelGhostLabelStyle,
+  panelResizeHandleBaseStyle,
   panelStyle,
+  resizeHandleActiveStyle,
+  resizeHandleStyle,
   tableWrapStyle,
 } from "./styles";
+import { TABLE_MIN_WIDTH, useDetailWidth } from "./use-detail-width";
+import { usePanelSize } from "./use-panel-size";
 
 export const PANEL_CLOSE_DURATION_MS = 200;
 
@@ -150,8 +158,7 @@ export const Panel = ({
 
   const counts = useMemo(() => {
     const isError = (group: RequestGroup) => isErrorRecord(group.latest);
-    const isOk = (group: RequestGroup) =>
-      group.latest.state === "done" && !isError(group);
+    const isOk = (group: RequestGroup) => isOkRecord(group.latest);
     return {
       all: groups.length,
       error: groups.filter(isError).length,
@@ -170,7 +177,7 @@ export const Panel = ({
       }
       const isError = isErrorRecord(group.latest);
       if (filterKind === "error") return isError;
-      if (filterKind === "ok") return group.latest.state === "done" && !isError;
+      if (filterKind === "ok") return isOkRecord(group.latest);
       if (filterKind === "mock") return group.latest.mocked;
       if (filterKind === "pending") return group.latest.state === "pending";
       return true;
@@ -182,9 +189,26 @@ export const Panel = ({
     setSelectedKey(null);
   }, [api]);
 
+  const detail = useDetailWidth();
+  const panelSize = usePanelSize();
   const expanded = selected !== null;
-  const targetWidth = expanded ? PANEL_EXPANDED_WIDTH : PANEL_WIDTH;
-  const targetHeight = expanded ? PANEL_EXPANDED_HEIGHT : PANEL_HEIGHT;
+  /* 상세를 기본보다 넓히면 목록 최소 너비를 남기고 패널 자체가 왼쪽으로 자란다 */
+  const expandedWidth =
+    detail.width === null
+      ? PANEL_EXPANDED_WIDTH
+      : `min(max(760px, ${detail.width + TABLE_MIN_WIDTH}px), calc(100vw - 32px))`;
+  const defaultWidth = expanded ? expandedWidth : PANEL_WIDTH;
+  const defaultHeight = expanded ? PANEL_EXPANDED_HEIGHT : PANEL_HEIGHT;
+  /* 사용자가 패널 크기를 직접 정했으면 열림·확장 구분 없이 그 크기를 쓴다 */
+  const targetWidth =
+    panelSize.size === null
+      ? defaultWidth
+      : `min(${panelSize.size.width}px, calc(100vw - 32px))`;
+  const targetHeight =
+    panelSize.size === null
+      ? defaultHeight
+      : `min(${panelSize.size.height}px, calc(100vh - 32px))`;
+  const resizing = detail.resizing || panelSize.resizing;
 
   const animatedPanelStyle = useMemo(() => {
     if (embedded === true) return { ...embeddedPanelStyle, zIndex };
@@ -195,13 +219,14 @@ export const Panel = ({
       border: `1px solid ${shown ? palette.line : palette.teal}`,
       borderRadius: shown ? PANEL_RADIUS : LAUNCHER_SIZE / 2,
       height: shown ? targetHeight : LAUNCHER_SIZE,
-      transition: reducedMotion
-        ? undefined
-        : `width ${duration}ms ${ease}, height ${duration}ms ${ease}, border-radius ${duration}ms ${ease}, border-color ${duration}ms ${ease}`,
+      transition:
+        reducedMotion || resizing
+          ? undefined
+          : `width ${duration}ms ${ease}, height ${duration}ms ${ease}, border-radius ${duration}ms ${ease}, border-color ${duration}ms ${ease}`,
       width: shown ? targetWidth : LAUNCHER_SIZE,
       zIndex,
     };
-  }, [embedded, reducedMotion, shown, targetHeight, targetWidth, zIndex]);
+  }, [embedded, reducedMotion, resizing, shown, targetHeight, targetWidth, zIndex]);
 
   const contentStyle = useMemo(() => {
     if (embedded === true) return embeddedContentStyle;
@@ -212,12 +237,51 @@ export const Panel = ({
       ...panelContentStyle,
       height: targetHeight,
       opacity: shown ? 1 : 0,
-      transition: reducedMotion
-        ? undefined
-        : `width ${PANEL_OPEN_DURATION_MS}ms ${OPEN_EASE}, height ${PANEL_OPEN_DURATION_MS}ms ${OPEN_EASE}, ${opacityTransition}`,
+      transition:
+        reducedMotion || resizing
+          ? undefined
+          : `width ${PANEL_OPEN_DURATION_MS}ms ${OPEN_EASE}, height ${PANEL_OPEN_DURATION_MS}ms ${OPEN_EASE}, ${opacityTransition}`,
       width: targetWidth,
     };
-  }, [embedded, reducedMotion, shown, targetHeight, targetWidth]);
+  }, [embedded, reducedMotion, resizing, shown, targetHeight, targetWidth]);
+
+  /* 핸들은 패널 바깥 fixed 요소라 패널 폭·높이(CSS 식)로 자리를 잡는다. 패널은 오른쪽 아래 고정 */
+  const resizeHandleStyles = useMemo(() => {
+    const half = PANEL_EDGE_THICKNESS / 2;
+    const base = { ...panelResizeHandleBaseStyle, zIndex };
+    return {
+      corner: {
+        ...base,
+        bottom: `calc(${PANEL_OFFSET}px + ${targetHeight} - ${PANEL_CORNER_SIZE / 2}px)`,
+        cursor: "nwse-resize",
+        height: PANEL_CORNER_SIZE,
+        right: `calc(${PANEL_OFFSET}px + ${targetWidth} - ${PANEL_CORNER_SIZE / 2}px)`,
+        width: PANEL_CORNER_SIZE,
+      } as const,
+      left: {
+        ...base,
+        bottom: PANEL_OFFSET,
+        cursor: "ew-resize",
+        height: targetHeight,
+        right: `calc(${PANEL_OFFSET}px + ${targetWidth} - ${half}px)`,
+        width: PANEL_EDGE_THICKNESS,
+      } as const,
+      top: {
+        ...base,
+        bottom: `calc(${PANEL_OFFSET}px + ${targetHeight} - ${half}px)`,
+        cursor: "ns-resize",
+        height: PANEL_EDGE_THICKNESS,
+        right: PANEL_OFFSET,
+        width: targetWidth,
+      } as const,
+    };
+  }, [targetHeight, targetWidth, zIndex]);
+
+  const asideStyle = useMemo(
+    () =>
+      detail.width === null ? detailStyle : { ...detailStyle, width: detail.width },
+    [detail.width]
+  );
 
   const ghostLabelStyle = useMemo(() => {
     const transition = shown
@@ -231,7 +295,9 @@ export const Panel = ({
   }, [reducedMotion, shown]);
 
   return (
+    <>
     <section
+      ref={panelSize.panelRef}
       aria-label="API devtools 패널"
       data-expanded={expanded}
       role="dialog"
@@ -363,7 +429,22 @@ export const Panel = ({
                   />
                 </div>
                 {selected !== null && (
-                  <aside style={detailStyle}>
+                  <div
+                    aria-label="상세 너비 조절 (더블클릭: 기본값)"
+                    aria-orientation="vertical"
+                    className={panelClassNames.resizeHandle}
+                    role="separator"
+                    style={
+                      detail.resizing
+                        ? resizeHandleActiveStyle
+                        : resizeHandleStyle
+                    }
+                    tabIndex={0}
+                    {...detail.handleProps}
+                  />
+                )}
+                {selected !== null && (
+                  <aside ref={detail.asideRef} style={asideStyle}>
                     <RequestDetail
                       key={selectedKey}
                       api={api}
@@ -383,5 +464,36 @@ export const Panel = ({
         </span>
       )}
     </section>
+    {embedded !== true && shown && (
+      <>
+        <div
+          aria-label="패널 너비 조절 (더블클릭: 기본값)"
+          aria-orientation="vertical"
+          className={panelClassNames.panelEdge}
+          role="separator"
+          style={resizeHandleStyles.left}
+          tabIndex={0}
+          {...panelSize.handleFor("x")}
+        />
+        <div
+          aria-label="패널 높이 조절 (더블클릭: 기본값)"
+          aria-orientation="horizontal"
+          className={panelClassNames.panelEdge}
+          role="separator"
+          style={resizeHandleStyles.top}
+          tabIndex={0}
+          {...panelSize.handleFor("y")}
+        />
+        <div
+          aria-label="패널 크기 조절 (더블클릭: 기본값)"
+          className={panelClassNames.panelEdge}
+          role="separator"
+          style={resizeHandleStyles.corner}
+          tabIndex={0}
+          {...panelSize.handleFor("both")}
+        />
+      </>
+    )}
+    </>
   );
 };

@@ -1,4 +1,10 @@
 import type { HttpOverrideApi, HttpOverridePreset } from "./core";
+import {
+  findMissingFeatures,
+  PANEL_FEATURES,
+  unsupportedMessage,
+  warnHttpOverride,
+} from "./core/environment";
 import type { InstallHttpOverrideOptions as CoreInstallOptions } from "./core/install";
 import {
   getHttpOverride,
@@ -52,17 +58,28 @@ export const createAutoInstall =
 
     let disposed = false;
     let unmount: (() => void) | null = null;
+    const missing = findMissingFeatures(PANEL_FEATURES);
+    if (missing.length > 0) {
+      warnHttpOverride(unsupportedMessage("패널을", missing));
+      return api;
+    }
+
+    // 패널이 실패해도 기록과 룰 적용은 계속 동작
     const cancelSchedule = afterPageSettled(() => {
-      void loadMountPanel().then(({ mountPanel }) => {
-        if (disposed) return;
-        unmount = mountPanel({ presets });
-      });
+      loadMountPanel()
+        .then(({ mountPanel }) => {
+          if (disposed) return;
+          unmount = mountPanel({ presets });
+        })
+        .catch((error: unknown) => {
+          warnHttpOverride("패널을 띄우지 못했습니다.", error);
+        });
     });
 
     onUninstall(() => {
       disposed = true;
       cancelSchedule();
-      if (unmount !== null) queueMicrotask(unmount);
+      if (unmount !== null) void Promise.resolve().then(unmount);
     });
     return api;
   };

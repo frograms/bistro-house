@@ -6,9 +6,15 @@ import type { HttpOverrideRule } from "./types";
 export const DEFAULT_MAX_BODY_BYTES = 64 * 1024;
 
 /** 스펙상 body를 가질 수 없는 status — body를 주면 Response 생성이 throw */
-const NULL_BODY_STATUSES = new Set([204, 205, 304]);
+const isNullBodyStatus = (status: number) =>
+  status === 204 || status === 205 || status === 304;
 
 const TEXTUAL_CONTENT_TYPE = /json|text|xml|javascript|urlencoded/i;
+
+export type ReplayInput = {
+  init: RequestInit | undefined;
+  input: RequestInfo | URL;
+};
 
 export type CreateOverrideFetchOptions = {
   baseFetch: typeof fetch;
@@ -16,6 +22,36 @@ export type CreateOverrideFetchOptions = {
   getRules(): HttpOverrideRule[];
   isServerRequest?: (url: string) => boolean;
   maxBodyBytes?: number;
+  /** 이번 요청에 실제로 적용된 룰 — 횟수 제한 룰을 차감하는 데 쓴다 */
+  onRulesApplied?: (rules: HttpOverrideRule[]) => void;
+  /** 넘기면 다시 보낼 수 있는 요청의 원본을 기록 번호별로 보관한다. 기록이 밀려나면 같이 버린다 */
+  replayInputs?: Map<number, ReplayInput>;
+  shouldRecord?: (url: string, method: string) => boolean;
+};
+
+/* 스트림 본문은 한 번 읽으면 끝이라 다시 보낼 수 없다. Request 입력은 보내기 전에 복제해 둔다 */
+const toReplayInput = (
+  input: RequestInfo | URL,
+  init: RequestInit | undefined
+): ReplayInput | null => {
+  const body = init?.body;
+  if (
+    body !== undefined &&
+    body !== null &&
+    typeof ReadableStream !== "undefined" &&
+    body instanceof ReadableStream
+  ) {
+    return null;
+  }
+  if (typeof Request !== "undefined" && input instanceof Request) {
+    if (input.bodyUsed) return null;
+    try {
+      return { init, input: input.clone() };
+    } catch {
+      return null;
+    }
+  }
+  return { init, input };
 };
 
 export const isLoaderDataRequest = (url: string): boolean => {
@@ -42,6 +78,82 @@ const resolveMethod = (
   return method.toUpperCase();
 };
 
+const describeBinary = (label: string, bytes: number): string =>
+  `[${label} ${bytes} bytes]`;
+
+const serializeFormData = (form: FormData): string => {
+  const entries: Record<string, unknown> = {};
+  form.forEach((value, key) => {
+    const summary =
+      typeof value === "string"
+        ? value
+        : describeBinary(`file ${value.name || "unnamed"}`, value.size);
+    const existing = entries[key];
+    if (existing === undefined) {
+      entries[key] = summary;
+    } else if (Array.isArray(existing)) {
+      existing.push(summary);
+    } else {
+      entries[key] = [existing, summary];
+    }
+  });
+  return JSON.stringify(entries);
+};
+
+type RequestBodyCapture = {
+  deferred: Promise<string | null> | null;
+  initial: string | null;
+};
+
+const captureRequestBody = (
+  input: RequestInfo | URL,
+  init: RequestInit | undefined,
+  maxBodyBytes: number
+): RequestBodyCapture => {
+  const body = init?.body;
+  if (body !== undefined && body !== null) {
+    if (typeof body === "string") {
+      return { deferred: null, initial: truncateBody(body, maxBodyBytes) };
+    }
+    if (typeof URLSearchParams !== "undefined" && body instanceof URLSearchParams) {
+      return { deferred: null, initial: body.toString() };
+    }
+    if (typeof FormData !== "undefined" && body instanceof FormData) {
+      return {
+        deferred: null,
+        initial: truncateBody(serializeFormData(body), maxBodyBytes),
+      };
+    }
+    if (typeof Blob !== "undefined" && body instanceof Blob) {
+      return { deferred: null, initial: describeBinary("blob", body.size) };
+    }
+    if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
+      return {
+        deferred: null,
+        initial: describeBinary("binary", body.byteLength),
+      };
+    }
+    return { deferred: null, initial: "[stream]" };
+  }
+  if (typeof Request !== "undefined" && input instanceof Request) {
+    const contentType = input.headers.get("content-type") ?? "";
+    if (contentType !== "" && !TEXTUAL_CONTENT_TYPE.test(contentType)) {
+      return { deferred: null, initial: describeBinary("binary", 0) };
+    }
+    try {
+      const deferred = input
+        .clone()
+        .text()
+        .then((text) => (text === "" ? null : truncateBody(text, maxBodyBytes)))
+        .catch(() => null);
+      return { deferred, initial: null };
+    } catch {
+      return { deferred: null, initial: null };
+    }
+  }
+  return { deferred: null, initial: null };
+};
+
 const matchRules = (
   rules: HttpOverrideRule[],
   url: string
@@ -53,11 +165,13 @@ const TRUNCATED_SUFFIX = "…(truncated)";
 export const isTruncatedBody = (body: string): boolean =>
   body.endsWith(TRUNCATED_SUFFIX);
 
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
+// 모듈을 불러오는 것만으로 깨지지 않게, 설치 전 환경 확인이 끝난 뒤 처음 쓸 때 만든다
+let codec: { decoder: TextDecoder; encoder: TextEncoder } | null = null;
 
 export const truncateBody = (text: string, maxBodyBytes: number): string => {
   if (text.length * 3 <= maxBodyBytes) return text;
+  codec ??= { decoder: new TextDecoder(), encoder: new TextEncoder() };
+  const { decoder, encoder } = codec;
   const bytes = encoder.encode(text);
   if (bytes.length <= maxBodyBytes) return text;
   const sliced = decoder
@@ -70,7 +184,7 @@ const createMockResponse = (
   rule: HttpOverrideRule
 ): { body: string | null; response: Response } | null => {
   const nullBody =
-    rule.status !== undefined && NULL_BODY_STATUSES.has(rule.status);
+    rule.status !== undefined && isNullBodyStatus(rule.status);
   const filledBody =
     rule.body === undefined || rule.body === "" ? "{}" : rule.body;
   const body = nullBody ? null : filledBody;
@@ -143,6 +257,9 @@ export const createOverrideFetch = (
     getRules,
     isServerRequest = isLoaderDataRequest,
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
+    onRulesApplied,
+    replayInputs,
+    shouldRecord,
   } = options;
 
   const captureBody = (response: Response, seq: number) => {
@@ -166,7 +283,11 @@ export const createOverrideFetch = (
   return async (input, init) => {
     const url = resolveUrl(input);
     const method = resolveMethod(input, init);
+    if (shouldRecord !== undefined && !shouldRecord(url, method)) {
+      return baseFetch(input, init);
+    }
     const startedAt = Date.now();
+    const requestBody = captureRequestBody(input, init, maxBodyBytes);
     const matched = matchRules(getRules(), url);
     const delayRule = matched.find(
       (rule) => rule.delayMs !== undefined && rule.delayMs > 0
@@ -177,17 +298,33 @@ export const createOverrideFetch = (
     );
     const patches =
       statusRule === undefined
-        ? matched.flatMap((rule) =>
-            rule.status === undefined ? (rule.patch ?? []) : []
+        ? matched.reduce<NonNullable<HttpOverrideRule["patch"]>>(
+            (all, rule) =>
+              rule.status === undefined && rule.patch !== undefined
+                ? all.concat(rule.patch)
+                : all,
+            []
           )
         : [];
     const primaryRule = statusRule ?? patchRule ?? matched[0];
+    if (onRulesApplied !== undefined) {
+      const applied = new Set<HttpOverrideRule>();
+      if (delayRule !== undefined) applied.add(delayRule);
+      if (statusRule !== undefined) applied.add(statusRule);
+      else {
+        matched
+          .filter((rule) => rule.status === undefined && rule.patch !== undefined)
+          .forEach((rule) => applied.add(rule));
+      }
+      if (applied.size > 0) onRulesApplied([...applied]);
+    }
 
     const { seq } = buffer.push({
       durationMs: null,
       method,
       mocked: false,
       ok: false,
+      requestBody: requestBody.initial,
       responseBody: null,
       ruleId: primaryRule?.id,
       source: isServerRequest(url) ? "server" : "client",
@@ -196,9 +333,22 @@ export const createOverrideFetch = (
       status: null,
       url,
     });
+    if (replayInputs !== undefined) {
+      const replayInput = toReplayInput(input, init);
+      if (replayInput !== null) replayInputs.set(seq, replayInput);
+      const oldest = buffer.getSnapshot()[0]?.seq ?? seq;
+      for (const key of replayInputs.keys()) {
+        if (key < oldest) replayInputs.delete(key);
+      }
+    }
     const settle = (patch: Parameters<RecordBuffer["patch"]>[1]) => {
       buffer.patch(seq, { durationMs: Date.now() - startedAt, ...patch });
     };
+    if (requestBody.deferred !== null) {
+      void requestBody.deferred.then((text) => {
+        if (text !== null) buffer.patch(seq, { requestBody: text });
+      });
+    }
 
     if (delayRule?.delayMs !== undefined) {
       await sleep(delayRule.delayMs);
@@ -220,6 +370,10 @@ export const createOverrideFetch = (
 
     try {
       const response = await baseFetch(input, init);
+      if (response.type === "opaque") {
+        settle({ ok: false, opaque: true, state: "done", status: 0 });
+        return response;
+      }
       if (patches.length > 0) {
         const text = await response.text();
         const patchedText = applyPatches(text, patches);
@@ -235,7 +389,7 @@ export const createOverrideFetch = (
         headers.delete("content-length");
         headers.delete("content-encoding");
         return new Response(
-          NULL_BODY_STATUSES.has(response.status) ? null : patchedText,
+          isNullBodyStatus(response.status) ? null : patchedText,
           {
             headers,
             status: response.status,

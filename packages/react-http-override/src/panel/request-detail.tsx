@@ -10,6 +10,7 @@ import { useRules } from "./hooks";
 import { JsonViewer } from "./json-viewer";
 import { PresetSection } from "./preset-section";
 import { StatusChip } from "./request-table";
+import { editButtonLabel, rerun } from "./resend";
 import { RowActions } from "./row-actions";
 import { sourceLabelOf } from "./source-icon";
 import {
@@ -29,6 +30,7 @@ import {
   panelClassNames,
   rulePatternStyle,
 } from "./styles";
+import { CopyUrlButton, parseRecordUrl, UrlInfoRows } from "./url-info";
 
 export type RequestDetailProps = {
   api: HttpOverrideApi;
@@ -112,9 +114,9 @@ export const RequestDetail = ({
   const handleEmptyPath = useCallback(
     (path: string, suggested: unknown) => {
       addPatch(path, { value: suggested });
-      api.revalidate(record.url, record.method);
+      rerun(api, record);
     },
-    [addPatch, api, record.method, record.url]
+    [addPatch, api, record]
   );
 
   const handleEditPath = useCallback((path: string, current: unknown) => {
@@ -126,21 +128,25 @@ export const RequestDetail = ({
     if (editingPath === null) return;
     addPatch(editingPath, parseEditValue(editValue));
     setEditingPath(null);
-    api.revalidate(record.url, record.method);
-  }, [addPatch, api, editingPath, editValue, record.method, record.url]);
+    rerun(api, record);
+  }, [addPatch, api, editingPath, editValue, record]);
+
+  const editLabel = editButtonLabel(api, record);
 
   return (
     <>
       <div style={detailSectionHeaderStyle}>요청 정보</div>
       <div style={detailSectionBodyStyle}>
         <div style={detailTopStyle}>
-          <span style={detailUrlStyle}>
-            {record.method} {record.url}
+          <span style={detailUrlStyle} title={record.url}>
+            {record.method} {parseRecordUrl(record.url).pathname}
           </span>
           <StatusChip record={record} />
           {record.mocked && <span style={mockBadgeStyle}>MOCK</span>}
           {record.patched === true && <span style={mockBadgeStyle}>PATCH</span>}
+          <CopyUrlButton url={record.url} />
         </div>
+        <UrlInfoRows url={record.url} />
         <InfoRow label="출처" value={sourceLabelOf(record)} />
         <InfoRow
           label="durationMs"
@@ -160,6 +166,15 @@ export const RequestDetail = ({
           <InfoRow label="error" value={record.error} />
         )}
       </div>
+
+      {record.requestBody !== null && (
+        <>
+          <div style={detailSectionHeaderStyle}>Payload</div>
+          <div style={detailSectionBodyStyle}>
+            <JsonViewer body={record.requestBody} record={record} />
+          </div>
+        </>
+      )}
 
       <div style={detailSectionHeaderStyle}>Actions</div>
       <div style={detailSectionBodyStyle}>
@@ -209,9 +224,7 @@ export const RequestDetail = ({
                 style={actionWarmButtonStyle}
                 type="button"
                 onClick={handleApplyEdit}>
-                {api.canRevalidate(record.method)
-                  ? "바꾸고 재요청"
-                  : "이 값으로 바꾸기"}
+                {editLabel}
               </button>
               <button
                 className={panelClassNames.actionButton}

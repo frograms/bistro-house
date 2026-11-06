@@ -6,6 +6,7 @@ export type HttpOverrideRule = {
   label?: string;
   patch?: { path: string; remove?: boolean; value?: unknown }[];
   pattern: string;
+  remaining?: number;
   status?: number;
 };
 
@@ -32,8 +33,10 @@ export type HttpOverrideRecord = {
   method: string;
   mocked: boolean;
   ok: boolean;
+  opaque?: boolean;
   /** patch 룰이 적용된 응답 */
   patched?: boolean;
+  requestBody: string | null;
   /** clone 후 비동기로 채워지므로 채워지기 전엔 null */
   responseBody: string | null;
   ruleId?: string;
@@ -55,6 +58,7 @@ export type HttpOverrideStorage = {
 export type HttpOverrideSubscribe = (listener: () => void) => () => void;
 
 export type HttpOverrideApi = {
+  canReplay(seq: number): boolean;
   canRevalidate(method: string): boolean;
   hide(): void;
   launcher: {
@@ -72,6 +76,7 @@ export type HttpOverrideApi = {
     getSnapshot(): HttpOverrideRecord[];
     subscribe: HttpOverrideSubscribe;
   };
+  replay(seq: number): void;
   revalidate(url: string, method: string): void;
   rules: {
     add(input: HttpOverrideRuleInput): HttpOverrideRule;

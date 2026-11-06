@@ -1,7 +1,11 @@
 import {
-  createLauncherVisibility,
-  isLauncherShortcut,
-} from "./launcher-visibility";
+  CORE_FEATURES,
+  findMissingFeatures,
+  unsupportedMessage,
+  warnHttpOverride,
+} from "./environment";
+import { createLauncherVisibility } from "./launcher-visibility";
+import type { ReplayInput } from "./override-fetch";
 import {
   createOverrideFetch,
   DEFAULT_MAX_BODY_BYTES,
@@ -11,6 +15,12 @@ import { createPresetNameStore } from "./preset-names";
 import { createRecordBuffer } from "./record-buffer";
 import { createRuleStore } from "./rule-store";
 import { createSafeStorage } from "./safe-storage";
+import type { HttpOverrideShortcut } from "./shortcut";
+import {
+  createShortcutMatcher,
+  DEFAULT_SHORTCUT,
+  formatShortcut,
+} from "./shortcut";
 import type { HttpOverrideApi, HttpOverrideStorage } from "./types";
 
 export type InstallHttpOverrideOptions = {
@@ -18,6 +28,9 @@ export type InstallHttpOverrideOptions = {
   maxBodyBytes?: number;
   maxRecords?: number;
   onRevalidate?: (url: string) => Promise<unknown> | void;
+  /** 런처 버튼 표시 토글 단축키. 기본 `Ctrl+Shift+H` */
+  shortcut?: HttpOverrideShortcut;
+  shouldRecord?: (url: string, method: string) => boolean;
   ssrData?: Record<string, unknown>;
   storage?: HttpOverrideStorage;
 };
@@ -43,22 +56,21 @@ let installation: Installation | null = null;
 export const getHttpOverride = (): HttpOverrideApi | null =>
   installation?.api ?? null;
 
-/** window.fetch를 가로채 설치한다. SSR이면 no-op, 중복 호출 시 기존 설치 반환 */
-export const installHttpOverride = (
-  options: InstallHttpOverrideOptions = {}
-): HttpOverrideApi | null => {
-  if (typeof window === "undefined") return null;
-  if (installation !== null) return installation.api;
-
+const setUp = (
+  options: InstallHttpOverrideOptions,
+  originalFetch: typeof fetch,
+  cleanups: (() => void)[]
+): Installation => {
   const {
     isServerRequest,
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
     maxRecords,
     onRevalidate,
+    shortcut = DEFAULT_SHORTCUT,
+    shouldRecord,
     ssrData,
     storage,
   } = options;
-  const originalFetch = window.fetch;
   const sessionStore =
     storage ?? createSafeStorage(() => window.sessionStorage);
   const ruleStore = createRuleStore(sessionStore);
@@ -72,6 +84,7 @@ export const installHttpOverride = (
       method: "SSR",
       mocked: false,
       ok: true,
+      requestBody: null,
       responseBody: body === null ? null : truncateBody(body, maxBodyBytes),
       source: "server",
       startedAt: installedAt,
@@ -81,13 +94,16 @@ export const installHttpOverride = (
     });
   });
   const launcher = createLauncherVisibility(
-    createSafeStorage(() => window.localStorage)
+    createSafeStorage(() => window.localStorage),
+    formatShortcut(shortcut)
   );
 
   const canRevalidate = (method: string) =>
     onRevalidate !== undefined || method === "GET";
+  const replayInputs = new Map<number, ReplayInput>();
 
   const api: HttpOverrideApi = {
+    canReplay: (seq) => replayInputs.has(seq),
     canRevalidate,
     hide: launcher.hide,
     launcher: {
@@ -104,6 +120,15 @@ export const installHttpOverride = (
       clear: buffer.clear,
       getSnapshot: buffer.getSnapshot,
       subscribe: buffer.subscribe,
+    },
+    replay: (seq) => {
+      const entry = replayInputs.get(seq);
+      if (entry === undefined) return;
+      const input =
+        typeof Request !== "undefined" && entry.input instanceof Request
+          ? entry.input.clone()
+          : entry.input;
+      patchedFetch(input, entry.init).catch(() => undefined);
     },
     revalidate: (url, method) => {
       if (onRevalidate !== undefined) {
@@ -131,23 +156,64 @@ export const installHttpOverride = (
     getRules: ruleStore.getSnapshot,
     isServerRequest,
     maxBodyBytes,
+    onRulesApplied: (applied) => {
+      applied.forEach((rule) => {
+        if (rule.remaining === undefined) return;
+        if (rule.remaining <= 1) ruleStore.remove(rule.id);
+        else ruleStore.update(rule.id, { remaining: rule.remaining - 1 });
+      });
+    },
+    replayInputs,
+    shouldRecord,
   });
 
-  const onKeyDown = (event: KeyboardEvent) => {
-    if (!isLauncherShortcut(event)) return;
-    event.preventDefault();
-    launcher.toggle();
-  };
-  window.addEventListener("keydown", onKeyDown);
+  const matchesShortcut = createShortcutMatcher(shortcut);
+  if (matchesShortcut !== null) {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!matchesShortcut(event)) return;
+      event.preventDefault();
+      launcher.toggle();
+    };
+
+    window.addEventListener("keydown", onKeyDown, true);
+    cleanups.push(() => {
+      window.removeEventListener("keydown", onKeyDown, true);
+    });
+  }
 
   window.fetch = patchedFetch;
-  installation = {
-    api,
-    cleanups: [() => window.removeEventListener("keydown", onKeyDown)],
-    originalFetch,
-    patchedFetch,
-  };
-  return api;
+  return { api, cleanups, originalFetch, patchedFetch };
+};
+
+/** window.fetch를 가로채 설치. SSR이거나 실행할 수 없는 환경이면 no-op, 중복 호출 시 기존 설치 반환 */
+export const installHttpOverride = (
+  options: InstallHttpOverrideOptions = {}
+): HttpOverrideApi | null => {
+  if (typeof window === "undefined") return null;
+  if (installation !== null) return installation.api;
+  const missing = findMissingFeatures(CORE_FEATURES);
+  if (missing.length > 0) {
+    warnHttpOverride(unsupportedMessage("요청 기록과 룰 적용을", missing));
+    return null;
+  }
+
+  const originalFetch = window.fetch;
+  const cleanups: (() => void)[] = [];
+  try {
+    installation = setUp(options, originalFetch, cleanups);
+    return installation.api;
+  } catch (error) {
+    window.fetch = originalFetch;
+    cleanups.forEach((cleanup) => {
+      try {
+        cleanup();
+      } catch {
+        // 정리 하나가 실패해도 나머지 정리는 이어간다
+      }
+    });
+    warnHttpOverride("설치 중 오류가 나서 원래 fetch로 되돌렸습니다.", error);
+    return null;
+  }
 };
 
 export const onUninstall = (cleanup: () => void): void => {

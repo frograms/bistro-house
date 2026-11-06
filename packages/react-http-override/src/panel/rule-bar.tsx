@@ -18,7 +18,8 @@ const summarize = (rule: HttpOverrideRule): string => {
   if (rule.status !== undefined) facets.push(String(rule.status));
   if (rule.patch !== undefined) facets.push(`패치 ${rule.patch.length}`);
   if (rule.delayMs !== undefined) facets.push(`지연 ${rule.delayMs}ms`);
-  return facets.length > 0 ? facets.join(" · ") : "-";
+  if (rule.remaining !== undefined) facets.push(`${rule.remaining}회 남음`);
+  return facets.length > 0 ? facets.join(", ") : "-";
 };
 
 export const RuleBar = ({ api }: { api: HttpOverrideApi }) => {

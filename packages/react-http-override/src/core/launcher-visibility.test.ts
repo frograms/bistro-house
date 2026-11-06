@@ -2,8 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   createLauncherVisibility,
-  HIDDEN_ON_LOAD_HINT,
-  RESTORE_HINT,
+  hiddenOnLoadHint,
+  restoreHint,
 } from "./launcher-visibility";
 import { createMemoryStorage } from "./safe-storage";
 
@@ -27,7 +27,9 @@ describe("createLauncherVisibility", () => {
     info.mockClear();
     const visibility = createLauncherVisibility(storage);
     expect(visibility.getSnapshot()).toBe(false);
-    expect(info).toHaveBeenCalledExactlyOnceWith(HIDDEN_ON_LOAD_HINT);
+    expect(info).toHaveBeenCalledExactlyOnceWith(
+      hiddenOnLoadHint("Ctrl+Shift+H")
+    );
   });
 
   it("hide는 상태를 영속하고 복구 힌트를 출력한다", () => {
@@ -36,7 +38,7 @@ describe("createLauncherVisibility", () => {
     const visibility = createLauncherVisibility(storage);
     visibility.hide();
     expect(visibility.getSnapshot()).toBe(false);
-    expect(info).toHaveBeenCalledWith(RESTORE_HINT);
+    expect(info).toHaveBeenCalledWith(restoreHint("Ctrl+Shift+H"));
     expect(createLauncherVisibility(storage).getSnapshot()).toBe(false);
   });
 

@@ -10,6 +10,7 @@ const input = (
   method: "GET",
   mocked: false,
   ok: true,
+  requestBody: null,
   responseBody: null,
   source: "client",
   startedAt: 0,

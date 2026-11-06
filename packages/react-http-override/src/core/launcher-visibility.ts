@@ -1,16 +1,17 @@
 import { createStore } from "./create-store";
+import { DEFAULT_SHORTCUT } from "./shortcut";
 import type { HttpOverrideStorage } from "./types";
 
 const STORAGE_KEY = "__HTTP_OVERRIDE_LAUNCHER_HIDDEN__";
 
-export const LAUNCHER_SHORTCUT_LABEL = "Ctrl+Shift+H";
+const howToShow = (shortcutLabel: null | string) =>
+  shortcutLabel === null ? "api.show()" : shortcutLabel;
 
-export const isLauncherShortcut = (event: KeyboardEvent): boolean =>
-  event.ctrlKey && event.shiftKey && !event.altKey && event.code === "KeyH";
+export const restoreHint = (shortcutLabel: null | string) =>
+  `[react-http-override] devtool 버튼을 숨겼습니다. ${howToShow(shortcutLabel)}로 다시 표시할 수 있습니다.`;
 
-export const RESTORE_HINT = `[react-http-override] devtool 버튼을 숨겼습니다. ${LAUNCHER_SHORTCUT_LABEL}로 다시 표시할 수 있습니다.`;
-
-export const HIDDEN_ON_LOAD_HINT = `[react-http-override] devtool 버튼이 숨김 상태입니다. ${LAUNCHER_SHORTCUT_LABEL}로 표시할 수 있습니다.`;
+export const hiddenOnLoadHint = (shortcutLabel: null | string) =>
+  `[react-http-override] devtool 버튼이 숨김 상태입니다. ${howToShow(shortcutLabel)}로 표시할 수 있습니다.`;
 
 export type LauncherVisibility = {
   getSnapshot(): boolean;
@@ -21,12 +22,13 @@ export type LauncherVisibility = {
 };
 
 export const createLauncherVisibility = (
-  storage: HttpOverrideStorage
+  storage: HttpOverrideStorage,
+  shortcutLabel: null | string = DEFAULT_SHORTCUT
 ): LauncherVisibility => {
   const store = createStore<boolean>(storage.getItem(STORAGE_KEY) === null);
 
   if (!store.getSnapshot()) {
-    console.info(HIDDEN_ON_LOAD_HINT);
+    console.info(hiddenOnLoadHint(shortcutLabel));
   }
 
   const show = () => {
@@ -37,7 +39,7 @@ export const createLauncherVisibility = (
   const hide = () => {
     storage.setItem(STORAGE_KEY, "1");
     store.setSnapshot(false);
-    console.info(RESTORE_HINT);
+    console.info(restoreHint(shortcutLabel));
   };
 
   return {
