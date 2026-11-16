@@ -187,11 +187,19 @@ describe("logger(서버)", () => {
 describe("init(서버)", () => {
   it("한 번만 설정·처리기를 등록하고, 세션 ID 는 없다", () => {
     const before = process.listenerCount("uncaughtExceptionMonitor");
-    O11y.init({ service: "app" });
-    O11y.init({ service: "other" });
+    O11y.init({ server: { service: "app" } });
+    O11y.init({ server: { service: "other" } });
 
     expect(process.listenerCount("uncaughtExceptionMonitor")).toBe(before + 1);
     expect(O11y.getSessionId()).toBeUndefined();
+  });
+
+  it("browser 옵션만 넘기면 경고하고 설정하지 않는다", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    O11y.init({ browser: { service: "app-browser" } });
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("server"));
+    expect(() => sentryOptions(undefined)).toThrow(/O11y.init/);
   });
 });
 

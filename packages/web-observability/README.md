@@ -10,16 +10,17 @@
 import * as O11y from "@watcha-authentic/web-observability";
 
 // 브라우저: 진입 모듈 최상단, hydrate 전에 호출해야 hydration 중 오류까지 잡습니다
-O11y.init({ service: "my-app-browser", endpoint: "/otel" });
+O11y.init({ browser: { service: "my-app-browser", endpoint: "/otel" } });
 
 // 서버: 시작 시 한 번
-O11y.init({ service: "my-app" });
+O11y.init({ server: { service: "my-app" } });
 
 // 어디서든(브라우저·loader·서버) 같은 코드
 O11y.logger.error(error, { step: "save" }); // 문자열이 아니면 예외 로그
 O11y.logger.warn("allReady 없음"); // 문자열이면 메시지 로그
 ```
 
+- `init` 은 `{ browser }` 와 `{ server }` 중 하나만 받습니다. 다른 쪽 옵션이 섞이면 타입 오류가 납니다.
 - 브라우저는 `endpoint` 가 없으면 아무것도 보내지 않습니다.
 - 오류 경계(`ErrorBoundary`·`HydratedRouter onError`)가 잡은 오류는 자동으로 잡히지 않으므로 `logger.error` 로 직접 남깁니다.
 
@@ -71,9 +72,11 @@ import { installW3CPropagator, sentryOptions } from "@watcha-authentic/web-obser
 const isUntracedPath = createPathMatcher(["/health_check"]);
 
 O11y.init({
-  service: "my-app",
-  tracesEndpoint: "http://otel-collector:4318/v1/traces",
-  tracesSampleRate: 0.1,
+  server: {
+    service: "my-app",
+    tracesEndpoint: "http://otel-collector:4318/v1/traces",
+    tracesSampleRate: 0.1,
+  },
 });
 Sentry.init({ ...sentryOptions(process.env.SENTRY_DSN), integrations: [...] });
 installW3CPropagator();

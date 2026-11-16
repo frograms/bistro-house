@@ -74,12 +74,14 @@ function attr(record: LogRecord | undefined, key: string) {
 async function start(options: Partial<BrowserOptions> = {}) {
   const O11y = await import("../browser-index.ts");
   O11y.init({
-    endpoint: "/_/rum",
-    release: "v1",
-    service: "test-browser",
-    tracesSampleRate: 0,
-    webVitalsSampleRate: 0,
-    ...options,
+    browser: {
+      endpoint: "/_/rum",
+      release: "v1",
+      service: "test-browser",
+      tracesSampleRate: 0,
+      webVitalsSampleRate: 0,
+      ...options,
+    },
   });
   return O11y;
 }
@@ -179,7 +181,7 @@ describe("init", () => {
   it("endpoint 가 없으면 아무것도 보내지 않고, debug 면 경고한다", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const O11y = await import("../browser-index.ts");
-    O11y.init({ debug: true, service: "test-browser" });
+    O11y.init({ browser: { debug: true, service: "test-browser" } });
     O11y.logger.error(new Error("ignored"));
     flush();
     expect(fetchMock).not.toHaveBeenCalled();
@@ -191,6 +193,16 @@ describe("init", () => {
     logger.info("ignored");
     flush();
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("server 옵션만 넘기면 경고하고 시작하지 않는다", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const O11y = await import("../browser-index.ts");
+    O11y.init({ server: { service: "app" } });
+    O11y.logger.info("ignored");
+    flush();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("browser"));
   });
 
   it("탭 세션 ID 를 돌려준다", async () => {

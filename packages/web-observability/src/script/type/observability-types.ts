@@ -70,8 +70,17 @@ export type ServerOptions = SharedOptions & {
   tracesSampleRate?: number;
 };
 
-/** `init` 옵션. 실행 환경에 맞지 않는 필드는 무시한다 */
-export type InitOptions = BrowserOptions | ServerOptions;
+/** 브라우저 `init` 인자 — `server` 키는 넘길 수 없다 */
+export type BrowserInitOptions = { browser: BrowserOptions; server?: never };
+
+/** 서버 `init` 인자 — `browser` 키는 넘길 수 없다 */
+export type ServerInitOptions = { browser?: never; server: ServerOptions };
+
+/**
+ * `init` 인자. 둘 중 하나만 받는다 — 두 키를 함께 넘기거나 다른 쪽 옵션이 섞이면 타입 오류가 난다.
+ * 실행 환경과 다른 쪽 키만 넘기면 경고하고 시작하지 않는다.
+ */
+export type InitOptions = BrowserInitOptions | ServerInitOptions;
 
 /**
  * 레벨별 로그. 첫 인자가 문자열이면 메시지 로그, 아니면(Error 등) 예외 로그
