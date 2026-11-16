@@ -34,6 +34,7 @@ beforeEach(() => {
   vi.resetModules();
   vi.restoreAllMocks();
   sessionStorage.clear();
+  document.cookie = "o11y_sid=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
   document.head.innerHTML = "";
   fetchMock = vi.fn(() => Promise.resolve(new Response()));
   vi.stubGlobal("fetch", fetchMock);
@@ -174,6 +175,53 @@ describe("메시지 로그", () => {
     expect(record).not.toHaveProperty("eventName");
     expect(attr(record, "from")).toBe("shaka");
     expect(attr(record, "user.id")).toBe("u1");
+  });
+});
+
+describe("setUser", () => {
+  it("이후 로그의 user.id 를 바꾸고, null 이면 뺀다", async () => {
+    const O11y = await start({ user: { id: "u1" } });
+    O11y.setUser({ id: "u2" });
+    O11y.logger.info("after login");
+    O11y.setUser(null);
+    O11y.logger.info("after logout");
+
+    const records = sentLogs(flush());
+    expect(attr(records[0], "user.id")).toBe("u2");
+    expect(attr(records[1], "user.id")).toBeUndefined();
+  });
+
+  it("init 전에 부른 값도 쓴다", async () => {
+    const O11y = await import("../browser-index.ts");
+    O11y.setUser({ id: "early" });
+    O11y.init({
+      browser: {
+        endpoint: "/_/rum",
+        service: "test-browser",
+        tracesSampleRate: 0,
+        webVitalsSampleRate: 0,
+      },
+    });
+    O11y.logger.info("hello");
+    expect(attr(sentLogs(flush())[0], "user.id")).toBe("early");
+  });
+});
+
+describe("세션 ID", () => {
+  it("서버가 내린 o11y_sid 쿠키가 있으면 그 값을 쓴다", async () => {
+    const sid = "0123456789abcdef0123456789abcdef";
+    document.cookie = `o11y_sid=${sid}; path=/`;
+    const O11y = await start();
+    O11y.logger.info("hello");
+
+    expect(O11y.getSessionId()).toBe(sid);
+    expect(attr(sentLogs(flush())[0], "session.id")).toBe(sid);
+  });
+
+  it("쿠키 값의 형식이 다르면 쓰지 않고 탭 세션 ID 를 쓴다", async () => {
+    document.cookie = "o11y_sid=not-ours; path=/";
+    const O11y = await start();
+    expect(O11y.getSessionId()).toMatch(/^[0-9a-f]{32}$/);
   });
 });
 

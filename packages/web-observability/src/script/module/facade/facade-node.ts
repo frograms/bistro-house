@@ -2,8 +2,13 @@
  * 앱 코드가 쓰는 통합 진입점(서버 구현). 브라우저 구현(`facade-browser.ts`)과 같은 이름·시그니처를 내보낸다.
  * SSR 렌더링·loader 처럼 같은 코드가 서버에서 돌면 이 구현이 쓰인다.
  */
-import type { InitOptions, Logger } from "../../type/observability-types.ts";
+import type {
+  InitOptions,
+  Logger,
+  User,
+} from "../../type/observability-types.ts";
 import { getServerConfig, setServerConfig } from "../server/server-config.ts";
+import { getRequestStore } from "../server/server-context.ts";
 import { captureUncaughtErrors, writeServerLog } from "../server/server-log.ts";
 
 /**
@@ -44,7 +49,24 @@ export const logger: Logger = {
   warn: log("warn"),
 };
 
-/** 탭 세션 ID — 서버에서는 없다 */
+/**
+ * 지금 처리 중인 요청의 사용자(Sentry `setUser` 자리). 이후 이 요청에서 남기는 로그에 `user.id` 가 붙는다.
+ * `null` 이면 지운다. `sessionContext` 밖(요청 밖)에서 부르면 아무것도 하지 않는다.
+ */
+export function setUser(user: User | null) {
+  const store = getRequestStore();
+  if (!store) {
+    if (getServerConfig()?.debug) {
+      console.warn(
+        "[web-observability] 요청 컨텍스트 밖에서 setUser 를 호출했습니다. sessionContext 미들웨어를 연결했는지 확인합니다."
+      );
+    }
+    return;
+  }
+  store.user = user ?? undefined;
+}
+
+/** 세션 ID(`session.id`). 서버에서는 지금 처리 중인 요청의 값이고, `sessionContext` 밖이면 undefined */
 export function getSessionId(): string | undefined {
-  return undefined;
+  return getRequestStore()?.sessionId;
 }

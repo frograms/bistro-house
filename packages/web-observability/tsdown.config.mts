@@ -16,13 +16,25 @@ const sharedConfig: UserConfig = {
   tsconfig: "tsconfig.json",
 };
 
+// neutral 플랫폼은 Node 내장 모듈을 모르므로 외부 모듈로 명시한다(서버 청크만 쓴다)
+const NODE_BUILTIN = /^node:/;
+
 export default defineConfig([
-  { ...sharedConfig, clean: true, dts: false, format: "esm" },
+  {
+    ...sharedConfig,
+    clean: true,
+    deps: { neverBundle: [NODE_BUILTIN] },
+    dts: false,
+    format: "esm",
+  },
   {
     ...sharedConfig,
     clean: false,
-    // ESM 전용 패키지라 require 하면 Jest 같은 CJS 로더가 파싱하지 못해 CJS 에만 포함
-    deps: { alwaysBundle: [/^@opentelemetry\/browser-instrumentation\//] },
+    deps: {
+      // ESM 전용 패키지라 require 하면 Jest 같은 CJS 로더가 파싱하지 못해 CJS 에만 포함
+      alwaysBundle: [/^@opentelemetry\/browser-instrumentation\//],
+      neverBundle: [NODE_BUILTIN],
+    },
     dts: true,
     format: "cjs",
   },

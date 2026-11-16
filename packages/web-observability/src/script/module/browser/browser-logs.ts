@@ -15,6 +15,7 @@ import type { TraceContext } from "../../util/traceparent-utils.ts";
 import { ErrorFilter } from "./browser-error-filter.ts";
 import { OtlpLogSender } from "./browser-otlp-logs.ts";
 import type { SessionFlags } from "./browser-session.ts";
+import { getBrowserUser } from "./browser-user.ts";
 
 type Level = keyof Logger;
 
@@ -57,12 +58,13 @@ export function startLogs(
   // 전역 오류는 이유가 문자열("Script error." 등)이어도 예외로 보낸다
   emit = (level, messageOrError, context, asException) => {
     const isMessage = !asException && typeof messageOrError === "string";
+    const user = getBrowserUser();
     let attributes: Attributes = {
       ...contextAttributes(context),
-      "o11y.session_id": flags.sid,
       "rum.sdk": flags.tracing ? "full" : "lite",
+      "session.id": flags.sid,
       "url.path": location.pathname,
-      ...(options.user && { "user.id": options.user.id }),
+      ...(user && { "user.id": user.id }),
     };
     if (isMessage) {
       if (messages >= MAX_MESSAGES_PER_PAGE) {

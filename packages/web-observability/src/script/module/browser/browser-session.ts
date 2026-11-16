@@ -1,4 +1,5 @@
 import type { BrowserOptions } from "../../type/observability-types.ts";
+import { readSessionCookie } from "../../util/session-utils.ts";
 
 export type SessionFlags = {
   /** 예외 레코드 */
@@ -46,12 +47,26 @@ function readFlags(): SessionFlags | undefined {
   return undefined;
 }
 
+/** 서버(`sessionContext`)가 내린 `o11y_sid` 쿠키 — 서버 로그와 같은 세션 ID */
+function cookieSessionId() {
+  try {
+    return readSessionCookie(document.cookie);
+  } catch {
+    // 샌드박스 iframe 등에서 document.cookie 접근이 막히면 탭 세션 ID 를 쓴다
+    return undefined;
+  }
+}
+
 // 이 페이지에서 판정한 값 — sessionStorage 에 저장하지 못해도 getSessionId 가 로그와 같은 sid 를 돌려주도록 둔다
 let current: SessionFlags | undefined;
 
-/** 탭 세션마다 한 번 판정해 sessionStorage 에 둔다(같은 탭 안에서는 유지) */
+/**
+ * 표본 판정은 탭 세션마다 한 번 해서 sessionStorage 에 둔다(같은 탭 안에서는 유지).
+ * 세션 ID 는 서버가 내린 쿠키가 있으면 그 값(브라우저 세션 단위, 탭끼리 공유), 없으면 탭 세션 ID 다.
+ */
 export function sessionFlags(options: BrowserOptions): SessionFlags {
-  current = readFlags() ?? decideFlags(options);
+  const flags = readFlags() ?? decideFlags(options);
+  current = { ...flags, sid: cookieSessionId() ?? flags.sid };
   return current;
 }
 
@@ -74,5 +89,5 @@ function decideFlags(options: BrowserOptions): SessionFlags {
 }
 
 export function getSessionId() {
-  return (current ?? readFlags())?.sid;
+  return current?.sid ?? cookieSessionId() ?? readFlags()?.sid;
 }

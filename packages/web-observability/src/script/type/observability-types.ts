@@ -56,8 +56,8 @@ export type BrowserOptions = SharedOptions & {
   tracePropagationTargets?: (RegExp | string)[];
   /** 브라우저 tracing(문서 로드·fetch 스팬, HyperDX SDK 지연 로드) 탭 세션 비율. 기본 0.1 */
   tracesSampleRate?: number;
-  /** 세션에 남길 사용자 */
-  user?: { id: string };
+  /** 처음부터 알고 있는 사용자. 이후 바뀌면 `setUser` 로 바꾼다 */
+  user?: User;
   /** Web Vitals(LCP·INP·CLS·FCP·TTFB) 탭 세션 비율. 기본 1 */
   webVitalsSampleRate?: number;
 };
@@ -81,6 +81,9 @@ export type ServerInitOptions = { browser?: never; server: ServerOptions };
  * 실행 환경과 다른 쪽 키만 넘기면 경고하고 시작하지 않는다.
  */
 export type InitOptions = BrowserInitOptions | ServerInitOptions;
+
+/** 로그에 `user.id` 로 남길 사용자 */
+export type User = { id: string };
 
 /**
  * 레벨별 로그. 첫 인자가 문자열이면 메시지 로그, 아니면(Error 등) 예외 로그

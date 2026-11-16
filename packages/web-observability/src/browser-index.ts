@@ -5,6 +5,7 @@ export {
   getSessionId,
   init,
   logger,
+  setUser,
 } from "./script/module/facade/facade-browser.ts";
 export type {
   AttributeValue,
@@ -15,4 +16,5 @@ export type {
   Logger,
   ServerOptions,
   SharedOptions,
+  User,
 } from "./script/type/observability-types.ts";

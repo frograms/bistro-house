@@ -1,6 +1,7 @@
-import type { BrowserOptions } from "../../type/observability-types.ts";
+import type { BrowserOptions, User } from "../../type/observability-types.ts";
 import { ensureTraceparentMeta } from "./browser-page-trace.ts";
 import type { SessionFlags } from "./browser-session.ts";
+import { getBrowserUser, onBrowserUserChange } from "./browser-user.ts";
 
 const ASSET_URL = /\.(png|jpe?g|webp|gif|svg|ico|woff2?|css)(\?|$)/;
 // 분석 도구 전송은 fetch 스팬에서 뺀다
@@ -71,9 +72,15 @@ async function startTracing(
     }),
     url: `${location.origin}${endpoint}`,
   });
-  HyperDX.setGlobalAttributes({
-    "o11y.session_id": flags.sid,
-    "rum.sdk": "full",
-    ...(options.user ? { userId: options.user.id } : {}),
-  });
+  const applyAttributes = (user: User | undefined) => {
+    // setGlobalAttributes 는 기존 값에 합치기만 하므로(인자가 없으면 전부 지움) 지운 뒤 다시 싣는다 — userId 를 뺄 수 있도록
+    HyperDX.setGlobalAttributes(undefined as unknown as Record<string, string>);
+    HyperDX.setGlobalAttributes({
+      "rum.sdk": "full",
+      "session.id": flags.sid,
+      ...(user && { userId: user.id }),
+    });
+  };
+  applyAttributes(getBrowserUser());
+  onBrowserUserChange(applyAttributes);
 }
