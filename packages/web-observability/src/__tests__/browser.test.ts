@@ -20,14 +20,36 @@ type OtlpBody = {
 
 const traceId = "0af7651916cd43dd8448eb211c80319c";
 let fetchMock: ReturnType<typeof vi.fn>;
+const globalErrorListeners: Array<{
+  listener: EventListener;
+  type: "error" | "unhandledrejection";
+}> = [];
 
 beforeEach(() => {
+  for (const { listener, type } of globalErrorListeners) {
+    window.removeEventListener(type, listener);
+  }
+  globalErrorListeners.length = 0;
+
   vi.resetModules();
   vi.restoreAllMocks();
   sessionStorage.clear();
+  document.cookie = "o11y_sid=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
   document.head.innerHTML = "";
   fetchMock = vi.fn(() => Promise.resolve(new Response()));
   vi.stubGlobal("fetch", fetchMock);
+  const addEventListener = window.addEventListener.bind(window);
+  vi.spyOn(window, "addEventListener").mockImplementation(
+    (type, listener, options) => {
+      if (
+        (type === "error" || type === "unhandledrejection") &&
+        typeof listener === "function"
+      ) {
+        globalErrorListeners.push({ listener, type });
+      }
+      addEventListener(type, listener, options);
+    }
+  );
 });
 
 /** 페이지를 떠나며 보낸 OTLP 본문 */
@@ -53,17 +75,33 @@ function attr(record: LogRecord | undefined, key: string) {
 async function start(options: Partial<BrowserOptions> = {}) {
   const O11y = await import("../browser-index.ts");
   O11y.init({
-    endpoint: "/_/rum",
-    release: "v1",
-    service: "test-browser",
-    tracesSampleRate: 0,
-    webVitalsSampleRate: 0,
-    ...options,
+    browser: {
+      endpoint: "/_/rum",
+      release: "v1",
+      service: "test-browser",
+      tracesSampleRate: 0,
+      webVitalsSampleRate: 0,
+      ...options,
+    },
   });
   return O11y;
 }
 
 describe("예외", () => {
+  it("captureUncaughtErrors: false 면 전역 리스너를 달지 않고 logger.error 는 보낸다", async () => {
+    const addEventListener = vi.mocked(window.addEventListener);
+    addEventListener.mockClear();
+    const { logger } = await start({ captureUncaughtErrors: false });
+    const eventTypes = addEventListener.mock.calls.map(([type]) => type);
+
+    expect(eventTypes).not.toContain("error");
+    expect(eventTypes).not.toContain("unhandledrejection");
+    logger.error(new Error("manual"));
+    expect(sentLogs(flush()).map((r) => attr(r, "exception.message"))).toEqual([
+      "manual",
+    ]);
+  });
+
   it("전역 오류·처리 안 된 거절·logger.error(오류 객체)를 예외 로그로 보낸다", async () => {
     document.head.innerHTML = `<meta name="traceparent" content="00-${traceId}-b7ad6b7169203331-01">`;
     const { logger } = await start({ ignoreErrors: [/ignored/] });
@@ -140,11 +178,58 @@ describe("메시지 로그", () => {
   });
 });
 
+describe("setUser", () => {
+  it("이후 로그의 user.id 를 바꾸고, null 이면 뺀다", async () => {
+    const O11y = await start({ user: { id: "u1" } });
+    O11y.setUser({ id: "u2" });
+    O11y.logger.info("after login");
+    O11y.setUser(null);
+    O11y.logger.info("after logout");
+
+    const records = sentLogs(flush());
+    expect(attr(records[0], "user.id")).toBe("u2");
+    expect(attr(records[1], "user.id")).toBeUndefined();
+  });
+
+  it("init 전에 부른 값도 쓴다", async () => {
+    const O11y = await import("../browser-index.ts");
+    O11y.setUser({ id: "early" });
+    O11y.init({
+      browser: {
+        endpoint: "/_/rum",
+        service: "test-browser",
+        tracesSampleRate: 0,
+        webVitalsSampleRate: 0,
+      },
+    });
+    O11y.logger.info("hello");
+    expect(attr(sentLogs(flush())[0], "user.id")).toBe("early");
+  });
+});
+
+describe("세션 ID", () => {
+  it("서버가 내린 o11y_sid 쿠키가 있으면 그 값을 쓴다", async () => {
+    const sid = "0123456789abcdef0123456789abcdef";
+    document.cookie = `o11y_sid=${sid}; path=/`;
+    const O11y = await start();
+    O11y.logger.info("hello");
+
+    expect(O11y.getSessionId()).toBe(sid);
+    expect(attr(sentLogs(flush())[0], "session.id")).toBe(sid);
+  });
+
+  it("쿠키 값의 형식이 다르면 쓰지 않고 탭 세션 ID 를 쓴다", async () => {
+    document.cookie = "o11y_sid=not-ours; path=/";
+    const O11y = await start();
+    expect(O11y.getSessionId()).toMatch(/^[0-9a-f]{32}$/);
+  });
+});
+
 describe("init", () => {
   it("endpoint 가 없으면 아무것도 보내지 않고, debug 면 경고한다", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const O11y = await import("../browser-index.ts");
-    O11y.init({ debug: true, service: "test-browser" });
+    O11y.init({ browser: { debug: true, service: "test-browser" } });
     O11y.logger.error(new Error("ignored"));
     flush();
     expect(fetchMock).not.toHaveBeenCalled();
@@ -156,6 +241,16 @@ describe("init", () => {
     logger.info("ignored");
     flush();
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("server 옵션만 넘기면 경고하고 시작하지 않는다", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const O11y = await import("../browser-index.ts");
+    O11y.init({ server: { service: "app" } });
+    O11y.logger.info("ignored");
+    flush();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("browser"));
   });
 
   it("탭 세션 ID 를 돌려준다", async () => {

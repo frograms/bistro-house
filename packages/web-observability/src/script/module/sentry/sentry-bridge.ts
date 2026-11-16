@@ -3,7 +3,7 @@
  * Sentry(Node)는 OTel 트레이서를 직접 등록하므로, `O11y.init` 에 넘긴 서버 설정으로 그 트레이서의 스팬을 OTLP 로도 보낸다.
  * Sentry 를 걷어내면 이 진입점은 통째로 지우고 패키지가 OTel SDK 를 직접 구성한다.
  *
- * 순서: `O11y.init(serverOptions)` → `Sentry.init({ ...sentryOptions(dsn) })` → `installW3CPropagator()`
+ * 순서: `O11y.init({ server })` → `Sentry.init({ ...sentryOptions(dsn) })` → `installW3CPropagator()`
  */
 import type { Context } from "@opentelemetry/api";
 import { propagation } from "@opentelemetry/api";
@@ -84,7 +84,7 @@ function requireConfig() {
   const config = getServerConfig();
   if (!config) {
     throw new Error(
-      "[web-observability] O11y.init(serverOptions) 를 Sentry 연결보다 먼저 호출해야 합니다."
+      "[web-observability] O11y.init({ server }) 를 Sentry 연결보다 먼저 호출해야 합니다."
     );
   }
   return config;

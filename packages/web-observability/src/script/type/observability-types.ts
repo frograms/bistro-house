@@ -15,6 +15,11 @@ export type ErrorRecord = {
 export type SharedOptions = {
   /** 예외 레코드의 마지막 가공·필터. null 이면 버린다 */
   beforeSend?: (record: ErrorRecord) => ErrorRecord | null;
+  /**
+   * 처리 안 된 예외·거절을 이 패키지가 잡을지. 기본 true.
+   * 브라우저는 `error`·`unhandledrejection`, 서버는 프로세스 예외·거절(종료 동작은 바꾸지 않음).
+   */
+  captureUncaughtErrors?: boolean;
   /** 콘솔 진단(종착지 누락 경고, 브라우저는 보내는 레코드도 출력) */
   debug?: boolean;
   /** false 면 아무것도 보내지 않는다. 기본 true */
@@ -51,24 +56,34 @@ export type BrowserOptions = SharedOptions & {
   tracePropagationTargets?: (RegExp | string)[];
   /** 브라우저 tracing(문서 로드·fetch 스팬, HyperDX SDK 지연 로드) 탭 세션 비율. 기본 0.1 */
   tracesSampleRate?: number;
-  /** 세션에 남길 사용자 */
-  user?: { id: string };
+  /** 처음부터 알고 있는 사용자. 이후 바뀌면 `setUser` 로 바꾼다 */
+  user?: User;
   /** Web Vitals(LCP·INP·CLS·FCP·TTFB) 탭 세션 비율. 기본 1 */
   webVitalsSampleRate?: number;
 };
 
 /** 서버 `init` 옵션 */
 export type ServerOptions = SharedOptions & {
-  /** 프로세스의 처리 안 된 예외·거절 보고. 기본 true. 종료 동작은 바꾸지 않는다 */
-  captureUncaughtErrors?: boolean;
   /** 서버 트레이스 OTLP/HTTP 엔드포인트(예: `http://collector:4318/v1/traces`). 없으면 서버 트레이스를 끈다 */
   tracesEndpoint?: string;
   /** 서버 트레이스 비율(0~1). 기본 0(끔). 상위에서 샘플된 요청은 그 결정을 따른다 */
   tracesSampleRate?: number;
 };
 
-/** `init` 옵션. 실행 환경에 맞지 않는 필드는 무시한다 */
-export type InitOptions = BrowserOptions | ServerOptions;
+/** 브라우저 `init` 인자 — `server` 키는 넘길 수 없다 */
+export type BrowserInitOptions = { browser: BrowserOptions; server?: never };
+
+/** 서버 `init` 인자 — `browser` 키는 넘길 수 없다 */
+export type ServerInitOptions = { browser?: never; server: ServerOptions };
+
+/**
+ * `init` 인자. 둘 중 하나만 받는다 — 두 키를 함께 넘기거나 다른 쪽 옵션이 섞이면 타입 오류가 난다.
+ * 실행 환경과 다른 쪽 키만 넘기면 경고하고 시작하지 않는다.
+ */
+export type InitOptions = BrowserInitOptions | ServerInitOptions;
+
+/** 로그에 `user.id` 로 남길 사용자 */
+export type User = { id: string };
 
 /**
  * 레벨별 로그. 첫 인자가 문자열이면 메시지 로그, 아니면(Error 등) 예외 로그

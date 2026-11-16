@@ -5,6 +5,7 @@ import { startLogs } from "./browser-logs.ts";
 import { readPageTraceparent } from "./browser-page-trace.ts";
 import { sessionFlags } from "./browser-session.ts";
 import { scheduleTracing } from "./browser-tracing.ts";
+import { setBrowserUser } from "./browser-user.ts";
 import { startVitalsReporter } from "./browser-vitals.ts";
 
 let started = false;
@@ -28,6 +29,9 @@ export function startBrowser(options: BrowserOptions) {
     return;
   }
   started = true;
+  if (options.user) {
+    setBrowserUser(options.user);
+  }
   const flags = sessionFlags(options);
   const resource = resourceAttributes(options);
   const logsEndpoint = `${location.origin}${endpoint}/v1/logs`;

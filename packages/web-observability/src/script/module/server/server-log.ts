@@ -12,6 +12,7 @@ import {
   isIgnoredError,
 } from "../../util/attribute-utils.ts";
 import { getServerConfig } from "./server-config.ts";
+import { getRequestStore, requestAttributes } from "./server-context.ts";
 import { recordExceptionOnActiveSpan } from "./server-span.ts";
 
 type Level = keyof Logger;
@@ -42,6 +43,7 @@ export function writeJsonLog(
 /**
  * 서버 로그. 문자열이면 메시지 로그(`logger: "app"`), 그 밖의 값이면 예외 로그(`logger: "app.exception"`).
  * error 레벨 예외는 활성 서버 스팬에도 `recordException` + 상태 ERROR 로 남긴다.
+ * `sessionContext` 안이면 `session.id`·`user.id` 를 붙인다(예외는 `beforeSend` 전에 붙인다).
  * `init` 전에도 동작한다(설정이 없으면 기본값).
  */
 export function writeServerLog(
@@ -54,9 +56,13 @@ export function writeServerLog(
   if (config?.enabled === false) {
     return;
   }
+  const attributes = {
+    ...contextAttributes(context),
+    ...requestAttributes(getRequestStore()),
+  };
   // 처리 안 된 예외·거절은 이유가 문자열이어도 예외로 남긴다
   if (!asException && typeof messageOrError === "string") {
-    writeJsonLog(level, "app", messageOrError, contextAttributes(context));
+    writeJsonLog(level, "app", messageOrError, attributes);
     return;
   }
   if (Math.random() >= (config?.sampleRate ?? 1)) {
@@ -66,7 +72,7 @@ export function writeServerLog(
     attributes: {
       "event.name": "exception",
       ...exceptionAttributes(messageOrError),
-      ...contextAttributes(context),
+      ...attributes,
     } as Attributes,
     error: messageOrError,
   };
@@ -179,7 +185,8 @@ function accessLogLevel(status: number | undefined): Level {
 
 /**
  * trace_id·span_id 를 포함한 구조화 JSON 액세스 로그 미들웨어(쿼리 문자열 제외).
- * 진입 시점의 서버 스팬을 기억해 응답 종료 후에도 trace_id·span_id 를 남긴다.
+ * 진입 시점의 서버 스팬·요청 저장소를 기억해 응답 종료 후에도 trace_id·span_id·세션 ID·사용자를 남긴다.
+ * 세션 ID·사용자를 남기려면 `sessionContext` 뒤에 연결한다.
  */
 export function jsonAccessLog<
   Req extends AccessLogRequest,
@@ -191,6 +198,8 @@ export function jsonAccessLog<
       return;
     }
     const spanContext = trace.getActiveSpan()?.spanContext();
+    // 응답 중 setUser 로 바뀐 사용자도 남도록 저장소 객체를 기억한다
+    const store = getRequestStore();
     const start = process.hrtime.bigint();
     let logged = false;
     // 응답 헤더를 보내기 전에 연결이 끊기면 상태 없이 aborted 로 남긴다(기존 morgan 형식과 같다)
@@ -213,6 +222,7 @@ export function jsonAccessLog<
           "http.server.request.duration_ms": Math.round(duration * 1000) / 1000,
           "url.path": path,
           "user_agent.original": req.get("user-agent"),
+          ...requestAttributes(store),
         },
         spanContext
       );
