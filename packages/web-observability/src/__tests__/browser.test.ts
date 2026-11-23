@@ -158,6 +158,24 @@ describe("예외", () => {
     );
   });
 
+  it("SPA 이동 뒤의 기록은 첫 문서의 SSR trace 에 잇지 않는다", async () => {
+    document.head.innerHTML = `<meta name="traceparent" content="00-${traceId}-b7ad6b7169203331-01">`;
+    const initialPath = location.pathname;
+    const { logger } = await start();
+    logger.info("initial");
+    history.pushState(null, "", "/next-page");
+    logger.info("after navigation");
+    history.pushState(null, "", initialPath);
+    logger.info("back");
+
+    const records = sentLogs(flush());
+    expect(records.map((r) => r.traceId)).toEqual([
+      traceId,
+      undefined,
+      undefined,
+    ]);
+  });
+
   it("오류 표본에서 빠진 세션은 예외만 보내지 않는다(메시지 로그는 보낸다)", async () => {
     const { logger } = await start({ sampleRate: 0 });
     logger.error(new Error("dropped"));
