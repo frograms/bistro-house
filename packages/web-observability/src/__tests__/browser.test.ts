@@ -201,6 +201,36 @@ describe("메시지 로그", () => {
   });
 });
 
+describe("전송", () => {
+  it("예약 전송은 keepalive 없이, 페이지를 떠날 때는 keepalive 로 바이트 상한에 맞춰 나눠 보낸다", async () => {
+    vi.useFakeTimers();
+    try {
+      const { logger } = await start();
+      logger.info("scheduled");
+      vi.advanceTimersByTime(5000);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({ keepalive: false });
+
+      fetchMock.mockClear();
+      const long = "x".repeat(20 * 1024);
+      for (let i = 0; i < 6; i++) {
+        logger.info(long);
+      }
+      const bodies = flush();
+      expect(fetchMock.mock.calls.length).toBeGreaterThan(1);
+      for (const [, init] of fetchMock.mock.calls) {
+        expect(init).toMatchObject({ keepalive: true });
+        expect(
+          new TextEncoder().encode(String((init as RequestInit).body)).length
+        ).toBeLessThan(64 * 1024);
+      }
+      expect(sentLogs(bodies)).toHaveLength(6);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
 describe("setUser", () => {
   it("이후 로그의 user.id 를 바꾸고, null 이면 뺀다", async () => {
     const O11y = await start({ user: { id: "u1" } });

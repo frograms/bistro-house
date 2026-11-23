@@ -36,15 +36,38 @@ function toOtlpAttributes(attributes: Attributes) {
   );
 }
 
-const MAX_RECORDS_PER_REQUEST = 10;
+// keepalive 요청은 진행 중인 본문 합계가 64KiB 로 제한된다. 리소스·스코프 등 바깥 구조 몫을 남긴 요청 하나의 상한
+const MAX_REQUEST_BYTES = 60 * 1024;
+
+const encoder = new TextEncoder();
 
 function toNano(ms: number) {
   return `${Math.round(ms)}000000`;
 }
 
+function toOtlpLogRecord(record: OtlpLogRecord) {
+  return {
+    ...(record.trace && {
+      spanId: record.trace.spanId,
+      traceId: record.trace.traceId,
+    }),
+    attributes: toOtlpAttributes({
+      "event.name": record.eventName,
+      ...record.attributes,
+    }),
+    body: { stringValue: record.body },
+    eventName: record.eventName,
+    observedTimeUnixNano: toNano(record.observedTime),
+    severityNumber: record.severityNumber,
+    severityText: record.severityText,
+    timeUnixNano: toNano(record.time),
+  };
+}
+
 /**
  * OTLP/HTTP JSON 로그 전송기 — SDK 없이 같은 출처 수신 경로로 쿠키 없이 보낸다.
  * 페이지를 떠날 때(hidden·pagehide)는 항상 비우고, `flushAfter` 로 더 이른 전송을 예약할 수 있다.
+ * keepalive 는 페이지를 떠날 때만 쓴다(평소 전송까지 64KiB 한도를 나눠 쓰지 않게).
  */
 export class OtlpLogSender {
   private readonly queue: OtlpLogRecord[] = [];
@@ -57,10 +80,10 @@ export class OtlpLogSender {
   ) {
     addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") {
-        this.flush();
+        this.flush(true);
       }
     });
-    addEventListener("pagehide", () => this.flush());
+    addEventListener("pagehide", () => this.flush(true));
   }
 
   push(record: OtlpLogRecord) {
@@ -74,33 +97,32 @@ export class OtlpLogSender {
     }
   }
 
-  flush() {
+  /** 큐를 비운다. 요청 하나가 `MAX_REQUEST_BYTES` 를 넘지 않게 바이트 기준으로 나눈다 */
+  flush(keepalive = false) {
     clearTimeout(this.timer);
     this.timer = undefined;
-    // keepalive 요청은 진행 중인 본문 합계가 64KB 로 제한되므로 요청 하나를 작게 나눈다
-    // (한도를 넘은 요청만 실패하고 나머지는 전송된다)
-    while (this.queue.length > 0) {
-      this.send(this.queue.splice(0, MAX_RECORDS_PER_REQUEST));
+    let batch: ReturnType<typeof toOtlpLogRecord>[] = [];
+    let batchBytes = 0;
+    for (const record of this.queue.splice(0)) {
+      const logRecord = toOtlpLogRecord(record);
+      const bytes = encoder.encode(JSON.stringify(logRecord)).length + 1;
+      if (batch.length > 0 && batchBytes + bytes > MAX_REQUEST_BYTES) {
+        this.send(batch, keepalive);
+        batch = [];
+        batchBytes = 0;
+      }
+      batch.push(logRecord);
+      batchBytes += bytes;
+    }
+    if (batch.length > 0) {
+      this.send(batch, keepalive);
     }
   }
 
-  private send(records: OtlpLogRecord[]) {
-    const logRecords = records.map((record) => ({
-      ...(record.trace && {
-        spanId: record.trace.spanId,
-        traceId: record.trace.traceId,
-      }),
-      attributes: toOtlpAttributes({
-        "event.name": record.eventName,
-        ...record.attributes,
-      }),
-      body: { stringValue: record.body },
-      eventName: record.eventName,
-      observedTimeUnixNano: toNano(record.observedTime),
-      severityNumber: record.severityNumber,
-      severityText: record.severityText,
-      timeUnixNano: toNano(record.time),
-    }));
+  private send(
+    logRecords: ReturnType<typeof toOtlpLogRecord>[],
+    keepalive: boolean
+  ) {
     const body = JSON.stringify({
       resourceLogs: [
         {
@@ -113,7 +135,7 @@ export class OtlpLogSender {
       body,
       credentials: "omit",
       headers: { "content-type": "application/json" },
-      keepalive: true,
+      keepalive,
       method: "POST",
     }).catch(() => undefined);
   }
