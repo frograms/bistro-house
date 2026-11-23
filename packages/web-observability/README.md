@@ -66,7 +66,7 @@ O11y.setUser({ id: user.id }); // 로그아웃하면 setUser(null)
 
 ### 트레이스가 백엔드까지 이어지려면
 
-- 브라우저 `tracePropagationTargets` 에 API 주소를 넣어야 요청에 `traceparent` 가 실립니다. 기본값은 비어 있습니다.
+- 브라우저 `tracePropagationTargets` 에 API 주소를 넣어야 요청에 `traceparent` 가 실립니다. 기본값은 비어 있습니다. **켜기 전에 플랫폼 팀과 먼저 협의합니다** — 표본이 된 탭의 요청은 샘플 플래그가 켜진 채 전파되어 백엔드 트레이스 양이 늘고, 다른 도메인이면 CORS 설정이 필요합니다.
 - 백엔드가 OpenTelemetry 로 `traceparent` 를 이어받아 같은 수집기로 보내야 합니다. 다른 도메인 API 라면 CORS 에서 `traceparent` 헤더를 허용해야 합니다.
 - 트레이스는 표본만 남습니다. 브라우저는 탭마다 `tracesSampleRate`(기본 10%) 로 정하고, 표본이 된 탭의 요청은 백엔드도 그 결정을 따라 끝까지 남깁니다.
 
@@ -90,9 +90,13 @@ pnpm add @watcha-authentic/web-observability @opentelemetry/api
 
 Sentry 와 함께 쓰는 동안 OTel SDK 메이저는 Sentry 에 맞춥니다(Sentry 9 → OTel 1.x, Sentry 10 → OTel 2.x).
 
+**`@sentry/opentelemetry` 는 앱의 Sentry SDK(`@sentry/node` 등)와 정확히 같은 버전을 설치합니다.** peer 범위(`>=9.0.0`)만으로는 맞춰지지 않습니다.
+
 ## 브라우저 설정
 
 진입 모듈 최상단, hydrate 전에 호출합니다. 그래야 hydration 중 오류까지 잡습니다.
+
+**브라우저 `service` 는 반드시 `-browser` 로 끝나야 합니다**(예: `my-app-browser`). 브라우저 수집기가 이 접미가 없는 기록을 버립니다.
 
 ```ts
 O11y.init({
@@ -161,6 +165,10 @@ const traceparent = getServerTraceparent();
 | `appendTraceparentServerTiming` | 404·500 응답도 브라우저가 SSR 트레이스에 이어지게 함      |
 | `getServerTraceparent`          | 문서의 `<meta name="traceparent">` 값(샘플된 요청만)      |
 | `setUser`                       | 이 요청의 로그에 `user.id`. 인증 쿠키 값은 넣지 않습니다  |
+
+### 처리 안 된 거절과 프로세스 종료
+
+`captureUncaughtErrors` 는 종료 동작을 바꾸지 않습니다. 다른 `unhandledRejection` 리스너가 없으면 Node 기본(`--unhandled-rejections=throw`)대로 프로세스가 종료됩니다. **Sentry 와 함께 쓰는 동안에는 Sentry 의 리스너가 있어 프로세스가 유지되지만, Sentry 를 걷어내면 처리 안 된 거절 한 번에 프로세스가 종료됩니다.** 걷어내기 전에 처리 안 된 거절을 정리하거나, 유지가 필요하면 `--unhandled-rejections=warn` 을 지정합니다.
 
 ## 옵션
 
