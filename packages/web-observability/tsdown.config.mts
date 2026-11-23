@@ -30,11 +30,7 @@ export default defineConfig([
   {
     ...sharedConfig,
     clean: false,
-    deps: {
-      // ESM 전용 패키지라 require 하면 Jest 같은 CJS 로더가 파싱하지 못해 CJS 에만 포함
-      alwaysBundle: [/^@opentelemetry\/browser-instrumentation\//],
-      neverBundle: [NODE_BUILTIN],
-    },
+    deps: { neverBundle: [NODE_BUILTIN] },
     dts: true,
     format: "cjs",
   },
