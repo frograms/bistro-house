@@ -7,6 +7,8 @@ import type {
 const MAX_VALUE_LENGTH = 1000;
 const MAX_STACK_LENGTH = 8000;
 const MAX_CAUSE_DEPTH = 5;
+const MAX_CONTEXT_DEPTH = 5;
+const MAX_CONTEXT_KEYS = 100;
 
 /** `init` 의 service·release·environment 를 OTel 리소스 속성으로 */
 export function resourceAttributes(
@@ -30,23 +32,58 @@ function serialize(value: unknown) {
   }
 }
 
-/** 컨텍스트를 OTel 속성으로 — 원시값은 그대로, 그 밖의 값은 JSON 문자열(최대 1000자) */
+function flattenInto(
+  out: Attributes,
+  key: string,
+  value: unknown,
+  depth: number
+) {
+  if (value === undefined || Object.keys(out).length >= MAX_CONTEXT_KEYS) {
+    return;
+  }
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  ) {
+    out[key] = value;
+    return;
+  }
+  if (typeof value !== "object" || value === null) {
+    out[key] = String(value);
+    return;
+  }
+  if (value instanceof Error) {
+    out[key] = `${value.name}: ${value.message}`;
+    return;
+  }
+  const { toJSON } = value as { toJSON?: unknown };
+  if (typeof toJSON === "function") {
+    // Date 등은 직렬화 값(Date 는 ISO 문자열)으로
+    flattenInto(out, key, (toJSON as () => unknown).call(value), depth + 1);
+    return;
+  }
+  if (depth >= MAX_CONTEXT_DEPTH) {
+    // 순환 참조·지나치게 깊은 값의 마지막 수단
+    out[key] = serialize(value).slice(0, MAX_VALUE_LENGTH);
+    return;
+  }
+  for (const [childKey, child] of Object.entries(value)) {
+    flattenInto(out, `${key}.${childKey}`, child, depth + 1);
+  }
+}
+
+/**
+ * 컨텍스트를 OTel 속성으로 — 원시값은 그대로, 객체·배열은 점 표기 키로 펼친다
+ * (`{ order: { id: 1 } }` → `order.id`. JSON 문자열로 넣지 않아 필드로 조회할 수 있다).
+ * 깊이 5단계·키 100개까지만 싣는다.
+ */
 export function contextAttributes(context: Context = {}): Attributes {
-  return Object.fromEntries(
-    Object.entries(context).flatMap(([key, value]) => {
-      if (value === undefined) {
-        return [];
-      }
-      if (
-        typeof value === "string" ||
-        typeof value === "number" ||
-        typeof value === "boolean"
-      ) {
-        return [[key, value]];
-      }
-      return [[key, serialize(value).slice(0, MAX_VALUE_LENGTH)]];
-    })
-  );
+  const out: Attributes = {};
+  for (const [key, value] of Object.entries(context)) {
+    flattenInto(out, key, value, 0);
+  }
+  return out;
 }
 
 function causeOf(error: unknown) {

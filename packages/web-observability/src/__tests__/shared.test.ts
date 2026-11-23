@@ -26,29 +26,39 @@ describe("traceparent", () => {
 });
 
 describe("contextAttributes", () => {
-  it("원시값은 그대로, 객체는 JSON 문자열, undefined 는 뺀다", () => {
+  it("원시값은 그대로, 객체·배열은 점 표기 키로 펼치고, undefined 는 뺀다", () => {
     expect(
       contextAttributes({
+        at: new Date("2026-01-02T03:04:05.000Z"),
         count: 3,
+        error: new TypeError("bad"),
         flag: true,
-        nested: { a: [1, 2] },
+        nested: { a: [1, 2], b: { c: "d" }, skip: undefined },
         skip: undefined,
         step: "save",
       })
     ).toEqual({
+      at: "2026-01-02T03:04:05.000Z",
       count: 3,
+      error: "TypeError: bad",
       flag: true,
-      nested: '{"a":[1,2]}',
+      "nested.a.0": 1,
+      "nested.a.1": 2,
+      "nested.b.c": "d",
       step: "save",
     });
   });
 
-  it("직렬화할 수 없는 값도 막히지 않는다", () => {
+  it("순환 참조도 막히지 않고, 키는 100개까지만 싣는다", () => {
     const circular: Record<string, unknown> = {};
     circular.self = circular;
     expect(contextAttributes({ circular })).toEqual({
-      circular: "[unserializable]",
+      "circular.self.self.self.self.self": "[unserializable]",
     });
+    const many = Object.fromEntries(
+      Array.from({ length: 150 }, (_, i) => [`k${i}`, i])
+    );
+    expect(Object.keys(contextAttributes({ many }))).toHaveLength(100);
   });
 });
 

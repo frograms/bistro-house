@@ -178,6 +178,17 @@ describe("logger(서버)", () => {
     expect(setStatus).not.toHaveBeenCalled();
   });
 
+  it("중첩 컨텍스트는 JSON 문자열이 아니라 점 표기 필드로 남긴다", () => {
+    const lines = captureStdout();
+    O11y.logger.info("order", { order: { id: 7, items: ["a"] } });
+
+    expect(lines[0]).toMatchObject({
+      "order.id": 7,
+      "order.items.0": "a",
+    });
+    expect(lines[0]).not.toHaveProperty(["order"]);
+  });
+
   it("ignoreErrors·beforeSend·sampleRate·enabled 설정을 따른다", () => {
     const lines = captureStdout();
     resetConfig({

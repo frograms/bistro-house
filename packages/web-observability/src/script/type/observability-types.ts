@@ -1,7 +1,7 @@
 export type AttributeValue = boolean | number | string | undefined;
 export type Attributes = Record<string, AttributeValue>;
 
-/** 로그에 붙이는 컨텍스트. 원시값은 그대로, 객체는 JSON 문자열로 펼쳐 싣는다 */
+/** 로그에 붙이는 컨텍스트. 원시값은 그대로, 객체·배열은 점 표기 키(`order.id`)로 펼쳐 싣는다 */
 export type Context = Record<string, unknown>;
 
 /** `beforeSend` 가 받는 예외 레코드 */
