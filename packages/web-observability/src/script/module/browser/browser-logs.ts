@@ -6,6 +6,7 @@ import type {
 } from "../../type/observability-types.ts";
 import {
   contextAttributes,
+  EXCEPTION_SOURCE,
   exceptionAttributes,
 } from "../../util/attribute-utils.ts";
 import type { TraceContext } from "../../util/traceparent-utils.ts";
@@ -106,13 +107,23 @@ export function startLogs(
       // 교차 출처 스크립트 오류는 error 가 없고 message("Script error.")만 있다
       const error: unknown = event.error ?? (event.message || undefined);
       if (error != null) {
-        emit?.("error", error, { "o11y.exception.source": "global" }, true);
+        emit?.(
+          "error",
+          error,
+          { [EXCEPTION_SOURCE]: "browser.global_error" },
+          true
+        );
       }
     });
     addEventListener("unhandledrejection", (event) => {
       const { reason } = event as { reason: unknown };
       if (reason != null) {
-        emit?.("error", reason, { "o11y.exception.source": "global" }, true);
+        emit?.(
+          "error",
+          reason,
+          { [EXCEPTION_SOURCE]: "browser.unhandled_rejection" },
+          true
+        );
       }
     });
   }

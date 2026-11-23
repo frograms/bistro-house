@@ -10,6 +10,12 @@ const MAX_CAUSE_DEPTH = 5;
 const MAX_CONTEXT_DEPTH = 5;
 const MAX_CONTEXT_KEYS = 100;
 
+/**
+ * 처리 안 된 예외를 잡은 곳(사내 규칙 `watcha.<도메인>.<개념>`).
+ * 값: `browser.global_error`·`browser.unhandled_rejection`·`node.uncaught_exception`·`node.unhandled_rejection`
+ */
+export const EXCEPTION_SOURCE = "watcha.exception.source";
+
 /** `init` 의 service·release·environment 를 OTel 리소스 속성으로 */
 export function resourceAttributes(
   options: Pick<SharedOptions, "environment" | "release" | "service">

@@ -8,6 +8,7 @@ import type {
 } from "../../type/observability-types.ts";
 import {
   contextAttributes,
+  EXCEPTION_SOURCE,
   exceptionAttributes,
   isIgnoredError,
 } from "../../util/attribute-utils.ts";
@@ -135,14 +136,24 @@ function unhandledRejectionsMode() {
 export function captureUncaughtErrors() {
   process.on("uncaughtExceptionMonitor", (error, origin) => {
     if (!wasReported(error)) {
-      writeServerLog("error", error, { "o11y.exception.source": origin }, true);
+      writeServerLog(
+        "error",
+        error,
+        {
+          [EXCEPTION_SOURCE]:
+            origin === "unhandledRejection"
+              ? "node.unhandled_rejection"
+              : "node.uncaught_exception",
+        },
+        true
+      );
     }
   });
   process.on("unhandledRejection", (reason) => {
     writeServerLog(
       "error",
       reason,
-      { "o11y.exception.source": "unhandledRejection" },
+      { [EXCEPTION_SOURCE]: "node.unhandled_rejection" },
       true
     );
     if (

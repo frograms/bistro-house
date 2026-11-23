@@ -142,7 +142,12 @@ describe("예외", () => {
       traceId,
     });
     expect(attr(records[0], "exception.type")).toBe("TypeError");
-    expect(attr(records[0], "o11y.exception.source")).toBe("global");
+    expect(attr(records[0], "watcha.exception.source")).toBe(
+      "browser.global_error"
+    );
+    expect(attr(records[1], "watcha.exception.source")).toBe(
+      "browser.unhandled_rejection"
+    );
     expect(records[2]).toMatchObject({ eventName: "exception" });
     expect(attr(records[3], "step")).toBe("save");
     expect(bodies[0]?.resourceLogs[0]?.resource.attributes).toEqual(

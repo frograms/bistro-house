@@ -8,7 +8,7 @@ import type { SessionFlags } from "./browser-session.ts";
 /**
  * 경량 Web Vitals 리포터 — OTel semconv `browser.web_vital` 이벤트.
  * 시각은 페이지 시작(bfcache 복원 뒤엔 복원 시점)이라 같은 페이지의 지표가 문서 로드 스팬과 한 시점에 모이고,
- * 보고까지 걸린 시간은 `o11y.web_vital.reported_after_ms` 로 남긴다.
+ * 보고까지 걸린 시간은 `watcha.web_vital.reported_after_ms` 로 남긴다.
  */
 export function startVitalsReporter(
   endpoint: string,
@@ -37,10 +37,10 @@ export function startVitalsReporter(
         "browser.web_vital.navigation_type": metric.navigationType,
         "browser.web_vital.rating": metric.rating,
         "browser.web_vital.value": metric.value,
-        "o11y.web_vital.reported_after_ms": time - pageStart,
         "rum.sdk": flags.tracing ? "full" : "lite",
         "session.id": flags.sid,
         "url.path": path,
+        "watcha.web_vital.reported_after_ms": time - pageStart,
       },
       body: name,
       eventName: "browser.web_vital",

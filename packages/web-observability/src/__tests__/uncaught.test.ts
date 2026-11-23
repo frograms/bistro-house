@@ -34,7 +34,7 @@ describe("captureUncaughtErrors", () => {
     expect(status).toBe(1);
     expect(lines[0]).toMatchObject({
       "exception.message": "boom",
-      "o11y.exception.source": "uncaughtException",
+      "watcha.exception.source": "node.uncaught_exception",
     });
   });
 
@@ -47,7 +47,7 @@ describe("captureUncaughtErrors", () => {
     expect(lines).toHaveLength(1);
     expect(lines[0]).toMatchObject({
       "exception.message": "rejected",
-      "o11y.exception.source": "unhandledRejection",
+      "watcha.exception.source": "node.unhandled_rejection",
     });
   });
 
@@ -83,7 +83,7 @@ describe("captureUncaughtErrors", () => {
     expect(lines).toHaveLength(1);
     expect(lines[0]).toMatchObject({
       "exception.message": "rejected",
-      "o11y.exception.source": "unhandledRejection",
+      "watcha.exception.source": "node.unhandled_rejection",
     });
   });
 });

@@ -32,6 +32,15 @@ O11y.setUser({ id: user.id }); // 로그아웃하면 setUser(null)
 - 컨텍스트의 객체·배열은 점 표기 필드로 펼쳐집니다(`{ order: { id } }` → `order.id`). 깊이 5단계·키 100개까지 싣습니다.
 - **컨텍스트에 원문 객체(요청·응답 전체 등)나 자격 증명(토큰·쿠키·비밀번호)을 넣지 않습니다.** 값은 필요한 필드만 골라 넣습니다.
 
+처리 안 된 예외 레코드에는 잡은 곳이 `watcha.exception.source` 로 붙습니다.
+
+| 값                            | 잡은 곳                              |
+| ----------------------------- | ------------------------------------ |
+| `browser.global_error`        | 브라우저 `error` 이벤트              |
+| `browser.unhandled_rejection` | 브라우저 `unhandledrejection` 이벤트 |
+| `node.uncaught_exception`     | Node 처리 안 된 예외                 |
+| `node.unhandled_rejection`    | Node 처리 안 된 거절                 |
+
 ## 사용자 흐름 추적
 
 **`user.id` → `session.id` → `trace_id` 순서로 좁혀 갑니다.**
