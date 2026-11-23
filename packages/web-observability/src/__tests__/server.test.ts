@@ -90,10 +90,11 @@ describe("jsonAccessLog", () => {
     expect(lines).toHaveLength(1);
     expect(lines[0]).toMatchObject({
       "event.name": "http.server.request",
+      "http.request.method": "GET",
       "http.response.status_code": 200,
       level: "info",
       logger: "http.access",
-      message: "GET /ko/search 200",
+      message: "HTTP request completed",
       "url.path": "/ko/search",
       "user_agent.original": "test-agent",
     });
@@ -108,7 +109,7 @@ describe("jsonAccessLog", () => {
 
     expect(lines[0]).toMatchObject({
       level: "warn",
-      message: "GET /ko/search aborted",
+      message: "HTTP request aborted",
     });
     expect(lines[0]).not.toHaveProperty(["http.response.status_code"]);
   });

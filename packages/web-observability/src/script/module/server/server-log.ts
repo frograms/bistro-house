@@ -202,7 +202,8 @@ export function jsonAccessLog<
     const store = getRequestStore();
     const start = process.hrtime.bigint();
     let logged = false;
-    // 응답 헤더를 보내기 전에 연결이 끊기면 상태 없이 aborted 로 남긴다(기존 morgan 형식과 같다)
+    // 응답 헤더를 보내기 전에 연결이 끊기면 상태 없이 aborted 로 남긴다.
+    // 메시지는 패턴 집계가 되도록 고정 문장으로 두고, 메서드·경로·상태는 필드로만 남긴다
     const log = () => {
       if (logged) {
         return;
@@ -214,7 +215,9 @@ export function jsonAccessLog<
       writeJsonLog(
         accessLogLevel(status),
         "http.access",
-        `${req.method} ${path} ${status ?? "aborted"}`,
+        status === undefined
+          ? "HTTP request aborted"
+          : "HTTP request completed",
         {
           "event.name": "http.server.request",
           "http.request.method": req.method,
