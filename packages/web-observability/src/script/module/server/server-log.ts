@@ -42,7 +42,8 @@ export function writeJsonLog(
 
 /**
  * 서버 로그. 문자열이면 메시지 로그(`logger: "app"`), 그 밖의 값이면 예외 로그(`logger: "app.exception"`).
- * error 레벨 예외는 활성 서버 스팬에도 `recordException` + 상태 ERROR 로 남긴다.
+ * 스팬은 건드리지 않는다 — 앱이 처리하고 정상 응답한 오류로 서버 스팬이 ERROR 가 되지 않게 한다(OTel semconv Recording errors).
+ * 처리 안 된 예외·거절(`asException`)만 활성 스팬에 `recordException` + 상태 ERROR 로 남긴다.
  * `sessionContext` 안이면 `session.id`·`user.id` 를 붙인다(예외는 `beforeSend` 전에 붙인다).
  * `init` 전에도 동작한다(설정이 없으면 기본값).
  */
@@ -87,9 +88,8 @@ export function writeServerLog(
     record = result;
   }
   const spanContext =
-    (level === "error"
-      ? recordExceptionOnActiveSpan(messageOrError)
-      : undefined) ?? trace.getActiveSpan()?.spanContext();
+    (asException ? recordExceptionOnActiveSpan(messageOrError) : undefined) ??
+    trace.getActiveSpan()?.spanContext();
   writeJsonLog(
     level,
     "app.exception",

@@ -158,6 +158,25 @@ describe("logger(서버)", () => {
     });
   });
 
+  it("앱이 남긴 예외는 활성 스팬의 상태·예외 이벤트를 바꾸지 않는다", () => {
+    captureStdout();
+    const recordException = vi.fn();
+    const setStatus = vi.fn();
+    vi.spyOn(trace, "getActiveSpan").mockReturnValue({
+      recordException,
+      setStatus,
+      spanContext: () => ({
+        spanId: "b7ad6b7169203331",
+        traceFlags: 1,
+        traceId: "0af7651916cd43dd8448eb211c80319c",
+      }),
+    } as unknown as Span);
+    O11y.logger.error(new Error("handled"));
+
+    expect(recordException).not.toHaveBeenCalled();
+    expect(setStatus).not.toHaveBeenCalled();
+  });
+
   it("ignoreErrors·beforeSend·sampleRate·enabled 설정을 따른다", () => {
     const lines = captureStdout();
     resetConfig({

@@ -41,7 +41,7 @@ const log =
     writeServerLog(level, messageOrError, context);
   };
 
-/** 레벨별 로그. 문자열이면 메시지, 그 밖의 값(Error 등)이면 예외로 남긴다(JSON 한 줄, error 레벨은 활성 스팬에도 기록) */
+/** 레벨별 로그. 문자열이면 메시지, 그 밖의 값(Error 등)이면 예외로 남긴다(JSON 한 줄, 스팬 상태는 바꾸지 않는다) */
 export const logger: Logger = {
   debug: log("debug"),
   error: log("error"),

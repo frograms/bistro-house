@@ -25,6 +25,11 @@ O11y.setUser({ id: user.id }); // 로그아웃하면 setUser(null)
 - 브라우저는 `endpoint` 가 없으면 아무것도 보내지 않습니다.
 - 서버는 로그를 stdout JSON 으로 쓰고(수집은 컨테이너 로그 수집기), 트레이스만 OTLP 로 보냅니다.
 
+## 로그 남기는 규칙
+
+- **앱이 잡아서 처리한 오류는 `logger.warn`**, 처리하지 못해 요청·화면이 실패한 오류만 `logger.error` 로 남깁니다(OTel semconv 의 예외 로그 심각도 권고).
+- `logger.*` 는 서버 스팬의 상태를 바꾸지 않습니다. 스팬의 `exception` 이벤트·ERROR 상태는 처리 안 된 예외·거절(`captureUncaughtErrors`)과 HTTP 계측(5xx)만 남깁니다.
+
 ## 사용자 흐름 추적
 
 **`user.id` → `session.id` → `trace_id` 순서로 좁혀 갑니다.**
