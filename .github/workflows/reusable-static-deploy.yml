@@ -1,6 +1,6 @@
 name: reusable-static-deploy
 
-# 리포 내 정적 앱(apps/*) 공용 배포 — validate → deploy(빌드 + S3 sync + CDN invalidation + 등록).
+# 리포 내 정적 앱(apps/*) 공용 배포 — validate → deploy(빌드 + S3 sync + CDN invalidation).
 #
 # 사내 공용 정적 배포 파이프라인의 리포 내 대응물. public 리포는 private 리포의
 # reusable workflow/composite action 을 참조할 수 없다는 GitHub 제약 때문에 같은 리포 안에
@@ -11,12 +11,10 @@ name: reusable-static-deploy
 # 새 앱 추가: deploy-{app}.yml caller 를 만들어 이 워크플로를 호출한다 (deploy-playground.yml 참고).
 # 전제:
 #   - 빌드 base path = /{app_name}/ (vite base 등) — 산출물 자산 경로 성립 조건
-#   - production environment(master 브랜치 제한)에 시크릿 5종:
-#     DEPLOY_AWS_ROLE_ARN / DEPLOY_S3_BUCKET / DEPLOY_CF_DISTRIBUTION_ID /
-#     DEPLOY_REGISTRY_ENDPOINT / DEPLOY_REGISTRY_AUTH_HEADER
+#   - production environment(master 브랜치 제한)에 시크릿 3종:
+#     DEPLOY_AWS_ROLE_ARN / DEPLOY_S3_BUCKET / DEPLOY_CF_DISTRIBUTION_ID
 #     (리소스 식별자는 전부 시크릿 — public 리포 YAML/로그에 남기지 않기 위함이며, 로그에서도 마스킹된다)
-#   - deploy 잡 러너 = static-deploy-runner(자체 호스팅) — 배포 등록에 필요.
-#     validate 는 ubuntu-latest — PR/검증 잡은 자체 호스팅 러너를 쓰지 않는다는 원칙.
+#   - 러너 = ubuntu-latest (validate / deploy 모두) — 자체 호스팅 러너를 쓰지 않는다.
 
 on:
   workflow_call:
@@ -36,11 +34,6 @@ on:
         description: 빌드 산출물 디렉토리 (예 apps/playground/dist)
         required: true
         type: string
-      description:
-        description: 배포 등록 시 앱 설명 (최초 등록 시에만 저장)
-        required: false
-        type: string
-        default: ""
 
 jobs:
   validate:
@@ -61,7 +54,7 @@ jobs:
   deploy:
     # 빌드와 배포를 한 잡에서 수행 — 아티팩트 전달/재빌드 없이 산출물을 그대로 sync
     needs: validate
-    runs-on: static-deploy-runner
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read
@@ -76,16 +69,12 @@ jobs:
           ROLE_ARN: ${{ secrets.DEPLOY_AWS_ROLE_ARN }}
           BUCKET: ${{ secrets.DEPLOY_S3_BUCKET }}
           DISTRIBUTION_ID: ${{ secrets.DEPLOY_CF_DISTRIBUTION_ID }}
-          REGISTRY_ENDPOINT: ${{ secrets.DEPLOY_REGISTRY_ENDPOINT }}
-          REGISTRY_AUTH_HEADER: ${{ secrets.DEPLOY_REGISTRY_AUTH_HEADER }}
         run: |
           set -euo pipefail
           missing=""
           [ -z "$ROLE_ARN" ] && missing="$missing DEPLOY_AWS_ROLE_ARN"
           [ -z "$BUCKET" ] && missing="$missing DEPLOY_S3_BUCKET"
           [ -z "$DISTRIBUTION_ID" ] && missing="$missing DEPLOY_CF_DISTRIBUTION_ID"
-          [ -z "$REGISTRY_ENDPOINT" ] && missing="$missing DEPLOY_REGISTRY_ENDPOINT"
-          [ -z "$REGISTRY_AUTH_HEADER" ] && missing="$missing DEPLOY_REGISTRY_AUTH_HEADER"
           if [ -n "$missing" ]; then
             echo "::error::production environment 시크릿 미설정:$missing"
             exit 1
@@ -147,23 +136,6 @@ jobs:
             --distribution-id "$DISTRIBUTION_ID" \
             --paths "/$APP_NAME/*" \
             --query 'Invalidation.Status' --output text
-
-      - name: Register deployment
-        env:
-          ENDPOINT: ${{ secrets.DEPLOY_REGISTRY_ENDPOINT }}
-          AUTH_HEADER: ${{ secrets.DEPLOY_REGISTRY_AUTH_HEADER }}
-          DEPLOYER: ${{ github.actor }}
-          DESCRIPTION: ${{ inputs.description }}
-        run: |
-          set -euo pipefail
-          # 배포(S3/CDN)는 이미 완료 — 등록은 멱등 upsert 라 실패 시 재실행으로 복구.
-          # 응답 본문은 공개 로그에 남기지 않는다 (상태 코드만 출력).
-          curl -fsS -o /dev/null -w 'registry upsert: HTTP %{http_code}\n' \
-            -X POST "$ENDPOINT" \
-            -H "Content-Type: application/json" \
-            -H "$AUTH_HEADER" \
-            -d "$(jq -nc --arg name "$APP_NAME" --arg deployer "$DEPLOYER" --arg desc "$DESCRIPTION" \
-              '{name:$name, deployer:$deployer, description:$desc}')"
 
       - name: Summary
         run: |
