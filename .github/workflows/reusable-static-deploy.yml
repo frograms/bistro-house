@@ -127,6 +127,22 @@ jobs:
           # --only-show-errors: 공개 로그에 업로드 경로를 나열하지 않는다
           aws s3 sync "$DIST_PATH" "s3://$BUCKET/$APP_NAME/" --delete --only-show-errors
 
+      - name: Stamp index.html with deploy metadata
+        env:
+          DIST_PATH: ${{ inputs.dist_path }}
+          BUCKET: ${{ secrets.DEPLOY_S3_BUCKET }}
+          DEPLOYER: ${{ github.actor }}
+          COMMIT: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          # 배포 현황 화면에 배포자를 표시하기 위해 index.html 에 배포 정보를 메타데이터로 적는다.
+          # 이 메타데이터는 CDN 이 공개 응답에서 지운다. 키를 바꾸거나 더하지 않는다.
+          aws s3 cp "$DIST_PATH/index.html" "s3://$BUCKET/$APP_NAME/index.html" \
+            --content-type text/html \
+            --metadata "deployer=$DEPLOYER,commit=$COMMIT,run-id=$RUN_ID" \
+            --only-show-errors
+
       - name: CDN invalidation
         env:
           DISTRIBUTION_ID: ${{ secrets.DEPLOY_CF_DISTRIBUTION_ID }}
