@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { setServerConfig } from "../script/module/server/server-config.ts";
 import { sessionContext } from "../script/module/server/server-context.ts";
@@ -93,5 +93,74 @@ describe("x-request-id 전달", () => {
     await echo.close();
     expect(echo.received[0]?.["x-request-id"]).toBe("own");
     expect(echo.received[1]?.["x-request-id"]).toBeUndefined();
+  });
+});
+
+describe("SSR traceparent — 샘플 여부와 무관하게 내린다", () => {
+  const traceId = "0af7651916cd43dd8448eb211c80319c";
+  const spanId = "b7ad6b7169203331";
+
+  it("미샘플 요청에도 -00 으로 meta 값·Server-Timing 을 낸다(브라우저가 그 결정을 따르게)", async () => {
+    const { trace, TraceFlags } = await import("@opentelemetry/api");
+    const { appendTraceparentServerTiming, getServerTraceparent } =
+      await import("../script/module/server/server-trace.ts");
+    const spy = vi.spyOn(trace, "getActiveSpan");
+
+    spy.mockReturnValue(
+      trace.wrapSpanContext({ spanId, traceFlags: TraceFlags.NONE, traceId })
+    );
+    expect(getServerTraceparent()).toBe(`00-${traceId}-${spanId}-00`);
+    const headers = new Headers();
+    appendTraceparentServerTiming(headers);
+    expect(headers.get("Server-Timing")).toBe(
+      `traceparent;desc="00-${traceId}-${spanId}-00"`
+    );
+
+    spy.mockReturnValue(
+      trace.wrapSpanContext({ spanId, traceFlags: TraceFlags.SAMPLED, traceId })
+    );
+    expect(getServerTraceparent()).toBe(`00-${traceId}-${spanId}-01`);
+
+    spy.mockReturnValue(undefined);
+    expect(getServerTraceparent()).toBeUndefined();
+    spy.mockRestore();
+  });
+});
+
+describe("브라우저 전파기 — x-client-trace-id", () => {
+  it("샘플된 요청에는 traceparent 와 x-client-trace-id 를 함께, 미샘플이면 x-client-trace-id 는 싣지 않는다", async () => {
+    const { context, propagation, trace, TraceFlags } =
+      await import("@opentelemetry/api");
+    const { installClientTracePropagator } =
+      await import("../script/module/browser/browser-propagation.ts");
+    const traceId = "0af7651916cd43dd8448eb211c80319c";
+    const spanId = "b7ad6b7169203331";
+    installClientTracePropagator();
+
+    const sampled: Record<string, string> = {};
+    propagation.inject(
+      trace.setSpanContext(context.active(), {
+        spanId,
+        traceFlags: TraceFlags.SAMPLED,
+        traceId,
+      }),
+      sampled
+    );
+    expect(sampled).toMatchObject({
+      traceparent: `00-${traceId}-${spanId}-01`,
+      "x-client-trace-id": traceId,
+    });
+
+    const unsampled: Record<string, string> = {};
+    propagation.inject(
+      trace.setSpanContext(context.active(), {
+        spanId,
+        traceFlags: TraceFlags.NONE,
+        traceId,
+      }),
+      unsampled
+    );
+    expect(unsampled["x-client-trace-id"]).toBeUndefined();
+    propagation.disable();
   });
 });

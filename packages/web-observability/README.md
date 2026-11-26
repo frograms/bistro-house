@@ -67,7 +67,9 @@ O11y.setUser({ id: user.id }); // 로그아웃하면 setUser(null)
 ### 트레이스가 백엔드까지 이어지려면
 
 - 브라우저 `tracePropagationTargets` 에 API 주소를 넣어야 요청에 `traceparent` 가 실립니다. 기본값은 비어 있습니다. **켜기 전에 플랫폼 팀과 먼저 협의합니다** — 표본이 된 탭의 요청은 샘플 플래그가 켜진 채 전파되어 백엔드 트레이스 양이 늘고, 다른 도메인이면 CORS 설정이 필요합니다.
-- 백엔드가 OpenTelemetry 로 `traceparent` 를 이어받아 같은 수집기로 보내야 합니다. 다른 도메인 API 라면 CORS 에서 `traceparent` 헤더를 허용해야 합니다.
+- 백엔드가 OpenTelemetry 로 `traceparent` 를 이어받아 같은 수집기로 보내야 합니다. 다른 도메인 API 라면 CORS 에서 `traceparent`·`x-client-trace-id` 헤더를 허용해야 합니다.
+- 같은 출처 요청(과 `tracePropagationTargets` 대상)에는 샘플된 경우 `traceparent` 와 함께 `x-client-trace-id` 가 실립니다. Istio 게이트웨이는 부모가 샘플이어도 자기 비율로 다시 뽑는데, 이 헤더가 있으면 브라우저의 결정을 따릅니다.
+- 서버는 샘플되지 않은 문서에도 `traceparent` 를 `-00` 으로 내리고, 브라우저 문서 로드 계측은 그 결정을 따릅니다. 저장되는 문서 로드 트레이스는 모두 SSR 트레이스와 이어지고, `-00` 문서의 브라우저 로그에는 trace 를 붙이지 않습니다.
 - 트레이스는 표본만 남습니다. 브라우저는 탭마다 `tracesSampleRate`(기본 10%) 로 정하고, 표본이 된 탭의 요청은 백엔드도 그 결정을 따라 끝까지 남깁니다.
 
 ## 설치
@@ -157,14 +159,14 @@ if (session) O11y.setUser({ id: String(session.id) }); // 이미 가져온 세�
 const traceparent = getServerTraceparent();
 ```
 
-| 단계                            | 하는 일                                                   |
-| ------------------------------- | --------------------------------------------------------- |
-| `sessionContext`                | `session.id` 를 정하고 요청 로그·서버 스팬에 붙임         |
-| `jsonAccessLog`                 | 요청마다 액세스 로그 한 줄(쿼리 문자열 제외)              |
-| `setServerRoute`                | 서버 스팬 이름을 `GET /:lang/search` 같은 라우트 패턴으로 |
-| `appendTraceparentServerTiming` | 404·500 응답도 브라우저가 SSR 트레이스에 이어지게 함      |
-| `getServerTraceparent`          | 문서의 `<meta name="traceparent">` 값(샘플된 요청만)      |
-| `setUser`                       | 이 요청의 로그에 `user.id`. 인증 쿠키 값은 넣지 않습니다  |
+| 단계                            | 하는 일                                                    |
+| ------------------------------- | ---------------------------------------------------------- |
+| `sessionContext`                | `session.id` 를 정하고 요청 로그·서버 스팬에 붙임          |
+| `jsonAccessLog`                 | 요청마다 액세스 로그 한 줄(쿼리 문자열 제외)               |
+| `setServerRoute`                | 서버 스팬 이름을 `GET /:lang/search` 같은 라우트 패턴으로  |
+| `appendTraceparentServerTiming` | 404·500 응답도 브라우저가 SSR 트레이스에 이어지게 함       |
+| `getServerTraceparent`          | 문서의 `<meta name="traceparent">` 값(미샘플 요청은 `-00`) |
+| `setUser`                       | 이 요청의 로그에 `user.id`. 인증 쿠키 값은 넣지 않습니다   |
 
 ### 처리 안 된 거절과 프로세스 종료
 

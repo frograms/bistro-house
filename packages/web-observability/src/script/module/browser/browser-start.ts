@@ -36,7 +36,11 @@ export function startBrowser(options: BrowserOptions) {
   const resource = resourceAttributes(options);
   const logsEndpoint = `${location.origin}${endpoint}/v1/logs`;
   const traceparent = readPageTraceparent();
-  const pageTrace = parseTraceparent(traceparent);
+  // 미샘플 SSR(-00)의 trace 는 저장되지 않으므로 기록을 잇지 않는다
+  const parsed = parseTraceparent(traceparent);
+  const pageTrace = parsed?.sampled
+    ? { spanId: parsed.spanId, traceId: parsed.traceId }
+    : undefined;
 
   startLogs(logsEndpoint, resource, flags, pageTrace, options);
   if (flags.vitals) {

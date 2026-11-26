@@ -1,16 +1,20 @@
-import { context, trace } from "@opentelemetry/api";
+import { context, isSpanContextValid, trace } from "@opentelemetry/api";
 import { getRPCMetadata, RPCType } from "@opentelemetry/core";
 
-import { formatSampledTraceparent } from "../../util/traceparent-utils.ts";
+import { formatTraceparent } from "../../util/traceparent-utils.ts";
 import { isSampled } from "./server-span.ts";
 
-/** 루트 로더에서 `<meta name="traceparent">` 값. 샘플되지 않은 요청은 없음 */
+/**
+ * 루트 로더에서 `<meta name="traceparent">` 값. 활성 서버 스팬이 없으면 undefined.
+ * 샘플되지 않은 요청도 `-00` 으로 낸다 — 브라우저 문서 로드 계측(ParentBased)이 그 결정을 따라
+ * 서버 트레이스가 없는 문서 로드 트레이스를 따로 만들지 않는다.
+ */
 export function getServerTraceparent() {
   const spanContext = trace.getActiveSpan()?.spanContext();
-  if (!spanContext || !isSampled(spanContext)) {
+  if (!spanContext || !isSpanContextValid(spanContext)) {
     return undefined;
   }
-  return formatSampledTraceparent(spanContext);
+  return formatTraceparent({ ...spanContext, sampled: isSampled(spanContext) });
 }
 
 /**
