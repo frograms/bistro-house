@@ -64,6 +64,11 @@ export type BrowserOptions = SharedOptions & {
 
 /** 서버 `init` 옵션 */
 export type ServerOptions = SharedOptions & {
+  /**
+   * 들어온 요청의 `x-request-id` 를 그대로 실어 보낼 fetch 대상 호스트(문자열은 호스트명 일치, 정규식은 호스트명 검사).
+   * 기본은 클러스터 내부 호스트(`private-*`, `*.svc.cluster.local`). Istio 는 이 값에 담긴 추적 결정으로 다음 홉을 잇는다.
+   */
+  requestIdTargets?: (RegExp | string)[];
   /** 서버 트레이스 OTLP/HTTP 엔드포인트(예: `http://collector:4318/v1/traces`). 없으면 서버 트레이스를 끈다 */
   tracesEndpoint?: string;
   /** 서버 트레이스 비율(0~1). 기본 0(끔). 상위에서 샘플된 요청은 그 결정을 따른다 */
