@@ -54,6 +54,11 @@ export type BrowserOptions = SharedOptions & {
   maskAllText?: boolean;
   /** 세션 리플레이 비율 — tracing 세션 중 비율(전체 기준 traces × replays). 기본 0.1 */
   replaysSessionSampleRate?: number;
+  /**
+   * 샘플된 trace ID 를 실을 추가 헤더 이름.
+   * 없거나 빈 배열이면 헤더를 싣지 않는다.
+   */
+  traceIdHeaders?: readonly string[];
   /** traceparent 를 실을 요청 URL(브라우저 → API trace 연결) */
   tracePropagationTargets?: (RegExp | string)[];
   /**
