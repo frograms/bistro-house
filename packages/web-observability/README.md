@@ -191,27 +191,28 @@ const traceparent = getServerTraceparent();
 
 ### 브라우저
 
-| 필드                       | 기본값 | 설명                                                 |
-| -------------------------- | ------ | ---------------------------------------------------- |
-| `endpoint`                 | —      | 같은 출처 OTLP 수신 경로. 없으면 보내지 않음         |
-| `tracePropagationTargets`  | —      | `traceparent` 를 실을 요청 URL(백엔드 트레이스 연결) |
-| `tracePropagators`         | —      | 추가 전파기. W3C 뒤에 붙인다. 없으면 전역 전파기 유지   |
-| `tracesSampleRate`         | `0.1`  | 브라우저 tracing(HyperDX SDK 지연 로드) 탭 비율      |
-| `replaysSessionSampleRate` | `0.1`  | tracing 탭 중 세션 리플레이 비율                     |
-| `webVitalsSampleRate`      | `1`    | Web Vitals 탭 비율                                   |
-| `user`                     | —      | `{ id }` — 처음 사용자. 이후에는 `setUser`           |
-| `allowUrls` / `denyUrls`   | —      | 맨 위 스택 프레임 URL 로 예외 필터                   |
-| `ignoreUrls` / `assetUrls` | —      | tracing 에서 뺄 fetch URL / 정적 자산 URL            |
-| `maskAllText`              | `true` | 리플레이 텍스트 마스킹(입력값은 항상 마스킹)         |
+| 필드                       | 기본값 | 설명                                                                      |
+| -------------------------- | ------ | ------------------------------------------------------------------------- |
+| `endpoint`                 | —      | 같은 출처 OTLP 수신 경로. 없으면 보내지 않음                              |
+| `tracePropagationTargets`  | —      | `traceparent` 를 실을 요청 URL(백엔드 트레이스 연결)                      |
+| `traceIdHeaders`           | —      | 샘플된 브라우저 fetch·XHR 에 trace ID 를 실을 헤더 이름. 없으면 싣지 않음 |
+| `tracePropagators`         | —      | 추가 전파기. W3C 뒤에 붙인다. 없으면 전역 전파기 유지                     |
+| `tracesSampleRate`         | `0.1`  | 브라우저 tracing(HyperDX SDK 지연 로드) 탭 비율                           |
+| `replaysSessionSampleRate` | `0.1`  | tracing 탭 중 세션 리플레이 비율                                          |
+| `webVitalsSampleRate`      | `1`    | Web Vitals 탭 비율                                                        |
+| `user`                     | —      | `{ id }` — 처음 사용자. 이후에는 `setUser`                                |
+| `allowUrls` / `denyUrls`   | —      | 맨 위 스택 프레임 URL 로 예외 필터                                        |
+| `ignoreUrls` / `assetUrls` | —      | tracing 에서 뺄 fetch URL / 정적 자산 URL                                 |
+| `maskAllText`              | `true` | 리플레이 텍스트 마스킹(입력값은 항상 마스킹)                              |
 
 페이지당 예외 50건·메시지 100건까지 보내고, 같은 예외가 연달아 오면 한 번만 보냅니다.
 
 ### 서버
 
-| 필드               | 기본값 | 설명                                                                                          |
-| ------------------ | ------ | --------------------------------------------------------------------------------------------- |
-| `tracesEndpoint`   | —      | 서버 트레이스 OTLP/HTTP 주소. 없으면 서버 트레이스를 끔                                       |
-| `tracesSampleRate` | `0`    | 서버가 스스로 정하는 트레이스 비율. 상위에서 샘플된 요청은 그 결정을 따름                     |
+| 필드               | 기본값 | 설명                                                                      |
+| ------------------ | ------ | ------------------------------------------------------------------------- |
+| `tracesEndpoint`   | —      | 서버 트레이스 OTLP/HTTP 주소. 없으면 서버 트레이스를 끔                   |
+| `tracesSampleRate` | `0`    | 서버가 스스로 정하는 트레이스 비율. 상위에서 샘플된 요청은 그 결정을 따름 |
 
 **나가는 요청의 trace 이어 붙이기.** 서버 트레이스가 켜져 있으면 `sentryOptions` 가 Sentry `propagateTraceparent` 를 켜서, 나가는 fetch·http 요청에 `traceparent` 를 싣습니다.
 
