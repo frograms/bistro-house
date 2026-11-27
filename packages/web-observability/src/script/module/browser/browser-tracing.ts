@@ -72,11 +72,12 @@ async function startTracing(
     }),
     url: `${location.origin}${endpoint}`,
   });
-  // HyperDX 가 등록한 W3C 전파기를 x-client-trace-id 를 더한 전파기로 바꾼다(fetch·XHR 계측은 전역 전파기를 쓴다).
-  // HyperDX 와 같은 지연 청크로 받아 첫 로드 번들에 OTel 전파기 코드를 넣지 않는다
-  const { installClientTracePropagator } =
-    await import("./browser-propagation.ts");
-  installClientTracePropagator();
+  // 추가 전파기가 있을 때만 OTel 전파기 코드를 불러 전역 전파기를 바꾼다
+  if (options.tracePropagators) {
+    const { installExtraPropagators } =
+      await import("./browser-propagation.ts");
+    await installExtraPropagators(options.tracePropagators);
+  }
   const applyAttributes = (user: User | undefined) => {
     // setGlobalAttributes 는 기존 값에 합치기만 하므로(인자가 없으면 전부 지움) 지운 뒤 다시 싣는다 — userId 를 뺄 수 있도록
     HyperDX.setGlobalAttributes(undefined as unknown as Record<string, string>);
