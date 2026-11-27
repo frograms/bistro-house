@@ -104,7 +104,7 @@ function tracesEnabled(
  * `Sentry.init` 에 펼쳐 넣는 옵션.
  * - 서버 스팬은 `tracesEndpoint` 로만 보내고 Sentry 서버 트랜잭션은 버린다(오류 이벤트 수집은 그대로)
  * - DSN 이 없는 환경에서도 서버 트레이스가 돌도록 Sentry 는 켜되 전송만 버린다
- * - 나가는 요청에 `traceparent` 를 싣는다(`propagateTraceparent`) — 사이드카·하위 서비스가 같은 trace 를 잇는다
+ * - 나가는 요청에 `traceparent` 를 싣는다(`propagateTraceparent`)
  */
 export function sentryOptions(dsn: string | undefined) {
   const config = requireConfig();

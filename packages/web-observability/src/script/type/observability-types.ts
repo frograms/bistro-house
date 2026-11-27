@@ -1,3 +1,5 @@
+import type { TextMapPropagator } from "@opentelemetry/api";
+
 export type AttributeValue = boolean | number | string | undefined;
 export type Attributes = Record<string, AttributeValue>;
 
@@ -52,8 +54,18 @@ export type BrowserOptions = SharedOptions & {
   maskAllText?: boolean;
   /** 세션 리플레이 비율 — tracing 세션 중 비율(전체 기준 traces × replays). 기본 0.1 */
   replaysSessionSampleRate?: number;
+  /**
+   * 샘플된 trace ID 를 실을 추가 헤더 이름.
+   * 없거나 빈 배열이면 헤더를 싣지 않는다.
+   */
+  traceIdHeaders?: readonly string[];
   /** traceparent 를 실을 요청 URL(브라우저 → API trace 연결) */
   tracePropagationTargets?: (RegExp | string)[];
+  /**
+   * tracing 지연 청크에서 전역 전파기에 붙일 추가 전파기.
+   * W3C traceparent·baggage 뒤에 둔다. 없으면 전역 전파기를 바꾸지 않는다.
+   */
+  tracePropagators?: () => Promise<ReadonlyArray<TextMapPropagator>>;
   /** 브라우저 tracing(문서 로드·fetch 스팬, HyperDX SDK 지연 로드) 탭 세션 비율. 기본 0.1 */
   tracesSampleRate?: number;
   /** 처음부터 알고 있는 사용자. 이후 바뀌면 `setUser` 로 바꾼다 */
@@ -64,11 +76,6 @@ export type BrowserOptions = SharedOptions & {
 
 /** 서버 `init` 옵션 */
 export type ServerOptions = SharedOptions & {
-  /**
-   * 들어온 요청의 `x-request-id` 를 그대로 실어 보낼 fetch 대상 호스트(문자열은 호스트명 일치, 정규식은 호스트명 검사).
-   * 기본은 클러스터 내부 호스트(`private-*`, `*.svc.cluster.local`). Istio 는 이 값에 담긴 추적 결정으로 다음 홉을 잇는다.
-   */
-  requestIdTargets?: (RegExp | string)[];
   /** 서버 트레이스 OTLP/HTTP 엔드포인트(예: `http://collector:4318/v1/traces`). 없으면 서버 트레이스를 끈다 */
   tracesEndpoint?: string;
   /** 서버 트레이스 비율(0~1). 기본 0(끔). 상위에서 샘플된 요청은 그 결정을 따른다 */

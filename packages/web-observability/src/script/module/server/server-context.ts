@@ -6,15 +6,9 @@ import { trace } from "@opentelemetry/api";
 import type { Attributes, User } from "../../type/observability-types.ts";
 import { readSessionCookie, SESSION_COOKIE } from "../../util/session-utils.ts";
 import { getServerConfig } from "./server-config.ts";
-import { forwardRequestId } from "./server-request-id.ts";
 
 /** 요청 하나 동안 로그에 붙일 값. `setUser` 가 바꾸므로 객체를 그대로 공유한다 */
-export type RequestStore = {
-  /** 들어온 요청의 `x-request-id`(Envoy 가 붙인 값). 나가는 내부 fetch 에 그대로 싣는다 */
-  requestId?: string;
-  sessionId: string;
-  user: User | undefined;
-};
+export type RequestStore = { sessionId: string; user: User | undefined };
 
 // 통합 진입점(.)과 /server 가 서로 다른 번들 청크로 로드돼도 같은 저장소를 보도록 전역에 둔다
 const STORAGE_KEY = Symbol.for(
@@ -65,13 +59,11 @@ function appendSetCookie(res: SessionResponse, cookie: string) {
  * - 세션 ID 는 `o11y_sid` 쿠키에서 읽고, 없으면 새로 만들어 응답에 쿠키로 내린다(브라우저가 같은 ID 를 이어 쓴다)
  * - 이 안에서 남긴 서버 로그에는 `session.id`·`user.id`(`setUser`)가 붙는다
  * - 요청의 서버 스팬(`instrumentIncomingHttp`)에도 `session.id` 를 붙여 서버 트레이스를 세션으로 찾게 한다
- * - 들어온 `x-request-id` 를 이 요청 안에서 나가는 내부 fetch 에 그대로 싣는다(`requestIdTargets`)
  */
 export function sessionContext<
   Req extends SessionRequest,
   Res extends SessionResponse,
 >(skip: (req: Req) => boolean = () => false) {
-  forwardRequestId(getRequestStore);
   return (req: Req, res: Res, next: () => void) => {
     if (getServerConfig()?.enabled === false || skip(req)) {
       next();
@@ -87,10 +79,6 @@ export function sessionContext<
       );
     }
     trace.getActiveSpan()?.setAttribute("session.id", sessionId);
-    const requestId = req.get("x-request-id");
-    storage().run(
-      { ...(requestId && { requestId }), sessionId, user: undefined },
-      next
-    );
+    storage().run({ sessionId, user: undefined }, next);
   };
 }

@@ -15,46 +15,65 @@ import {
   W3CTraceContextPropagator,
 } from "@opentelemetry/core";
 
-const CLIENT_TRACE_ID_HEADER = "x-client-trace-id";
+/**
+ * 샘플된 trace ID 를 `headers` 의 각 이름으로 싣는다.
+ * 미샘플이거나 이름이 비어 있으면 그 헤더는 싣지 않는다.
+ */
+export const traceIdHeaderPropagator = (
+  headers: ReadonlyArray<string>
+): TextMapPropagator => {
+  const names = headers.filter((header) => header.length > 0);
+  return {
+    extract: (parentContext: Context): Context => parentContext,
+    fields: (): Array<string> => [...names],
+    inject: (
+      parentContext: Context,
+      carrier: unknown,
+      setter: TextMapSetter
+    ): void => {
+      const spanContext = trace.getSpanContext(parentContext);
+      if (
+        names.length === 0 ||
+        !spanContext ||
+        !isSpanContextValid(spanContext) ||
+        (spanContext.traceFlags & TraceFlags.SAMPLED) === 0
+      ) {
+        return;
+      }
+      for (const name of names) {
+        setter.set(carrier, name, spanContext.traceId);
+      }
+    },
+  };
+};
 
 /**
- * 샘플된 요청에 `x-client-trace-id: <traceId>` 를 싣는다.
- * Istio 게이트웨이(Envoy)는 부모 traceparent 가 샘플이어도 자기 랜덤 비율로 다시 뽑는데,
- * 이 헤더가 있으면 클라이언트 요청으로 기록을 세우고 부모 결정을 따른다(Envoy `client_sampling`).
- * Istio 프록시가 부모를 따르는 sampler(`parent_based`)를 지원하면 지운다.
+ * 추가 전파기를 W3C traceparent·baggage 뒤에 붙여 전역 전파기로 등록한다.
+ * 빈 목록이면 전역 전파기를 바꾸지 않는다.
  */
-class ClientTraceIdPropagator implements TextMapPropagator {
-  extract(context: Context) {
-    return context;
+export const applyExtraPropagators = (
+  extras: ReadonlyArray<TextMapPropagator>
+): void => {
+  if (extras.length === 0) {
+    return;
   }
-
-  fields() {
-    return [CLIENT_TRACE_ID_HEADER];
-  }
-
-  inject(context: Context, carrier: unknown, setter: TextMapSetter) {
-    const spanContext = trace.getSpanContext(context);
-    if (
-      !spanContext ||
-      !isSpanContextValid(spanContext) ||
-      (spanContext.traceFlags & TraceFlags.SAMPLED) === 0
-    ) {
-      return;
-    }
-    setter.set(carrier, CLIENT_TRACE_ID_HEADER, spanContext.traceId);
-  }
-}
-
-/** 전역 전파기를 W3C traceparent·baggage + `x-client-trace-id` 로 바꾼다. HyperDX 초기화 뒤에 부른다 */
-export function installClientTracePropagator() {
   propagation.disable();
   propagation.setGlobalPropagator(
     new CompositePropagator({
       propagators: [
         new W3CTraceContextPropagator(),
         new W3CBaggagePropagator(),
-        new ClientTraceIdPropagator(),
+        ...extras,
       ],
     })
   );
-}
+};
+
+/**
+ * 추가 전파기를 불러 전역 전파기로 등록한다.
+ */
+export const installExtraPropagators = async (
+  load: () => Promise<ReadonlyArray<TextMapPropagator>>
+): Promise<void> => {
+  applyExtraPropagators(await load());
+};

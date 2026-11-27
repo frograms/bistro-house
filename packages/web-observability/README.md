@@ -67,8 +67,7 @@ O11y.setUser({ id: user.id }); // 로그아웃하면 setUser(null)
 ### 트레이스가 백엔드까지 이어지려면
 
 - 브라우저 `tracePropagationTargets` 에 API 주소를 넣어야 요청에 `traceparent` 가 실립니다. 기본값은 비어 있습니다. **켜기 전에 플랫폼 팀과 먼저 협의합니다** — 표본이 된 탭의 요청은 샘플 플래그가 켜진 채 전파되어 백엔드 트레이스 양이 늘고, 다른 도메인이면 CORS 설정이 필요합니다.
-- 백엔드가 OpenTelemetry 로 `traceparent` 를 이어받아 같은 수집기로 보내야 합니다. 다른 도메인 API 라면 CORS 에서 `traceparent`·`x-client-trace-id` 헤더를 허용해야 합니다.
-- 같은 출처 요청(과 `tracePropagationTargets` 대상)에는 샘플된 경우 `traceparent` 와 함께 `x-client-trace-id` 가 실립니다. Istio 게이트웨이는 부모가 샘플이어도 자기 비율로 다시 뽑는데, 이 헤더가 있으면 브라우저의 결정을 따릅니다.
+- 백엔드가 OpenTelemetry 로 `traceparent` 를 이어받아 같은 수집기로 보내야 합니다. 다른 도메인 API 라면 CORS 에서 `traceparent` 헤더를 허용해야 합니다.
 - 서버는 샘플되지 않은 문서에도 `traceparent` 를 `-00` 으로 내리고, 브라우저 문서 로드 계측은 그 결정을 따릅니다. 저장되는 문서 로드 트레이스는 모두 SSR 트레이스와 이어지고, `-00` 문서의 브라우저 로그에는 trace 를 붙이지 않습니다.
 - 트레이스는 표본만 남습니다. 브라우저는 탭마다 `tracesSampleRate`(기본 10%) 로 정하고, 표본이 된 탭의 요청은 백엔드도 그 결정을 따라 끝까지 남깁니다.
 
@@ -192,29 +191,30 @@ const traceparent = getServerTraceparent();
 
 ### 브라우저
 
-| 필드                       | 기본값 | 설명                                                 |
-| -------------------------- | ------ | ---------------------------------------------------- |
-| `endpoint`                 | —      | 같은 출처 OTLP 수신 경로. 없으면 보내지 않음         |
-| `tracePropagationTargets`  | —      | `traceparent` 를 실을 요청 URL(백엔드 트레이스 연결) |
-| `tracesSampleRate`         | `0.1`  | 브라우저 tracing(HyperDX SDK 지연 로드) 탭 비율      |
-| `replaysSessionSampleRate` | `0.1`  | tracing 탭 중 세션 리플레이 비율                     |
-| `webVitalsSampleRate`      | `1`    | Web Vitals 탭 비율                                   |
-| `user`                     | —      | `{ id }` — 처음 사용자. 이후에는 `setUser`           |
-| `allowUrls` / `denyUrls`   | —      | 맨 위 스택 프레임 URL 로 예외 필터                   |
-| `ignoreUrls` / `assetUrls` | —      | tracing 에서 뺄 fetch URL / 정적 자산 URL            |
-| `maskAllText`              | `true` | 리플레이 텍스트 마스킹(입력값은 항상 마스킹)         |
+| 필드                       | 기본값 | 설명                                                                      |
+| -------------------------- | ------ | ------------------------------------------------------------------------- |
+| `endpoint`                 | —      | 같은 출처 OTLP 수신 경로. 없으면 보내지 않음                              |
+| `tracePropagationTargets`  | —      | `traceparent` 를 실을 요청 URL(백엔드 트레이스 연결)                      |
+| `traceIdHeaders`           | —      | 샘플된 브라우저 fetch·XHR 에 trace ID 를 실을 헤더 이름. 없으면 싣지 않음 |
+| `tracePropagators`         | —      | 추가 전파기. W3C 뒤에 붙인다. 없으면 전역 전파기 유지                     |
+| `tracesSampleRate`         | `0.1`  | 브라우저 tracing(HyperDX SDK 지연 로드) 탭 비율                           |
+| `replaysSessionSampleRate` | `0.1`  | tracing 탭 중 세션 리플레이 비율                                          |
+| `webVitalsSampleRate`      | `1`    | Web Vitals 탭 비율                                                        |
+| `user`                     | —      | `{ id }` — 처음 사용자. 이후에는 `setUser`                                |
+| `allowUrls` / `denyUrls`   | —      | 맨 위 스택 프레임 URL 로 예외 필터                                        |
+| `ignoreUrls` / `assetUrls` | —      | tracing 에서 뺄 fetch URL / 정적 자산 URL                                 |
+| `maskAllText`              | `true` | 리플레이 텍스트 마스킹(입력값은 항상 마스킹)                              |
 
 페이지당 예외 50건·메시지 100건까지 보내고, 같은 예외가 연달아 오면 한 번만 보냅니다.
 
 ### 서버
 
-| 필드               | 기본값                                    | 설명                                                                                                                                                                          |
-| ------------------ | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `requestIdTargets` | `[/^private-/, /\.svc\.cluster\.local$/]` | 들어온 `x-request-id` 를 그대로 실어 보낼 fetch 대상 호스트(문자열은 호스트명 일치, 정규식은 호스트명 검사). `sessionContext` 안의 요청만                                     |
-| `tracesEndpoint`   | —                                         | 서버 트레이스 OTLP/HTTP 주소. 없으면 서버 트레이스를 끔                                                                                                                       |
-| `tracesSampleRate` | `0`                                       | 서버가 스스로 정하는 트레이스 비율. 상위에서 샘플된 요청은 그 결정을 따름(게이트웨이를 거친 요청은 게이트웨이 결정을 따르므로 이 값은 게이트웨이를 거치지 않는 요청에만 쓰임) |
+| 필드               | 기본값 | 설명                                                                      |
+| ------------------ | ------ | ------------------------------------------------------------------------- |
+| `tracesEndpoint`   | —      | 서버 트레이스 OTLP/HTTP 주소. 없으면 서버 트레이스를 끔                   |
+| `tracesSampleRate` | `0`    | 서버가 스스로 정하는 트레이스 비율. 상위에서 샘플된 요청은 그 결정을 따름 |
 
-**나가는 요청의 trace 이어 붙이기.** 서버가 다른 서비스를 fetch 로 부르면 `traceparent`(`sentryOptions` 가 Sentry `propagateTraceparent` 를 켬)와 들어온 `x-request-id`(`requestIdTargets` 대상만)가 실립니다. Istio 사이드카는 `x-request-id` 에 담긴 추적 결정으로 기록 여부를 정하므로, 둘 다 있어야 하위 서비스까지 한 trace 로 이어집니다. Node 내장 fetch 만 다루며 `node:http` 를 직접 쓰는 호출은 대상이 아닙니다.
+**나가는 요청의 trace 이어 붙이기.** 서버 트레이스가 켜져 있으면 `sentryOptions` 가 Sentry `propagateTraceparent` 를 켜서, 나가는 fetch·http 요청에 `traceparent` 를 싣습니다.
 
 ## 진입점
 
