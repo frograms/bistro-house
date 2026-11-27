@@ -104,6 +104,7 @@ function tracesEnabled(
  * `Sentry.init` 에 펼쳐 넣는 옵션.
  * - 서버 스팬은 `tracesEndpoint` 로만 보내고 Sentry 서버 트랜잭션은 버린다(오류 이벤트 수집은 그대로)
  * - DSN 이 없는 환경에서도 서버 트레이스가 돌도록 Sentry 는 켜되 전송만 버린다
+ * - 나가는 요청에 `traceparent` 를 싣는다(`propagateTraceparent`)
  */
 export function sentryOptions(dsn: string | undefined) {
   const config = requireConfig();
@@ -127,6 +128,8 @@ export function sentryOptions(dsn: string | undefined) {
         resourceAttributes(config)
       ),
     ],
+    // Sentry 의 fetch·http 계측은 OTel 전역 전파기를 쓰지 않는다 — 이 옵션이 있어야 나가는 요청에 traceparent 를 싣는다
+    propagateTraceparent: true,
     tracesSampleRate: config.tracesSampleRate,
   };
 }

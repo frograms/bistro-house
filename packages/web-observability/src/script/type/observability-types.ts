@@ -1,3 +1,5 @@
+import type { TextMapPropagator } from "@opentelemetry/api";
+
 export type AttributeValue = boolean | number | string | undefined;
 export type Attributes = Record<string, AttributeValue>;
 
@@ -52,8 +54,18 @@ export type BrowserOptions = SharedOptions & {
   maskAllText?: boolean;
   /** 세션 리플레이 비율 — tracing 세션 중 비율(전체 기준 traces × replays). 기본 0.1 */
   replaysSessionSampleRate?: number;
+  /**
+   * 샘플된 trace ID 를 실을 추가 헤더 이름.
+   * 없거나 빈 배열이면 헤더를 싣지 않는다.
+   */
+  traceIdHeaders?: readonly string[];
   /** traceparent 를 실을 요청 URL(브라우저 → API trace 연결) */
   tracePropagationTargets?: (RegExp | string)[];
+  /**
+   * tracing 지연 청크에서 전역 전파기에 붙일 추가 전파기.
+   * W3C traceparent·baggage 뒤에 둔다. 없으면 전역 전파기를 바꾸지 않는다.
+   */
+  tracePropagators?: () => Promise<ReadonlyArray<TextMapPropagator>>;
   /** 브라우저 tracing(문서 로드·fetch 스팬, HyperDX SDK 지연 로드) 탭 세션 비율. 기본 0.1 */
   tracesSampleRate?: number;
   /** 처음부터 알고 있는 사용자. 이후 바뀌면 `setUser` 로 바꾼다 */

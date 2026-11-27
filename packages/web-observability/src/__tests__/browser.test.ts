@@ -158,6 +158,15 @@ describe("예외", () => {
     );
   });
 
+  it("미샘플 SSR(traceparent -00)의 문서에서는 기록을 그 trace 에 잇지 않는다", async () => {
+    document.head.innerHTML = `<meta name="traceparent" content="00-${traceId}-b7ad6b7169203331-00">`;
+    const { logger } = await start();
+    logger.info("unsampled page");
+
+    const records = sentLogs(flush());
+    expect(records.map((r) => r.traceId)).toEqual([undefined]);
+  });
+
   it("SPA 이동 뒤의 기록은 첫 문서의 SSR trace 에 잇지 않는다", async () => {
     document.head.innerHTML = `<meta name="traceparent" content="00-${traceId}-b7ad6b7169203331-01">`;
     const initialPath = location.pathname;

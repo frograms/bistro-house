@@ -5,7 +5,7 @@ import {
   exceptionAttributes,
 } from "../script/util/attribute-utils.ts";
 import {
-  formatSampledTraceparent,
+  formatTraceparent,
   parseTraceparent,
 } from "../script/util/traceparent-utils.ts";
 
@@ -13,10 +13,23 @@ describe("traceparent", () => {
   const traceId = "0af7651916cd43dd8448eb211c80319c";
   const spanId = "b7ad6b7169203331";
 
-  it("W3C 값을 나누고 다시 만든다", () => {
-    const value = `00-${traceId}-${spanId}-01`;
-    expect(parseTraceparent(value)).toEqual({ spanId, traceId });
-    expect(formatSampledTraceparent({ spanId, traceId })).toBe(value);
+  it("W3C 값을 나누고 다시 만든다 — 샘플 플래그를 보존한다", () => {
+    const sampled = `00-${traceId}-${spanId}-01`;
+    const unsampled = `00-${traceId}-${spanId}-00`;
+    expect(parseTraceparent(sampled)).toEqual({
+      sampled: true,
+      spanId,
+      traceId,
+    });
+    expect(parseTraceparent(unsampled)).toEqual({
+      sampled: false,
+      spanId,
+      traceId,
+    });
+    expect(formatTraceparent({ sampled: true, spanId, traceId })).toBe(sampled);
+    expect(formatTraceparent({ sampled: false, spanId, traceId })).toBe(
+      unsampled
+    );
   });
 
   it("형식이 다르면 undefined", () => {
