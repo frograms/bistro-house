@@ -27,6 +27,9 @@
       "@playground/*": ["./src/*"]
     }
   },
-  "include": ["src"],
+  "include": [
+    "src",
+    "project-attachment/vite-tool/demo-api/install-wish-fetch.ts"
+  ],
   "exclude": ["**/*.test.*", "**/*.spec.*"]
 }
