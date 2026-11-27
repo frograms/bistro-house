@@ -42,13 +42,17 @@ async function startTracing(
   { endpoint, flags, resource, traceparent }: TracingContext
 ) {
   const hyperdxSdk = import("@hyperdx/browser");
+  const traceIdHeaders = (options.traceIdHeaders ?? []).filter(
+    (header) => header.length > 0
+  );
   // init이 traceparent를 내보내기 전에 추가 전파기를 준비한다
-  const extraPropagators = options.tracePropagators
-    ? Promise.all([
-        import("./browser-propagation.ts"),
-        options.tracePropagators(),
-      ])
-    : undefined;
+  const extraPropagators =
+    options.tracePropagators || traceIdHeaders.length > 0
+      ? Promise.all([
+          import("./browser-propagation.ts"),
+          options.tracePropagators?.() ?? Promise.resolve([]),
+        ] as const)
+      : undefined;
   const [{ default: HyperDX }, loadedExtras] = await Promise.all([
     hyperdxSdk,
     extraPropagators,
@@ -84,8 +88,14 @@ async function startTracing(
     url: `${location.origin}${endpoint}`,
   });
   if (loadedExtras) {
-    const [{ applyExtraPropagators }, propagators] = loadedExtras;
-    applyExtraPropagators(propagators);
+    const [{ applyExtraPropagators, traceIdHeaderPropagator }, propagators] =
+      loadedExtras;
+    applyExtraPropagators([
+      ...propagators,
+      ...(traceIdHeaders.length > 0
+        ? [traceIdHeaderPropagator(traceIdHeaders)]
+        : []),
+    ]);
   }
   const applyAttributes = (user: User | undefined) => {
     // setGlobalAttributes 는 기존 값에 합치기만 하므로(인자가 없으면 전부 지움) 지운 뒤 다시 싣는다 — userId 를 뺄 수 있도록

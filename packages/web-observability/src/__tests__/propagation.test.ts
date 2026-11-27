@@ -98,6 +98,69 @@ describe("브라우저 추가 전파기", () => {
     expect(carrier["x-extra"]).toBe("1");
   });
 
+  it("샘플된 trace ID 를 지정한 헤더에 싣고, 미샘플이면 싣지 않는다", async () => {
+    const { context, trace, TraceFlags } = await import("@opentelemetry/api");
+    const { traceIdHeaderPropagator } =
+      await import("../script/module/browser/browser-propagation.ts");
+    const propagator = traceIdHeaderPropagator([
+      "x-client-trace-id",
+      "",
+      "x-trace-id",
+    ]);
+    const setter = {
+      set: (carrier: unknown, key: string, value: string) => {
+        (carrier as Record<string, string>)[key] = value;
+      },
+    };
+    const sampled: Record<string, string> = {};
+    propagator.inject(
+      trace.setSpanContext(context.active(), {
+        spanId,
+        traceFlags: TraceFlags.SAMPLED,
+        traceId,
+      }),
+      sampled,
+      setter
+    );
+    expect(sampled).toEqual({
+      "x-client-trace-id": traceId,
+      "x-trace-id": traceId,
+    });
+
+    const unsampled: Record<string, string> = {};
+    propagator.inject(
+      trace.setSpanContext(context.active(), {
+        spanId,
+        traceFlags: TraceFlags.NONE,
+        traceId,
+      }),
+      unsampled,
+      setter
+    );
+    expect(unsampled).toEqual({});
+    expect(propagator.fields()).toEqual(["x-client-trace-id", "x-trace-id"]);
+  });
+
+  it("trace ID 헤더를 traceparent 뒤에 붙인다", async () => {
+    const { context, propagation, trace, TraceFlags } =
+      await import("@opentelemetry/api");
+    const { applyExtraPropagators, traceIdHeaderPropagator } =
+      await import("../script/module/browser/browser-propagation.ts");
+    applyExtraPropagators([traceIdHeaderPropagator(["x-client-trace-id"])]);
+
+    const carrier: Record<string, string> = {};
+    propagation.inject(
+      trace.setSpanContext(context.active(), {
+        spanId,
+        traceFlags: TraceFlags.SAMPLED,
+        traceId,
+      }),
+      carrier
+    );
+    expect(carrier.traceparent).toBe(`00-${traceId}-${spanId}-01`);
+    expect(carrier["x-client-trace-id"]).toBe(traceId);
+  });
+
   it("빈 목록이면 이미 등록된 전역 전파기를 바꾸지 않는다", async () => {
     const { context, propagation, trace, TraceFlags } =
       await import("@opentelemetry/api");
