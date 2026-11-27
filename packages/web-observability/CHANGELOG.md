@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/frograms/bistro-house/compare/@watcha-authentic/web-observability@1.0.0...@watcha-authentic/web-observability@1.1.0) (2026-11-27)
+
+### Bug Fixes
+
+* **web-observability:** 문서 로드·브라우저 API 호출도 SSR·백엔드 trace 에 잇는다 ([a8cb7a5](https://github.com/frograms/bistro-house/commit/a8cb7a5768b4794c4e1a7825c2525e7db2c0f1e0))
+* **web-observability:** 서버가 부르는 내부 요청에 traceparent·x-request-id 를 실어 trace 를 잇는다 ([3d46135](https://github.com/frograms/bistro-house/commit/3d46135d07c2a576be150f7b3dad565ddad511c4))
+* **web-observability:** 추가 전파기를 HyperDX.init 전에 준비한다 ([1737bf4](https://github.com/frograms/bistro-house/commit/1737bf4db1a73a3a0fc4135c68da6314eb5f1e0e))
+
+### Features
+
+* **web-observability:** 메시 전용 trace 헤더를 앱이 넣도록 분리한다 ([2a0ced9](https://github.com/frograms/bistro-house/commit/2a0ced9ec9c37a6224d3629e1de1747fe360284b))
+* **web-observability:** 샘플된 브라우저 요청에 trace ID 헤더를 싣는 옵션을 추가한다 ([06155ab](https://github.com/frograms/bistro-house/commit/06155ab9bfe5ea5815799a41f4e74977fcb8e1b7))
+
 # 1.0.0 (2026-11-24)
 
 ### Bug Fixes
